@@ -77,15 +77,18 @@ export function useTeacherGroups(telegramId) {
   )
 }
 
-export async function createGroup(telegramId, { name, subject, color = 'purple' }) {
+export async function createGroup(telegramId, { name, subject }) {
   if (!isSupabaseConfigured) return { success: false }
   const { data: user } = await supabase
     .from('users').select('id').eq('telegram_id', telegramId).single()
   if (!user) return { success: false }
+  
   const { data, error } = await supabase
     .from('groups')
-    .insert({ name, subject, teacher_id: user.id, color })
+    .insert({ name, subject, teacher_id: user.id })
     .select().single()
+    
+  if (error) console.error('[Supabase] createGroup error:', error)
   return { success: !error, data, error }
 }
 
