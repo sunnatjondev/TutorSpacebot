@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { GraduationCap, BookOpen, ArrowRight } from 'lucide-react'
 import { useTelegram } from '../hooks/useTelegram'
 import { useI18n } from '../i18n/index.jsx'
+import { saveUserRole } from '../hooks/useSupabaseData'
 
 export default function RoleSelection() {
   const navigate = useNavigate()
@@ -22,10 +23,13 @@ export default function RoleSelection() {
     if (!selected) return
     haptic?.medium()
     setSaving(true)
-    setTimeout(() => {
-      setSaving(false)
-      navigate(selected === 'teacher' ? '/teacher/home' : '/student/home')
-    }, 300)
+
+    if (user?.id) {
+      await saveUserRole(user.id, selected)
+    }
+
+    setSaving(false)
+    navigate(selected === 'teacher' ? '/teacher/home' : '/student/home')
   }
 
   return (
