@@ -78,17 +78,31 @@ export function useTeacherGroups(telegramId) {
 }
 
 export async function createGroup(telegramId, { name, subject }) {
-  if (!isSupabaseConfigured) return { success: false }
-  const { data: user } = await supabase
-    .from('users').select('id').eq('telegram_id', telegramId).single()
-  if (!user) return { success: false }
-  
+  if (!isSupabaseConfigured) return { success: false, error: { message: 'Supabase sozlanmagan' } }
+
+  // Find user's internal UUID by telegram_id
+  const { data: userRow, error: findErr } = await supabase
+    .from('users')
+    .select('id')
+    .eq('telegram_id', telegramId)
+    .maybeSingle()
+
+  if (findErr) {
+    console.error('[createGroup] user lookup:', findErr)
+    return { success: false, error: { message: `User lookup: ${findErr.message}` } }
+  }
+  if (!userRow) {
+    console.error('[createGroup] no user for telegram_id:', telegramId)
+    return { success: false, error: { message: `Bazada foydalanuvchi topilmadi. Ilovani qayta oching.` } }
+  }
+
   const { data, error } = await supabase
     .from('groups')
-    .insert({ name, subject, teacher_id: user.id })
-    .select().single()
-    
-  if (error) console.error('[Supabase] createGroup error:', error)
+    .insert({ name, subject, teacher_id: userRow.id })
+    .select()
+    .single()
+
+  if (error) console.error('[createGroup] insert:', error)
   return { success: !error, data, error }
 }
 

@@ -2,33 +2,43 @@ import React, { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 
 export function Modal({ isOpen, onClose, title, children }) {
-  const [keyboardOffset, setKeyboardOffset] = useState(0)
+  const [availableHeight, setAvailableHeight] = useState('90vh')
 
-  // Lock scroll behind modal
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  // Move modal up when keyboard opens (visualViewport API)
   useEffect(() => {
-    if (!isOpen) return
-    const vv = window.visualViewport
-    if (!vv) return
-
-    const update = () => {
-      const offset = window.innerHeight - vv.height - vv.offsetTop
-      setKeyboardOffset(Math.max(0, offset))
+    if (!isOpen) {
+      setAvailableHeight('90vh')
+      return
     }
 
-    vv.addEventListener('resize', update)
-    vv.addEventListener('scroll', update)
+    const tg = window.Telegram?.WebApp
+
+    const update = () => {
+      if (tg && tg.viewportStableHeight && tg.viewportHeight) {
+        // Telegram API: viewportStableHeight = full height, viewportHeight = current (shrinks with keyboard)
+        const h = Math.min(tg.viewportHeight * 0.92, tg.viewportStableHeight * 0.9)
+        setAvailableHeight(`${h}px`)
+      } else if (window.visualViewport) {
+        setAvailableHeight(`${window.visualViewport.height * 0.92}px`)
+      }
+    }
+
+    // Telegram WebApp event
+    tg?.onEvent('viewportChanged', update)
+    // Browser fallback
+    window.visualViewport?.addEventListener('resize', update)
+    window.addEventListener('resize', update)
+
     update()
 
     return () => {
-      vv.removeEventListener('resize', update)
-      vv.removeEventListener('scroll', update)
-      setKeyboardOffset(0)
+      tg?.offEvent('viewportChanged', update)
+      window.visualViewport?.removeEventListener('resize', update)
+      window.removeEventListener('resize', update)
     }
   }, [isOpen])
 
@@ -41,17 +51,18 @@ export function Modal({ isOpen, onClose, title, children }) {
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      {/* Sheet — slides up above keyboard */}
+      {/* Sheet */}
       <div
-        className="relative w-full max-w-[480px] bg-surface-high rounded-t-[28px] border-t border-outline-variant/50 p-6 animate-slide-up"
+        className="relative w-full max-w-[480px] bg-surface-high rounded-t-[28px] border-t border-outline-variant/50 animate-slide-up"
         style={{
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          paddingBottom: `${keyboardOffset + 32}px`,
-          transition: 'padding-bottom 0.15s ease-out',
+          height: availableHeight,
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'height 0.15s ease-out',
         }}
       >
-        <div className="flex items-center justify-between mb-5">
+        {/* Fixed Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
           <h2 className="text-xl font-bold text-on-surface">{title}</h2>
           <button
             onClick={onClose}
@@ -60,7 +71,10 @@ export function Modal({ isOpen, onClose, title, children }) {
             <X size={18} />
           </button>
         </div>
-        {children}
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-6 pb-8">
+          {children}
+        </div>
       </div>
     </div>
   )
