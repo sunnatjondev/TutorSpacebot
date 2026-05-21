@@ -25,19 +25,25 @@ function CreateGroupModal({ onClose, onCreated, telegramId, t, haptic }) {
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const subjects = ['MATEMATIKA', 'FIZIKA', 'KIMYO', 'BIOLOGIYA', 'INGLIZ TILI', 'TARIX', 'ADABIYOT', 'BOSHQA']
 
   const handleCreate = async () => {
     if (!name.trim()) return
     setLoading(true)
+    setError(null)
     haptic?.medium()
     const result = await createGroup(telegramId, { name: name.trim(), subject: subject || 'BOSHQA' })
     setLoading(false)
     if (result.success) {
-      haptic?.success()
+      haptic?.success?.()
       onCreated()
       onClose()
+    } else {
+      console.error('[createGroup] error:', result.error)
+      setError(result.error?.message || 'Xatolik yuz berdi. Qayta urinib ko\'ring.')
+      haptic?.warning?.()
     }
   }
 
@@ -67,6 +73,11 @@ function CreateGroupModal({ onClose, onCreated, telegramId, t, haptic }) {
           ))}
         </div>
       </div>
+      {error && (
+        <div className="rounded-xl bg-error-container/30 border border-error-container px-4 py-3">
+          <p className="text-error text-sm">⚠️ {error}</p>
+        </div>
+      )}
       <button
         className="btn-primary mt-2"
         onClick={handleCreate}
@@ -77,6 +88,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, t, haptic }) {
     </div>
   )
 }
+
 
 export default function TeacherDashboard() {
   const { user, greeting, haptic } = useTelegram()

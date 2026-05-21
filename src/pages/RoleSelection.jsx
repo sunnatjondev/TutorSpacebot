@@ -5,6 +5,9 @@ import { useTelegram } from '../hooks/useTelegram'
 import { useI18n } from '../i18n/index.jsx'
 import { saveUserRole } from '../hooks/useSupabaseData'
 
+const LS_ROLE_KEY = 'ts_user_role'
+const LS_TG_ID_KEY = 'ts_tg_id'
+
 export default function RoleSelection() {
   const navigate = useNavigate()
   const { user, haptic } = useTelegram()
@@ -24,8 +27,15 @@ export default function RoleSelection() {
     haptic?.medium()
     setSaving(true)
 
+    // 1. Save to localStorage FIRST (always works, instant)
     if (user?.id) {
-      await saveUserRole(user.id, selected)
+      localStorage.setItem(LS_ROLE_KEY, selected)
+      localStorage.setItem(LS_TG_ID_KEY, String(user.id))
+    }
+
+    // 2. Also save to Supabase in background (best-effort)
+    if (user?.id) {
+      saveUserRole(user.id, selected).catch(e => console.warn('[Auth] Supabase role save:', e))
     }
 
     setSaving(false)

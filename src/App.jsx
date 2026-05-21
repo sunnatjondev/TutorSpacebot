@@ -23,10 +23,9 @@ import StudentSchedule from './pages/student/StudentSchedule'
 import StudentFinance from './pages/student/StudentFinance'
 import StudentSettings from './pages/student/StudentSettings'
 
-/**
- * Auth gate — checks Supabase for returning user.
- * If Supabase is not configured, always shows role selection.
- */
+const LS_ROLE_KEY = 'ts_user_role'
+const LS_TG_ID_KEY = 'ts_tg_id'
+
 function AuthGate() {
   const { user, ready } = useTelegram()
   const navigate = useNavigate()
@@ -36,30 +35,45 @@ function AuthGate() {
     if (!ready) return
 
     async function checkUser() {
-      if (!isSupabaseConfigured || !user) {
+      // ── Step 1: localStorage — fastest, works offline ──────────────
+      const savedRole = localStorage.getItem(LS_ROLE_KEY)
+      const savedTgId = localStorage.getItem(LS_TG_ID_KEY)
+
+      // If we have a saved role for THIS Telegram user → redirect immediately
+      if (savedRole && savedTgId && user && String(user.id) === savedTgId) {
+        navigate(savedRole === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
         setChecking(false)
+
+        // Still upsert in background to keep Supabase in sync (no await)
+        if (isSupabaseConfigured && user) upsertTelegramUser(user).catch(() => {})
         return
       }
 
-      try {
-        const dbUser = await upsertTelegramUser(user)
-        if (dbUser?.role === 'teacher') {
-          navigate('/teacher/home', { replace: true })
-        } else if (dbUser?.role === 'student') {
-          navigate('/student/home', { replace: true })
+      // ── Step 2: Try Supabase if no local role ───────────────────────
+      if (isSupabaseConfigured && user) {
+        try {
+          const dbUser = await upsertTelegramUser(user)
+          if (dbUser?.role) {
+            // Save to localStorage for next time
+            localStorage.setItem(LS_ROLE_KEY, dbUser.role)
+            localStorage.setItem(LS_TG_ID_KEY, String(user.id))
+            navigate(dbUser.role === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
+            setChecking(false)
+            return
+          }
+        } catch (e) {
+          console.error('[Auth] Supabase check failed:', e)
         }
-        // else: no role yet — stay on role selection
-      } catch (e) {
-        console.error('Auth check failed:', e)
-      } finally {
-        setChecking(false)
       }
+
+      // ── Step 3: No role found → show role selection ─────────────────
+      setChecking(false)
     }
 
     checkUser()
   }, [ready, user])
 
-  if (checking && isSupabaseConfigured) {
+  if (checking) {
     return (
       <div className="min-h-screen bg-surface-lowest flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -79,7 +93,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth gate / Role Selection */}
         <Route path="/" element={<AuthGate />} />
 
         {/* Teacher Routes */}
@@ -98,7 +111,6 @@ export default function App() {
         <Route path="/student/finance" element={<StudentFinance />} />
         <Route path="/student/settings" element={<StudentSettings />} />
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
