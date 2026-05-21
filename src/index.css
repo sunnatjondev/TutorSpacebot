@@ -90,6 +90,11 @@ html, body {
     @apply inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-semibold
            border border-outline-variant bg-surface-container text-on-surface-variant
            transition-all duration-150 cursor-pointer active:scale-95;
+    white-space: nowrap;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
   }
 
   .chip-active {

@@ -1,12 +1,12 @@
-import React from 'react'
-import { Users, CalendarDays, Bell, Plus, CheckCircle2 } from 'lucide-react'
-import { TopBar } from '../../components/layout/TopBar'
+import React, { useState } from 'react'
+import { Users, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
+import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { mockTeacher, mockTodaySessions, mockUnpaidWeek } from '../../data/mockData'
+import { useTeacherDashboard, createGroup } from '../../hooks/useSupabaseData'
 import { useNavigate } from 'react-router-dom'
 
 function StatCard({ icon: Icon, value, label, iconBg }) {
@@ -15,8 +15,65 @@ function StatCard({ icon: Icon, value, label, iconBg }) {
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBg}`}>
         <Icon size={20} className="text-on-surface" />
       </div>
-      <p className="text-2xl font-extrabold text-on-surface">{value}</p>
+      <p className="text-2xl font-extrabold text-on-surface">{value ?? '—'}</p>
       <p className="text-xs text-on-surface-variant font-medium">{label}</p>
+    </div>
+  )
+}
+
+function CreateGroupModal({ onClose, onCreated, telegramId, t, haptic }) {
+  const [name, setName] = useState('')
+  const [subject, setSubject] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const subjects = ['MATEMATIKA', 'FIZIKA', 'KIMYO', 'BIOLOGIYA', 'INGLIZ TILI', 'TARIX', 'ADABIYOT', 'BOSHQA']
+
+  const handleCreate = async () => {
+    if (!name.trim()) return
+    setLoading(true)
+    haptic?.medium()
+    const result = await createGroup(telegramId, { name: name.trim(), subject: subject || 'BOSHQA' })
+    setLoading(false)
+    if (result.success) {
+      haptic?.success()
+      onCreated()
+      onClose()
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Guruh nomi</label>
+        <input
+          className="input-field"
+          placeholder="Masalan: Fizika 101"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          autoFocus
+        />
+      </div>
+      <div>
+        <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Fan</label>
+        <div className="flex flex-wrap gap-2">
+          {subjects.map(s => (
+            <button
+              key={s}
+              onClick={() => { setSubject(s); haptic?.selection() }}
+              className={`chip text-xs ${subject === s ? 'chip-active' : ''}`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button
+        className="btn-primary mt-2"
+        onClick={handleCreate}
+        disabled={!name.trim() || loading}
+      >
+        {loading ? 'Yaratilmoqda...' : '✅ Guruh yaratish'}
+      </button>
     </div>
   )
 }
@@ -25,27 +82,30 @@ export default function TeacherDashboard() {
   const { user, greeting, haptic } = useTelegram()
   const { t } = useI18n()
   const navigate = useNavigate()
+  const [showCreate, setShowCreate] = useState(false)
+
+  const telegramId = user?.id
+  const { data: dash, refetch } = useTeacherDashboard(telegramId)
 
   const today = new Date().toLocaleDateString('uz-UZ', { month: 'long', day: 'numeric' })
+  const firstName = user?.first_name || 'O\'qituvchi'
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
-      <TopBar user={user} />
-
-      <div className="page-wrapper px-4 pt-5">
+      <div className="page-wrapper px-4 pt-6">
         {/* Greeting */}
         <div className="mb-5 animate-slide-down">
           <h1 className="text-2xl font-extrabold text-on-surface">
-            {t('teacherHome.greeting', { greeting, name: mockTeacher.name.split(' ')[0] })}
+            {greeting}, {firstName} 👋
           </h1>
           <p className="text-on-surface-variant text-sm mt-0.5">{t('teacherHome.subtitle')}</p>
         </div>
 
         {/* Stat Cards */}
-        <div className="flex gap-3 mb-6">
-          <StatCard icon={Users} value={mockTeacher.totalStudents} label={t('teacherHome.students')} iconBg="bg-brand/20" />
-          <StatCard icon={Users} value={mockTeacher.totalGroups} label={t('teacherHome.groups')} iconBg="bg-tertiary/20" />
-          <StatCard icon={CalendarDays} value={mockTeacher.todayLessons} label={t('teacherHome.lessons')} iconBg="bg-surface-high" />
+        <div className="flex gap-3 mb-5">
+          <StatCard icon={Users} value={dash?.totalStudents} label={t('teacherHome.students')} iconBg="bg-brand/20" />
+          <StatCard icon={Users} value={dash?.totalGroups} label={t('teacherHome.groups')} iconBg="bg-tertiary/20" />
+          <StatCard icon={CalendarDays} value={dash?.todaySessions?.length ?? 0} label={t('teacherHome.lessons')} iconBg="bg-surface-high" />
         </div>
 
         {/* Today's Sessions */}
@@ -54,75 +114,79 @@ export default function TeacherDashboard() {
             <span className="text-xs font-bold tracking-widest text-on-surface-variant">{t('teacherHome.today')}</span>
             <span className="text-primary text-sm font-semibold">{today}</span>
           </div>
-          <div className="space-y-0">
-            {mockTodaySessions.map((s, i) => (
-              <div key={s.id}>
-                <div className="flex items-center gap-3 py-3">
-                  <Avatar name={s.student} size="md" />
-                  <div className="flex-1">
-                    <p className="font-semibold text-on-surface text-sm">{s.student}</p>
-                    <p className="text-on-surface-variant text-xs">{s.time} • {s.subject}</p>
+          {dash?.todaySessions?.length > 0 ? (
+            <div className="space-y-0">
+              {dash.todaySessions.map((s, i) => (
+                <div key={s.id}>
+                  <div className="flex items-center gap-3 py-3">
+                    <Avatar name={s.group?.name || '?'} size="md" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-on-surface text-sm truncate">{s.group?.name}</p>
+                      <p className="text-on-surface-variant text-xs">
+                        {new Date(s.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })} • {s.group?.subject}
+                      </p>
+                    </div>
+                    <span className={`badge-${s.status === 'done' ? 'paid' : 'debt'} whitespace-nowrap`}>
+                      {s.status === 'done' ? <CheckCircle2 size={10} /> : null}
+                      {s.status === 'done' ? t('common.done') : t('common.upcoming')}
+                    </span>
                   </div>
-                  {s.status === 'paid' ? (
-                    <span className="badge-paid"><CheckCircle2 size={10} /> {t('common.paid')}</span>
-                  ) : (
-                    <span className="badge-debt">{t('common.debt')}</span>
-                  )}
-                  <button
-                    onClick={() => haptic?.light()}
-                    className="w-8 h-8 rounded-full bg-surface-high flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform"
-                  >
-                    <Users size={14} />
-                  </button>
+                  {i < dash.todaySessions.length - 1 && <hr className="divider" />}
                 </div>
-                {i < mockTodaySessions.length - 1 && <hr className="divider" />}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-on-surface-variant text-sm py-4 text-center">Bugun darslar yo'q</p>
+          )}
         </div>
 
         {/* Unpaid This Week */}
-        <div
-          className="rounded-card mb-6 p-4 stagger-item"
-          style={{
-            background: '#1f1f28',
-            border: '1px solid rgba(248,113,113,0.2)',
-            borderLeft: '3px solid #f87171',
-          }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold tracking-widest text-debt-red">
-              {t('teacherHome.unpaidWeek')}
-            </span>
-            <span className="font-bold text-on-surface text-sm">{formatUZS(140_000)}</span>
-          </div>
-          {mockUnpaidWeek.map((u) => (
-            <div key={u.id} className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-surface-high flex items-center justify-center">
-                <Users size={14} className="text-on-surface-variant" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-on-surface text-sm">{u.student}</p>
-                <p className="text-debt-red font-bold text-sm">{formatUZS(u.amount)}</p>
-              </div>
-              <button
-                onClick={() => haptic?.light()}
-                className="btn-ghost text-xs gap-1"
-              >
-                <Bell size={12} /> {t('common.remind')}
-              </button>
+        {dash?.unpaid?.length > 0 && (
+          <div
+            className="rounded-card mb-6 p-4 stagger-item"
+            style={{ background: '#1f1f28', border: '1px solid rgba(248,113,113,0.2)', borderLeft: '3px solid #f87171' }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold tracking-widest text-debt-red">{t('teacherHome.unpaidWeek')}</span>
+              <span className="font-bold text-on-surface text-sm">
+                {formatUZS(dash.unpaid.reduce((s, p) => s + (p.amount || 0), 0))}
+              </span>
             </div>
-          ))}
-        </div>
+            {dash.unpaid.slice(0, 3).map((u, i) => (
+              <div key={i} className="flex items-center gap-3 py-1.5">
+                <Avatar name={`${u.student?.first_name || '?'} ${u.student?.last_name || ''}`} size="sm" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-on-surface text-sm truncate">
+                    {u.student?.first_name} {u.student?.last_name}
+                  </p>
+                  <p className="text-debt-red font-bold text-xs">{formatUZS(u.amount)}</p>
+                </div>
+                <button onClick={() => haptic?.light()} className="btn-ghost text-xs gap-1 shrink-0">
+                  <Bell size={12} /> {t('common.remind')}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* FAB */}
+      {/* FAB — Create Group */}
       <button
         className="fab bottom-[88px] right-4"
-        onClick={() => { haptic?.medium(); navigate('/teacher/groups') }}
+        onClick={() => { haptic?.medium(); setShowCreate(true) }}
       >
         <Plus size={24} className="text-white" />
       </button>
+
+      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Yangi guruh yaratish">
+        <CreateGroupModal
+          telegramId={telegramId}
+          onClose={() => setShowCreate(false)}
+          onCreated={refetch}
+          t={t}
+          haptic={haptic}
+        />
+      </Modal>
 
       <BottomNav role="teacher" />
     </div>

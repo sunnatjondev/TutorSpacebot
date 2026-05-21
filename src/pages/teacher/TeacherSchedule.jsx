@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { CalendarDays, Plus, Play, CheckCircle, Users } from 'lucide-react'
-import { TopBar } from '../../components/layout/TopBar'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
+import { useTeacherSchedule } from '../../hooks/useSupabaseData'
 import { mockSchedule } from '../../data/mockData'
 
 function getDayDates(baseDate = new Date()) {
@@ -23,16 +23,26 @@ export default function TeacherSchedule() {
   const today = new Date()
   const [selectedDay, setSelectedDay] = useState(today.getDay() === 0 ? 6 : today.getDay() - 1)
   const days = getDayDates(today)
-
   const DAY_KEYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
-
   const weekLabel = `${days[0].toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })} – ${days[6].toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })}`
+
+  const weekStart = days[0]
+  const { data: sessions } = useTeacherSchedule(user?.id, weekStart)
+
+  // Filter sessions for selected day, fall back to mock
+  const todayStr = days[selectedDay]?.toDateString()
+  const displaySessions = sessions?.length
+    ? sessions.filter(s => s.scheduled_at && new Date(s.scheduled_at).toDateString() === todayStr)
+    : mockSchedule.filter(s => s.dayOffset === (selectedDay === (today.getDay() === 0 ? 6 : today.getDay() - 1) ? 0 : -1))
+
+  const formatTime = (iso) => {
+    if (!iso) return ''
+    return new Date(iso).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
-      <TopBar user={user} />
-
-      <div className="page-wrapper px-4 pt-5">
+      <div className="page-wrapper px-4 pt-6">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h1 className="text-[28px] font-extrabold text-on-surface">{t('teacherSchedule.title')}</h1>
@@ -50,22 +60,17 @@ export default function TeacherSchedule() {
             const isToday = date.toDateString() === today.toDateString()
             const isSelected = i === selectedDay
             return (
-              <button
-                key={dk}
-                onClick={() => { setSelectedDay(i); haptic?.selection() }}
-                className={`flex flex-col items-center gap-0.5 flex-1 py-1.5 px-1 rounded-2xl transition-all duration-200 ${
+              <button key={dk} onClick={() => { setSelectedDay(i); haptic?.selection() }}
+                className={`flex flex-col items-center gap-0.5 flex-1 py-1.5 px-0.5 rounded-2xl transition-all duration-200 ${
                   isSelected ? 'bg-brand' : isToday ? 'bg-surface-high' : ''
-                }`}
-              >
-                <span className={`text-[10px] font-bold tracking-wide ${isSelected ? 'text-white' : 'text-on-surface-variant'}`}>
+                }`}>
+                <span className={`text-[9px] font-bold tracking-wide ${isSelected ? 'text-white' : 'text-on-surface-variant'}`}>
                   {t(`days.${dk}`)}
                 </span>
-                <span className={`text-base font-bold ${isSelected ? 'text-white' : 'text-on-surface'}`}>
+                <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-on-surface'}`}>
                   {date.getDate()}
                 </span>
-                {isToday && !isSelected && (
-                  <span className="w-1 h-1 rounded-full bg-brand mt-0.5" />
-                )}
+                {isToday && !isSelected && <span className="w-1 h-1 rounded-full bg-brand mt-0.5" />}
               </button>
             )
           })}
@@ -73,68 +78,66 @@ export default function TeacherSchedule() {
 
         {/* Timeline */}
         <div className="space-y-3">
-          {mockSchedule.map((lesson, i) => (
-            <div key={lesson.id} className="flex gap-3 stagger-item" style={{ animationDelay: `${i * 80}ms` }}>
-              <div className="w-14 pt-3 flex-shrink-0">
-                <p className="text-on-surface-variant text-xs font-semibold">{lesson.time}</p>
-              </div>
-              <div
-                className={`flex-1 rounded-card p-4 border transition-all duration-200 ${
-                  lesson.status === 'upcoming'
-                    ? 'bg-surface-container border-brand/30'
-                    : 'bg-surface-container border-outline-variant'
-                }`}
-                style={lesson.status === 'upcoming' ? { boxShadow: '0 0 0 1px rgba(108,99,255,0.2)' } : {}}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <span className={`text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full ${
-                    lesson.status === 'upcoming' ? 'bg-brand/20 text-primary' : 'bg-surface-high text-on-surface-variant'
-                  }`}>
-                    {lesson.subject}
-                  </span>
-                  {lesson.status === 'done' ? (
-                    <CheckCircle size={16} className="text-paid-green" />
-                  ) : (
-                    <span className="flex items-center gap-1 text-[10px] text-on-surface-variant">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      {t('common.upcoming')}
+          {displaySessions.length > 0 ? displaySessions.map((lesson, i) => {
+            const time = lesson.scheduled_at ? formatTime(lesson.scheduled_at) : lesson.time
+            const name = lesson.group?.name || lesson.name || '—'
+            const subject = lesson.group?.subject || lesson.subject || '—'
+            const studentCount = lesson.attendance?.[0]?.count ?? lesson.students ?? 0
+            const duration = lesson.duration_min ? `${lesson.duration_min} min` : lesson.duration
+
+            return (
+              <div key={lesson.id} className="flex gap-3 stagger-item" style={{ animationDelay: `${i * 80}ms` }}>
+                <div className="w-14 pt-3 flex-shrink-0">
+                  <p className="text-on-surface-variant text-xs font-semibold">{time}</p>
+                </div>
+                <div className={`flex-1 rounded-card p-4 border transition-all duration-200 ${
+                  lesson.status !== 'done' ? 'bg-surface-container border-brand/30' : 'bg-surface-container border-outline-variant'
+                }`} style={lesson.status !== 'done' ? { boxShadow: '0 0 0 1px rgba(108,99,255,0.2)' } : {}}>
+                  <div className="flex items-start justify-between mb-2">
+                    <span className={`text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full max-w-[150px] truncate ${
+                      lesson.status !== 'done' ? 'bg-brand/20 text-primary' : 'bg-surface-high text-on-surface-variant'
+                    }`}>{subject}</span>
+                    {lesson.status === 'done'
+                      ? <CheckCircle size={16} className="text-paid-green shrink-0" />
+                      : <span className="flex items-center gap-1 text-[10px] text-on-surface-variant shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                          {t('common.upcoming')}
+                        </span>
+                    }
+                  </div>
+                  <h3 className="font-bold text-on-surface text-base mb-2 truncate">{name}</h3>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-on-surface-variant text-xs">
+                      <Users size={12} /> {studentCount} {t('teacherSchedule.students')} {duration ? `• ${duration}` : ''}
                     </span>
-                  )}
-                </div>
-                <h3 className="font-bold text-on-surface text-base mb-2">{lesson.name}</h3>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-on-surface-variant text-xs">
-                    <Users size={12} /> {lesson.students} {t('teacherSchedule.students')} • {lesson.duration}
-                  </span>
-                  {lesson.status === 'upcoming' && (
-                    <button
-                      onClick={() => haptic?.medium()}
-                      className="w-9 h-9 rounded-full bg-brand flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <Play size={14} className="text-white fill-white" />
-                    </button>
-                  )}
+                    {lesson.status !== 'done' && (
+                      <button onClick={() => haptic?.medium()}
+                        className="w-9 h-9 rounded-full bg-brand flex items-center justify-center active:scale-90 transition-transform shrink-0">
+                        <Play size={14} className="text-white fill-white" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
+            )
+          }) : (
+            <div className="text-center py-10 text-on-surface-variant">
+              <CalendarDays size={32} className="mx-auto mb-3 opacity-40" />
+              <p className="text-sm">Bu kun uchun darslar yo'q</p>
             </div>
-          ))}
+          )}
 
           {/* Add Lesson */}
           <div className="flex gap-3">
-            <div className="w-14 pt-3 flex-shrink-0">
-              <p className="text-on-surface-variant text-xs font-semibold">11:00</p>
-            </div>
-            <button
-              onClick={() => haptic?.light()}
-              className="flex-1 rounded-card p-4 flex flex-col items-center justify-center gap-1 text-on-surface-variant border-2 border-dashed border-outline-variant hover:border-brand/50 transition-colors min-h-[80px]"
-            >
+            <div className="w-14 pt-3 flex-shrink-0"></div>
+            <button onClick={() => haptic?.light()}
+              className="flex-1 rounded-card p-4 flex flex-col items-center justify-center gap-1 text-on-surface-variant border-2 border-dashed border-outline-variant hover:border-brand/50 transition-colors min-h-[80px]">
               <Plus size={20} />
               <span className="text-sm font-medium">{t('teacherSchedule.addLesson')}</span>
             </button>
           </div>
         </div>
       </div>
-
       <BottomNav role="teacher" />
     </div>
   )
