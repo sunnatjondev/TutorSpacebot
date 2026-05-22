@@ -39,13 +39,14 @@ function AuthGate() {
       const savedRole = localStorage.getItem(LS_ROLE_KEY)
       const savedTgId = localStorage.getItem(LS_TG_ID_KEY)
 
-      // If we have a saved role for THIS Telegram user → redirect immediately
+      // If we have a saved role for THIS Telegram user → upsert THEN redirect
       if (savedRole && savedTgId && user && String(user.id) === savedTgId) {
+        // MUST await — ensures user row exists in DB before any page queries it
+        if (isSupabaseConfigured && user) {
+          await upsertTelegramUser(user).catch(e => console.warn('[Auth] upsert:', e))
+        }
         navigate(savedRole === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
         setChecking(false)
-
-        // Still upsert in background to keep Supabase in sync (no await)
-        if (isSupabaseConfigured && user) upsertTelegramUser(user).catch(() => {})
         return
       }
 

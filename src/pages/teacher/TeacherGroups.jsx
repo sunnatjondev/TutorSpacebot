@@ -12,18 +12,27 @@ import { mockGroups } from '../../data/mockData'
 const SUBJECTS = ['MATEMATIKA', 'FIZIKA', 'KIMYO', 'BIOLOGIYA', 'INGLIZ TILI', 'TARIX', 'ADABIYOT', 'BOSHQA']
 const COLORS = ['purple', 'orange', 'teal', 'blue', 'pink', 'green']
 
-function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
+function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('MATEMATIKA')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleCreate = async () => {
     if (!name.trim()) return
     setLoading(true)
+    setError(null)
     haptic?.medium()
-    const result = await createGroup(telegramId, { name: name.trim(), subject })
+    const result = await createGroup(telegramId, { name: name.trim(), subject }, user)
     setLoading(false)
-    if (result.success) { haptic?.success(); onCreated(); onClose() }
+    if (result.success) {
+      haptic?.success?.()
+      onCreated()
+      onClose()
+    } else {
+      setError(result.error?.message || 'Xatolik yuz berdi.')
+      haptic?.warning?.()
+    }
   }
 
   return (
@@ -37,13 +46,22 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
         <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Fan</label>
         <div className="flex flex-wrap gap-2">
           {SUBJECTS.map(s => (
-            <button key={s} onClick={() => { setSubject(s); haptic?.selection() }}
-              className={`chip text-[11px] ${subject === s ? 'chip-active' : ''}`}>
+            <button
+              key={s}
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => { setSubject(s); haptic?.selection() }}
+              className={`chip text-[11px] ${subject === s ? 'chip-active' : ''}`}
+            >
               {s}
             </button>
           ))}
         </div>
       </div>
+      {error && (
+        <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3">
+          <p className="text-red-400 text-sm">⚠️ {error}</p>
+        </div>
+      )}
       <button className="btn-primary" onClick={handleCreate} disabled={!name.trim() || loading}>
         {loading ? 'Yaratilmoqda...' : '+ Guruh yaratish'}
       </button>
@@ -164,7 +182,7 @@ export default function TeacherGroups() {
       </div>
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Yangi guruh">
-        <CreateGroupModal telegramId={telegramId} onClose={() => setShowCreate(false)} onCreated={refetch} haptic={haptic} />
+        <CreateGroupModal telegramId={telegramId} user={user} onClose={() => setShowCreate(false)} onCreated={refetch} haptic={haptic} />
       </Modal>
 
       <BottomNav role="teacher" />
