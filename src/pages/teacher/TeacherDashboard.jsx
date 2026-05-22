@@ -6,7 +6,7 @@ import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { useTeacherDashboard, createGroup } from '../../hooks/useSupabaseData'
+import { useTeacherDashboard, useTeacherGroups, createGroup } from '../../hooks/useSupabaseData'
 import { useNavigate } from 'react-router-dom'
 
 function StatCard({ icon: Icon, value, label, iconBg }) {
@@ -38,7 +38,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, t, haptic }) {
     setLoading(false)
     if (result.success) {
       haptic?.success?.()
-      onCreated()
+      onCreated(result.data)
       onClose()
     } else {
       console.error('[createGroup] error:', result.error)
@@ -99,9 +99,22 @@ export default function TeacherDashboard() {
 
   const telegramId = user?.id
   const { data: dash, refetch } = useTeacherDashboard(telegramId)
+  const { data: groups, refetch: refetchGroups } = useTeacherGroups(telegramId)
 
   const today = new Date().toLocaleDateString('uz-UZ', { month: 'long', day: 'numeric' })
   const firstName = user?.first_name || 'O\'qituvchi'
+  const recentGroups = (groups || []).slice(0, 3)
+
+  const handleGroupCreated = async (group) => {
+    await Promise.all([refetch(), refetchGroups()])
+
+    if (group?.id) {
+      navigate(`/teacher/groups/${group.id}`)
+      return
+    }
+
+    navigate('/teacher/groups')
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
@@ -119,6 +132,48 @@ export default function TeacherDashboard() {
           <StatCard icon={Users} value={dash?.totalStudents} label={t('teacherHome.students')} iconBg="bg-brand/20" />
           <StatCard icon={Users} value={dash?.totalGroups} label={t('teacherHome.groups')} iconBg="bg-tertiary/20" />
           <StatCard icon={CalendarDays} value={dash?.todaySessions?.length ?? 0} label={t('teacherHome.lessons')} iconBg="bg-surface-high" />
+        </div>
+
+        <div className="card mb-4 stagger-item">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold tracking-widest text-on-surface-variant">{t('teacherHome.recentGroups')}</span>
+            <button
+              onClick={() => {
+                haptic?.light()
+                navigate('/teacher/groups')
+              }}
+              className="text-primary text-xs font-semibold"
+            >
+              {t('teacherHome.allGroups')}
+            </button>
+          </div>
+
+          {recentGroups.length > 0 ? (
+            <div className="space-y-0">
+              {recentGroups.map((group, index) => (
+                <button
+                  key={group.id}
+                  className="w-full flex items-center gap-3 py-3 text-left active:scale-[0.99] transition-transform"
+                  onClick={() => {
+                    haptic?.light()
+                    navigate(`/teacher/groups/${group.id}`)
+                  }}
+                >
+                  <Avatar name={group.name} size="md" color={group.color} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-on-surface text-sm truncate">{group.name}</p>
+                    <p className="text-on-surface-variant text-xs truncate">
+                      {group.subject} • {group.group_members?.[0]?.count ?? 0} {t('teacherGroups.students')}
+                    </p>
+                  </div>
+                  <span className="chip text-[11px] shrink-0">{group.paidPercent ?? 0}%</span>
+                  {index < recentGroups.length - 1 && <hr className="divider" />}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-on-surface-variant text-sm py-4 text-center">{t('teacherHome.noGroupsYet')}</p>
+          )}
         </div>
 
         {/* Today's Sessions */}
@@ -196,7 +251,7 @@ export default function TeacherDashboard() {
           telegramId={telegramId}
           user={user}
           onClose={() => setShowCreate(false)}
-          onCreated={refetch}
+          onCreated={handleGroupCreated}
           t={t}
           haptic={haptic}
         />

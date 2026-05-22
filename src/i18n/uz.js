@@ -60,6 +60,9 @@ const uz = {
     today: 'BUGUN',
     unpaidWeek: 'BU HAFTA TO\'LANMAGAN',
     fabTooltip: 'Yangi qo\'shish',
+    recentGroups: 'SO\'NGGI GURUHLAR',
+    allGroups: 'Barchasi',
+    noGroupsYet: 'Hali guruhlar yo\'q',
   },
 
   // Teacher Groups

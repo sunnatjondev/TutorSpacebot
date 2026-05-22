@@ -60,6 +60,9 @@ const ru = {
     today: 'СЕГОДНЯ',
     unpaidWeek: 'НЕ ОПЛАЧЕНО НА ЭТОЙ НЕДЕЛЕ',
     fabTooltip: 'Добавить новое',
+    recentGroups: 'НОВЫЕ ГРУППЫ',
+    allGroups: 'Все',
+    noGroupsYet: 'Групп пока нет',
   },
 
   // Teacher Groups
