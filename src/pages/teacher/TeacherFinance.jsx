@@ -7,28 +7,33 @@ import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { useTeacherPayments, markPaymentPaid } from '../../hooks/useSupabaseData'
-import { mockFinanceStudents } from '../../data/mockData'
 
 function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
   const [method, setMethod] = useState('cash')
   const [amount, setAmount] = useState(student?.amount || 0)
   const [loading, setLoading] = useState(false)
+
   const methods = [
     { key: 'cash', label: t('teacherFinance.cash') },
     { key: 'card', label: t('teacherFinance.card') },
     { key: 'transfer', label: t('teacherFinance.transfer') },
   ]
+
   const name = student?.student
     ? `${student.student.first_name} ${student.student.last_name || ''}`
-    : (student?.name || '?')
-  const group = student?.group?.name || student?.group || '—'
+    : '?'
+  const group = student?.group?.name || '—'
 
   const handleConfirm = async () => {
     setLoading(true)
     haptic?.medium()
     const result = await markPaymentPaid(student.id, method)
     setLoading(false)
-    if (result.success) { haptic?.success(); onPaid(); onClose() }
+    if (result.success) {
+      haptic?.success()
+      onPaid()
+      onClose()
+    }
   }
 
   return (
@@ -49,8 +54,13 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
         <label className="text-sm font-semibold text-on-surface-variant mb-2 block">
           {t('teacherFinance.amountReceived')}
         </label>
-        <input type="number" value={amount} onChange={e => setAmount(e.target.value)}
-          className="input-field" placeholder="0" />
+        <input
+          type="number"
+          value={amount}
+          onChange={(event) => setAmount(event.target.value)}
+          className="input-field"
+          placeholder="0"
+        />
       </div>
 
       <div>
@@ -58,12 +68,18 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
           {t('teacherFinance.method')}
         </label>
         <div className="flex gap-2">
-          {methods.map(m => (
-            <button key={m.key} onClick={() => { setMethod(m.key); haptic?.selection() }}
+          {methods.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => {
+                setMethod(item.key)
+                haptic?.selection()
+              }}
               className={`flex-1 h-11 rounded-full border font-semibold text-sm transition-all duration-200 ${
-                method === m.key ? 'bg-brand border-brand text-white' : 'bg-transparent border-outline-variant text-on-surface'
-              }`}>
-              {m.label}
+                method === item.key ? 'bg-brand border-brand text-white' : 'bg-transparent border-outline-variant text-on-surface'
+              }`}
+            >
+              {item.label}
             </button>
           ))}
         </div>
@@ -84,7 +100,7 @@ export default function TeacherFinance() {
 
   const telegramId = user?.id
   const { data: payments, refetch } = useTeacherPayments(telegramId, activeFilter)
-  const displayPayments = payments?.length ? payments : mockFinanceStudents
+  const displayPayments = payments || []
 
   const filters = [
     { key: 'all', label: t('teacherFinance.filterAll') },
@@ -92,13 +108,19 @@ export default function TeacherFinance() {
     { key: 'unpaid', label: t('teacherFinance.filterUnpaid') },
   ]
 
-  const totalEarned = displayPayments.filter(p => p.status === 'paid').reduce((s, p) => s + (p.amount || 0), 0)
-  const totalUnpaid = displayPayments.filter(p => p.status === 'unpaid').reduce((s, p) => s + (p.amount || 0), 0)
+  const totalEarned = displayPayments
+    .filter((payment) => payment.status === 'paid')
+    .reduce((sum, payment) => sum + (payment.amount || 0), 0)
+  const totalUnpaid = displayPayments
+    .filter((payment) => payment.status === 'unpaid')
+    .reduce((sum, payment) => sum + (payment.amount || 0), 0)
 
-  const getName = (p) => p.student
-    ? `${p.student.first_name} ${p.student.last_name || ''}`.trim()
-    : (p.name || '?')
-  const getGroup = (p) => p.group?.name || p.group || '—'
+  const getName = (payment) =>
+    payment.student
+      ? `${payment.student.first_name} ${payment.student.last_name || ''}`.trim()
+      : '?'
+
+  const getGroup = (payment) => payment.group?.name || '—'
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
@@ -108,7 +130,6 @@ export default function TeacherFinance() {
           <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
         </div>
 
-        {/* Stats */}
         <div className="flex gap-3 mb-5">
           <div className="flex-1 card">
             <div className="flex items-start justify-between mb-2">
@@ -131,58 +152,77 @@ export default function TeacherFinance() {
           </div>
         </div>
 
-        {/* Filters */}
         <div className="chip-row mb-4">
-          {filters.map(f => (
-            <button key={f.key}
-              onClick={() => { setActiveFilter(f.key); haptic?.selection() }}
-              className={`chip whitespace-nowrap ${activeFilter === f.key ? 'chip-active' : ''}`}>
-              {f.label}
+          {filters.map((filter) => (
+            <button
+              key={filter.key}
+              onClick={() => {
+                setActiveFilter(filter.key)
+                haptic?.selection()
+              }}
+              className={`chip whitespace-nowrap ${activeFilter === filter.key ? 'chip-active' : ''}`}
+            >
+              {filter.label}
             </button>
           ))}
         </div>
 
-        {/* Payment list */}
         <div className="space-y-3">
-          {displayPayments.map((p, i) => (
-            <div key={p.id || i} className="card stagger-item" style={{ animationDelay: `${i * 60}ms` }}>
+          {displayPayments.map((payment, index) => (
+            <div key={payment.id || index} className="card stagger-item" style={{ animationDelay: `${index * 60}ms` }}>
               <div className="flex items-center gap-3 mb-3">
-                <Avatar name={getName(p)} size="md" />
+                <Avatar name={getName(payment)} size="md" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-on-surface text-sm truncate">{getName(p)}</p>
-                  <p className="text-on-surface-variant text-xs truncate">👥 {getGroup(p)}</p>
+                  <p className="font-bold text-on-surface text-sm truncate">{getName(payment)}</p>
+                  <p className="text-on-surface-variant text-xs truncate">👥 {getGroup(payment)}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-extrabold text-on-surface text-sm">{formatUZS(p.amount)}</p>
-                  {p.status === 'paid' && <span className="badge-paid text-[10px]">✓ {t('common.paid')}</span>}
-                  {p.status === 'unpaid' && (
+                  <p className="font-extrabold text-on-surface text-sm">{formatUZS(payment.amount)}</p>
+                  {payment.status === 'paid' && <span className="badge-paid text-[10px]">✓ {t('common.paid')}</span>}
+                  {payment.status === 'unpaid' && (
                     <span className="badge-unpaid text-[10px] flex items-center gap-0.5">
                       <XCircle size={10} /> {t('common.unpaid')}
                     </span>
                   )}
-                  {p.status === 'partial' && (
+                  {payment.status === 'partial' && (
                     <span className="badge-partial text-[10px]">{t('common.partial')}</span>
                   )}
                 </div>
               </div>
 
-              {(p.status === 'unpaid' || p.status === 'partial') && (
+              {(payment.status === 'unpaid' || payment.status === 'partial') && (
                 <div className="flex gap-2">
                   <button className="btn-secondary h-10 flex-1 text-sm">{t('common.details')}</button>
-                  <button onClick={() => { haptic?.medium(); setMarkStudent(p) }}
-                    className="btn-primary h-10 flex-1 text-sm">
+                  <button
+                    onClick={() => {
+                      haptic?.medium()
+                      setMarkStudent(payment)
+                    }}
+                    className="btn-primary h-10 flex-1 text-sm"
+                  >
                     ✓ {t('teacherFinance.markPaid')}
                   </button>
                 </div>
               )}
             </div>
           ))}
+
+          {!displayPayments.length && (
+            <div className="card text-center py-10 text-on-surface-variant">
+              Hali to'lovlar yo'q
+            </div>
+          )}
         </div>
       </div>
 
       <Modal isOpen={!!markStudent} onClose={() => setMarkStudent(null)} title={t('teacherFinance.markPayment')}>
-        <MarkPaymentModal student={markStudent} onClose={() => setMarkStudent(null)}
-          onPaid={refetch} t={t} haptic={haptic} />
+        <MarkPaymentModal
+          student={markStudent}
+          onClose={() => setMarkStudent(null)}
+          onPaid={refetch}
+          t={t}
+          haptic={haptic}
+        />
       </Modal>
 
       <BottomNav role="teacher" />

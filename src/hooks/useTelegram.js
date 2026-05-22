@@ -1,31 +1,16 @@
-/**
- * Telegram WebApp hook
- * Works with real Telegram SDK when inside Telegram,
- * and falls back to mock data in browser dev mode.
- */
-
 import { useEffect, useState } from 'react'
 
-const MOCK_USER = {
-  id: 123456789,
-  first_name: 'Alex',
-  last_name: 'Mercer',
-  username: 'alexmercer',
-  photo_url: null,
-  language_code: 'uz',
-}
-
 function getGreeting() {
-  const h = new Date().getHours()
-  if (h < 12) return 'Xayrli tong'
-  if (h < 17) return 'Xayrli kun'
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Xayrli tong'
+  if (hour < 17) return 'Xayrli kun'
   return 'Xayrli kech'
 }
 
 function getGreetingRu() {
-  const h = new Date().getHours()
-  if (h < 12) return 'Доброе утро'
-  if (h < 17) return 'Добрый день'
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Доброе утро'
+  if (hour < 17) return 'Добрый день'
   return 'Добрый вечер'
 }
 
@@ -38,17 +23,14 @@ export function useTelegram() {
     if (tg) {
       tg.ready()
       tg.expand()
-      // Disable closing confirmation
       tg.enableClosingConfirmation?.()
-
-      const tgUser = tg.initDataUnsafe?.user
-      setUser(tgUser || MOCK_USER)
+      setUser(tg.initDataUnsafe?.user || null)
     } else {
-      // Browser dev mode
-      setUser(MOCK_USER)
+      setUser(null)
     }
+
     setReady(true)
-  }, [])
+  }, [tg])
 
   const displayName = user?.first_name || 'User'
 
@@ -94,7 +76,7 @@ export function useTelegram() {
   const openLink = (url) => {
     if (tg) {
       tg.openLink(url)
-    } else {
+    } else if (url) {
       window.open(url, '_blank')
     }
   }
@@ -102,7 +84,7 @@ export function useTelegram() {
   const openTelegramLink = (url) => {
     if (tg) {
       tg.openTelegramLink(url)
-    } else {
+    } else if (url) {
       window.open(url, '_blank')
     }
   }
@@ -126,15 +108,11 @@ export function useTelegram() {
   }
 }
 
-/**
- * Hook to show Telegram back button on sub-pages
- * Automatically shows on mount and hides on unmount
- */
 export function useTelegramBackButton(callback) {
   const { showBackButton, hideBackButton } = useTelegram()
 
   useEffect(() => {
     showBackButton(callback)
     return () => hideBackButton()
-  }, [callback]) // eslint-disable-line
+  }, [callback]) // eslint-disable-line react-hooks/exhaustive-deps
 }

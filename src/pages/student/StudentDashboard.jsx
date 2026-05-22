@@ -5,7 +5,6 @@ import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { useStudentDashboard, useStudentHomework, markHomeworkDone } from '../../hooks/useSupabaseData'
-import { mockStudentUser, mockHomework } from '../../data/mockData'
 
 export default function StudentDashboard() {
   const { user } = useTelegram()
@@ -14,44 +13,40 @@ export default function StudentDashboard() {
   const firstName = user?.first_name || 'Talaba'
 
   const { data: dash } = useStudentDashboard(telegramId)
-  const { data: hwData, refetch: refetchHw } = useStudentHomework(telegramId)
+  const { data: homeworkRows, refetch: refetchHomework } = useStudentHomework(telegramId)
   const [localDone, setLocalDone] = useState({})
 
-  // Prefer real data, fallback to mock
-  const attendance = dash?.attendance ?? mockStudentUser.attendance
-  const balance = dash?.balance ?? mockStudentUser.balance
-  const hwCount = dash?.homeworkCount ?? mockStudentUser.homeworkCount
-  const hwOverdue = dash?.homeworkOverdue ?? mockStudentUser.homeworkOverdue
+  const attendance = dash?.attendance ?? 0
+  const balance = dash?.balance ?? 0
+  const hwCount = dash?.homeworkCount ?? 0
+  const hwOverdue = dash?.homeworkOverdue ?? 0
   const nextLesson = dash?.nextLesson
 
-  // Homework: real or mock
-  const homework = hwData?.length
-    ? hwData.map(sub => ({
-        id: sub.id,
-        subject: sub.homework?.group?.subject || 'BOSHQA',
-        title: sub.homework?.title || '—',
-        due: sub.homework?.due_date
-          ? new Date(sub.homework.due_date).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })
-          : '—',
-        overdue: sub.homework?.due_date && new Date(sub.homework.due_date) < new Date(),
-        done: localDone[sub.id] ?? sub.done,
-        submissionId: sub.id,
-      }))
-    : mockHomework
+  const homework = (homeworkRows || []).map((submission) => ({
+    id: submission.id,
+    subject: submission.homework?.group?.subject || 'BOSHQA',
+    title: submission.homework?.title || '—',
+    due: submission.homework?.due_date
+      ? new Date(submission.homework.due_date).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })
+      : '—',
+    overdue: submission.homework?.due_date && new Date(submission.homework.due_date) < new Date(),
+    done: localDone[submission.id] ?? submission.done,
+    submissionId: submission.id,
+  }))
 
-  const toggleHw = async (id, submissionId) => {
-    const newDone = !homework.find(h => h.id === id)?.done
-    setLocalDone(prev => ({ ...prev, [id]: newDone }))
-    if (submissionId && hwData?.length) {
+  const toggleHomework = async (id, submissionId) => {
+    const newDone = !homework.find((item) => item.id === id)?.done
+    setLocalDone((prev) => ({ ...prev, [id]: newDone }))
+
+    if (submissionId) {
       await markHomeworkDone(submissionId, newDone)
-      refetchHw()
+      refetchHomework()
     }
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6 space-y-4">
-        {/* Greeting */}
         <div className="animate-slide-down">
           <h1 className="text-2xl font-extrabold text-on-surface">
             {t('studentHome.greeting', { name: firstName })} 👋
@@ -59,23 +54,26 @@ export default function StudentDashboard() {
           <p className="text-on-surface-variant text-sm mt-0.5">{t('studentHome.subtitle')}</p>
         </div>
 
-        {/* Next Lesson Hero */}
-        <div className="rounded-card p-5 stagger-item"
-          style={{ background: 'linear-gradient(135deg, #5a52e0 0%, #7c74ff 60%, #a099ff 100%)', boxShadow: '0 8px 32px rgba(108,99,255,0.4)' }}>
+        <div
+          className="rounded-card p-5 stagger-item"
+          style={{ background: 'linear-gradient(135deg, #5a52e0 0%, #7c74ff 60%, #a099ff 100%)', boxShadow: '0 8px 32px rgba(108,99,255,0.4)' }}
+        >
           <div className="flex items-start justify-between mb-3">
             <span className="text-xs font-bold tracking-widest text-white/80 bg-white/15 px-3 py-1 rounded-full">
               {t('studentHome.nextLesson')}
             </span>
-            {nextLesson && (
+            {nextLesson?.scheduled_at && (
               <span className="text-xs font-semibold text-white/90 bg-white/15 px-3 py-1 rounded-full">
                 {new Date(nextLesson.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
           </div>
+
           <h2 className="text-2xl font-extrabold text-white mb-3 leading-tight truncate">
-            {nextLesson?.group?.subject || mockStudentUser.nextLesson.subject}
+            {nextLesson?.group?.subject || "Keyingi dars hali yo'q"}
           </h2>
-          {nextLesson?.group?.teacher && (
+
+          {nextLesson?.group?.teacher ? (
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold text-white shrink-0">
                 {nextLesson.group.teacher.first_name?.[0] || 'T'}
@@ -84,13 +82,11 @@ export default function StudentDashboard() {
                 {nextLesson.group.teacher.first_name} {nextLesson.group.teacher.last_name || ''}
               </p>
             </div>
-          )}
-          {!nextLesson && (
-            <p className="text-white/70 text-sm">{mockStudentUser.nextLesson.teacher} · {mockStudentUser.nextLesson.time}</p>
+          ) : (
+            <p className="text-white/70 text-sm">O'qituvchi va vaqt keyinroq chiqadi</p>
           )}
         </div>
 
-        {/* Stat row */}
         <div className="grid grid-cols-2 gap-3 stagger-item">
           <div className="card">
             <div className="flex items-center justify-between mb-2">
@@ -99,15 +95,26 @@ export default function StudentDashboard() {
               </div>
               <div className="w-10 h-10">
                 <svg viewBox="0 0 36 36">
-                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(108,99,255,0.15)" strokeWidth="4"/>
-                  <circle cx="18" cy="18" r="14" fill="none" stroke="#6C63FF" strokeWidth="4"
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(108,99,255,0.15)" strokeWidth="4" />
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="14"
+                    fill="none"
+                    stroke="#6C63FF"
+                    strokeWidth="4"
                     strokeDasharray={`${attendance * 0.88} 88`}
-                    strokeLinecap="round" transform="rotate(-90 18 18)" />
+                    strokeLinecap="round"
+                    transform="rotate(-90 18 18)"
+                  />
                 </svg>
               </div>
             </div>
             <p className="text-xs text-on-surface-variant font-medium tracking-wide">{t('studentHome.attendance')}</p>
-            <p className="text-2xl font-extrabold text-on-surface">{attendance}<span className="text-sm font-medium text-on-surface-variant">%</span></p>
+            <p className="text-2xl font-extrabold text-on-surface">
+              {attendance}
+              <span className="text-sm font-medium text-on-surface-variant">%</span>
+            </p>
           </div>
 
           <div className="card">
@@ -124,9 +131,10 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        {/* Balance */}
-        <div className="card stagger-item"
-          style={{ background: 'linear-gradient(135deg, #1f1f28, #2a1a1a)', border: '1px solid rgba(248,113,113,0.25)' }}>
+        <div
+          className="card stagger-item"
+          style={{ background: 'linear-gradient(135deg, #1f1f28, #2a1a1a)', border: '1px solid rgba(248,113,113,0.25)' }}
+        >
           <div className="flex items-center justify-between mb-3">
             <div className="w-9 h-9 rounded-xl bg-error-container/20 flex items-center justify-center">
               <Wallet size={18} className="text-error" />
@@ -134,44 +142,51 @@ export default function StudentDashboard() {
             {balance < 0 && <span className="badge-debt text-xs">{t('common.debt').toUpperCase()}</span>}
           </div>
           <p className="text-xs text-on-surface-variant font-medium tracking-wide mb-1">{t('studentHome.balance')}</p>
-          <p className={`text-3xl font-extrabold ${balance < 0 ? 'text-debt-red' : 'text-paid-green'}`}>{formatUZS(balance)}</p>
+          <p className={`text-3xl font-extrabold ${balance < 0 ? 'text-debt-red' : 'text-paid-green'}`}>
+            {formatUZS(balance)}
+          </p>
           {balance < 0 && <p className="text-on-surface-variant text-xs mt-1">{t('studentHome.debtContact')}</p>}
         </div>
 
-        {/* Upcoming Tasks */}
         <div className="stagger-item">
           <div className="section-header">
             <h2 className="section-title">{t('studentHome.upcomingTasks')}</h2>
             <button className="text-primary text-sm font-semibold">{t('common.viewAll')}</button>
           </div>
           <div className="card space-y-0">
-            {homework.slice(0, 4).map((hw, i) => (
-              <div key={hw.id}>
+            {homework.slice(0, 4).map((item, index) => (
+              <div key={item.id}>
                 <div className="flex items-start gap-3 py-3">
-                  <button onClick={() => toggleHw(hw.id, hw.submissionId)} className="mt-0.5 active:scale-90 transition-transform">
-                    {hw.done ? <CheckCircle size={22} className="text-paid-green" /> : <Circle size={22} className="text-outline" />}
+                  <button onClick={() => toggleHomework(item.id, item.submissionId)} className="mt-0.5 active:scale-90 transition-transform">
+                    {item.done ? <CheckCircle size={22} className="text-paid-green" /> : <Circle size={22} className="text-outline" />}
                   </button>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className="text-[10px] font-bold tracking-wide text-on-surface-variant bg-surface-high px-2 py-0.5 rounded-full">
-                        {hw.subject}
+                        {item.subject}
                       </span>
-                      {hw.overdue ? (
+                      {item.overdue ? (
                         <span className="flex items-center gap-0.5 text-[10px] font-bold text-partial-orange">
-                          <AlertTriangle size={10} /> {hw.due}
+                          <AlertTriangle size={10} /> {item.due}
                         </span>
                       ) : (
-                        <span className="text-[10px] text-on-surface-variant">{hw.due}</span>
+                        <span className="text-[10px] text-on-surface-variant">{item.due}</span>
                       )}
                     </div>
-                    <p className={`text-sm font-medium ${hw.done ? 'line-through text-on-surface-variant' : 'text-on-surface'} ${hw.overdue && !hw.done ? 'border border-debt-red/30 rounded-xl px-2 py-1 bg-debt-red/5' : ''}`}>
-                      {hw.title}
+                    <p className={`text-sm font-medium ${item.done ? 'line-through text-on-surface-variant' : 'text-on-surface'} ${item.overdue && !item.done ? 'border border-debt-red/30 rounded-xl px-2 py-1 bg-debt-red/5' : ''}`}>
+                      {item.title}
                     </p>
                   </div>
                 </div>
-                {i < homework.slice(0, 4).length - 1 && <hr className="divider" />}
+                {index < homework.slice(0, 4).length - 1 && <hr className="divider" />}
               </div>
             ))}
+
+            {!homework.length && (
+              <div className="py-8 text-center text-on-surface-variant text-sm">
+                Hozircha topshiriqlar yo'q
+              </div>
+            )}
           </div>
         </div>
       </div>

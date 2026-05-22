@@ -7,10 +7,8 @@ import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { useTeacherGroups, createGroup, deleteGroup } from '../../hooks/useSupabaseData'
-import { mockGroups } from '../../data/mockData'
 
 const SUBJECTS = ['MATEMATIKA', 'FIZIKA', 'KIMYO', 'BIOLOGIYA', 'INGLIZ TILI', 'TARIX', 'ADABIYOT', 'BOSHQA']
-const COLORS = ['purple', 'orange', 'teal', 'blue', 'pink', 'green']
 
 function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
   const [name, setName] = useState('')
@@ -25,41 +23,51 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
     haptic?.medium()
     const result = await createGroup(telegramId, { name: name.trim(), subject }, user)
     setLoading(false)
+
     if (result.success) {
       haptic?.success?.()
       onCreated()
       onClose()
-    } else {
-      setError(result.error?.message || 'Xatolik yuz berdi.')
-      haptic?.warning?.()
+      return
     }
+
+    setError(result.error?.message || 'Xatolik yuz berdi.')
+    haptic?.warning?.()
   }
 
   return (
     <div className="space-y-4">
       <div>
         <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Guruh nomi</label>
-        <input className="input-field" placeholder="Masalan: Fizika 101" value={name}
-          onChange={e => setName(e.target.value)} autoFocus />
+        <input
+          className="input-field"
+          placeholder="Masalan: Fizika 101"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          autoFocus
+        />
       </div>
       <div>
         <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Fan</label>
         <div className="flex flex-wrap gap-2">
-          {SUBJECTS.map(s => (
+          {SUBJECTS.map((item) => (
             <button
-              key={s}
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => { setSubject(s); haptic?.selection() }}
-              className={`chip text-[11px] ${subject === s ? 'chip-active' : ''}`}
+              key={item}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                setSubject(item)
+                haptic?.selection()
+              }}
+              className={`chip text-[11px] ${subject === item ? 'chip-active' : ''}`}
             >
-              {s}
+              {item}
             </button>
           ))}
         </div>
       </div>
       {error && (
         <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3">
-          <p className="text-red-400 text-sm">⚠️ {error}</p>
+          <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
       <button className="btn-primary" onClick={handleCreate} disabled={!name.trim() || loading}>
@@ -78,27 +86,30 @@ export default function TeacherGroups() {
 
   const telegramId = user?.id
   const { data: groups, loading, refetch } = useTeacherGroups(telegramId)
-  const displayGroups = groups?.length ? groups : mockGroups
+  const displayGroups = groups || []
 
-  const handleDelete = async (e, groupId) => {
-    e.stopPropagation()
+  const handleDelete = async (event, groupId) => {
+    event.stopPropagation()
     haptic?.heavy?.()
-    if (!confirm('Bu guruhni o\'chirmoqchimisiz?')) return
+    if (!confirm("Bu guruhni o'chirmoqchimisiz?")) return
+
     setDeletingId(groupId)
     await deleteGroup(groupId)
     setDeletingId(null)
     refetch()
   }
 
-  const getStudentCount = (group) =>
-    group.group_members?.[0]?.count ?? group.students ?? 0
+  const getStudentCount = (group) => group.group_members?.[0]?.count ?? 0
 
   const getNextLesson = (group) => {
-    if (group.sessions?.length) {
-      const next = group.sessions.find(s => s.status === 'upcoming')
-      if (next) return new Date(next.scheduled_at).toLocaleString('uz-UZ', { weekday: 'short', hour: '2-digit', minute: '2-digit' })
-    }
-    return group.nextLesson || '—'
+    const next = group.sessions?.find((session) => session.status === 'upcoming')
+    if (!next?.scheduled_at) return '—'
+
+    return new Date(next.scheduled_at).toLocaleString('uz-UZ', {
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
   }
 
   return (
@@ -109,7 +120,10 @@ export default function TeacherGroups() {
           <button
             className="w-11 h-11 rounded-full flex items-center justify-center text-white shrink-0"
             style={{ background: 'linear-gradient(135deg, #6C63FF, #4f44e2)', boxShadow: '0 4px 16px rgba(108,99,255,0.4)' }}
-            onClick={() => { haptic?.medium(); setShowCreate(true) }}
+            onClick={() => {
+              haptic?.medium()
+              setShowCreate(true)
+            }}
           >
             <Plus size={20} />
           </button>
@@ -120,22 +134,23 @@ export default function TeacherGroups() {
         )}
 
         <div className="space-y-4">
-          {displayGroups.map((group, i) => (
+          {displayGroups.map((group, index) => (
             <button
               key={group.id}
               className="card w-full text-left stagger-item transition-all duration-200 active:scale-[0.98] relative"
-              style={{ animationDelay: `${i * 70}ms`, opacity: deletingId === group.id ? 0.5 : 1 }}
-              onClick={() => { haptic?.light(); navigate(`/teacher/groups/${group.id}`) }}
+              style={{ animationDelay: `${index * 70}ms`, opacity: deletingId === group.id ? 0.5 : 1 }}
+              onClick={() => {
+                haptic?.light()
+                navigate(`/teacher/groups/${group.id}`)
+              }}
             >
-              {/* Delete btn */}
               <button
                 className="absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-high flex items-center justify-center text-debt-red active:scale-90 z-10"
-                onClick={(e) => handleDelete(e, group.id)}
+                onClick={(event) => handleDelete(event, group.id)}
               >
                 <Trash2 size={14} />
               </button>
 
-              {/* Subject + count */}
               <div className="flex items-center gap-2 mb-3 pr-10">
                 <span className="chip chip-active text-[11px] font-bold py-1 px-3 max-w-[120px] truncate">
                   {group.subject}
@@ -147,7 +162,6 @@ export default function TeacherGroups() {
 
               <h2 className="text-xl font-bold text-on-surface mb-3 truncate pr-8">{group.name}</h2>
 
-              {/* Next lesson */}
               <div className="flex items-center gap-3 bg-surface-high rounded-2xl p-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center shrink-0">
                   <CalendarDays size={18} className="text-primary" />
@@ -158,31 +172,41 @@ export default function TeacherGroups() {
                 </div>
               </div>
 
-              {/* Payment progress */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-xs text-on-surface-variant">{t('teacherGroups.paymentProgress')}</span>
-                  <span className="text-xs font-bold text-on-surface">{group.paidPercent ?? 0}{t('teacherGroups.paidPercent')}</span>
+                  <span className="text-xs font-bold text-on-surface">
+                    {group.paidPercent ?? 0}
+                    {t('teacherGroups.paidPercent')}
+                  </span>
                 </div>
                 <ProgressBar value={group.paidPercent ?? 0} />
               </div>
             </button>
           ))}
 
-          {!loading && displayGroups.length === 0 && (
+          {!loading && !displayGroups.length && (
             <div className="text-center py-12">
               <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4">
                 <Users size={28} className="text-primary" />
               </div>
               <p className="text-on-surface-variant">Hali guruhlar yo'q</p>
-              <button className="btn-primary mt-4" onClick={() => setShowCreate(true)}>+ Guruh yaratish</button>
+              <button className="btn-primary mt-4" onClick={() => setShowCreate(true)}>
+                + Guruh yaratish
+              </button>
             </div>
           )}
         </div>
       </div>
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Yangi guruh">
-        <CreateGroupModal telegramId={telegramId} user={user} onClose={() => setShowCreate(false)} onCreated={refetch} haptic={haptic} />
+        <CreateGroupModal
+          telegramId={telegramId}
+          user={user}
+          onClose={() => setShowCreate(false)}
+          onCreated={refetch}
+          haptic={haptic}
+        />
       </Modal>
 
       <BottomNav role="teacher" />

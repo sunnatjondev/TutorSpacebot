@@ -87,6 +87,19 @@ function AuthGate() {
     )
   }
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-surface-lowest flex items-center justify-center px-6">
+        <div className="max-w-sm text-center space-y-3">
+          <h1 className="text-2xl font-extrabold text-on-surface">TutorSpace</h1>
+          <p className="text-on-surface-variant text-sm">
+            Ilovani ishga tushirish uchun TutorSpace mini app'ni Telegram ichida oching.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return <RoleSelection />
 }
 

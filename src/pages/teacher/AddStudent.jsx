@@ -3,24 +3,25 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Upload, Plus } from 'lucide-react'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-
-const groups = ['Fizika 101', 'Calculus Tayyorgarligi', 'Ingliz Adabiyoti']
+import { useTeacherGroups } from '../../hooks/useSupabaseData'
 
 export default function AddStudent() {
   const navigate = useNavigate()
-  const { haptic } = useTelegram()
+  const { user, haptic } = useTelegram()
   const { t } = useI18n()
+  const { data: groups } = useTeacherGroups(user?.id)
 
   useTelegramBackButton(() => navigate(-1))
 
-  const [selectedGroups, setSelectedGroups] = useState(['Fizika 101'])
+  const availableGroups = groups || []
+  const [selectedGroupIds, setSelectedGroupIds] = useState([])
   const [billingDay, setBillingDay] = useState(1)
   const [form, setForm] = useState({ name: '', contact: '', subject: '', rate: '', notes: '' })
 
-  const toggleGroup = (g) => {
+  const toggleGroup = (groupId) => {
     haptic?.selection()
-    setSelectedGroups(prev =>
-      prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]
+    setSelectedGroupIds((prev) =>
+      prev.includes(groupId) ? prev.filter((value) => value !== groupId) : [...prev, groupId]
     )
   }
 
@@ -28,7 +29,10 @@ export default function AddStudent() {
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <header className="flex items-center gap-3 px-4 h-14 border-b border-outline-variant/40 sticky top-0 z-30 bg-surface-lowest/80 backdrop-blur-xl">
         <button
-          onClick={() => { haptic?.light(); navigate(-1) }}
+          onClick={() => {
+            haptic?.light()
+            navigate(-1)
+          }}
           className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center active:scale-90 transition-transform"
         >
           <ArrowLeft size={18} className="text-on-surface" />
@@ -37,7 +41,6 @@ export default function AddStudent() {
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-8 space-y-5">
-        {/* Avatar upload */}
         <div className="flex flex-col items-center gap-2">
           <div className="w-20 h-20 rounded-full bg-brand/20 border-2 border-brand/40 flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
             <span className="text-2xl font-extrabold text-primary">TD</span>
@@ -47,7 +50,6 @@ export default function AddStudent() {
           </span>
         </div>
 
-        {/* Fields */}
         <div className="space-y-3">
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">👤</span>
@@ -55,7 +57,7 @@ export default function AddStudent() {
               className="input-field pl-10"
               placeholder={t('addStudent.fullName')}
               value={form.name}
-              onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
             />
           </div>
           <div className="relative">
@@ -64,7 +66,7 @@ export default function AddStudent() {
               className="input-field pl-10"
               placeholder={t('addStudent.contact')}
               value={form.contact}
-              onChange={e => setForm(p => ({ ...p, contact: e.target.value }))}
+              onChange={(event) => setForm((prev) => ({ ...prev, contact: event.target.value }))}
             />
           </div>
           <div className="relative">
@@ -73,31 +75,32 @@ export default function AddStudent() {
               className="input-field pl-10"
               placeholder={t('addStudent.subject')}
               value={form.subject}
-              onChange={e => setForm(p => ({ ...p, subject: e.target.value }))}
+              onChange={(event) => setForm((prev) => ({ ...prev, subject: event.target.value }))}
             />
           </div>
         </div>
 
-        {/* Assign to Group */}
         <div>
           <p className="font-semibold text-on-surface mb-3">{t('addStudent.assignGroup')}</p>
           <div className="chip-row flex-wrap gap-2">
-            {groups.map(g => (
+            {availableGroups.map((group) => (
               <button
-                key={g}
-                onClick={() => toggleGroup(g)}
-                className={`chip ${selectedGroups.includes(g) ? 'chip-active' : ''}`}
+                key={group.id}
+                onClick={() => toggleGroup(group.id)}
+                className={`chip ${selectedGroupIds.includes(group.id) ? 'chip-active' : ''}`}
               >
-                {g}
+                {group.name}
               </button>
             ))}
             <button className="chip" onClick={() => haptic?.light()}>
               <Plus size={12} />
             </button>
           </div>
+          {!availableGroups.length && (
+            <p className="text-on-surface-variant text-xs mt-2">Avval kamida bitta guruh yarating</p>
+          )}
         </div>
 
-        {/* Monthly Rate */}
         <div>
           <p className="font-semibold text-on-surface mb-2">{t('addStudent.monthlyRate')}</p>
           <div className="relative">
@@ -107,32 +110,33 @@ export default function AddStudent() {
               className="input-field pr-14"
               placeholder="200 000"
               value={form.rate}
-              onChange={e => setForm(p => ({ ...p, rate: e.target.value }))}
+              onChange={(event) => setForm((prev) => ({ ...prev, rate: event.target.value }))}
             />
           </div>
         </div>
 
-        {/* Billing Day */}
         <div>
           <p className="font-semibold text-on-surface mb-3">{t('addStudent.billingDay')}</p>
           <div className="card grid grid-cols-7 gap-1 p-3">
-            {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+            {Array.from({ length: 31 }, (_, index) => index + 1).map((day) => (
               <button
-                key={d}
-                onClick={() => { setBillingDay(d); haptic?.selection() }}
+                key={day}
+                onClick={() => {
+                  setBillingDay(day)
+                  haptic?.selection()
+                }}
                 className={`h-9 w-full rounded-xl text-sm font-semibold transition-all duration-150 ${
-                  billingDay === d
+                  billingDay === day
                     ? 'bg-brand text-white'
                     : 'text-on-surface-variant hover:bg-surface-high active:scale-90'
                 }`}
               >
-                {d}
+                {day}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Notes */}
         <div>
           <p className="font-semibold text-on-surface mb-2">{t('addStudent.notes')}</p>
           <textarea
@@ -140,16 +144,18 @@ export default function AddStudent() {
             placeholder={t('addStudent.notesPlaceholder')}
             rows={3}
             value={form.notes}
-            onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
+            onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
           />
         </div>
       </div>
 
-      {/* Submit */}
       <div className="px-4 pb-6 pt-2 border-t border-outline-variant/40">
         <button
           className="btn-primary"
-          onClick={() => { haptic?.success(); navigate(-1) }}
+          onClick={() => {
+            haptic?.success()
+            navigate(-1)
+          }}
         >
           👤 {t('addStudent.submit')}
         </button>
