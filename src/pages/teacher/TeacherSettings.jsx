@@ -12,7 +12,6 @@ export default function TeacherSettings() {
   const navigate = useNavigate()
   const [lessonReminders, setLessonReminders] = useState(true)
   const [paymentAlerts, setPaymentAlerts] = useState(true)
-  const [coTeachers, setCoTeachers] = useState([])
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'O\'qituvchi'
   const langLabels = { uz: 'UZ', ru: 'RU' }
@@ -58,24 +57,7 @@ export default function TeacherSettings() {
           </button>
         </div>
 
-        {/* Co-teachers */}
-        <div className="card space-y-3">
-          <p className="font-bold text-on-surface">{t('teacherSettings.coTeachers')}</p>
-          {coTeachers.map((tt, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <Avatar name={tt.name} size="sm" />
-              <p className="flex-1 text-on-surface text-sm font-medium truncate">{tt.name}</p>
-              <button onClick={() => setCoTeachers(prev => prev.filter((_, j) => j !== i))}
-                className="w-7 h-7 rounded-full bg-surface-high flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform">
-                <X size={14} />
-              </button>
-            </div>
-          ))}
-          {coTeachers.length > 0 && <hr className="divider" />}
-          <button className="w-full flex items-center justify-center gap-2 h-11 rounded-full border border-outline-variant text-on-surface-variant text-sm font-medium active:scale-95 transition-transform">
-            <Plus size={16} /> {t('teacherSettings.addTeacher')}
-          </button>
-        </div>
+
 
         {/* Notifications */}
         <div className="card space-y-4">
