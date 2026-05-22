@@ -80,6 +80,8 @@ const uz = {
     attendance: 'DAVOMAT — BUGUN',
     paymentStatus: "TO'LOV HOLATI",
     addStudent: "Talaba qo'shish",
+    manageStudents: 'Talabalarni boshqarish',
+    hideManageStudents: 'Talabalarni yashirish',
   },
 
   // Teacher Schedule

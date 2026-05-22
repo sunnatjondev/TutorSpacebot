@@ -80,6 +80,8 @@ const ru = {
     attendance: 'ПОСЕЩАЕМОСТЬ — СЕГОДНЯ',
     paymentStatus: 'СТАТУС ОПЛАТЫ',
     addStudent: 'Добавить студента',
+    manageStudents: 'Управлять студентами',
+    hideManageStudents: 'Скрыть управление',
   },
 
   // Teacher Schedule

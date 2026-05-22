@@ -53,6 +53,16 @@ function updateCachedValue(cacheKey, updater) {
   }
 }
 
+function updateMatchingCaches(prefix, updater) {
+  Array.from(queryCache.keys())
+    .filter((cacheKey) => cacheKey.startsWith(prefix))
+    .forEach((cacheKey) => updateCachedValue(cacheKey, updater))
+}
+
+function removeCachedValue(cacheKey) {
+  if (cacheKey) queryCache.delete(cacheKey)
+}
+
 function buildCachedGroup(group) {
   return {
     ...group,
@@ -321,7 +331,25 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
 
 export async function deleteGroup(groupId) {
   if (!isSupabaseConfigured) return { success: false }
+  const cachedDetail = queryCache.get(getGroupDetailCacheKey(groupId))
+  const removedStudents = cachedDetail?.group?.group_members?.[0]?.count || 0
+
   const { error } = await supabase.from('groups').delete().eq('id', groupId)
+
+  if (!error) {
+    updateMatchingCaches('teacher-groups:', (currentGroups = []) => currentGroups.filter((group) => group.id !== groupId))
+    updateMatchingCaches('teacher-dashboard:', (currentDashboard) => {
+      if (!currentDashboard) return currentDashboard
+      return {
+        ...currentDashboard,
+        totalGroups: Math.max((currentDashboard.totalGroups || 0) - 1, 0),
+        totalStudents: Math.max((currentDashboard.totalStudents || 0) - removedStudents, 0),
+        todaySessions: (currentDashboard.todaySessions || []).filter((session) => session.group?.id !== groupId),
+      }
+    })
+    removeCachedValue(getGroupDetailCacheKey(groupId))
+  }
+
   return { success: !error, error }
 }
 
@@ -576,7 +604,76 @@ export async function removeStudentFromGroup(groupId, studentId) {
     .eq('group_id', groupId)
     .eq('student_id', studentId)
 
+  if (!error) {
+    updateMatchingCaches('teacher-groups:', (currentGroups = []) =>
+      currentGroups.map((group) =>
+        group.id === groupId
+          ? {
+              ...group,
+              group_members: [{ count: Math.max((group.group_members?.[0]?.count || 0) - 1, 0) }],
+            }
+          : group
+      )
+    )
+
+    updateMatchingCaches('teacher-dashboard:', (currentDashboard) => {
+      if (!currentDashboard) return currentDashboard
+      return {
+        ...currentDashboard,
+        totalStudents: Math.max((currentDashboard.totalStudents || 0) - 1, 0),
+      }
+    })
+
+    updateCachedValue(getGroupDetailCacheKey(groupId), (currentDetail) => {
+      if (!currentDetail?.group) return currentDetail
+      return {
+        ...currentDetail,
+        group: {
+          ...currentDetail.group,
+          group_members: [{ count: Math.max((currentDetail.group.group_members?.[0]?.count || 0) - 1, 0) }],
+        },
+        students: (currentDetail.students || []).filter((student) => student.id !== studentId),
+      }
+    })
+  }
+
   return { success: !error, error }
+}
+
+export async function updateGroup(groupId, updates) {
+  if (!isSupabaseConfigured || !groupId) return { success: false, error: { message: 'Guruh topilmadi.' } }
+
+  const payload = {}
+  const normalizedName = normalizeOptionalText(updates?.name)
+  const normalizedSubject = normalizeOptionalText(updates?.subject)
+
+  if (normalizedName) payload.name = normalizedName
+  if (normalizedSubject) payload.subject = normalizedSubject
+
+  const { data, error } = await supabase
+    .from('groups')
+    .update(payload)
+    .eq('id', groupId)
+    .select()
+    .single()
+
+  if (!error && data) {
+    updateMatchingCaches('teacher-groups:', (currentGroups = []) =>
+      currentGroups.map((group) => (group.id === groupId ? { ...group, ...data } : group))
+    )
+    updateCachedValue(getGroupDetailCacheKey(groupId), (currentDetail) => {
+      if (!currentDetail?.group) return currentDetail
+      return {
+        ...currentDetail,
+        group: {
+          ...currentDetail.group,
+          ...data,
+        },
+      }
+    })
+  }
+
+  return { success: !error, data, error }
 }
 
 export function useTeacherPayments(telegramId, filter = 'all') {
