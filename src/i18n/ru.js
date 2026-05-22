@@ -1,209 +1,181 @@
 const ru = {
-  // Navigation
-  nav: {
-    home: 'Главная',
-    groups: 'Группы',
-    schedule: 'Расписание',
-    finance: 'Финансы',
-    settings: 'Настройки',
+  "nav": {
+    "home": "\u0413\u043b\u0430\u0432\u043d\u0430\u044f",
+    "groups": "\u0413\u0440\u0443\u043f\u043f\u044b",
+    "schedule": "\u0420\u0430\u0441\u043f\u0438\u0441\u0430\u043d\u0438\u0435",
+    "finance": "\u0424\u0438\u043d\u0430\u043d\u0441\u044b",
+    "settings": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438"
   },
-
-  // Common
-  common: {
-    continue: 'Продолжить',
-    save: 'Сохранить',
-    cancel: 'Отмена',
-    edit: 'Изменить',
-    delete: 'Удалить',
-    add: 'Добавить',
-    close: 'Закрыть',
-    viewAll: 'Все',
-    remind: 'Напомнить',
-    details: 'Детали',
-    confirm: 'Подтвердить',
-    logout: 'Выйти',
-    share: 'Поделиться',
-    upgrade: 'Перейти на Pro',
-    today: 'Сегодня',
-    tomorrow: 'Завтра',
-    yesterday: 'Вчера',
-    paid: 'Оплачено',
-    unpaid: 'Не оплачено',
-    partial: 'Частично',
-    debt: 'Долг',
-    pending: 'Ожидает',
-    attended: 'Присутствовал',
-    upcoming: 'Предстоит',
-    overdue: 'Просрочено',
-    total: 'Итого',
-    loading: 'Загрузка...',
+  "common": {
+    "continue": "\u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c",
+    "save": "\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c",
+    "cancel": "\u041e\u0442\u043c\u0435\u043d\u0430",
+    "edit": "\u0418\u0437\u043c\u0435\u043d\u0438\u0442\u044c",
+    "delete": "\u0423\u0434\u0430\u043b\u0438\u0442\u044c",
+    "add": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c",
+    "close": "\u0417\u0430\u043a\u0440\u044b\u0442\u044c",
+    "viewAll": "\u0412\u0441\u0435",
+    "remind": "\u041d\u0430\u043f\u043e\u043c\u043d\u0438\u0442\u044c",
+    "details": "\u0414\u0435\u0442\u0430\u043b\u0438",
+    "confirm": "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044c",
+    "logout": "\u0412\u044b\u0439\u0442\u0438",
+    "share": "\u041f\u043e\u0434\u0435\u043b\u0438\u0442\u044c\u0441\u044f",
+    "upgrade": "\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u043d\u0430 Pro",
+    "today": "\u0421\u0435\u0433\u043e\u0434\u043d\u044f",
+    "tomorrow": "\u0417\u0430\u0432\u0442\u0440\u0430",
+    "yesterday": "\u0412\u0447\u0435\u0440\u0430",
+    "paid": "\u041e\u043f\u043b\u0430\u0447\u0435\u043d\u043e",
+    "unpaid": "\u041d\u0435 \u043e\u043f\u043b\u0430\u0447\u0435\u043d\u043e",
+    "partial": "\u0427\u0430\u0441\u0442\u0438\u0447\u043d\u043e",
+    "debt": "\u0414\u043e\u043b\u0433",
+    "pending": "\u041e\u0436\u0438\u0434\u0430\u0435\u0442",
+    "attended": "\u041f\u0440\u0438\u0441\u0443\u0442\u0441\u0442\u0432\u043e\u0432\u0430\u043b",
+    "upcoming": "\u041f\u0440\u0435\u0434\u0441\u0442\u043e\u0438\u0442",
+    "overdue": "\u041f\u0440\u043e\u0441\u0440\u043e\u0447\u0435\u043d\u043e",
+    "total": "\u0418\u0442\u043e\u0433\u043e",
+    "loading": "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...",
+    "done": "\u0417\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e"
   },
-
-  // Role Selection
-  role: {
-    greeting: 'Привет, {name}!',
-    question: 'Кто вы?',
-    subtitle: 'Выберите, как вы будете использовать TutorSpace, чтобы настроить опыт.',
-    teacher: 'Преподаватель',
-    teacherDesc: 'Управление группами и студентами',
-    student: 'Студент',
-    studentDesc: 'Отслеживание занятий и оплат',
+  "role": {
+    "greeting": "\u041f\u0440\u0438\u0432\u0435\u0442, {name}!",
+    "question": "\u041a\u0442\u043e \u0432\u044b?",
+    "subtitle": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435, \u043a\u0430\u043a \u0432\u044b \u0431\u0443\u0434\u0435\u0442\u0435 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u044c TutorSpace, \u0447\u0442\u043e\u0431\u044b \u043d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c \u043e\u043f\u044b\u0442.",
+    "teacher": "\u041f\u0440\u0435\u043f\u043e\u0434\u0430\u0432\u0430\u0442\u0435\u043b\u044c",
+    "teacherDesc": "\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0433\u0440\u0443\u043f\u043f\u0430\u043c\u0438 \u0438 \u0441\u0442\u0443\u0434\u0435\u043d\u0442\u0430\u043c\u0438",
+    "student": "\u0421\u0442\u0443\u0434\u0435\u043d\u0442",
+    "studentDesc": "\u041e\u0442\u0441\u043b\u0435\u0436\u0438\u0432\u0430\u043d\u0438\u0435 \u0437\u0430\u043d\u044f\u0442\u0438\u0439 \u0438 \u043e\u043f\u043b\u0430\u0442"
   },
-
-  // Teacher Dashboard
-  teacherHome: {
-    greeting: '{greeting}, {name} 👋',
-    subtitle: 'Ваша сводка на сегодня.',
-    students: 'Студентов',
-    groups: 'Группы',
-    lessons: 'Занятий',
-    today: 'СЕГОДНЯ',
-    unpaidWeek: 'НЕ ОПЛАЧЕНО НА ЭТОЙ НЕДЕЛЕ',
-    fabTooltip: 'Добавить новое',
-    recentGroups: 'НОВЫЕ ГРУППЫ',
-    allGroups: 'Все',
-    noGroupsYet: 'Групп пока нет',
+  "teacherHome": {
+    "greeting": "{greeting}, {name} \ud83d\udc4b",
+    "subtitle": "\u0412\u0430\u0448\u0430 \u0441\u0432\u043e\u0434\u043a\u0430 \u043d\u0430 \u0441\u0435\u0433\u043e\u0434\u043d\u044f.",
+    "students": "\u0421\u0442\u0443\u0434\u0435\u043d\u0442\u043e\u0432",
+    "groups": "\u0413\u0440\u0443\u043f\u043f\u044b",
+    "lessons": "\u0417\u0430\u043d\u044f\u0442\u0438\u0439",
+    "today": "\u0421\u0415\u0413\u041e\u0414\u041d\u042f",
+    "unpaidWeek": "\u041d\u0415 \u041e\u041f\u041b\u0410\u0427\u0415\u041d\u041e \u041d\u0410 \u042d\u0422\u041e\u0419 \u041d\u0415\u0414\u0415\u041b\u0415",
+    "fabTooltip": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u043d\u043e\u0432\u043e\u0435",
+    "recentGroups": "\u041d\u041e\u0412\u042b\u0415 \u0413\u0420\u0423\u041f\u041f\u042b",
+    "allGroups": "\u0412\u0441\u0435",
+    "noGroupsYet": "\u0413\u0440\u0443\u043f\u043f \u043f\u043e\u043a\u0430 \u043d\u0435\u0442"
   },
-
-  // Teacher Groups
-  teacherGroups: {
-    title: 'Группы',
-    nextLesson: 'Следующее занятие',
-    paymentProgress: 'Статус оплаты',
-    students: 'студентов',
-    paidPercent: '% оплачено',
-    createGroup: 'Создать группу',
+  "teacherGroups": {
+    "title": "\u0413\u0440\u0443\u043f\u043f\u044b",
+    "nextLesson": "\u0421\u043b\u0435\u0434\u0443\u044e\u0449\u0435\u0435 \u0437\u0430\u043d\u044f\u0442\u0438\u0435",
+    "paymentProgress": "\u0421\u0442\u0430\u0442\u0443\u0441 \u043e\u043f\u043b\u0430\u0442\u044b",
+    "students": "\u0441\u0442\u0443\u0434\u0435\u043d\u0442\u043e\u0432",
+    "paidPercent": "% \u043e\u043f\u043b\u0430\u0447\u0435\u043d\u043e",
+    "createGroup": "\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0433\u0440\u0443\u043f\u043f\u0443"
   },
-
-  // Group Detail
-  groupDetail: {
-    attendance: 'ПОСЕЩАЕМОСТЬ - СЕГОДНЯ',
-    paymentStatus: 'СТАТУС ОПЛАТЫ',
-    addStudent: 'Добавить студента',
-    manageStudents: 'Управлять студентами',
-    hideManageStudents: 'Скрыть управление',
+  "groupDetail": {
+    "attendance": "\u041f\u041e\u0421\u0415\u0429\u0410\u0415\u041c\u041e\u0421\u0422\u042c - \u0421\u0415\u0413\u041e\u0414\u041d\u042f",
+    "paymentStatus": "\u0421\u0422\u0410\u0422\u0423\u0421 \u041e\u041f\u041b\u0410\u0422\u042b",
+    "addStudent": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0441\u0442\u0443\u0434\u0435\u043d\u0442\u0430",
+    "manageStudents": "\u0423\u043f\u0440\u0430\u0432\u043b\u044f\u0442\u044c \u0441\u0442\u0443\u0434\u0435\u043d\u0442\u0430\u043c\u0438",
+    "hideManageStudents": "\u0421\u043a\u0440\u044b\u0442\u044c \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435"
   },
-
-  // Teacher Schedule
-  teacherSchedule: {
-    title: 'Расписание',
-    addLesson: 'Добавить занятие',
-    students: 'Студентов',
-    noLessons: 'На этот день занятий нет',
-    createTitle: 'Добавить занятие',
-    selectGroup: 'Выберите группу',
-    lessonDate: 'Дата и время занятия',
-    duration: 'Длительность (минуты)',
-    minutes: 'мин',
-    create: 'Создать занятие',
-    creating: 'Создается...',
-    noGroups: 'Сначала создайте группу, потом ее можно будет добавить в расписание.',
-    createGroupFirst: 'Для расписания нужна уже созданная группа.',
-    fillRequired: 'Заполните группу и дату занятия.',
-    createError: 'Не удалось создать занятие.',
+  "teacherSchedule": {
+    "title": "\u0420\u0430\u0441\u043f\u0438\u0441\u0430\u043d\u0438\u0435",
+    "addLesson": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0437\u0430\u043d\u044f\u0442\u0438\u0435",
+    "students": "\u0421\u0442\u0443\u0434\u0435\u043d\u0442\u043e\u0432",
+    "noLessons": "\u041d\u0430 \u044d\u0442\u043e\u0442 \u0434\u0435\u043d\u044c \u0437\u0430\u043d\u044f\u0442\u0438\u0439 \u043d\u0435\u0442",
+    "createTitle": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0437\u0430\u043d\u044f\u0442\u0438\u0435",
+    "selectGroup": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0433\u0440\u0443\u043f\u043f\u0443",
+    "lessonDate": "\u0414\u0430\u0442\u0430 \u0438 \u0432\u0440\u0435\u043c\u044f \u0437\u0430\u043d\u044f\u0442\u0438\u044f",
+    "duration": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c (\u043c\u0438\u043d\u0443\u0442\u044b)",
+    "minutes": "\u043c\u0438\u043d",
+    "create": "\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0437\u0430\u043d\u044f\u0442\u0438\u0435",
+    "creating": "\u0421\u043e\u0437\u0434\u0430\u0435\u0442\u0441\u044f...",
+    "noGroups": "\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0441\u043e\u0437\u0434\u0430\u0439\u0442\u0435 \u0433\u0440\u0443\u043f\u043f\u0443, \u043f\u043e\u0442\u043e\u043c \u0435\u0435 \u043c\u043e\u0436\u043d\u043e \u0431\u0443\u0434\u0435\u0442 \u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0432 \u0440\u0430\u0441\u043f\u0438\u0441\u0430\u043d\u0438\u0435.",
+    "createGroupFirst": "\u0414\u043b\u044f \u0440\u0430\u0441\u043f\u0438\u0441\u0430\u043d\u0438\u044f \u043d\u0443\u0436\u043d\u0430 \u0443\u0436\u0435 \u0441\u043e\u0437\u0434\u0430\u043d\u043d\u0430\u044f \u0433\u0440\u0443\u043f\u043f\u0430.",
+    "fillRequired": "\u0417\u0430\u043f\u043e\u043b\u043d\u0438\u0442\u0435 \u0433\u0440\u0443\u043f\u043f\u0443 \u0438 \u0434\u0430\u0442\u0443 \u0437\u0430\u043d\u044f\u0442\u0438\u044f.",
+    "createError": "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0437\u0430\u043d\u044f\u0442\u0438\u0435."
   },
-
-  // Teacher Finance
-  teacherFinance: {
-    title: 'Финансы',
-    subtitle: 'Отслеживайте доходы и ожидающие оплаты.',
-    earned: 'Заработано в этом месяце',
-    outstanding: 'Задолженность',
-    filterAll: 'Все',
-    filterPaid: 'Оплачено',
-    filterUnpaid: 'Не оплачено',
-    filterWeek: 'На этой неделе',
-    markPaid: 'Отметить как оплачено',
-    markPayment: 'Отметить оплату',
-    amountReceived: 'Полученная сумма',
-    method: 'Способ',
-    cash: 'Наличные',
-    card: 'Карта',
-    transfer: 'Перевод',
-    note: 'Заметка (необязательно)',
-    confirmPayment: 'Подтвердить оплату',
+  "teacherFinance": {
+    "title": "\u0424\u0438\u043d\u0430\u043d\u0441\u044b",
+    "subtitle": "\u041e\u0442\u0441\u043b\u0435\u0436\u0438\u0432\u0430\u0439\u0442\u0435 \u0434\u043e\u0445\u043e\u0434\u044b \u0438 \u043e\u0436\u0438\u0434\u0430\u044e\u0449\u0438\u0435 \u043e\u043f\u043b\u0430\u0442\u044b.",
+    "earned": "\u0417\u0430\u0440\u0430\u0431\u043e\u0442\u0430\u043d\u043e \u0432 \u044d\u0442\u043e\u043c \u043c\u0435\u0441\u044f\u0446\u0435",
+    "outstanding": "\u0417\u0430\u0434\u043e\u043b\u0436\u0435\u043d\u043d\u043e\u0441\u0442\u044c",
+    "filterAll": "\u0412\u0441\u0435",
+    "filterPaid": "\u041e\u043f\u043b\u0430\u0447\u0435\u043d\u043e",
+    "filterUnpaid": "\u041d\u0435 \u043e\u043f\u043b\u0430\u0447\u0435\u043d\u043e",
+    "filterWeek": "\u041d\u0430 \u044d\u0442\u043e\u0439 \u043d\u0435\u0434\u0435\u043b\u0435",
+    "markPaid": "\u041e\u0442\u043c\u0435\u0442\u0438\u0442\u044c \u043a\u0430\u043a \u043e\u043f\u043b\u0430\u0447\u0435\u043d\u043e",
+    "markPayment": "\u041e\u0442\u043c\u0435\u0442\u0438\u0442\u044c \u043e\u043f\u043b\u0430\u0442\u0443",
+    "amountReceived": "\u041f\u043e\u043b\u0443\u0447\u0435\u043d\u043d\u0430\u044f \u0441\u0443\u043c\u043c\u0430",
+    "method": "\u0421\u043f\u043e\u0441\u043e\u0431",
+    "cash": "\u041d\u0430\u043b\u0438\u0447\u043d\u044b\u0435",
+    "card": "\u041a\u0430\u0440\u0442\u0430",
+    "transfer": "\u041f\u0435\u0440\u0435\u0432\u043e\u0434",
+    "note": "\u0417\u0430\u043c\u0435\u0442\u043a\u0430 (\u043d\u0435\u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u044c\u043d\u043e)",
+    "confirmPayment": "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044c \u043e\u043f\u043b\u0430\u0442\u0443"
   },
-
-  // Teacher Settings
-  teacherSettings: {
-    title: 'Настройки',
-    syncedTelegram: 'Синхронизировано с Telegram',
-    currentPlan: 'Текущий план: {plan}',
-    freeTier: 'Бесплатный',
-    coTeachers: 'Соучителя',
-    addTeacher: 'Добавить преподавателя',
-    notifications: 'Уведомления',
-    lessonReminders: 'Напоминания о занятиях',
-    paymentAlerts: 'Оповещения об оплате',
-    language: 'Язык',
-    shareProfile: 'Поделиться ссылкой профиля',
-    logout: 'Выйти',
+  "teacherSettings": {
+    "title": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438",
+    "syncedTelegram": "\u0421\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0441 Telegram",
+    "currentPlan": "\u0422\u0435\u043a\u0443\u0449\u0438\u0439 \u043f\u043b\u0430\u043d: {plan}",
+    "freeTier": "\u0411\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u044b\u0439",
+    "coTeachers": "\u0421\u043e\u0443\u0447\u0438\u0442\u0435\u043b\u044f",
+    "addTeacher": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u043f\u0440\u0435\u043f\u043e\u0434\u0430\u0432\u0430\u0442\u0435\u043b\u044f",
+    "notifications": "\u0423\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u044f",
+    "lessonReminders": "\u041d\u0430\u043f\u043e\u043c\u0438\u043d\u0430\u043d\u0438\u044f \u043e \u0437\u0430\u043d\u044f\u0442\u0438\u044f\u0445",
+    "paymentAlerts": "\u041e\u043f\u043e\u0432\u0435\u0449\u0435\u043d\u0438\u044f \u043e\u0431 \u043e\u043f\u043b\u0430\u0442\u0435",
+    "language": "\u042f\u0437\u044b\u043a",
+    "shareProfile": "\u041f\u043e\u0434\u0435\u043b\u0438\u0442\u044c\u0441\u044f \u0441\u0441\u044b\u043b\u043a\u043e\u0439 \u043f\u0440\u043e\u0444\u0438\u043b\u044f",
+    "logout": "\u0412\u044b\u0439\u0442\u0438"
   },
-
-  // Student Dashboard
-  studentHome: {
-    greeting: 'Привет, {name} 👋',
-    subtitle: 'Готовы к сегодняшним занятиям?',
-    nextLesson: 'СЛЕДУЮЩЕЕ ЗАНЯТИЕ',
-    attendance: 'ПОСЕЩАЕМОСТЬ',
-    homework: 'ДОМАШНЕЕ ЗАДАНИЕ',
-    balance: 'БАЛАНС',
-    debtContact: 'Свяжитесь с вашим преподавателем',
-    upcomingTasks: 'Предстоящие задания',
+  "studentHome": {
+    "greeting": "\u041f\u0440\u0438\u0432\u0435\u0442, {name} \ud83d\udc4b",
+    "subtitle": "\u0413\u043e\u0442\u043e\u0432\u044b \u043a \u0441\u0435\u0433\u043e\u0434\u043d\u044f\u0448\u043d\u0438\u043c \u0437\u0430\u043d\u044f\u0442\u0438\u044f\u043c?",
+    "nextLesson": "\u0421\u041b\u0415\u0414\u0423\u042e\u0429\u0415\u0415 \u0417\u0410\u041d\u042f\u0422\u0418\u0415",
+    "attendance": "\u041f\u041e\u0421\u0415\u0429\u0410\u0415\u041c\u041e\u0421\u0422\u042c",
+    "homework": "\u0414\u041e\u041c\u0410\u0428\u041d\u0415\u0415 \u0417\u0410\u0414\u0410\u041d\u0418\u0415",
+    "balance": "\u0411\u0410\u041b\u0410\u041d\u0421",
+    "debtContact": "\u0421\u0432\u044f\u0436\u0438\u0442\u0435\u0441\u044c \u0441 \u0432\u0430\u0448\u0438\u043c \u043f\u0440\u0435\u043f\u043e\u0434\u0430\u0432\u0430\u0442\u0435\u043b\u0435\u043c",
+    "upcomingTasks": "\u041f\u0440\u0435\u0434\u0441\u0442\u043e\u044f\u0449\u0438\u0435 \u0437\u0430\u0434\u0430\u043d\u0438\u044f"
   },
-
-  // Student Groups
-  studentGroups: {
-    title: 'Мои группы',
-    students: 'Активных студентов',
-    nextLesson: 'Следующее занятие',
-    openTelegram: 'Открыть группу Telegram',
-    members: 'Участники',
-    teacher: 'Преподаватель',
+  "studentGroups": {
+    "title": "\u041c\u043e\u0438 \u0433\u0440\u0443\u043f\u043f\u044b",
+    "students": "\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445 \u0441\u0442\u0443\u0434\u0435\u043d\u0442\u043e\u0432",
+    "nextLesson": "\u0421\u043b\u0435\u0434\u0443\u044e\u0449\u0435\u0435 \u0437\u0430\u043d\u044f\u0442\u0438\u0435",
+    "openTelegram": "\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0433\u0440\u0443\u043f\u043f\u0443 Telegram",
+    "members": "\u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u0438",
+    "teacher": "\u041f\u0440\u0435\u043f\u043e\u0434\u0430\u0432\u0430\u0442\u0435\u043b\u044c"
   },
-
-  // Student Schedule
-  studentSchedule: {
-    title: 'Мое расписание',
-    subtitle: 'Управляйте предстоящими занятиями.',
-    hwDue: 'Сдача ДЗ',
-    noClasses: 'В этот день нет занятий',
+  "studentSchedule": {
+    "title": "\u041c\u043e\u0435 \u0440\u0430\u0441\u043f\u0438\u0441\u0430\u043d\u0438\u0435",
+    "subtitle": "\u0423\u043f\u0440\u0430\u0432\u043b\u044f\u0439\u0442\u0435 \u043f\u0440\u0435\u0434\u0441\u0442\u043e\u044f\u0449\u0438\u043c\u0438 \u0437\u0430\u043d\u044f\u0442\u0438\u044f\u043c\u0438.",
+    "hwDue": "\u0421\u0434\u0430\u0447\u0430 \u0414\u0417",
+    "noClasses": "\u0412 \u044d\u0442\u043e\u0442 \u0434\u0435\u043d\u044c \u043d\u0435\u0442 \u0437\u0430\u043d\u044f\u0442\u0438\u0439"
   },
-
-  // Student Finance
-  studentFinance: {
-    title: 'Финансы',
-    outstanding: 'Задолженность',
-    dueDate: 'Срок: {date}',
-    contactTeacher: 'Связаться с преподавателем',
-    paymentHistory: 'История оплат',
+  "studentFinance": {
+    "title": "\u0424\u0438\u043d\u0430\u043d\u0441\u044b",
+    "outstanding": "\u0417\u0430\u0434\u043e\u043b\u0436\u0435\u043d\u043d\u043e\u0441\u0442\u044c",
+    "dueDate": "\u0421\u0440\u043e\u043a: {date}",
+    "contactTeacher": "\u0421\u0432\u044f\u0437\u0430\u0442\u044c\u0441\u044f \u0441 \u043f\u0440\u0435\u043f\u043e\u0434\u0430\u0432\u0430\u0442\u0435\u043b\u0435\u043c",
+    "paymentHistory": "\u0418\u0441\u0442\u043e\u0440\u0438\u044f \u043e\u043f\u043b\u0430\u0442"
   },
-
-  // Add Student
-  addStudent: {
-    title: 'Добавить студента',
-    uploadPhoto: 'Загрузить фото',
-    fullName: 'Полное имя',
-    contact: 'Телефон или Telegram username',
-    subject: 'Предмет',
-    assignGroup: 'Назначить в группу',
-    monthlyRate: 'Ежемесячная оплата',
-    billingDay: 'День ежемесячного расчета',
-    notes: 'Заметки',
-    notesPlaceholder: 'Необязательные заметки о студенте...',
-    submit: 'Добавить студента',
+  "addStudent": {
+    "title": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0441\u0442\u0443\u0434\u0435\u043d\u0442\u0430",
+    "uploadPhoto": "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0444\u043e\u0442\u043e",
+    "fullName": "\u041f\u043e\u043b\u043d\u043e\u0435 \u0438\u043c\u044f",
+    "contact": "\u0422\u0435\u043b\u0435\u0444\u043e\u043d \u0438\u043b\u0438 Telegram username",
+    "subject": "\u041f\u0440\u0435\u0434\u043c\u0435\u0442",
+    "assignGroup": "\u041d\u0430\u0437\u043d\u0430\u0447\u0438\u0442\u044c \u0432 \u0433\u0440\u0443\u043f\u043f\u0443",
+    "monthlyRate": "\u0415\u0436\u0435\u043c\u0435\u0441\u044f\u0447\u043d\u0430\u044f \u043e\u043f\u043b\u0430\u0442\u0430",
+    "billingDay": "\u0414\u0435\u043d\u044c \u0435\u0436\u0435\u043c\u0435\u0441\u044f\u0447\u043d\u043e\u0433\u043e \u0440\u0430\u0441\u0447\u0435\u0442\u0430",
+    "notes": "\u0417\u0430\u043c\u0435\u0442\u043a\u0438",
+    "notesPlaceholder": "\u041d\u0435\u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u0437\u0430\u043c\u0435\u0442\u043a\u0438 \u043e \u0441\u0442\u0443\u0434\u0435\u043d\u0442\u0435...",
+    "submit": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0441\u0442\u0443\u0434\u0435\u043d\u0442\u0430"
   },
-
-  // Days of week
-  days: {
-    MON: 'Пн',
-    TUE: 'Вт',
-    WED: 'Ср',
-    THU: 'Чт',
-    FRI: 'Пт',
-    SAT: 'Сб',
-    SUN: 'Вс',
-  },
+  "days": {
+    "MON": "\u041f\u043d",
+    "TUE": "\u0412\u0442",
+    "WED": "\u0421\u0440",
+    "THU": "\u0427\u0442",
+    "FRI": "\u041f\u0442",
+    "SAT": "\u0421\u0431",
+    "SUN": "\u0412\u0441"
+  }
 }
 
 export default ru

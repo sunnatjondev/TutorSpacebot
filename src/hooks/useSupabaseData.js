@@ -3,6 +3,8 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const queryCache = new Map()
 const cacheListeners = new Map()
+const userRowByTelegramIdCache = new Map()
+const userRowByTelegramIdPromises = new Map()
 
 function subscribeToCache(cacheKey, listener) {
   if (!cacheKey) return () => {}
@@ -67,8 +69,22 @@ function getTeacherDashboardCacheKey(telegramId) {
   return telegramId ? `teacher-dashboard:${telegramId}` : null
 }
 
+function getTeacherScheduleCacheKey(telegramId, weekStart) {
+  return telegramId && weekStart ? `teacher-schedule:${telegramId}:${weekStart}` : null
+}
+
 function getGroupDetailCacheKey(groupId) {
   return groupId ? `group-detail:${groupId}` : null
+}
+
+function getTelegramUserCacheKey(telegramId) {
+  return telegramId ? String(telegramId) : null
+}
+
+function setCachedUserRowByTelegramId(telegramId, userRow) {
+  const cacheKey = getTelegramUserCacheKey(telegramId)
+  if (!cacheKey) return
+  userRowByTelegramIdCache.set(cacheKey, userRow ?? null)
 }
 
 function updateCachedValue(cacheKey, updater) {
@@ -131,14 +147,37 @@ function buildManualStudentPayload({ name, contact }) {
 async function getUserRowByTelegramId(telegramId) {
   if (!isSupabaseConfigured || !telegramId) return null
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, role, first_name, last_name, username, photo_url')
-    .eq('telegram_id', telegramId)
-    .maybeSingle()
+  const cacheKey = getTelegramUserCacheKey(telegramId)
+  if (!cacheKey) return null
 
-  if (error) throw error
-  return data
+  if (userRowByTelegramIdCache.has(cacheKey)) {
+    return userRowByTelegramIdCache.get(cacheKey)
+  }
+
+  if (userRowByTelegramIdPromises.has(cacheKey)) {
+    return userRowByTelegramIdPromises.get(cacheKey)
+  }
+
+  const request = (async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, role, first_name, last_name, username, photo_url')
+      .eq('telegram_id', telegramId)
+      .maybeSingle()
+
+    if (error) throw error
+
+    setCachedUserRowByTelegramId(telegramId, data)
+    return data
+  })()
+
+  userRowByTelegramIdPromises.set(cacheKey, request)
+
+  try {
+    return await request
+  } finally {
+    userRowByTelegramIdPromises.delete(cacheKey)
+  }
 }
 
 async function getUserRowByUsername(username) {
@@ -251,12 +290,20 @@ export async function upsertTelegramUser(tgUser) {
     return null
   }
 
+  setCachedUserRowByTelegramId(tgUser.id, data)
   return data
 }
 
 export async function saveUserRole(telegramId, role) {
   if (!isSupabaseConfigured || !telegramId) return
   await supabase.from('users').update({ role }).eq('telegram_id', telegramId)
+  const cacheKey = getTelegramUserCacheKey(telegramId)
+  if (cacheKey && userRowByTelegramIdCache.has(cacheKey)) {
+    userRowByTelegramIdCache.set(cacheKey, {
+      ...userRowByTelegramIdCache.get(cacheKey),
+      role,
+    })
+  }
 }
 
 export function useTeacherGroups(telegramId) {
@@ -817,7 +864,8 @@ export function useTeacherSchedule(telegramId, weekStart) {
         .order('scheduled_at')
     },
     [],
-    [telegramId, weekStart]
+    [telegramId, weekStart],
+    getTeacherScheduleCacheKey(telegramId, weekStart)
   )
 }
 

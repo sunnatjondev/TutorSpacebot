@@ -181,7 +181,8 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
 export default function TeacherSchedule() {
   const { user, haptic } = useTelegram()
   const { t } = useI18n()
-  const today = new Date()
+  const [baseDate] = useState(() => new Date())
+  const today = baseDate
   const [selectedDay, setSelectedDay] = useState(today.getDay() === 0 ? 6 : today.getDay() - 1)
   const [showCreate, setShowCreate] = useState(false)
   const days = getDayDates(today)
@@ -189,7 +190,8 @@ export default function TeacherSchedule() {
   const weekLabel = `${days[0].toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })} - ${days[6].toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })}`
 
   const weekStart = days[0]
-  const { data: sessions, refetch } = useTeacherSchedule(user?.id, weekStart)
+  const weekStartKey = weekStart.getTime()
+  const { data: sessions, refetch } = useTeacherSchedule(user?.id, weekStartKey)
   const { data: groups } = useTeacherGroups(user?.id)
 
   const selectedDayKey = days[selectedDay]?.toDateString()

@@ -9,9 +9,9 @@ function getGreeting() {
 
 function getGreetingRu() {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Доброе утро'
-  if (hour < 17) return 'Добрый день'
-  return 'Добрый вечер'
+  if (hour < 12) return '\u0414\u043e\u0431\u0440\u043e\u0435 \u0443\u0442\u0440\u043e'
+  if (hour < 17) return '\u0414\u043e\u0431\u0440\u044b\u0439 \u0434\u0435\u043d\u044c'
+  return '\u0414\u043e\u0431\u0440\u044b\u0439 \u0432\u0435\u0447\u0435\u0440'
 }
 
 export function useTelegram() {

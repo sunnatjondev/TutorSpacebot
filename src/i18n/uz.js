@@ -37,6 +37,7 @@ const uz = {
     overdue: 'Muddati o\'tgan',
     total: 'Jami',
     loading: 'Yuklanmoqda...',
+    done: 'Tugadi',
   },
 
   // Role Selection
