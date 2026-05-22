@@ -19,6 +19,15 @@ function buildTelegramUserPayload(tgUser, overrides = {}) {
   }
 }
 
+function generateInviteToken() {
+  const uuid = globalThis.crypto?.randomUUID?.()
+  if (uuid) {
+    return uuid.replace(/-/g, '').slice(0, 12)
+  }
+
+  return Math.random().toString(36).slice(2, 14)
+}
+
 async function getUserRowByTelegramId(telegramId) {
   if (!isSupabaseConfigured || !telegramId) return null
 
@@ -202,7 +211,12 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
 
   const { data, error } = await supabase
     .from('groups')
-    .insert({ name, subject, teacher_id: userRow.id })
+    .insert({
+      name,
+      subject,
+      teacher_id: userRow.id,
+      invite_token: generateInviteToken(),
+    })
     .select()
     .single()
 

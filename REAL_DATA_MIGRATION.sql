@@ -3,17 +3,140 @@
 
 create extension if not exists "uuid-ossp";
 
+create table if not exists public.users (
+  id uuid primary key default uuid_generate_v4(),
+  telegram_id bigint not null,
+  first_name text not null,
+  last_name text,
+  username text,
+  photo_url text,
+  role text check (role in ('teacher', 'student')),
+  language text default 'uz' check (language in ('uz', 'ru')),
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table if not exists public.groups (
+  id uuid primary key default uuid_generate_v4(),
+  teacher_id uuid references public.users(id) on delete cascade,
+  name text not null,
+  subject text not null,
+  invite_token text not null unique,
+  color text default 'purple',
+  price_per_month bigint default 0,
+  billing_day int default 1,
+  telegram_group_link text,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.group_members (
+  id uuid primary key default uuid_generate_v4(),
+  group_id uuid references public.groups(id) on delete cascade,
+  student_id uuid references public.users(id) on delete cascade,
+  joined_at timestamptz default now()
+);
+
+create table if not exists public.sessions (
+  id uuid primary key default uuid_generate_v4(),
+  group_id uuid references public.groups(id) on delete cascade,
+  scheduled_at timestamptz not null,
+  duration_min int default 90,
+  status text default 'upcoming',
+  notes text,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.attendance (
+  id uuid primary key default uuid_generate_v4(),
+  session_id uuid references public.sessions(id) on delete cascade,
+  student_id uuid references public.users(id) on delete cascade,
+  present boolean default false,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.payments (
+  id uuid primary key default uuid_generate_v4(),
+  student_id uuid references public.users(id) on delete cascade,
+  teacher_id uuid references public.users(id) on delete cascade,
+  group_id uuid references public.groups(id) on delete set null,
+  amount bigint not null default 0,
+  status text default 'unpaid',
+  method text,
+  period_year int,
+  period_month int,
+  note text,
+  paid_at timestamptz,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.homework (
+  id uuid primary key default uuid_generate_v4(),
+  group_id uuid references public.groups(id) on delete cascade,
+  title text not null,
+  description text,
+  due_date timestamptz,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.homework_submissions (
+  id uuid primary key default uuid_generate_v4(),
+  homework_id uuid references public.homework(id) on delete cascade,
+  student_id uuid references public.users(id) on delete cascade,
+  status text default 'pending',
+  grade int,
+  submitted_at timestamptz,
+  done boolean default false,
+  done_at timestamptz,
+  created_at timestamptz default now()
+);
+
+alter table public.users
+  add column if not exists id uuid default uuid_generate_v4();
+
+alter table public.users
+  add column if not exists telegram_id bigint;
+
+alter table public.users
+  add column if not exists first_name text;
+
+alter table public.users
+  add column if not exists last_name text;
+
+alter table public.users
+  add column if not exists username text;
+
+alter table public.users
+  add column if not exists photo_url text;
+
+alter table public.users
+  add column if not exists role text;
+
+alter table public.users
+  add column if not exists language text default 'uz';
+
+alter table public.users
+  add column if not exists created_at timestamptz default now();
+
+alter table public.users
+  add column if not exists updated_at timestamptz default now();
+
 alter table public.users
   alter column telegram_id type bigint using telegram_id::bigint;
 
 alter table public.users
   alter column telegram_id set not null;
 
-alter table public.users
-  drop constraint if exists users_telegram_id_key;
+alter table public.groups
+  add column if not exists teacher_id uuid references public.users(id) on delete cascade;
 
-alter table public.users
-  add constraint users_telegram_id_key unique (telegram_id);
+alter table public.groups
+  add column if not exists name text;
+
+alter table public.groups
+  add column if not exists subject text;
+
+alter table public.groups
+  add column if not exists invite_token text;
 
 alter table public.groups
   add column if not exists color text default 'purple';
@@ -27,6 +150,129 @@ alter table public.groups
 alter table public.groups
   add column if not exists telegram_group_link text;
 
+alter table public.groups
+  add column if not exists created_at timestamptz default now();
+
+alter table public.group_members
+  add column if not exists id uuid default uuid_generate_v4();
+
+alter table public.group_members
+  add column if not exists group_id uuid references public.groups(id) on delete cascade;
+
+alter table public.group_members
+  add column if not exists student_id uuid references public.users(id) on delete cascade;
+
+alter table public.group_members
+  add column if not exists joined_at timestamptz default now();
+
+alter table public.sessions
+  add column if not exists id uuid default uuid_generate_v4();
+
+alter table public.sessions
+  add column if not exists group_id uuid references public.groups(id) on delete cascade;
+
+alter table public.sessions
+  add column if not exists scheduled_at timestamptz;
+
+alter table public.sessions
+  add column if not exists duration_min int default 90;
+
+alter table public.sessions
+  add column if not exists status text default 'upcoming';
+
+alter table public.sessions
+  add column if not exists notes text;
+
+alter table public.sessions
+  add column if not exists created_at timestamptz default now();
+
+alter table public.attendance
+  add column if not exists id uuid default uuid_generate_v4();
+
+alter table public.attendance
+  add column if not exists session_id uuid references public.sessions(id) on delete cascade;
+
+alter table public.attendance
+  add column if not exists student_id uuid references public.users(id) on delete cascade;
+
+alter table public.attendance
+  add column if not exists present boolean default false;
+
+alter table public.attendance
+  add column if not exists created_at timestamptz default now();
+
+alter table public.payments
+  add column if not exists id uuid default uuid_generate_v4();
+
+alter table public.payments
+  add column if not exists student_id uuid references public.users(id) on delete cascade;
+
+alter table public.payments
+  add column if not exists teacher_id uuid references public.users(id) on delete cascade;
+
+alter table public.payments
+  add column if not exists group_id uuid references public.groups(id) on delete set null;
+
+alter table public.payments
+  add column if not exists amount bigint default 0;
+
+alter table public.payments
+  add column if not exists status text default 'unpaid';
+
+alter table public.payments
+  add column if not exists method text;
+
+alter table public.payments
+  add column if not exists period_year int;
+
+alter table public.payments
+  add column if not exists period_month int;
+
+alter table public.payments
+  add column if not exists note text;
+
+alter table public.payments
+  add column if not exists paid_at timestamptz;
+
+alter table public.payments
+  add column if not exists created_at timestamptz default now();
+
+alter table public.homework
+  add column if not exists id uuid default uuid_generate_v4();
+
+alter table public.homework
+  add column if not exists group_id uuid references public.groups(id) on delete cascade;
+
+alter table public.homework
+  add column if not exists title text;
+
+alter table public.homework
+  add column if not exists description text;
+
+alter table public.homework
+  add column if not exists due_date timestamptz;
+
+alter table public.homework
+  add column if not exists created_at timestamptz default now();
+
+alter table public.homework_submissions
+  add column if not exists id uuid default uuid_generate_v4();
+
+alter table public.homework_submissions
+  add column if not exists homework_id uuid references public.homework(id) on delete cascade;
+
+alter table public.homework_submissions
+  add column if not exists student_id uuid references public.users(id) on delete cascade;
+
+alter table public.homework_submissions
+  add column if not exists status text default 'pending';
+
+alter table public.homework_submissions
+  add column if not exists grade int;
+
+alter table public.homework_submissions
+  add column if not exists submitted_at timestamptz;
+
 alter table public.homework_submissions
   add column if not exists done boolean default false;
 
@@ -36,11 +282,30 @@ alter table public.homework_submissions
 alter table public.homework_submissions
   add column if not exists created_at timestamptz default now();
 
+alter table public.users
+  drop constraint if exists users_telegram_id_key;
+
+alter table public.users
+  add constraint users_telegram_id_key unique (telegram_id);
+
 alter table public.group_members
   drop constraint if exists group_members_group_id_student_id_key;
 
 alter table public.group_members
   add constraint group_members_group_id_student_id_key unique (group_id, student_id);
+
+update public.groups
+set invite_token = substring(replace(uuid_generate_v4()::text, '-', '') from 1 for 12)
+where invite_token is null or btrim(invite_token) = '';
+
+alter table public.groups
+  alter column invite_token set not null;
+
+alter table public.groups
+  drop constraint if exists groups_invite_token_key;
+
+alter table public.groups
+  add constraint groups_invite_token_key unique (invite_token);
 
 alter table public.attendance
   drop constraint if exists attendance_session_id_student_id_key;
