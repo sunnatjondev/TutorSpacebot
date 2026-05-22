@@ -89,6 +89,18 @@ const uz = {
     title: 'Dars jadvali',
     addLesson: "Dars qo'shish",
     students: 'Talaba',
+    noLessons: "Bu kun uchun darslar yo'q",
+    createTitle: "Dars qo'shish",
+    selectGroup: 'Guruhni tanlang',
+    lessonDate: 'Dars sanasi va vaqti',
+    duration: 'Davomiyligi (daqiqa)',
+    minutes: 'daqiqa',
+    create: 'Darsni yaratish',
+    creating: 'Yaratilmoqda...',
+    noGroups: "Avval guruh yarating, keyin uni jadvalga qo'sha olasiz.",
+    createGroupFirst: "Jadvalga qo'shish uchun mavjud guruh kerak.",
+    fillRequired: "Guruh va sana maydonlarini to'ldiring.",
+    createError: "Darsni yaratib bo'lmadi.",
   },
 
   // Teacher Finance

@@ -77,7 +77,7 @@ const ru = {
 
   // Group Detail
   groupDetail: {
-    attendance: 'ПОСЕЩАЕМОСТЬ — СЕГОДНЯ',
+    attendance: 'ПОСЕЩАЕМОСТЬ - СЕГОДНЯ',
     paymentStatus: 'СТАТУС ОПЛАТЫ',
     addStudent: 'Добавить студента',
     manageStudents: 'Управлять студентами',
@@ -89,6 +89,18 @@ const ru = {
     title: 'Расписание',
     addLesson: 'Добавить занятие',
     students: 'Студентов',
+    noLessons: 'На этот день занятий нет',
+    createTitle: 'Добавить занятие',
+    selectGroup: 'Выберите группу',
+    lessonDate: 'Дата и время занятия',
+    duration: 'Длительность (минуты)',
+    minutes: 'мин',
+    create: 'Создать занятие',
+    creating: 'Создается...',
+    noGroups: 'Сначала создайте группу, потом ее можно будет добавить в расписание.',
+    createGroupFirst: 'Для расписания нужна уже созданная группа.',
+    fillRequired: 'Заполните группу и дату занятия.',
+    createError: 'Не удалось создать занятие.',
   },
 
   // Teacher Finance
@@ -152,7 +164,7 @@ const ru = {
 
   // Student Schedule
   studentSchedule: {
-    title: 'Моё расписание',
+    title: 'Мое расписание',
     subtitle: 'Управляйте предстоящими занятиями.',
     hwDue: 'Сдача ДЗ',
     noClasses: 'В этот день нет занятий',
@@ -176,7 +188,7 @@ const ru = {
     subject: 'Предмет',
     assignGroup: 'Назначить в группу',
     monthlyRate: 'Ежемесячная оплата',
-    billingDay: 'День ежемесячного расчёта',
+    billingDay: 'День ежемесячного расчета',
     notes: 'Заметки',
     notesPlaceholder: 'Необязательные заметки о студенте...',
     submit: 'Добавить студента',
