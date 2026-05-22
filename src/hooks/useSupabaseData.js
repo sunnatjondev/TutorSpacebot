@@ -1,6 +1,24 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
+function normalizeOptionalText(value) {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  return trimmed || null
+}
+
+function buildTelegramUserPayload(tgUser, overrides = {}) {
+  return {
+    telegram_id: overrides.telegram_id ?? tgUser?.id ?? null,
+    first_name: normalizeOptionalText(tgUser?.first_name) || 'Foydalanuvchi',
+    last_name: normalizeOptionalText(tgUser?.last_name),
+    username: normalizeOptionalText(tgUser?.username),
+    photo_url: normalizeOptionalText(tgUser?.photo_url),
+    updated_at: new Date().toISOString(),
+    ...overrides,
+  }
+}
+
 async function getUserRowByTelegramId(telegramId) {
   if (!isSupabaseConfigured || !telegramId) return null
 
@@ -83,19 +101,12 @@ function computePaidPercentByGroup(groups, payments) {
 }
 
 export async function upsertTelegramUser(tgUser) {
-  if (!isSupabaseConfigured || !tgUser) return null
+  if (!isSupabaseConfigured || !tgUser?.id) return null
 
   const { data, error } = await supabase
     .from('users')
     .upsert(
-      {
-        telegram_id: tgUser.id,
-        first_name: tgUser.first_name,
-        last_name: tgUser.last_name || null,
-        username: tgUser.username || null,
-        photo_url: tgUser.photo_url || null,
-        updated_at: new Date().toISOString(),
-      },
+      buildTelegramUserPayload(tgUser),
       { onConflict: 'telegram_id', ignoreDuplicates: false }
     )
     .select()
@@ -148,6 +159,7 @@ export function useTeacherGroups(telegramId) {
 
 export async function createGroup(telegramId, { name, subject }, tgUser = null) {
   if (!isSupabaseConfigured) return { success: false, error: { message: 'Supabase sozlanmagan' } }
+  if (!telegramId) return { success: false, error: { message: 'Telegram foydalanuvchisi aniqlanmadi.' } }
 
   let userRow = null
   let findErr = null
@@ -162,14 +174,10 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
     const { data: newUser, error: createErr } = await supabase
       .from('users')
       .upsert(
-        {
+        buildTelegramUserPayload(tgUser, {
           telegram_id: telegramId,
-          first_name: tgUser?.first_name || 'Foydalanuvchi',
-          last_name: tgUser?.last_name || null,
-          username: tgUser?.username || null,
-          photo_url: tgUser?.photo_url || null,
           role: 'teacher',
-        },
+        }),
         { onConflict: 'telegram_id', ignoreDuplicates: false }
       )
       .select('id')
