@@ -81,19 +81,32 @@ export async function createGroup(telegramId, { name, subject }) {
   if (!isSupabaseConfigured) return { success: false, error: { message: 'Supabase sozlanmagan' } }
 
   // Find user's internal UUID by telegram_id
-  const { data: userRow, error: findErr } = await supabase
+  let { data: userRow, error: findErr } = await supabase
     .from('users')
     .select('id')
     .eq('telegram_id', telegramId)
     .maybeSingle()
+
+  // If user not in DB yet, create them on the fly
+  if (!userRow && !findErr) {
+    const { data: newUser, error: createErr } = await supabase
+      .from('users')
+      .upsert({ telegram_id: telegramId }, { onConflict: 'telegram_id', ignoreDuplicates: false })
+      .select('id')
+      .single()
+    if (createErr) {
+      console.error('[createGroup] auto-create user error:', createErr)
+      return { success: false, error: { message: `Foydalanuvchi yaratib bo'lmadi: ${createErr.message}` } }
+    }
+    userRow = newUser
+  }
 
   if (findErr) {
     console.error('[createGroup] user lookup:', findErr)
     return { success: false, error: { message: `User lookup: ${findErr.message}` } }
   }
   if (!userRow) {
-    console.error('[createGroup] no user for telegram_id:', telegramId)
-    return { success: false, error: { message: `Bazada foydalanuvchi topilmadi. Ilovani qayta oching.` } }
+    return { success: false, error: { message: 'Foydalanuvchi topilmadi.' } }
   }
 
   const { data, error } = await supabase

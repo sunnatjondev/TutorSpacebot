@@ -114,7 +114,7 @@ export default function TeacherSettings() {
         </button>
 
         <button 
-          className="btn-outline w-full bg-error-container/10 border-error-container text-error"
+          className="btn-ghost w-full text-error gap-2 mt-2"
           onClick={() => {
             haptic?.warning()
             localStorage.clear()

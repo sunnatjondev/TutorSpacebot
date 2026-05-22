@@ -65,6 +65,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, t, haptic }) {
           {subjects.map(s => (
             <button
               key={s}
+              onMouseDown={e => e.preventDefault()} // keep keyboard open
               onClick={() => { setSubject(s); haptic?.selection() }}
               className={`chip text-xs ${subject === s ? 'chip-active' : ''}`}
             >
