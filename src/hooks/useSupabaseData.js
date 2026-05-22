@@ -73,6 +73,30 @@ function getTeacherScheduleCacheKey(telegramId, weekStart) {
   return telegramId && weekStart ? `teacher-schedule:${telegramId}:${weekStart}` : null
 }
 
+function getStudentGroupsCacheKey(telegramId) {
+  return telegramId ? `student-groups:${telegramId}` : null
+}
+
+function getStudentHomeworkCacheKey(telegramId) {
+  return telegramId ? `student-homework:${telegramId}` : null
+}
+
+function getStudentPaymentsCacheKey(telegramId) {
+  return telegramId ? `student-payments:${telegramId}` : null
+}
+
+function getStudentAttendanceCacheKey(telegramId) {
+  return telegramId ? `student-attendance:${telegramId}` : null
+}
+
+function getStudentDashboardCacheKey(telegramId) {
+  return telegramId ? `student-dashboard:${telegramId}` : null
+}
+
+function getStudentScheduleCacheKey(telegramId, weekStart) {
+  return telegramId && weekStart ? `student-schedule:${telegramId}:${weekStart}` : null
+}
+
 function getGroupDetailCacheKey(groupId) {
   return groupId ? `group-detail:${groupId}` : null
 }
@@ -903,6 +927,48 @@ export async function saveAttendance(sessionId, studentId, present) {
   return { success: !error, error }
 }
 
+export function useStudentSchedule(telegramId, weekStart) {
+  return useSupabaseQuery(
+    async () => {
+      const user = await getUserRowByTelegramId(telegramId)
+      if (!user) return { data: [] }
+
+      const { data: memberships, error: membershipsError } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('student_id', user.id)
+
+      if (membershipsError) throw membershipsError
+
+      const groupIds = (memberships || []).map((membership) => membership.group_id)
+      if (!groupIds.length) return { data: [] }
+
+      const start = weekStart ? new Date(weekStart) : new Date()
+      const end = new Date(start)
+      end.setDate(end.getDate() + 7)
+
+      return supabase
+        .from('sessions')
+        .select(`
+          id,
+          group_id,
+          scheduled_at,
+          duration_min,
+          status,
+          group:groups(name, subject, teacher:users!groups_teacher_id_fkey(first_name, last_name)),
+          attendance(present, student_id)
+        `)
+        .in('group_id', groupIds)
+        .gte('scheduled_at', start.toISOString())
+        .lt('scheduled_at', end.toISOString())
+        .order('scheduled_at')
+    },
+    [],
+    [telegramId, weekStart],
+    getStudentScheduleCacheKey(telegramId, weekStart)
+  )
+}
+
 export function useStudentGroups(telegramId) {
   return useSupabaseQuery(
     async () => {
@@ -922,7 +988,8 @@ export function useStudentGroups(telegramId) {
         .eq('student_id', user.id)
     },
     [],
-    [telegramId]
+    [telegramId],
+    getStudentGroupsCacheKey(telegramId)
   )
 }
 
@@ -939,7 +1006,8 @@ export function useStudentHomework(telegramId) {
         .order('created_at', { ascending: false })
     },
     [],
-    [telegramId]
+    [telegramId],
+    getStudentHomeworkCacheKey(telegramId)
   )
 }
 
@@ -967,7 +1035,8 @@ export function useStudentPayments(telegramId) {
         .order('created_at', { ascending: false })
     },
     [],
-    [telegramId]
+    [telegramId],
+    getStudentPaymentsCacheKey(telegramId)
   )
 }
 
@@ -990,7 +1059,8 @@ export function useStudentAttendance(telegramId) {
       return { data: total > 0 ? Math.round((present / total) * 100) : 0 }
     },
     0,
-    [telegramId]
+    [telegramId],
+    getStudentAttendanceCacheKey(telegramId)
   )
 }
 
@@ -1119,6 +1189,7 @@ export function useStudentDashboard(telegramId) {
       }
     },
     null,
-    [telegramId]
+    [telegramId],
+    getStudentDashboardCacheKey(telegramId)
   )
 }

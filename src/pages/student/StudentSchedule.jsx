@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { CalendarDays, CheckCircle, BookOpen } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { supabase, isSupabaseConfigured } from '../../lib/supabase'
+import { useStudentSchedule } from '../../hooks/useSupabaseData'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -36,63 +36,9 @@ export default function StudentSchedule() {
   const [baseDate] = useState(() => new Date())
   const today = baseDate
   const [selectedDay, setSelectedDay] = useState(today.getDay() === 0 ? 6 : today.getDay() - 1)
-  const [sessions, setSessions] = useState([])
   const days = getDayDates(today)
-
-  useEffect(() => {
-    if (!isSupabaseConfigured || !user?.id) {
-      setSessions([])
-      return
-    }
-
-    async function load() {
-      const { data: userRow } = await supabase
-        .from('users')
-        .select('id')
-        .eq('telegram_id', user.id)
-        .maybeSingle()
-
-      if (!userRow) {
-        setSessions([])
-        return
-      }
-
-      const weekStart = days[0]
-      const weekEnd = new Date(days[6])
-      weekEnd.setHours(23, 59, 59, 999)
-
-      const { data: memberships } = await supabase
-        .from('group_members')
-        .select('group_id')
-        .eq('student_id', userRow.id)
-
-      const groupIds = (memberships || []).map((membership) => membership.group_id)
-      if (!groupIds.length) {
-        setSessions([])
-        return
-      }
-
-      const { data: sessionRows } = await supabase
-        .from('sessions')
-        .select(`
-          id,
-          group_id,
-          scheduled_at,
-          duration_min,
-          status,
-          group:groups(name, subject, teacher:users!groups_teacher_id_fkey(first_name, last_name)),
-          attendance(present, student_id)
-        `)
-        .in('group_id', groupIds)
-        .gte('scheduled_at', weekStart.toISOString())
-        .lte('scheduled_at', weekEnd.toISOString())
-        .order('scheduled_at')
-
-      setSessions(sessionRows || [])
-    }
-
-    load()
-  }, [baseDate, user?.id])
+  const weekStartKey = days[0].getTime()
+  const { data: sessions } = useStudentSchedule(user?.id, weekStartKey)
 
   const selectedDate = days[selectedDay]
   const selectedDayKey = selectedDate?.toDateString()
@@ -104,12 +50,12 @@ export default function StudentSchedule() {
 
       return {
         id: session.id,
-        subject: session.group?.name || session.group?.subject || '—',
+        subject: session.group?.name || session.group?.subject || '-',
         teacher: session.group?.teacher
           ? `${session.group.teacher.first_name} ${session.group.teacher.last_name || ''}`.trim()
-          : '—',
+          : '-',
         time: new Date(session.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
-        duration: session.duration_min ? `${session.duration_min} min` : '—',
+        duration: session.duration_min ? `${session.duration_min} min` : '-',
         status: attended ? 'attended' : (session.status || 'upcoming'),
         hwDue: false,
       }
@@ -123,7 +69,7 @@ export default function StudentSchedule() {
           <p className="text-on-surface-variant text-sm">{t('studentSchedule.subtitle')}</p>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-4" style={{ scrollbarWidth: 'none' }}>
+        <div className="mb-4 flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
           {DAY_KEYS.map((dayKey, index) => {
             const date = days[index]
             const isToday = date.toDateString() === today.toDateString()
@@ -136,15 +82,15 @@ export default function StudentSchedule() {
                   setSelectedDay(index)
                   haptic?.selection()
                 }}
-                className={`flex-shrink-0 w-16 rounded-[20px] flex flex-col items-center py-3 gap-0.5 transition-all duration-200 ${
+                className={`flex w-16 flex-shrink-0 flex-col items-center gap-0.5 rounded-[20px] py-3 transition-all duration-200 ${
                   isSelected
                     ? 'bg-brand text-white shadow-glow-sm'
-                    : 'bg-surface-container border border-outline-variant text-on-surface-variant'
+                    : 'border border-outline-variant bg-surface-container text-on-surface-variant'
                 }`}
               >
                 <span className="text-[10px] font-bold tracking-wide">{t(`days.${dayKey}`)}</span>
                 <span className="text-xl font-extrabold">{date.getDate()}</span>
-                {isToday && !isSelected && <span className="w-1.5 h-1.5 rounded-full bg-primary mt-0.5" />}
+                {isToday && !isSelected && <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary" />}
               </button>
             )
           })}
@@ -155,35 +101,35 @@ export default function StudentSchedule() {
             daySessions.map((lesson, index) => (
               <div
                 key={lesson.id}
-                className="rounded-card p-4 bg-surface-container stagger-item"
+                className="stagger-item rounded-card bg-surface-container p-4"
                 style={{ ...statusStyle(lesson.status), animationDelay: `${index * 80}ms` }}
               >
-                <div className="flex items-start justify-between mb-1">
-                  <h3 className={`font-bold text-base truncate pr-3 flex-1 ${lesson.status === 'attended' ? 'line-through text-on-surface-variant' : 'text-on-surface'}`}>
+                <div className="mb-1 flex items-start justify-between">
+                  <h3 className={`flex-1 truncate pr-3 text-base font-bold ${lesson.status === 'attended' ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>
                     {lesson.subject}
                   </h3>
-                  <div className="text-right shrink-0">
-                    <p className="text-on-surface text-sm font-bold">{lesson.time}</p>
-                    <p className="text-on-surface-variant text-xs">{lesson.duration}</p>
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm font-bold text-on-surface">{lesson.time}</p>
+                    <p className="text-xs text-on-surface-variant">{lesson.duration}</p>
                   </div>
                 </div>
-                <p className="text-on-surface-variant text-xs mb-3 flex items-center gap-1 truncate">
-                  👤 {lesson.teacher}
+                <p className="mb-3 truncate text-xs text-on-surface-variant">
+                  O'qituvchi: {lesson.teacher}
                 </p>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex flex-wrap gap-2">
                   {lesson.status === 'upcoming' && (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-primary bg-brand/15 px-3 py-1 rounded-full border border-brand/25">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    <span className="flex items-center gap-1 rounded-full border border-brand/25 bg-brand/15 px-3 py-1 text-xs font-semibold text-primary">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
                       {t('common.upcoming')}
                     </span>
                   )}
                   {lesson.status === 'attended' && (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-paid-green bg-paid-green/10 px-3 py-1 rounded-full border border-paid-green/20">
+                    <span className="flex items-center gap-1 rounded-full border border-paid-green/20 bg-paid-green/10 px-3 py-1 text-xs font-semibold text-paid-green">
                       <CheckCircle size={12} /> {t('common.attended')}
                     </span>
                   )}
                   {lesson.hwDue && (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-partial-orange bg-partial-orange/10 px-3 py-1 rounded-full border border-partial-orange/20">
+                    <span className="flex items-center gap-1 rounded-full border border-partial-orange/20 bg-partial-orange/10 px-3 py-1 text-xs font-semibold text-partial-orange">
                       <BookOpen size={12} /> {t('studentSchedule.hwDue')}
                     </span>
                   )}
@@ -191,7 +137,7 @@ export default function StudentSchedule() {
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-on-surface-variant gap-3">
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-on-surface-variant">
               <CalendarDays size={44} className="opacity-25" />
               <p className="text-sm font-medium">{t('studentSchedule.noClasses')}</p>
             </div>

@@ -1,210 +1,181 @@
 const uz = {
-  // Navigation
-  nav: {
-    home: 'Bosh sahifa',
-    groups: 'Guruhlar',
-    schedule: "Dars jadvali",
-    finance: 'Moliya',
-    settings: 'Sozlamalar',
+  "nav": {
+    "home": "Bosh sahifa",
+    "groups": "Guruhlar",
+    "schedule": "Dars jadvali",
+    "finance": "Moliya",
+    "settings": "Sozlamalar"
   },
-
-  // Common
-  common: {
-    continue: 'Davom etish',
-    save: 'Saqlash',
-    cancel: 'Bekor qilish',
-    edit: 'Tahrirlash',
-    delete: "O'chirish",
-    add: "Qo'shish",
-    close: 'Yopish',
-    viewAll: "Barchasini ko'rish",
-    remind: 'Eslatma',
-    details: 'Batafsil',
-    confirm: 'Tasdiqlash',
-    logout: 'Chiqish',
-    share: 'Ulashish',
-    upgrade: 'Pro ga o\'tish',
-    today: 'Bugun',
-    tomorrow: 'Ertaga',
-    yesterday: 'Kecha',
-    paid: "To'langan",
-    unpaid: "To'lanmagan",
-    partial: 'Qisman',
-    debt: 'Qarz',
-    pending: 'Kutilmoqda',
-    attended: 'Qatnashdi',
-    upcoming: 'Kutilayotgan',
-    overdue: 'Muddati o\'tgan',
-    total: 'Jami',
-    loading: 'Yuklanmoqda...',
-    done: 'Tugadi',
+  "common": {
+    "continue": "Davom etish",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "edit": "Tahrirlash",
+    "delete": "O'chirish",
+    "add": "Qo'shish",
+    "close": "Yopish",
+    "viewAll": "Barchasini ko'rish",
+    "remind": "Eslatma",
+    "details": "Batafsil",
+    "confirm": "Tasdiqlash",
+    "logout": "Chiqish",
+    "share": "Ulashish",
+    "upgrade": "Pro ga o'tish",
+    "today": "Bugun",
+    "tomorrow": "Ertaga",
+    "yesterday": "Kecha",
+    "paid": "To'langan",
+    "unpaid": "To'lanmagan",
+    "partial": "Qisman",
+    "debt": "Qarz",
+    "pending": "Kutilmoqda",
+    "attended": "Qatnashdi",
+    "upcoming": "Kutilayotgan",
+    "overdue": "Muddati o'tgan",
+    "total": "Jami",
+    "loading": "Yuklanmoqda...",
+    "done": "Tugadi"
   },
-
-  // Role Selection
-  role: {
-    greeting: 'Salom, {name}!',
-    question: "Rolingiz nima?",
-    subtitle: "TutorSpace'ni qanday ishlatishingizni tanlang va tajribangizni sozlang.",
-    teacher: "O'qituvchi",
-    teacherDesc: 'Guruhlar va talabalarni boshqarish',
-    student: 'Talaba',
-    studentDesc: "Darslar va to'lovlarni kuzatish",
+  "role": {
+    "greeting": "Salom, {name}!",
+    "question": "Rolingiz nima?",
+    "subtitle": "TutorSpace'ni qanday ishlatishingizni tanlang va tajribangizni sozlang.",
+    "teacher": "O'qituvchi",
+    "teacherDesc": "Guruhlar va talabalarni boshqarish",
+    "student": "Talaba",
+    "studentDesc": "Darslar va to'lovlarni kuzatish"
   },
-
-  // Teacher Dashboard
-  teacherHome: {
-    greeting: '{greeting}, {name} 👋',
-    subtitle: "Bugungi xulosangiz.",
-    students: 'Talabalar',
-    groups: 'Guruhlar',
-    lessons: 'Darslar',
-    today: 'BUGUN',
-    unpaidWeek: 'BU HAFTA TO\'LANMAGAN',
-    fabTooltip: 'Yangi qo\'shish',
-    recentGroups: 'SO\'NGGI GURUHLAR',
-    allGroups: 'Barchasi',
-    noGroupsYet: 'Hali guruhlar yo\'q',
+  "teacherHome": {
+    "greeting": "{greeting}, {name}!",
+    "subtitle": "Bugungi xulosangiz.",
+    "students": "Talabalar",
+    "groups": "Guruhlar",
+    "lessons": "Darslar",
+    "today": "BUGUN",
+    "unpaidWeek": "BU HAFTA TO'LANMAGAN",
+    "fabTooltip": "Yangi qo'shish",
+    "recentGroups": "SO'NGGI GURUHLAR",
+    "allGroups": "Barchasi",
+    "noGroupsYet": "Hali guruhlar yo'q"
   },
-
-  // Teacher Groups
-  teacherGroups: {
-    title: 'Guruhlar',
-    nextLesson: 'Keyingi dars',
-    paymentProgress: "To'lov holati",
-    students: 'talaba',
-    paidPercent: '% to\'langan',
-    createGroup: 'Guruh yaratish',
+  "teacherGroups": {
+    "title": "Guruhlar",
+    "nextLesson": "Keyingi dars",
+    "paymentProgress": "To'lov holati",
+    "students": "talaba",
+    "paidPercent": "% to'langan",
+    "createGroup": "Guruh yaratish"
   },
-
-  // Group Detail
-  groupDetail: {
-    attendance: 'DAVOMAT — BUGUN',
-    paymentStatus: "TO'LOV HOLATI",
-    addStudent: "Talaba qo'shish",
-    manageStudents: 'Talabalarni boshqarish',
-    hideManageStudents: 'Talabalarni yashirish',
+  "groupDetail": {
+    "attendance": "DAVOMAT - BUGUN",
+    "paymentStatus": "TO'LOV HOLATI",
+    "addStudent": "Talaba qo'shish",
+    "manageStudents": "Talabalarni boshqarish",
+    "hideManageStudents": "Talabalarni yashirish"
   },
-
-  // Teacher Schedule
-  teacherSchedule: {
-    title: 'Dars jadvali',
-    addLesson: "Dars qo'shish",
-    students: 'Talaba',
-    noLessons: "Bu kun uchun darslar yo'q",
-    createTitle: "Dars qo'shish",
-    selectGroup: 'Guruhni tanlang',
-    lessonDate: 'Dars sanasi va vaqti',
-    duration: 'Davomiyligi (daqiqa)',
-    minutes: 'daqiqa',
-    create: 'Darsni yaratish',
-    creating: 'Yaratilmoqda...',
-    noGroups: "Avval guruh yarating, keyin uni jadvalga qo'sha olasiz.",
-    createGroupFirst: "Jadvalga qo'shish uchun mavjud guruh kerak.",
-    fillRequired: "Guruh va sana maydonlarini to'ldiring.",
-    createError: "Darsni yaratib bo'lmadi.",
+  "teacherSchedule": {
+    "title": "Dars jadvali",
+    "addLesson": "Dars qo'shish",
+    "students": "Talaba",
+    "noLessons": "Bu kun uchun darslar yo'q",
+    "createTitle": "Dars qo'shish",
+    "selectGroup": "Guruhni tanlang",
+    "lessonDate": "Dars sanasi va vaqti",
+    "duration": "Davomiyligi (daqiqa)",
+    "minutes": "daqiqa",
+    "create": "Darsni yaratish",
+    "creating": "Yaratilmoqda...",
+    "noGroups": "Avval guruh yarating, keyin uni jadvalga qo'sha olasiz.",
+    "createGroupFirst": "Jadvalga qo'shish uchun mavjud guruh kerak.",
+    "fillRequired": "Guruh va sana maydonlarini to'ldiring.",
+    "createError": "Darsni yaratib bo'lmadi."
   },
-
-  // Teacher Finance
-  teacherFinance: {
-    title: 'Moliya',
-    subtitle: "Daromad va kutilayotgan to'lovlarni kuzatish.",
-    earned: 'Bu oy daromad',
-    outstanding: 'Qarzdorlik',
-    filterAll: 'Barchasi',
-    filterPaid: "To'langan",
-    filterUnpaid: "To'lanmagan",
-    filterWeek: 'Bu hafta',
-    markPaid: "To'langan deb belgilash",
-    markPayment: "To'lovni belgilash",
-    amountReceived: 'Olingan miqdor',
-    method: 'Usul',
-    cash: 'Naqd',
-    card: 'Karta',
-    transfer: "O'tkazma",
-    note: 'Izoh (ixtiyoriy)',
-    confirmPayment: "To'lovni tasdiqlash",
+  "teacherFinance": {
+    "title": "Moliya",
+    "subtitle": "Daromad va kutilayotgan to'lovlarni kuzatish.",
+    "earned": "Bu oy daromad",
+    "outstanding": "Qarzdorlik",
+    "filterAll": "Barchasi",
+    "filterPaid": "To'langan",
+    "filterUnpaid": "To'lanmagan",
+    "filterWeek": "Bu hafta",
+    "markPaid": "To'langan deb belgilash",
+    "markPayment": "To'lovni belgilash",
+    "amountReceived": "Olingan miqdor",
+    "method": "Usul",
+    "cash": "Naqd",
+    "card": "Karta",
+    "transfer": "O'tkazma",
+    "note": "Izoh (ixtiyoriy)",
+    "confirmPayment": "To'lovni tasdiqlash"
   },
-
-  // Teacher Settings
-  teacherSettings: {
-    title: 'Sozlamalar',
-    syncedTelegram: 'Telegramdan sinxronlangan',
-    currentPlan: 'Joriy tarif: {plan}',
-    freeTier: 'Bepul',
-    coTeachers: 'Hamkorlik o\'qituvchilar',
-    addTeacher: "O'qituvchi qo'shish",
-    notifications: 'Bildirishnomalar',
-    lessonReminders: 'Dars eslatmalari',
-    paymentAlerts: "To'lov ogohlantirishlari",
-    language: 'Til',
-    shareProfile: 'Profil havolasini ulashish',
-    logout: 'Chiqish',
+  "teacherSettings": {
+    "title": "Sozlamalar",
+    "syncedTelegram": "Telegramdan sinxronlangan",
+    "currentPlan": "Joriy tarif: {plan}",
+    "freeTier": "Bepul",
+    "coTeachers": "Hamkorlik o'qituvchilar",
+    "addTeacher": "O'qituvchi qo'shish",
+    "notifications": "Bildirishnomalar",
+    "lessonReminders": "Dars eslatmalari",
+    "paymentAlerts": "To'lov ogohlantirishlari",
+    "language": "Til",
+    "shareProfile": "Profil havolasini ulashish",
+    "logout": "Chiqish"
   },
-
-  // Student Dashboard
-  studentHome: {
-    greeting: 'Salom, {name} 👋',
-    subtitle: "Bugungi darslaringizga tayyormisiz?",
-    nextLesson: 'KEYINGI DARS',
-    attendance: 'DAVOMAT',
-    homework: 'VAZIFA',
-    balance: 'BALANS',
-    debtContact: "O'qituvchingiz bilan bog'laning",
-    upcomingTasks: 'Kelgusi vazifalar',
+  "studentHome": {
+    "greeting": "Salom, {name}!",
+    "subtitle": "Bugungi darslaringizga tayyormisiz?",
+    "nextLesson": "KEYINGI DARS",
+    "attendance": "DAVOMAT",
+    "homework": "VAZIFA",
+    "balance": "BALANS",
+    "debtContact": "O'qituvchingiz bilan bog'laning",
+    "upcomingTasks": "Kelgusi vazifalar"
   },
-
-  // Student Groups
-  studentGroups: {
-    title: 'Mening guruhlarim',
-    students: 'Faol talabalar',
-    nextLesson: 'Keyingi dars',
-    openTelegram: 'Telegram guruhini ochish',
-    members: 'A\'zolar',
-    teacher: "O'qituvchi",
+  "studentGroups": {
+    "title": "Mening guruhlarim",
+    "students": "Faol talabalar",
+    "nextLesson": "Keyingi dars",
+    "openTelegram": "Telegram guruhini ochish",
+    "members": "A'zolar",
+    "teacher": "O'qituvchi"
   },
-
-  // Student Schedule
-  studentSchedule: {
-    title: 'Mening jadvalim',
-    subtitle: "Kelgusi darslarni boshqarish.",
-    hwDue: 'Vazifa topshirish',
-    noClasses: 'Bu kunda darslar yo\'q',
+  "studentSchedule": {
+    "title": "Mening jadvalim",
+    "subtitle": "Kelgusi darslarni boshqarish.",
+    "hwDue": "Vazifa topshirish",
+    "noClasses": "Bu kunda darslar yo'q"
   },
-
-  // Student Finance
-  studentFinance: {
-    title: 'Moliya',
-    outstanding: 'Muddatli qarzdorlik',
-    dueDate: 'Muddat: {date}',
-    contactTeacher: "O'qituvchi bilan bog'lanish",
-    paymentHistory: "To'lov tarixi",
+  "studentFinance": {
+    "title": "Moliya",
+    "outstanding": "Muddatli qarzdorlik",
+    "dueDate": "Muddat: {date}",
+    "contactTeacher": "O'qituvchi bilan bog'lanish",
+    "paymentHistory": "To'lov tarixi"
   },
-
-  // Add Student
-  addStudent: {
-    title: "Talaba qo'shish",
-    uploadPhoto: 'Rasm yuklash',
-    fullName: 'To\'liq ism',
-    contact: 'Telefon yoki Telegram username',
-    subject: 'Fan',
-    assignGroup: 'Guruhga biriktirish',
-    monthlyRate: 'Oylik to\'lov',
-    billingDay: 'Oylik hisob-kitob kuni',
-    notes: 'Izohlar',
-    notesPlaceholder: 'Talaba haqida ixtiyoriy izohlar...',
-    submit: "Talaba qo'shish",
+  "addStudent": {
+    "title": "Talaba qo'shish",
+    "uploadPhoto": "Rasm yuklash",
+    "fullName": "To'liq ism",
+    "contact": "Telefon yoki Telegram username",
+    "subject": "Fan",
+    "assignGroup": "Guruhga biriktirish",
+    "monthlyRate": "Oylik to'lov",
+    "billingDay": "Oylik hisob-kitob kuni",
+    "notes": "Izohlar",
+    "notesPlaceholder": "Talaba haqida ixtiyoriy izohlar...",
+    "submit": "Talaba qo'shish"
   },
-
-  // Days of week
-  days: {
-    MON: 'Du',
-    TUE: 'Se',
-    WED: 'Ch',
-    THU: 'Pa',
-    FRI: 'Ju',
-    SAT: 'Sh',
-    SUN: 'Ya',
-  },
+  "days": {
+    "MON": "Du",
+    "TUE": "Se",
+    "WED": "Ch",
+    "THU": "Pa",
+    "FRI": "Ju",
+    "SAT": "Sh",
+    "SUN": "Ya"
+  }
 }
 
 export default uz
