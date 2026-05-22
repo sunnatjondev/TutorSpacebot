@@ -172,7 +172,7 @@ export default function GroupDetail() {
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6 space-y-4">
-        {loading && (
+        {loading && !group && (
           <div className="card text-center py-8 text-on-surface-variant">Yuklanmoqda...</div>
         )}
 

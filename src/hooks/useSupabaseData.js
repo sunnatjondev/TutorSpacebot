@@ -2,6 +2,35 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const queryCache = new Map()
+const cacheListeners = new Map()
+
+function subscribeToCache(cacheKey, listener) {
+  if (!cacheKey) return () => {}
+
+  if (!cacheListeners.has(cacheKey)) {
+    cacheListeners.set(cacheKey, new Set())
+  }
+
+  cacheListeners.get(cacheKey).add(listener)
+
+  return () => {
+    const listeners = cacheListeners.get(cacheKey)
+    if (!listeners) return
+
+    listeners.delete(listener)
+
+    if (!listeners.size) {
+      cacheListeners.delete(cacheKey)
+    }
+  }
+}
+
+function emitCacheUpdate(cacheKey, value) {
+  const listeners = cacheListeners.get(cacheKey)
+  if (!listeners?.size) return
+
+  listeners.forEach((listener) => listener(value))
+}
 
 function normalizeOptionalText(value) {
   if (typeof value !== 'string') return null
@@ -50,6 +79,7 @@ function updateCachedValue(cacheKey, updater) {
 
   if (nextValue !== undefined) {
     queryCache.set(cacheKey, nextValue)
+    emitCacheUpdate(cacheKey, nextValue)
   }
 }
 
@@ -60,7 +90,10 @@ function updateMatchingCaches(prefix, updater) {
 }
 
 function removeCachedValue(cacheKey) {
-  if (cacheKey) queryCache.delete(cacheKey)
+  if (!cacheKey) return
+
+  queryCache.delete(cacheKey)
+  emitCacheUpdate(cacheKey, undefined)
 }
 
 function buildCachedGroup(group) {
@@ -134,7 +167,7 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null) {
       return
     }
 
-    setLoading(true)
+    setLoading(!(cacheKey && queryCache.has(cacheKey)))
     setError(null)
 
     try {
@@ -156,6 +189,14 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null) {
   useEffect(() => {
     refetch()
   }, [refetch])
+
+  useEffect(() => {
+    if (!cacheKey) return undefined
+
+    return subscribeToCache(cacheKey, (nextValue) => {
+      setData(nextValue ?? initialData)
+    })
+  }, [cacheKey, initialData])
 
   return { data, loading, error, refetch }
 }
@@ -598,43 +639,61 @@ export async function createStudent(teacherTelegramId, { name, contact, groupIds
 export async function removeStudentFromGroup(groupId, studentId) {
   if (!isSupabaseConfigured) return { success: false }
 
+  const affectedTeacherGroupEntries = Array.from(queryCache.entries()).filter(([cacheKey]) => cacheKey.startsWith('teacher-groups:'))
+  const affectedTeacherDashboardEntries = Array.from(queryCache.entries()).filter(([cacheKey]) => cacheKey.startsWith('teacher-dashboard:'))
+  const groupDetailCacheKey = getGroupDetailCacheKey(groupId)
+  const currentGroupDetail = queryCache.get(groupDetailCacheKey)
+
+  updateMatchingCaches('teacher-groups:', (currentGroups = []) =>
+    currentGroups.map((group) =>
+      group.id === groupId
+        ? {
+            ...group,
+            group_members: [{ count: Math.max((group.group_members?.[0]?.count || 0) - 1, 0) }],
+          }
+        : group
+    )
+  )
+
+  updateMatchingCaches('teacher-dashboard:', (currentDashboard) => {
+    if (!currentDashboard) return currentDashboard
+    return {
+      ...currentDashboard,
+      totalStudents: Math.max((currentDashboard.totalStudents || 0) - 1, 0),
+    }
+  })
+
+  updateCachedValue(groupDetailCacheKey, (currentDetail) => {
+    if (!currentDetail?.group) return currentDetail
+    return {
+      ...currentDetail,
+      group: {
+        ...currentDetail.group,
+        group_members: [{ count: Math.max((currentDetail.group.group_members?.[0]?.count || 0) - 1, 0) }],
+      },
+      students: (currentDetail.students || []).filter((student) => student.id !== studentId),
+    }
+  })
+
   const { error } = await supabase
     .from('group_members')
     .delete()
     .eq('group_id', groupId)
     .eq('student_id', studentId)
 
-  if (!error) {
-    updateMatchingCaches('teacher-groups:', (currentGroups = []) =>
-      currentGroups.map((group) =>
-        group.id === groupId
-          ? {
-              ...group,
-              group_members: [{ count: Math.max((group.group_members?.[0]?.count || 0) - 1, 0) }],
-            }
-          : group
-      )
-    )
-
-    updateMatchingCaches('teacher-dashboard:', (currentDashboard) => {
-      if (!currentDashboard) return currentDashboard
-      return {
-        ...currentDashboard,
-        totalStudents: Math.max((currentDashboard.totalStudents || 0) - 1, 0),
-      }
+  if (error) {
+    affectedTeacherGroupEntries.forEach(([cacheKey, value]) => {
+      queryCache.set(cacheKey, value)
+      emitCacheUpdate(cacheKey, value)
     })
-
-    updateCachedValue(getGroupDetailCacheKey(groupId), (currentDetail) => {
-      if (!currentDetail?.group) return currentDetail
-      return {
-        ...currentDetail,
-        group: {
-          ...currentDetail.group,
-          group_members: [{ count: Math.max((currentDetail.group.group_members?.[0]?.count || 0) - 1, 0) }],
-        },
-        students: (currentDetail.students || []).filter((student) => student.id !== studentId),
-      }
+    affectedTeacherDashboardEntries.forEach(([cacheKey, value]) => {
+      queryCache.set(cacheKey, value)
+      emitCacheUpdate(cacheKey, value)
     })
+    if (currentGroupDetail !== undefined) {
+      queryCache.set(groupDetailCacheKey, currentGroupDetail)
+      emitCacheUpdate(groupDetailCacheKey, currentGroupDetail)
+    }
   }
 
   return { success: !error, error }
