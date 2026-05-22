@@ -21,7 +21,7 @@ function StatCard({ icon: Icon, value, label, iconBg }) {
   )
 }
 
-function CreateGroupModal({ onClose, onCreated, telegramId, t, haptic }) {
+function CreateGroupModal({ onClose, onCreated, telegramId, user, t, haptic }) {
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
   const [loading, setLoading] = useState(false)
@@ -34,7 +34,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, t, haptic }) {
     setLoading(true)
     setError(null)
     haptic?.medium()
-    const result = await createGroup(telegramId, { name: name.trim(), subject: subject || 'BOSHQA' })
+    const result = await createGroup(telegramId, { name: name.trim(), subject: subject || 'BOSHQA' }, user)
     setLoading(false)
     if (result.success) {
       haptic?.success?.()
@@ -194,6 +194,7 @@ export default function TeacherDashboard() {
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Yangi guruh yaratish">
         <CreateGroupModal
           telegramId={telegramId}
+          user={user}
           onClose={() => setShowCreate(false)}
           onCreated={refetch}
           t={t}

@@ -77,7 +77,7 @@ export function useTeacherGroups(telegramId) {
   )
 }
 
-export async function createGroup(telegramId, { name, subject }) {
+export async function createGroup(telegramId, { name, subject }, tgUser = null) {
   if (!isSupabaseConfigured) return { success: false, error: { message: 'Supabase sozlanmagan' } }
 
   // Find user's internal UUID by telegram_id
@@ -87,11 +87,21 @@ export async function createGroup(telegramId, { name, subject }) {
     .eq('telegram_id', telegramId)
     .maybeSingle()
 
-  // If user not in DB yet, create them on the fly
+  // If user not in DB yet, create them on the fly with full Telegram data
   if (!userRow && !findErr) {
     const { data: newUser, error: createErr } = await supabase
       .from('users')
-      .upsert({ telegram_id: telegramId }, { onConflict: 'telegram_id', ignoreDuplicates: false })
+      .upsert(
+        {
+          telegram_id: telegramId,
+          first_name: tgUser?.first_name || 'Foydalanuvchi',
+          last_name: tgUser?.last_name || null,
+          username: tgUser?.username || null,
+          photo_url: tgUser?.photo_url || null,
+          role: 'teacher',
+        },
+        { onConflict: 'telegram_id', ignoreDuplicates: false }
+      )
       .select('id')
       .single()
     if (createErr) {
@@ -118,6 +128,7 @@ export async function createGroup(telegramId, { name, subject }) {
   if (error) console.error('[createGroup] insert:', error)
   return { success: !error, data, error }
 }
+
 
 export async function deleteGroup(groupId) {
   if (!isSupabaseConfigured) return { success: false }
