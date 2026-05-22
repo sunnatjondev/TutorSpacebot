@@ -107,11 +107,7 @@ export default function TeacherSettings() {
           </div>
         </div>
 
-        <button onClick={() => haptic?.light()} className="btn-primary"
-          style={{ background: 'rgba(108,99,255,0.15)', boxShadow: 'none' }}>
-          <Share2 size={18} className="text-primary" />
-          <span className="text-primary">{t('teacherSettings.shareProfile')}</span>
-        </button>
+        </div>
 
         <button 
           className="w-full h-14 rounded-2xl border border-red-500/40 bg-red-500/10 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"

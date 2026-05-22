@@ -36,6 +36,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
   const [selectedGroupId, setSelectedGroupId] = useState(groups[0]?.id || '')
   const [scheduledAt, setScheduledAt] = useState(() => toDateTimeLocalValue(buildDefaultSessionDate(initialDate)))
   const [durationMin, setDurationMin] = useState('90')
+  const [repeat, setRepeat] = useState('none')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -67,22 +68,48 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
     haptic?.medium()
 
     const parsedDuration = Number.parseInt(durationMin, 10)
-    const result = await createSession({
-      groupId: selectedGroupId,
-      scheduledAt: new Date(scheduledAt).toISOString(),
-      durationMin: Number.isFinite(parsedDuration) && parsedDuration > 0 ? parsedDuration : 90,
-    })
+    const dur = Number.isFinite(parsedDuration) && parsedDuration > 0 ? parsedDuration : 90
+
+    const datesToCreate = []
+    const baseDate = new Date(scheduledAt)
+    
+    if (repeat === 'none') {
+      datesToCreate.push(baseDate)
+    } else {
+      const day = baseDate.getDay()
+      const monday = new Date(baseDate)
+      monday.setDate(baseDate.getDate() - ((day === 0 ? 7 : day) - 1))
+      
+      const targetDays = repeat === 'odd' ? [0, 2, 4] : [1, 3, 5]
+      
+      for (const offset of targetDays) {
+        const newDate = new Date(monday)
+        newDate.setDate(monday.getDate() + offset)
+        newDate.setHours(baseDate.getHours(), baseDate.getMinutes(), 0, 0)
+        datesToCreate.push(newDate)
+      }
+    }
+
+    let allSuccess = true
+    for (const d of datesToCreate) {
+      const result = await createSession({
+        groupId: selectedGroupId,
+        scheduledAt: d.toISOString(),
+        durationMin: dur,
+      })
+      if (!result.success) allSuccess = false
+    }
 
     setLoading(false)
 
-    if (result.success) {
+    if (allSuccess) {
       haptic?.success?.()
       await onCreated()
       onClose()
       return
     }
 
-    setError(result.error?.message || t('teacherSchedule.createError'))
+    setError(t('teacherSchedule.createError'))
     haptic?.warning?.()
   }
 
@@ -148,6 +175,15 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
           value={scheduledAt}
           onChange={(event) => setScheduledAt(event.target.value)}
         />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">Takrorlash</label>
+        <div className="flex gap-2">
+          <button onClick={() => { setRepeat('none'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'none' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Faqat shu kun</button>
+          <button onClick={() => { setRepeat('odd'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'odd' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Toq kunlar</button>
+          <button onClick={() => { setRepeat('even'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'even' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Juft kunlar</button>
+        </div>
       </div>
 
       <div>
@@ -223,6 +259,7 @@ export default function TeacherSchedule() {
     }
 
     haptic?.success?.()
+    refetch()
   }
 
   const handleFinishLesson = async (sessionId) => {
@@ -237,6 +274,7 @@ export default function TeacherSchedule() {
     }
 
     haptic?.success?.()
+    refetch()
   }
 
   const handleDeleteLesson = async (sessionId) => {
@@ -253,6 +291,7 @@ export default function TeacherSchedule() {
     }
 
     haptic?.success?.()
+    refetch()
   }
 
   return (
@@ -394,21 +433,19 @@ export default function TeacherSchedule() {
             </div>
           )}
 
-          <div className="flex gap-3">
-            <div className="w-14 flex-shrink-0 pt-3"></div>
-            <button
-              onClick={() => {
-                haptic?.light()
-                setShowCreate(true)
-              }}
-              className="flex min-h-[80px] flex-1 flex-col items-center justify-center gap-1 rounded-card border-2 border-dashed border-outline-variant p-4 text-on-surface-variant transition-colors hover:border-brand/50"
-            >
-              <Plus size={20} />
-              <span className="text-sm font-medium">{t('teacherSchedule.addLesson')}</span>
-            </button>
-          </div>
+          {/* Floating Action Button (FAB) moved to the bottom right */}
         </div>
       </div>
+
+      <button
+        className="fab bottom-[88px] right-4"
+        onClick={() => {
+          haptic?.medium()
+          setShowCreate(true)
+        }}
+      >
+        <Plus size={24} className="text-white" />
+      </button>
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title={t('teacherSchedule.createTitle')}>
         <CreateLessonModal

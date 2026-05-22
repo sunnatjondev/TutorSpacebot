@@ -141,9 +141,6 @@ export default function AddStudent() {
                 {group.name}
               </button>
             ))}
-            <button className="chip" onClick={() => haptic?.light()}>
-              <Plus size={12} />
-            </button>
           </div>
           {!availableGroups.length && (
             <p className="text-on-surface-variant text-xs mt-2">Avval kamida bitta guruh yarating</p>
