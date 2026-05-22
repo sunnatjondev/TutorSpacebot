@@ -79,14 +79,14 @@ export default function StudentSettings() {
         </button>
 
         <button 
-          className="btn-ghost w-full text-error gap-2 mt-2"
+          className="w-full h-14 rounded-2xl border border-red-500/40 bg-red-500/10 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
           onClick={() => {
             haptic?.warning()
             localStorage.clear()
-            window.location.reload()
+            navigate('/', { replace: true })
           }}
         >
-          <LogOut size={18} /> {t('studentSettings.logout')}
+          <LogOut size={18} /> Chiqish
         </button>
       </div>
       <BottomNav role="student" />
