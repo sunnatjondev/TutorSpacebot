@@ -27,8 +27,6 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, t, haptic }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const subjects = ['MATEMATIKA', 'FIZIKA', 'KIMYO', 'BIOLOGIYA', 'INGLIZ TILI', 'TARIX', 'ADABIYOT', 'BOSHQA']
-
   const handleCreate = async () => {
     if (!name.trim()) return
     setLoading(true)
@@ -38,7 +36,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, t, haptic }) {
     setLoading(false)
     if (result.success) {
       haptic?.success?.()
-      onCreated(result.data)
+      await onCreated(result.data)
       onClose()
     } else {
       console.error('[createGroup] error:', result.error)
@@ -61,18 +59,12 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, t, haptic }) {
       </div>
       <div>
         <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Fan</label>
-        <div className="flex flex-wrap gap-2">
-          {subjects.map(s => (
-            <button
-              key={s}
-              onMouseDown={e => e.preventDefault()} // keep keyboard open
-              onClick={() => { setSubject(s); haptic?.selection() }}
-              className={`chip text-xs ${subject === s ? 'chip-active' : ''}`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
+        <input
+          className="input-field"
+          placeholder="Masalan: Matematika"
+          value={subject}
+          onChange={e => setSubject(e.target.value)}
+        />
       </div>
       {error && (
         <div className="rounded-xl bg-error-container/30 border border-error-container px-4 py-3">

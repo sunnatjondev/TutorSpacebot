@@ -8,11 +8,9 @@ import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { useTeacherGroups, createGroup, deleteGroup } from '../../hooks/useSupabaseData'
 
-const SUBJECTS = ['MATEMATIKA', 'FIZIKA', 'KIMYO', 'BIOLOGIYA', 'INGLIZ TILI', 'TARIX', 'ADABIYOT', 'BOSHQA']
-
 function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
   const [name, setName] = useState('')
-  const [subject, setSubject] = useState('MATEMATIKA')
+  const [subject, setSubject] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -26,7 +24,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
 
     if (result.success) {
       haptic?.success?.()
-      onCreated()
+      await onCreated(result.data)
       onClose()
       return
     }
@@ -49,21 +47,12 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
       </div>
       <div>
         <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Fan</label>
-        <div className="flex flex-wrap gap-2">
-          {SUBJECTS.map((item) => (
-            <button
-              key={item}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => {
-                setSubject(item)
-                haptic?.selection()
-              }}
-              className={`chip text-[11px] ${subject === item ? 'chip-active' : ''}`}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
+        <input
+          className="input-field"
+          placeholder="Masalan: Matematika"
+          value={subject}
+          onChange={(event) => setSubject(event.target.value)}
+        />
       </div>
       {error && (
         <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3">

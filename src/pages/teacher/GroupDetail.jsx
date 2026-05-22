@@ -125,7 +125,7 @@ export default function GroupDetail() {
         <button
           onClick={() => {
             haptic?.medium()
-            navigate('/teacher/add-student')
+            navigate('/teacher/add-student', { state: { groupId: id } })
           }}
           className="btn-secondary"
         >

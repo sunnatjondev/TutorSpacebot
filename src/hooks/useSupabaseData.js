@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
+const queryCache = new Map()
+
 function normalizeOptionalText(value) {
   if (typeof value !== 'string') return null
   const trimmed = value.trim()
@@ -28,6 +30,61 @@ function generateInviteToken() {
   return Math.random().toString(36).slice(2, 14)
 }
 
+function getTeacherGroupsCacheKey(telegramId) {
+  return telegramId ? `teacher-groups:${telegramId}` : null
+}
+
+function getTeacherDashboardCacheKey(telegramId) {
+  return telegramId ? `teacher-dashboard:${telegramId}` : null
+}
+
+function getGroupDetailCacheKey(groupId) {
+  return groupId ? `group-detail:${groupId}` : null
+}
+
+function updateCachedValue(cacheKey, updater) {
+  if (!cacheKey) return
+
+  const currentValue = queryCache.get(cacheKey)
+  const nextValue = updater(currentValue)
+
+  if (nextValue !== undefined) {
+    queryCache.set(cacheKey, nextValue)
+  }
+}
+
+function buildCachedGroup(group) {
+  return {
+    ...group,
+    group_members: group.group_members || [{ count: 0 }],
+    sessions: group.sessions || [],
+    paidPercent: group.paidPercent ?? 0,
+  }
+}
+
+function buildStudentName(firstName, lastName) {
+  return [firstName, lastName].filter(Boolean).join(' ') || 'Talaba'
+}
+
+function buildManualStudentPayload({ name, contact }) {
+  const normalizedName = normalizeOptionalText(name) || 'Talaba'
+  const nameParts = normalizedName.split(/\s+/)
+  const firstName = nameParts.shift() || 'Talaba'
+  const lastName = nameParts.join(' ') || null
+  const normalizedContact = normalizeOptionalText(contact)
+  const usernameCandidate = normalizedContact?.replace(/^@/, '')
+  const username = usernameCandidate && /^[a-zA-Z0-9_]{3,}$/.test(usernameCandidate) ? usernameCandidate : null
+
+  return {
+    telegram_id: -(Date.now() + Math.floor(Math.random() * 1000)),
+    first_name: firstName,
+    last_name: lastName,
+    username,
+    role: 'student',
+    updated_at: new Date().toISOString(),
+  }
+}
+
 async function getUserRowByTelegramId(telegramId) {
   if (!isSupabaseConfigured || !telegramId) return null
 
@@ -41,14 +98,28 @@ async function getUserRowByTelegramId(telegramId) {
   return data
 }
 
-function useSupabaseQuery(queryFn, initialData, deps = []) {
-  const [data, setData] = useState(initialData)
+async function getUserRowByUsername(username) {
+  const normalizedUsername = normalizeOptionalText(username)?.replace(/^@/, '')
+  if (!isSupabaseConfigured || !normalizedUsername) return null
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, role, first_name, last_name, username, photo_url, telegram_id')
+    .eq('username', normalizedUsername)
+    .maybeSingle()
+
+  if (error) throw error
+  return data
+}
+
+function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null) {
+  const [data, setData] = useState(() => (cacheKey && queryCache.has(cacheKey) ? queryCache.get(cacheKey) : initialData))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const refetch = useCallback(async () => {
     if (!isSupabaseConfigured) {
-      setData(initialData)
+      setData(cacheKey && queryCache.has(cacheKey) ? queryCache.get(cacheKey) : initialData)
       setLoading(false)
       return
     }
@@ -59,15 +130,18 @@ function useSupabaseQuery(queryFn, initialData, deps = []) {
     try {
       const result = await queryFn()
       if (result?.error) throw result.error
-      if (result?.data !== undefined) setData(result.data)
+      if (result?.data !== undefined) {
+        setData(result.data)
+        if (cacheKey) queryCache.set(cacheKey, result.data)
+      }
     } catch (err) {
       setError(err)
       console.error('[Supabase] Query error:', err)
-      setData(initialData)
+      setData(cacheKey && queryCache.has(cacheKey) ? queryCache.get(cacheKey) : initialData)
     } finally {
       setLoading(false)
     }
-  }, deps) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cacheKey, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     refetch()
@@ -162,7 +236,8 @@ export function useTeacherGroups(telegramId) {
       return { data: computePaidPercentByGroup(groups || [], payments || []) }
     },
     [],
-    [telegramId]
+    [telegramId],
+    getTeacherGroupsCacheKey(telegramId)
   )
 }
 
@@ -221,6 +296,26 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
     .single()
 
   if (error) console.error('[createGroup] insert:', error)
+
+  if (!error && data) {
+    const groupsCacheKey = getTeacherGroupsCacheKey(telegramId)
+    const dashboardCacheKey = getTeacherDashboardCacheKey(telegramId)
+    const cachedGroup = buildCachedGroup(data)
+
+    updateCachedValue(groupsCacheKey, (currentGroups = []) => {
+      if (currentGroups.some((group) => group.id === cachedGroup.id)) return currentGroups
+      return [cachedGroup, ...currentGroups]
+    })
+
+    updateCachedValue(dashboardCacheKey, (currentDashboard) => {
+      if (!currentDashboard) return currentDashboard
+      return {
+        ...currentDashboard,
+        totalGroups: (currentDashboard.totalGroups || 0) + 1,
+      }
+    })
+  }
+
   return { success: !error, data, error }
 }
 
@@ -291,7 +386,8 @@ export function useGroupDetail(groupId) {
       }
     },
     { group: null, students: [] },
-    [groupId]
+    [groupId],
+    getGroupDetailCacheKey(groupId)
   )
 }
 
@@ -307,6 +403,168 @@ export async function addStudentToGroup(groupId, telegramId) {
     .select()
 
   return { success: !error, data, error }
+}
+
+export async function createStudent(teacherTelegramId, { name, contact, groupIds, monthlyRate }) {
+  if (!isSupabaseConfigured) return { success: false, error: { message: 'Supabase sozlanmagan' } }
+
+  const normalizedName = normalizeOptionalText(name)
+  if (!teacherTelegramId || !normalizedName) {
+    return { success: false, error: { message: "Talaba ma'lumotlari to'liq emas." } }
+  }
+
+  const normalizedGroupIds = Array.from(new Set((groupIds || []).filter(Boolean)))
+  if (!normalizedGroupIds.length) {
+    return { success: false, error: { message: 'Kamida bitta guruh tanlang.' } }
+  }
+
+  const teacher = await getUserRowByTelegramId(teacherTelegramId)
+  if (!teacher) {
+    return { success: false, error: { message: "O'qituvchi topilmadi." } }
+  }
+
+  const normalizedContact = normalizeOptionalText(contact)
+  let student = null
+
+  if (normalizedContact && /^\d+$/.test(normalizedContact)) {
+    student = await getUserRowByTelegramId(Number(normalizedContact))
+  }
+
+  if (!student && normalizedContact) {
+    student = await getUserRowByUsername(normalizedContact)
+  }
+
+  if (!student) {
+    const { data: createdStudent, error: studentError } = await supabase
+      .from('users')
+      .insert(buildManualStudentPayload({ name: normalizedName, contact: normalizedContact }))
+      .select('id, telegram_id, first_name, last_name, username, photo_url')
+      .single()
+
+    if (studentError) {
+      console.error('[createStudent] create user:', studentError)
+      return { success: false, error: { message: `Talabani yaratib bo'lmadi: ${studentError.message}` } }
+    }
+
+    student = createdStudent
+  }
+
+  const { data: existingMemberships, error: membershipLookupError } = await supabase
+    .from('group_members')
+    .select('group_id')
+    .eq('student_id', student.id)
+    .in('group_id', normalizedGroupIds)
+
+  if (membershipLookupError) {
+    console.error('[createStudent] membership lookup:', membershipLookupError)
+    return { success: false, error: { message: membershipLookupError.message } }
+  }
+
+  const existingGroupIds = new Set((existingMemberships || []).map((membership) => membership.group_id))
+  const newGroupIds = normalizedGroupIds.filter((groupId) => !existingGroupIds.has(groupId))
+
+  if (newGroupIds.length) {
+    const { error: membershipError } = await supabase
+      .from('group_members')
+      .insert(newGroupIds.map((groupId) => ({ group_id: groupId, student_id: student.id })))
+
+    if (membershipError) {
+      console.error('[createStudent] add to group:', membershipError)
+      return { success: false, error: { message: membershipError.message } }
+    }
+  }
+
+  const amount = Number(monthlyRate) || 0
+  if (amount > 0) {
+    const { month, year } = getCurrentPeriod()
+    const { data: existingPayments, error: paymentsLookupError } = await supabase
+      .from('payments')
+      .select('group_id')
+      .eq('student_id', student.id)
+      .eq('teacher_id', teacher.id)
+      .eq('period_month', month)
+      .eq('period_year', year)
+      .in('group_id', normalizedGroupIds)
+
+    if (paymentsLookupError) {
+      console.error('[createStudent] payment lookup:', paymentsLookupError)
+      return { success: false, error: { message: paymentsLookupError.message } }
+    }
+
+    const paidGroupIds = new Set((existingPayments || []).map((payment) => payment.group_id))
+    const paymentGroupIds = normalizedGroupIds.filter((groupId) => !paidGroupIds.has(groupId))
+
+    if (paymentGroupIds.length) {
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .insert(paymentGroupIds.map((groupId) => ({
+          student_id: student.id,
+          group_id: groupId,
+          teacher_id: teacher.id,
+          amount,
+          period_month: month,
+          period_year: year,
+          status: 'unpaid',
+        })))
+
+      if (paymentError) {
+        console.error('[createStudent] create payment:', paymentError)
+        return { success: false, error: { message: paymentError.message } }
+      }
+    }
+  }
+
+  const studentView = {
+    id: student.id,
+    name: buildStudentName(student.first_name, student.last_name),
+    username: student.username || null,
+    amount,
+    status: amount > 0 ? 'unpaid' : 'unpaid',
+  }
+
+  updateCachedValue(getTeacherGroupsCacheKey(teacherTelegramId), (currentGroups = []) =>
+    currentGroups.map((group) =>
+      normalizedGroupIds.includes(group.id)
+        ? {
+            ...group,
+            group_members: [{ count: (group.group_members?.[0]?.count || 0) + (newGroupIds.includes(group.id) ? 1 : 0) }],
+          }
+        : group
+    )
+  )
+
+  updateCachedValue(getTeacherDashboardCacheKey(teacherTelegramId), (currentDashboard) => {
+    if (!currentDashboard) return currentDashboard
+    return {
+      ...currentDashboard,
+      totalStudents: (currentDashboard.totalStudents || 0) + newGroupIds.length,
+    }
+  })
+
+  normalizedGroupIds.forEach((groupId) => {
+    updateCachedValue(getGroupDetailCacheKey(groupId), (currentDetail) => {
+      if (!currentDetail?.group) return currentDetail
+
+      const alreadyInList = currentDetail.students?.some((item) => item.id === studentView.id)
+      return {
+        ...currentDetail,
+        group: {
+          ...currentDetail.group,
+          group_members: [{ count: (currentDetail.group.group_members?.[0]?.count || 0) + (newGroupIds.includes(groupId) ? 1 : 0) }],
+        },
+        students: alreadyInList ? currentDetail.students : [...(currentDetail.students || []), studentView],
+      }
+    })
+  })
+
+  return {
+    success: true,
+    data: {
+      student: studentView,
+      groupIds: normalizedGroupIds,
+      primaryGroupId: normalizedGroupIds[0],
+    },
+  }
 }
 
 export async function removeStudentFromGroup(groupId, studentId) {
@@ -584,7 +842,8 @@ export function useTeacherDashboard(telegramId) {
       }
     },
     null,
-    [telegramId]
+    [telegramId],
+    getTeacherDashboardCacheKey(telegramId)
   )
 }
 

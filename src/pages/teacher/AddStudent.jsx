@@ -1,28 +1,71 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Upload, Plus } from 'lucide-react'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useTeacherGroups } from '../../hooks/useSupabaseData'
+import { createStudent, useTeacherGroups } from '../../hooks/useSupabaseData'
 
 export default function AddStudent() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, haptic } = useTelegram()
   const { t } = useI18n()
   const { data: groups } = useTeacherGroups(user?.id)
 
+  const initialGroupId = location.state?.groupId || null
+  const availableGroups = groups || []
+
   useTelegramBackButton(() => navigate(-1))
 
-  const availableGroups = groups || []
-  const [selectedGroupIds, setSelectedGroupIds] = useState([])
+  const [selectedGroupIds, setSelectedGroupIds] = useState(initialGroupId ? [initialGroupId] : [])
   const [billingDay, setBillingDay] = useState(1)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
   const [form, setForm] = useState({ name: '', contact: '', subject: '', rate: '', notes: '' })
+
+  const canSubmit = useMemo(() => form.name.trim() && selectedGroupIds.length > 0, [form.name, selectedGroupIds])
 
   const toggleGroup = (groupId) => {
     haptic?.selection()
     setSelectedGroupIds((prev) =>
       prev.includes(groupId) ? prev.filter((value) => value !== groupId) : [...prev, groupId]
     )
+  }
+
+  const handleSubmit = async () => {
+    if (!canSubmit || saving) return
+
+    setSaving(true)
+    setError(null)
+    haptic?.medium()
+
+    const result = await createStudent(user?.id, {
+      name: form.name,
+      contact: form.contact,
+      groupIds: selectedGroupIds,
+      monthlyRate: form.rate,
+      billingDay,
+      subject: form.subject,
+      notes: form.notes,
+    })
+
+    setSaving(false)
+
+    if (!result.success) {
+      setError(result.error?.message || "Talabani saqlab bo'lmadi.")
+      haptic?.error?.()
+      return
+    }
+
+    haptic?.success?.()
+
+    const targetGroupId = initialGroupId || result.data?.primaryGroupId
+    if (targetGroupId) {
+      navigate(`/teacher/groups/${targetGroupId}`, { replace: true })
+      return
+    }
+
+    navigate('/teacher/groups', { replace: true })
   }
 
   return (
@@ -79,6 +122,12 @@ export default function AddStudent() {
             />
           </div>
         </div>
+
+        {error && (
+          <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
 
         <div>
           <p className="font-semibold text-on-surface mb-3">{t('addStudent.assignGroup')}</p>
@@ -152,12 +201,10 @@ export default function AddStudent() {
       <div className="px-4 pb-6 pt-2 border-t border-outline-variant/40">
         <button
           className="btn-primary"
-          onClick={() => {
-            haptic?.success()
-            navigate(-1)
-          }}
+          onClick={handleSubmit}
+          disabled={!canSubmit || saving}
         >
-          👤 {t('addStudent.submit')}
+          👤 {saving ? t('common.loading') : t('addStudent.submit')}
         </button>
       </div>
     </div>
