@@ -89,8 +89,6 @@ export default function TeacherSettings() {
           </div>
         </div>
 
-        </div>
-
         <button 
           className="w-full h-14 rounded-2xl border border-red-500/40 bg-red-500/10 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
           onClick={() => {
