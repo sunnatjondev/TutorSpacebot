@@ -105,6 +105,50 @@ function getTelegramUserCacheKey(telegramId) {
   return telegramId ? String(telegramId) : null
 }
 
+function updateSessionCollections(collection = [], sessionId, updater) {
+  return collection.map((item) => (item.id === sessionId ? updater(item) : item))
+}
+
+function removeSessionFromCollections(collection = [], sessionId) {
+  return collection.filter((item) => item.id !== sessionId)
+}
+
+function updateSessionInNestedGroups(groups = [], sessionId, updater) {
+  return groups.map((group) => ({
+    ...group,
+    sessions: updateSessionCollections(group.sessions || [], sessionId, updater),
+  }))
+}
+
+function removeSessionFromNestedGroups(groups = [], sessionId) {
+  return groups.map((group) => ({
+    ...group,
+    sessions: removeSessionFromCollections(group.sessions || [], sessionId),
+  }))
+}
+
+function updateSessionInStudentGroupRows(rows = [], sessionId, updater) {
+  return rows.map((row) => {
+    const group = row.group || row
+    const updatedGroup = {
+      ...group,
+      sessions: updateSessionCollections(group.sessions || [], sessionId, updater),
+    }
+    return row.group ? { ...row, group: updatedGroup } : updatedGroup
+  })
+}
+
+function removeSessionFromStudentGroupRows(rows = [], sessionId) {
+  return rows.map((row) => {
+    const group = row.group || row
+    const updatedGroup = {
+      ...group,
+      sessions: removeSessionFromCollections(group.sessions || [], sessionId),
+    }
+    return row.group ? { ...row, group: updatedGroup } : updatedGroup
+  })
+}
+
 function setCachedUserRowByTelegramId(telegramId, userRow) {
   const cacheKey = getTelegramUserCacheKey(telegramId)
   if (!cacheKey) return
@@ -903,6 +947,69 @@ export async function createSession({ groupId, scheduledAt, durationMin = 90 }) 
     .single()
 
   return { success: !error, data, error }
+}
+
+export async function updateSessionStatus(sessionId, status) {
+  if (!isSupabaseConfigured || !sessionId || !status) return { success: false }
+
+  const { data, error } = await supabase
+    .from('sessions')
+    .update({ status })
+    .eq('id', sessionId)
+    .select('id, status')
+    .single()
+
+  if (!error && data) {
+    updateMatchingCaches('teacher-schedule:', (sessions = []) =>
+      updateSessionCollections(sessions, sessionId, (session) => ({ ...session, status: data.status }))
+    )
+    updateMatchingCaches('student-schedule:', (sessions = []) =>
+      updateSessionCollections(sessions, sessionId, (session) => ({ ...session, status: data.status }))
+    )
+    updateMatchingCaches('teacher-groups:', (groups = []) =>
+      updateSessionInNestedGroups(groups, sessionId, (session) => ({ ...session, status: data.status }))
+    )
+    updateMatchingCaches('student-groups:', (rows = []) =>
+      updateSessionInStudentGroupRows(rows, sessionId, (session) => ({ ...session, status: data.status }))
+    )
+    updateMatchingCaches('teacher-dashboard:', (dashboard) => {
+      if (!dashboard) return dashboard
+      return {
+        ...dashboard,
+        todaySessions: updateSessionCollections(dashboard.todaySessions || [], sessionId, (session) => ({
+          ...session,
+          status: data.status,
+        })),
+      }
+    })
+  }
+
+  return { success: !error, data, error }
+}
+
+export async function deleteSession(sessionId) {
+  if (!isSupabaseConfigured || !sessionId) return { success: false }
+
+  const { error } = await supabase
+    .from('sessions')
+    .delete()
+    .eq('id', sessionId)
+
+  if (!error) {
+    updateMatchingCaches('teacher-schedule:', (sessions = []) => removeSessionFromCollections(sessions, sessionId))
+    updateMatchingCaches('student-schedule:', (sessions = []) => removeSessionFromCollections(sessions, sessionId))
+    updateMatchingCaches('teacher-groups:', (groups = []) => removeSessionFromNestedGroups(groups, sessionId))
+    updateMatchingCaches('student-groups:', (rows = []) => removeSessionFromStudentGroupRows(rows, sessionId))
+    updateMatchingCaches('teacher-dashboard:', (dashboard) => {
+      if (!dashboard) return dashboard
+      return {
+        ...dashboard,
+        todaySessions: removeSessionFromCollections(dashboard.todaySessions || [], sessionId),
+      }
+    })
+  }
+
+  return { success: !error, error }
 }
 
 export async function createHomework({ groupId, title, dueDate, description = '' }) {

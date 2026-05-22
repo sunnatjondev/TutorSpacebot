@@ -100,6 +100,17 @@ export default function TeacherDashboard() {
   const firstName = user?.first_name || "O'qituvchi"
   const recentGroups = (groups || []).slice(0, 3)
   const localizedGreeting = lang === 'ru' ? greetingRu : greeting
+  const getSessionBadgeClass = (status) => {
+    if (status === 'done') return 'badge-paid'
+    if (status === 'in_progress') return 'badge-partial'
+    return 'badge-debt'
+  }
+
+  const getSessionStatusLabel = (status) => {
+    if (status === 'done') return t('common.done')
+    if (status === 'in_progress') return t('common.inProgress')
+    return t('common.upcoming')
+  }
 
   const handleGroupCreated = async (group) => {
     await Promise.all([refetch(), refetchGroups()])
@@ -187,9 +198,9 @@ export default function TeacherDashboard() {
                         {new Date(session.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })} - {session.group?.subject}
                       </p>
                     </div>
-                    <span className={`badge-${session.status === 'done' ? 'paid' : 'debt'} whitespace-nowrap`}>
+                    <span className={`${getSessionBadgeClass(session.status)} whitespace-nowrap`}>
                       {session.status === 'done' ? <CheckCircle2 size={10} /> : null}
-                      {session.status === 'done' ? t('common.done') : t('common.upcoming')}
+                      {getSessionStatusLabel(session.status)}
                     </span>
                   </div>
                   {index < dash.todaySessions.length - 1 && <hr className="divider" />}

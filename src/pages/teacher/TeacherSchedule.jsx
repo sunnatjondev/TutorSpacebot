@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarDays, Plus, Play, CheckCircle, Users } from 'lucide-react'
+import { CalendarDays, Plus, Play, CheckCircle, Users, Trash2, Square } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { createSession, useTeacherGroups, useTeacherSchedule } from '../../hooks/useSupabaseData'
+import { createSession, deleteSession, updateSessionStatus, useTeacherGroups, useTeacherSchedule } from '../../hooks/useSupabaseData'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -185,6 +185,7 @@ export default function TeacherSchedule() {
   const today = baseDate
   const [selectedDay, setSelectedDay] = useState(today.getDay() === 0 ? 6 : today.getDay() - 1)
   const [showCreate, setShowCreate] = useState(false)
+  const [processingSessionId, setProcessingSessionId] = useState(null)
   const days = getDayDates(today)
   const dayKeys = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   const weekLabel = `${days[0].toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })} - ${days[6].toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })}`
@@ -202,6 +203,56 @@ export default function TeacherSchedule() {
   const formatTime = (iso) => {
     if (!iso) return ''
     return new Date(iso).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const getStatusLabel = (status) => {
+    if (status === 'done') return t('common.done')
+    if (status === 'in_progress') return t('common.inProgress')
+    return t('common.upcoming')
+  }
+
+  const handleStartLesson = async (sessionId) => {
+    setProcessingSessionId(sessionId)
+    haptic?.medium()
+    const result = await updateSessionStatus(sessionId, 'in_progress')
+    setProcessingSessionId(null)
+
+    if (!result.success) {
+      haptic?.error?.()
+      return
+    }
+
+    haptic?.success?.()
+  }
+
+  const handleFinishLesson = async (sessionId) => {
+    setProcessingSessionId(sessionId)
+    haptic?.medium()
+    const result = await updateSessionStatus(sessionId, 'done')
+    setProcessingSessionId(null)
+
+    if (!result.success) {
+      haptic?.error?.()
+      return
+    }
+
+    haptic?.success?.()
+  }
+
+  const handleDeleteLesson = async (sessionId) => {
+    haptic?.heavy?.()
+    if (!confirm(t('teacherSchedule.deleteConfirm'))) return
+
+    setProcessingSessionId(sessionId)
+    const result = await deleteSession(sessionId)
+    setProcessingSessionId(null)
+
+    if (!result.success) {
+      haptic?.error?.()
+      return
+    }
+
+    haptic?.success?.()
   }
 
   return (
@@ -254,6 +305,9 @@ export default function TeacherSchedule() {
               const subject = lesson.group?.subject || '-'
               const studentCount = lesson.attendance?.[0]?.count ?? 0
               const duration = lesson.duration_min ? `${lesson.duration_min} ${t('teacherSchedule.minutes')}` : ''
+              const isDone = lesson.status === 'done'
+              const isInProgress = lesson.status === 'in_progress'
+              const isProcessing = processingSessionId === lesson.id
 
               return (
                 <div key={lesson.id} className="stagger-item flex gap-3" style={{ animationDelay: `${index * 80}ms` }}>
@@ -262,24 +316,38 @@ export default function TeacherSchedule() {
                   </div>
                   <div
                     className={`flex-1 rounded-card border p-4 transition-all duration-200 ${
-                      lesson.status !== 'done' ? 'border-brand/30 bg-surface-container' : 'border-outline-variant bg-surface-container'
+                      isDone
+                        ? 'border-outline-variant bg-surface-container'
+                        : isInProgress
+                          ? 'border-paid-green/30 bg-surface-container'
+                          : 'border-brand/30 bg-surface-container'
                     }`}
-                    style={lesson.status !== 'done' ? { boxShadow: '0 0 0 1px rgba(108,99,255,0.2)' } : {}}
+                    style={
+                      isDone
+                        ? {}
+                        : isInProgress
+                          ? { boxShadow: '0 0 0 1px rgba(74,222,128,0.18)' }
+                          : { boxShadow: '0 0 0 1px rgba(108,99,255,0.2)' }
+                    }
                   >
                     <div className="mb-2 flex items-start justify-between">
                       <span
                         className={`max-w-[150px] truncate rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide ${
-                          lesson.status !== 'done' ? 'bg-brand/20 text-primary' : 'bg-surface-high text-on-surface-variant'
+                          isDone
+                            ? 'bg-surface-high text-on-surface-variant'
+                            : isInProgress
+                              ? 'bg-paid-green/15 text-paid-green'
+                              : 'bg-brand/20 text-primary'
                         }`}
                       >
                         {subject}
                       </span>
-                      {lesson.status === 'done' ? (
+                      {isDone ? (
                         <CheckCircle size={16} className="shrink-0 text-paid-green" />
                       ) : (
                         <span className="flex shrink-0 items-center gap-1 text-[10px] text-on-surface-variant">
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                          {t('common.upcoming')}
+                          <span className={`h-1.5 w-1.5 rounded-full ${isInProgress ? 'bg-paid-green' : 'bg-primary'} ${isInProgress ? '' : 'animate-pulse'}`} />
+                          {getStatusLabel(lesson.status)}
                         </span>
                       )}
                     </div>
@@ -288,15 +356,33 @@ export default function TeacherSchedule() {
                       <span className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                         <Users size={12} /> {studentCount} {t('teacherSchedule.students')} {duration ? ` - ${duration}` : ''}
                       </span>
-                      {lesson.status !== 'done' && (
+                      <div className="flex items-center gap-2">
                         <button
-                          onClick={() => haptic?.medium()}
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand active:scale-90 transition-transform"
+                          onClick={() => handleDeleteLesson(lesson.id)}
+                          disabled={isProcessing}
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-300 active:scale-90 transition-transform disabled:opacity-50"
                         >
-                          <Play size={14} className="fill-white text-white" />
+                          <Trash2 size={14} />
                         </button>
-                      )}
+                        {!isDone && (
+                          <button
+                            onClick={() => (isInProgress ? handleFinishLesson(lesson.id) : handleStartLesson(lesson.id))}
+                            disabled={isProcessing}
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full active:scale-90 transition-transform disabled:opacity-50 ${
+                              isInProgress ? 'bg-paid-green text-white' : 'bg-brand text-white'
+                            }`}
+                            title={isInProgress ? t('teacherSchedule.finishLesson') : t('teacherSchedule.startLesson')}
+                          >
+                            {isInProgress ? <Square size={13} className="fill-white text-white" /> : <Play size={14} className="fill-white text-white" />}
+                          </button>
+                        )}
+                      </div>
                     </div>
+                    {!isDone && (
+                      <div className="mt-3 text-[11px] font-medium text-on-surface-variant">
+                        {isInProgress ? t('teacherSchedule.finishHint') : t('teacherSchedule.startHint')}
+                      </div>
+                    )}
                   </div>
                 </div>
               )

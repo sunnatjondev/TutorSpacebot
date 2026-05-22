@@ -30,6 +30,7 @@ const uz = {
     "debt": "Qarz",
     "pending": "Kutilmoqda",
     "attended": "Qatnashdi",
+    "inProgress": "Davom etmoqda",
     "upcoming": "Kutilayotgan",
     "overdue": "Muddati o'tgan",
     "total": "Jami",
@@ -88,7 +89,12 @@ const uz = {
     "noGroups": "Avval guruh yarating, keyin uni jadvalga qo'sha olasiz.",
     "createGroupFirst": "Jadvalga qo'shish uchun mavjud guruh kerak.",
     "fillRequired": "Guruh va sana maydonlarini to'ldiring.",
-    "createError": "Darsni yaratib bo'lmadi."
+    "createError": "Darsni yaratib bo'lmadi.",
+    "startLesson": "Darsni boshlash",
+    "finishLesson": "Darsni tugatish",
+    "deleteConfirm": "Bu darsni o'chirmoqchimisiz?",
+    "startHint": "Boshlash tugmasi bosilsa, dars hozir davom etayotgan holatga o'tadi.",
+    "finishHint": "Dars tugagach, uni yakunlangan deb belgilang."
   },
   "teacherFinance": {
     "title": "Moliya",
