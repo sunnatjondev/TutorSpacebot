@@ -113,12 +113,18 @@ export default function TeacherSettings() {
           <span className="text-primary">{t('teacherSettings.shareProfile')}</span>
         </button>
 
-        <button onClick={() => { haptic?.warning(); navigate('/') }}
-          className="btn-secondary border-error-container/50 text-error">
+        <button 
+          className="btn-outline w-full bg-error-container/10 border-error-container text-error"
+          onClick={() => {
+            haptic?.warning()
+            localStorage.clear()
+            window.location.reload()
+          }}
+        >
           <LogOut size={18} /> {t('teacherSettings.logout')}
         </button>
-        <div className="h-2" />
       </div>
+      
       <BottomNav role="teacher" />
     </div>
   )
