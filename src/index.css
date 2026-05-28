@@ -43,6 +43,11 @@ html, body {
   overflow: hidden;
 }
 
+.min-h-screen {
+  min-height: 100dvh !important;
+  min-height: 100svh !important;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 0px; }
 

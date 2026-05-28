@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 
 export function Modal({ isOpen, onClose, title, children }) {
-  const [availableHeight, setAvailableHeight] = useState('90vh')
+  const [availableHeight, setAvailableHeight] = useState('90dvh')
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
@@ -11,7 +11,7 @@ export function Modal({ isOpen, onClose, title, children }) {
 
   useEffect(() => {
     if (!isOpen) {
-      setAvailableHeight('90vh')
+      setAvailableHeight('90dvh')
       return
     }
 

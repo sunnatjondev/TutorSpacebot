@@ -5,6 +5,53 @@ const queryCache = new Map()
 const cacheListeners = new Map()
 const userRowByTelegramIdCache = new Map()
 const userRowByTelegramIdPromises = new Map()
+const DEFAULT_RETRY_COUNT = 1
+const DEFAULT_RETRY_DELAY_MS = 450
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function isRetryableError(error) {
+  if (!error) return false
+
+  const message = String(error.message || '').toLowerCase()
+  const code = String(error.code || '').toLowerCase()
+  const status = Number(error.status || error.statusCode || 0)
+
+  if (status >= 500 || status === 408 || status === 429) return true
+  if (code === 'fetcherror' || code === 'ecconnreset' || code === 'etimedout') return true
+
+  return [
+    'failed to fetch',
+    'networkerror',
+    'network request failed',
+    'timed out',
+    'timeout',
+    'connection',
+    'gateway',
+    'service unavailable',
+  ].some((token) => message.includes(token))
+}
+
+async function withRetry(operation, options = {}) {
+  const retries = options.retries ?? DEFAULT_RETRY_COUNT
+  const delayMs = options.delayMs ?? DEFAULT_RETRY_DELAY_MS
+
+  let lastError = null
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await operation()
+    } catch (error) {
+      lastError = error
+      if (attempt === retries || !isRetryableError(error)) throw error
+      await sleep(delayMs * (attempt + 1))
+    }
+  }
+
+  throw lastError
+}
 
 function subscribeToCache(cacheKey, listener) {
   if (!cacheKey) return () => {}
@@ -227,11 +274,13 @@ async function getUserRowByTelegramId(telegramId) {
   }
 
   const request = (async () => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('id, role, first_name, last_name, username, photo_url')
-      .eq('telegram_id', telegramId)
-      .maybeSingle()
+    const { data, error } = await withRetry(() =>
+      supabase
+        .from('users')
+        .select('id, role, first_name, last_name, username, photo_url')
+        .eq('telegram_id', telegramId)
+        .maybeSingle()
+    )
 
     if (error) throw error
 
@@ -252,11 +301,13 @@ async function getUserRowByUsername(username) {
   const normalizedUsername = normalizeOptionalText(username)?.replace(/^@/, '')
   if (!isSupabaseConfigured || !normalizedUsername) return null
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, role, first_name, last_name, username, photo_url, telegram_id')
-    .eq('username', normalizedUsername)
-    .maybeSingle()
+  const { data, error } = await withRetry(() =>
+    supabase
+      .from('users')
+      .select('id, role, first_name, last_name, username, photo_url, telegram_id')
+      .eq('username', normalizedUsername)
+      .maybeSingle()
+  )
 
   if (error) throw error
   return data
@@ -278,7 +329,7 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null) {
     setError(null)
 
     try {
-      const result = await queryFn()
+      const result = await withRetry(() => queryFn())
       if (result?.error) throw result.error
       if (result?.data !== undefined) {
         setData(result.data)
@@ -344,14 +395,16 @@ function computePaidPercentByGroup(groups, payments) {
 export async function upsertTelegramUser(tgUser) {
   if (!isSupabaseConfigured || !tgUser?.id) return null
 
-  const { data, error } = await supabase
-    .from('users')
-    .upsert(
-      buildTelegramUserPayload(tgUser),
-      { onConflict: 'telegram_id', ignoreDuplicates: false }
-    )
-    .select()
-    .single()
+  const { data, error } = await withRetry(() =>
+    supabase
+      .from('users')
+      .upsert(
+        buildTelegramUserPayload(tgUser),
+        { onConflict: 'telegram_id', ignoreDuplicates: false }
+      )
+      .select()
+      .single()
+  )
 
   if (error) {
     console.error('[Supabase] upsertTelegramUser:', error)
@@ -421,17 +474,19 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
   }
 
   if (!userRow && !findErr) {
-    const { data: newUser, error: createErr } = await supabase
-      .from('users')
-      .upsert(
-        buildTelegramUserPayload(tgUser, {
-          telegram_id: telegramId,
-          role: 'teacher',
-        }),
-        { onConflict: 'telegram_id', ignoreDuplicates: false }
-      )
-      .select('id')
-      .single()
+    const { data: newUser, error: createErr } = await withRetry(() =>
+      supabase
+        .from('users')
+        .upsert(
+          buildTelegramUserPayload(tgUser, {
+            telegram_id: telegramId,
+            role: 'teacher',
+          }),
+          { onConflict: 'telegram_id', ignoreDuplicates: false }
+        )
+        .select('id')
+        .single()
+    )
 
     if (createErr) {
       console.error('[createGroup] auto-create user error:', createErr)
@@ -450,16 +505,18 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
     return { success: false, error: { message: 'Foydalanuvchi topilmadi.' } }
   }
 
-  const { data, error } = await supabase
-    .from('groups')
-    .insert({
-      name,
-      subject,
-      teacher_id: userRow.id,
-      invite_token: generateInviteToken(),
-    })
-    .select()
-    .single()
+  const { data, error } = await withRetry(() =>
+    supabase
+      .from('groups')
+      .insert({
+        name,
+        subject,
+        teacher_id: userRow.id,
+        invite_token: generateInviteToken(),
+      })
+      .select()
+      .single()
+  )
 
   if (error) console.error('[createGroup] insert:', error)
 
@@ -490,7 +547,7 @@ export async function deleteGroup(groupId) {
   const cachedDetail = queryCache.get(getGroupDetailCacheKey(groupId))
   const removedStudents = cachedDetail?.group?.group_members?.[0]?.count || 0
 
-  const { error } = await supabase.from('groups').delete().eq('id', groupId)
+  const { error } = await withRetry(() => supabase.from('groups').delete().eq('id', groupId))
 
   if (!error) {
     updateMatchingCaches('teacher-groups:', (currentGroups = []) => currentGroups.filter((group) => group.id !== groupId))
@@ -581,10 +638,12 @@ export async function addStudentToGroup(groupId, telegramId) {
   const user = await getUserRowByTelegramId(telegramId)
   if (!user) return { success: false, error: 'User not found' }
 
-  const { data, error } = await supabase
-    .from('group_members')
-    .upsert({ group_id: groupId, student_id: user.id }, { onConflict: 'group_id,student_id' })
-    .select()
+  const { data, error } = await withRetry(() =>
+    supabase
+      .from('group_members')
+      .upsert({ group_id: groupId, student_id: user.id }, { onConflict: 'group_id,student_id' })
+      .select()
+  )
 
   return { success: !error, data, error }
 }
@@ -619,11 +678,13 @@ export async function createStudent(teacherTelegramId, { name, contact, groupIds
   }
 
   if (!student) {
-    const { data: createdStudent, error: studentError } = await supabase
-      .from('users')
-      .insert(buildManualStudentPayload({ name: normalizedName, contact: normalizedContact }))
-      .select('id, telegram_id, first_name, last_name, username, photo_url')
-      .single()
+    const { data: createdStudent, error: studentError } = await withRetry(() =>
+      supabase
+        .from('users')
+        .insert(buildManualStudentPayload({ name: normalizedName, contact: normalizedContact }))
+        .select('id, telegram_id, first_name, last_name, username, photo_url')
+        .single()
+    )
 
     if (studentError) {
       console.error('[createStudent] create user:', studentError)
@@ -648,9 +709,11 @@ export async function createStudent(teacherTelegramId, { name, contact, groupIds
   const newGroupIds = normalizedGroupIds.filter((groupId) => !existingGroupIds.has(groupId))
 
   if (newGroupIds.length) {
-    const { error: membershipError } = await supabase
-      .from('group_members')
-      .insert(newGroupIds.map((groupId) => ({ group_id: groupId, student_id: student.id })))
+    const { error: membershipError } = await withRetry(() =>
+      supabase
+        .from('group_members')
+        .insert(newGroupIds.map((groupId) => ({ group_id: groupId, student_id: student.id })))
+    )
 
     if (membershipError) {
       console.error('[createStudent] add to group:', membershipError)
@@ -679,17 +742,19 @@ export async function createStudent(teacherTelegramId, { name, contact, groupIds
     const paymentGroupIds = normalizedGroupIds.filter((groupId) => !paidGroupIds.has(groupId))
 
     if (paymentGroupIds.length) {
-      const { error: paymentError } = await supabase
-        .from('payments')
-        .insert(paymentGroupIds.map((groupId) => ({
-          student_id: student.id,
-          group_id: groupId,
-          teacher_id: teacher.id,
-          amount,
-          period_month: month,
-          period_year: year,
-          status: 'unpaid',
-        })))
+      const { error: paymentError } = await withRetry(() =>
+        supabase
+          .from('payments')
+          .insert(paymentGroupIds.map((groupId) => ({
+            student_id: student.id,
+            group_id: groupId,
+            teacher_id: teacher.id,
+            amount,
+            period_month: month,
+            period_year: year,
+            status: 'unpaid',
+          })))
+      )
 
       if (paymentError) {
         console.error('[createStudent] create payment:', paymentError)
@@ -790,11 +855,13 @@ export async function removeStudentFromGroup(groupId, studentId) {
     }
   })
 
-  const { error } = await supabase
-    .from('group_members')
-    .delete()
-    .eq('group_id', groupId)
-    .eq('student_id', studentId)
+  const { error } = await withRetry(() =>
+    supabase
+      .from('group_members')
+      .delete()
+      .eq('group_id', groupId)
+      .eq('student_id', studentId)
+  )
 
   if (error) {
     affectedTeacherGroupEntries.forEach(([cacheKey, value]) => {
@@ -824,12 +891,14 @@ export async function updateGroup(groupId, updates) {
   if (normalizedName) payload.name = normalizedName
   if (normalizedSubject) payload.subject = normalizedSubject
 
-  const { data, error } = await supabase
-    .from('groups')
-    .update(payload)
-    .eq('id', groupId)
-    .select()
-    .single()
+  const { data, error } = await withRetry(() =>
+    supabase
+      .from('groups')
+      .update(payload)
+      .eq('id', groupId)
+      .select()
+      .single()
+  )
 
   if (!error && data) {
     updateMatchingCaches('teacher-groups:', (currentGroups = []) =>
