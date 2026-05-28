@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const queryCache = new Map()
+const queryCacheMeta = new Map()
 const cacheListeners = new Map()
 const userRowByTelegramIdCache = new Map()
 const userRowByTelegramIdPromises = new Map()
@@ -202,6 +203,24 @@ function setCachedUserRowByTelegramId(telegramId, userRow) {
   userRowByTelegramIdCache.set(cacheKey, userRow ?? null)
 }
 
+function setCachedQueryValue(cacheKey, value) {
+  if (!cacheKey) return
+  queryCache.set(cacheKey, value)
+  queryCacheMeta.set(cacheKey, Date.now())
+  emitCacheUpdate(cacheKey, value)
+}
+
+function getCachedQueryValue(cacheKey, fallbackValue) {
+  if (!cacheKey || !queryCache.has(cacheKey)) return fallbackValue
+  return queryCache.get(cacheKey)
+}
+
+function isCachedQueryFresh(cacheKey, staleMs = 0) {
+  if (!cacheKey || !staleMs || !queryCache.has(cacheKey)) return false
+  const updatedAt = queryCacheMeta.get(cacheKey) || 0
+  return Date.now() - updatedAt < staleMs
+}
+
 function updateCachedValue(cacheKey, updater) {
   if (!cacheKey) return
 
@@ -209,8 +228,7 @@ function updateCachedValue(cacheKey, updater) {
   const nextValue = updater(currentValue)
 
   if (nextValue !== undefined) {
-    queryCache.set(cacheKey, nextValue)
-    emitCacheUpdate(cacheKey, nextValue)
+    setCachedQueryValue(cacheKey, nextValue)
   }
 }
 
@@ -224,6 +242,7 @@ function removeCachedValue(cacheKey) {
   if (!cacheKey) return
 
   queryCache.delete(cacheKey)
+  queryCacheMeta.delete(cacheKey)
   emitCacheUpdate(cacheKey, undefined)
 }
 
@@ -313,36 +332,45 @@ async function getUserRowByUsername(username) {
   return data
 }
 
-function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null) {
-  const [data, setData] = useState(() => (cacheKey && queryCache.has(cacheKey) ? queryCache.get(cacheKey) : initialData))
+function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, options = {}) {
+  const staleMs = options.staleMs ?? 0
+  const [data, setData] = useState(() => getCachedQueryValue(cacheKey, initialData))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const refetch = useCallback(async () => {
     if (!isSupabaseConfigured) {
-      setData(cacheKey && queryCache.has(cacheKey) ? queryCache.get(cacheKey) : initialData)
+      setError(null)
+      setData(getCachedQueryValue(cacheKey, initialData))
       setLoading(false)
       return
     }
 
-    setLoading(!(cacheKey && queryCache.has(cacheKey)))
     setError(null)
+
+    if (isCachedQueryFresh(cacheKey, staleMs)) {
+      setData(getCachedQueryValue(cacheKey, initialData))
+      setLoading(false)
+      return
+    }
+
+    setLoading(!queryCache.has(cacheKey))
 
     try {
       const result = await withRetry(() => queryFn())
       if (result?.error) throw result.error
       if (result?.data !== undefined) {
         setData(result.data)
-        if (cacheKey) queryCache.set(cacheKey, result.data)
+        setCachedQueryValue(cacheKey, result.data)
       }
     } catch (err) {
       setError(err)
       console.error('[Supabase] Query error:', err)
-      setData(cacheKey && queryCache.has(cacheKey) ? queryCache.get(cacheKey) : initialData)
+      setData(getCachedQueryValue(cacheKey, initialData))
     } finally {
       setLoading(false)
     }
-  }, [cacheKey, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cacheKey, staleMs, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     refetch()
@@ -458,7 +486,8 @@ export function useTeacherGroups(telegramId) {
     },
     [],
     [telegramId],
-    getTeacherGroupsCacheKey(telegramId)
+    getTeacherGroupsCacheKey(telegramId),
+    { staleMs: 20000 }
   )
 }
 
@@ -621,7 +650,8 @@ export function useGroupDetail(groupId) {
     },
     { group: null, students: [] },
     [groupId],
-    getGroupDetailCacheKey(groupId)
+    getGroupDetailCacheKey(groupId),
+    { staleMs: 20000 }
   )
 }
 
@@ -858,16 +888,13 @@ export async function removeStudentFromGroup(groupId, studentId) {
 
   if (error) {
     affectedTeacherGroupEntries.forEach(([cacheKey, value]) => {
-      queryCache.set(cacheKey, value)
-      emitCacheUpdate(cacheKey, value)
+      setCachedQueryValue(cacheKey, value)
     })
     affectedTeacherDashboardEntries.forEach(([cacheKey, value]) => {
-      queryCache.set(cacheKey, value)
-      emitCacheUpdate(cacheKey, value)
+      setCachedQueryValue(cacheKey, value)
     })
     if (currentGroupDetail !== undefined) {
-      queryCache.set(groupDetailCacheKey, currentGroupDetail)
-      emitCacheUpdate(groupDetailCacheKey, currentGroupDetail)
+      setCachedQueryValue(groupDetailCacheKey, currentGroupDetail)
     }
   }
 
@@ -1158,7 +1185,8 @@ export function useStudentGroups(telegramId) {
     },
     [],
     [telegramId],
-    getStudentGroupsCacheKey(telegramId)
+    getStudentGroupsCacheKey(telegramId),
+    { staleMs: 20000 }
   )
 }
 
@@ -1176,7 +1204,8 @@ export function useStudentHomework(telegramId) {
     },
     [],
     [telegramId],
-    getStudentHomeworkCacheKey(telegramId)
+    getStudentHomeworkCacheKey(telegramId),
+    { staleMs: 15000 }
   )
 }
 
@@ -1205,7 +1234,8 @@ export function useStudentPayments(telegramId) {
     },
     [],
     [telegramId],
-    getStudentPaymentsCacheKey(telegramId)
+    getStudentPaymentsCacheKey(telegramId),
+    { staleMs: 15000 }
   )
 }
 
@@ -1229,7 +1259,8 @@ export function useStudentAttendance(telegramId) {
     },
     0,
     [telegramId],
-    getStudentAttendanceCacheKey(telegramId)
+    getStudentAttendanceCacheKey(telegramId),
+    { staleMs: 15000 }
   )
 }
 
@@ -1286,7 +1317,8 @@ export function useTeacherDashboard(telegramId) {
     },
     null,
     [telegramId],
-    getTeacherDashboardCacheKey(telegramId)
+    getTeacherDashboardCacheKey(telegramId),
+    { staleMs: 20000 }
   )
 }
 
@@ -1356,6 +1388,7 @@ export function useStudentDashboard(telegramId) {
     },
     null,
     [telegramId],
-    getStudentDashboardCacheKey(telegramId)
+    getStudentDashboardCacheKey(telegramId),
+    { staleMs: 20000 }
   )
 }
