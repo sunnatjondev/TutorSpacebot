@@ -433,26 +433,28 @@ export function useTeacherGroups(telegramId) {
       const user = await getUserRowByTelegramId(telegramId)
       if (!user) return { data: [] }
 
-      const { data: groups, error: groupsError } = await supabase
-        .from('groups')
-        .select('id, name, subject, color, created_at, group_members(count), sessions(id, scheduled_at, status)')
-        .eq('teacher_id', user.id)
-        .order('created_at', { ascending: false })
+      const [groupsRes, paymentsRes] = await Promise.all([
+        supabase
+          .from('groups')
+          .select('id, name, subject, color, created_at, group_members(count), sessions(id, scheduled_at, status)')
+          .eq('teacher_id', user.id)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('payments')
+          .select('group_id, student_id, status, period_month, period_year')
+          .eq('teacher_id', user.id),
+      ])
 
-      if (groupsError) throw groupsError
+      if (groupsRes.error) throw groupsRes.error
+      if (paymentsRes.error) throw paymentsRes.error
 
-      const groupIds = (groups || []).map((group) => group.id)
-      if (!groupIds.length) return { data: [] }
+      const groups = groupsRes.data || []
+      if (!groups.length) return { data: [] }
 
-      const { data: payments, error: paymentsError } = await supabase
-        .from('payments')
-        .select('group_id, student_id, status, period_month, period_year')
-        .eq('teacher_id', user.id)
-        .in('group_id', groupIds)
+      const groupIds = new Set(groups.map((group) => group.id))
+      const payments = (paymentsRes.data || []).filter((payment) => groupIds.has(payment.group_id))
 
-      if (paymentsError) throw paymentsError
-
-      return { data: computePaidPercentByGroup(groups || [], payments || []) }
+      return { data: computePaidPercentByGroup(groups, payments) }
     },
     [],
     [telegramId],
@@ -571,7 +573,7 @@ export function useGroupDetail(groupId) {
     async () => {
       if (!groupId) return { data: { group: null, students: [] } }
 
-      const [{ data: group, error: groupError }, { data: memberships, error: membershipsError }] = await Promise.all([
+      const [{ data: group, error: groupError }, { data: memberships, error: membershipsError }, { data: paymentRows, error: paymentsError }] = await Promise.all([
         supabase
           .from('groups')
           .select('id, name, subject, color, telegram_group_link, group_members(count)')
@@ -581,28 +583,19 @@ export function useGroupDetail(groupId) {
           .from('group_members')
           .select('id, student_id, student:users(id, telegram_id, first_name, last_name, username, photo_url)')
           .eq('group_id', groupId),
+        supabase
+          .from('payments')
+          .select('student_id, amount, status, created_at')
+          .eq('group_id', groupId)
+          .order('created_at', { ascending: false }),
       ])
 
       if (groupError) throw groupError
       if (membershipsError) throw membershipsError
-
-      const studentIds = (memberships || []).map((membership) => membership.student_id)
-      let payments = []
-
-      if (studentIds.length) {
-        const { data: paymentRows, error: paymentsError } = await supabase
-          .from('payments')
-          .select('student_id, amount, status, created_at')
-          .eq('group_id', groupId)
-          .in('student_id', studentIds)
-          .order('created_at', { ascending: false })
-
-        if (paymentsError) throw paymentsError
-        payments = paymentRows || []
-      }
+      if (paymentsError) throw paymentsError
 
       const paymentByStudentId = new Map()
-      payments.forEach((payment) => {
+      ;(paymentRows || []).forEach((payment) => {
         if (!paymentByStudentId.has(payment.student_id)) {
           paymentByStudentId.set(payment.student_id, payment)
         }
@@ -1246,22 +1239,31 @@ export function useTeacherDashboard(telegramId) {
       const user = await getUserRowByTelegramId(telegramId)
       if (!user) return { data: null }
 
-      const { data: groups, error: groupsError } = await supabase
-        .from('groups')
-        .select('id, group_members(count)')
-        .eq('teacher_id', user.id)
-
-      if (groupsError) throw groupsError
-
-      const groupIds = (groups || []).map((group) => group.id)
-      const totalStudents = (groups || []).reduce((sum, group) => sum + (group.group_members?.[0]?.count || 0), 0)
-
       const todayStart = new Date()
       todayStart.setHours(0, 0, 0, 0)
       const todayEnd = new Date(todayStart)
       todayEnd.setDate(todayEnd.getDate() + 1)
 
-      const sessionsPromise = groupIds.length
+      const [groupsRes, unpaidRes] = await Promise.all([
+        supabase
+          .from('groups')
+          .select('id, group_members(count)')
+          .eq('teacher_id', user.id),
+        supabase
+          .from('payments')
+          .select('amount, status, student:users!payments_student_id_fkey(first_name, last_name)')
+          .eq('teacher_id', user.id)
+          .in('status', ['unpaid', 'partial']),
+      ])
+
+      if (groupsRes.error) throw groupsRes.error
+      if (unpaidRes.error) throw unpaidRes.error
+
+      const groups = groupsRes.data || []
+      const groupIds = groups.map((group) => group.id)
+      const totalStudents = groups.reduce((sum, group) => sum + (group.group_members?.[0]?.count || 0), 0)
+
+      const sessionsRes = groupIds.length
         ? supabase
             .from('sessions')
             .select('id, scheduled_at, status, group:groups(name, subject)')
@@ -1271,22 +1273,13 @@ export function useTeacherDashboard(telegramId) {
             .order('scheduled_at')
         : Promise.resolve({ data: [], error: null })
 
-      const unpaidPromise = supabase
-        .from('payments')
-        .select('amount, status, student:users!payments_student_id_fkey(first_name, last_name)')
-        .eq('teacher_id', user.id)
-        .in('status', ['unpaid', 'partial'])
-
-      const [todayRes, unpaidRes] = await Promise.all([sessionsPromise, unpaidPromise])
-
-      if (todayRes.error) throw todayRes.error
-      if (unpaidRes.error) throw unpaidRes.error
+      if (sessionsRes.error) throw sessionsRes.error
 
       return {
         data: {
-          totalGroups: (groups || []).length,
+          totalGroups: groups.length,
           totalStudents,
-          todaySessions: todayRes.data || [],
+          todaySessions: sessionsRes.data || [],
           unpaid: unpaidRes.data || [],
         },
       }
@@ -1303,26 +1296,11 @@ export function useStudentDashboard(telegramId) {
       const user = await getUserRowByTelegramId(telegramId)
       if (!user) return { data: null }
 
-      const { data: memberships, error: membershipsError } = await supabase
-        .from('group_members')
-        .select('group_id')
-        .eq('student_id', user.id)
-
-      if (membershipsError) throw membershipsError
-
-      const groupIds = (memberships || []).map((membership) => membership.group_id)
-
-      const nextLessonPromise = groupIds.length
-        ? supabase
-            .from('sessions')
-            .select('scheduled_at, duration_min, group:groups(name, subject, teacher:users!groups_teacher_id_fkey(first_name, last_name))')
-            .in('group_id', groupIds)
-            .gte('scheduled_at', new Date().toISOString())
-            .order('scheduled_at')
-            .limit(1)
-        : Promise.resolve({ data: [], error: null })
-
-      const [hwRes, payRes, attRes, nextLessonRes] = await Promise.all([
+      const [membershipsRes, hwRes, payRes, attRes] = await Promise.all([
+        supabase
+          .from('group_members')
+          .select('group_id')
+          .eq('student_id', user.id),
         supabase
           .from('homework_submissions')
           .select('done, homework(due_date)')
@@ -1337,12 +1315,24 @@ export function useStudentDashboard(telegramId) {
           .from('attendance')
           .select('present')
           .eq('student_id', user.id),
-        nextLessonPromise,
       ])
 
+      if (membershipsRes.error) throw membershipsRes.error
       if (hwRes.error) throw hwRes.error
       if (payRes.error) throw payRes.error
       if (attRes.error) throw attRes.error
+
+      const groupIds = (membershipsRes.data || []).map((membership) => membership.group_id)
+      const nextLessonRes = groupIds.length
+        ? await supabase
+            .from('sessions')
+            .select('scheduled_at, duration_min, group:groups(name, subject, teacher:users!groups_teacher_id_fkey(first_name, last_name))')
+            .in('group_id', groupIds)
+            .gte('scheduled_at', new Date().toISOString())
+            .order('scheduled_at')
+            .limit(1)
+        : { data: [], error: null }
+
       if (nextLessonRes.error) throw nextLessonRes.error
 
       const homework = hwRes.data || []
