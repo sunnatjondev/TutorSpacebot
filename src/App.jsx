@@ -4,10 +4,8 @@ import { useTelegram } from './hooks/useTelegram'
 import { upsertTelegramUser } from './hooks/useSupabaseData'
 import { isSupabaseConfigured } from './lib/supabase'
 
-// Pages
 import RoleSelection from './pages/RoleSelection'
 
-// Teacher pages
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
 import TeacherGroups from './pages/teacher/TeacherGroups'
 import GroupDetail from './pages/teacher/GroupDetail'
@@ -16,7 +14,6 @@ import TeacherFinance from './pages/teacher/TeacherFinance'
 import TeacherSettings from './pages/teacher/TeacherSettings'
 import AddStudent from './pages/teacher/AddStudent'
 
-// Student pages
 import StudentDashboard from './pages/student/StudentDashboard'
 import StudentGroups from './pages/student/StudentGroups'
 import StudentSchedule from './pages/student/StudentSchedule'
@@ -35,44 +32,41 @@ function AuthGate() {
     if (!ready) return
 
     async function checkUser() {
-      // ── Step 1: localStorage — fastest, works offline ──────────────
       const savedRole = localStorage.getItem(LS_ROLE_KEY)
       const savedTgId = localStorage.getItem(LS_TG_ID_KEY)
+      const currentTgId = user ? String(user.id) : null
 
-      // If we have a saved role for THIS Telegram user → upsert THEN redirect
-      if (savedRole && savedTgId && user && String(user.id) === savedTgId) {
-        // MUST await — ensures user row exists in DB before any page queries it
-        if (isSupabaseConfigured && user) {
-          await upsertTelegramUser(user).catch(e => console.warn('[Auth] upsert:', e))
+      if (isSupabaseConfigured && user) {
+        try {
+          const dbUser = await upsertTelegramUser(user)
+          if (dbUser?.role) {
+            localStorage.setItem(LS_ROLE_KEY, dbUser.role)
+            localStorage.setItem(LS_TG_ID_KEY, currentTgId)
+            navigate(dbUser.role === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
+            setChecking(false)
+            return
+          }
+        } catch (error) {
+          console.error('[Auth] Supabase check failed:', error)
         }
+      }
+
+      if (savedRole && savedTgId && currentTgId && savedTgId === currentTgId) {
         navigate(savedRole === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
         setChecking(false)
         return
       }
 
-      // ── Step 2: Try Supabase if no local role ───────────────────────
-      if (isSupabaseConfigured && user) {
-        try {
-          const dbUser = await upsertTelegramUser(user)
-          if (dbUser?.role) {
-            // Save to localStorage for next time
-            localStorage.setItem(LS_ROLE_KEY, dbUser.role)
-            localStorage.setItem(LS_TG_ID_KEY, String(user.id))
-            navigate(dbUser.role === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
-            setChecking(false)
-            return
-          }
-        } catch (e) {
-          console.error('[Auth] Supabase check failed:', e)
-        }
+      if (savedTgId && currentTgId && savedTgId !== currentTgId) {
+        localStorage.removeItem(LS_ROLE_KEY)
+        localStorage.removeItem(LS_TG_ID_KEY)
       }
 
-      // ── Step 3: No role found → show role selection ─────────────────
       setChecking(false)
     }
 
     checkUser()
-  }, [ready, user])
+  }, [ready, user, navigate])
 
   if (checking) {
     return (
@@ -93,7 +87,7 @@ function AuthGate() {
         <div className="max-w-sm text-center space-y-3">
           <h1 className="text-2xl font-extrabold text-on-surface">TutorSpace</h1>
           <p className="text-on-surface-variant text-sm">
-            Ilovani ishga tushirish uchun TutorSpace mini app'ni Telegram ichida oching.
+            Ilovani ishga tushirish uchun TutorSpace mini app&apos;ni Telegram ichida oching.
           </p>
         </div>
       </div>
@@ -109,7 +103,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<AuthGate />} />
 
-        {/* Teacher Routes */}
         <Route path="/teacher/home" element={<TeacherDashboard />} />
         <Route path="/teacher/groups" element={<TeacherGroups />} />
         <Route path="/teacher/groups/:id" element={<GroupDetail />} />
@@ -118,7 +111,6 @@ export default function App() {
         <Route path="/teacher/settings" element={<TeacherSettings />} />
         <Route path="/teacher/add-student" element={<AddStudent />} />
 
-        {/* Student Routes */}
         <Route path="/student/home" element={<StudentDashboard />} />
         <Route path="/student/groups" element={<StudentGroups />} />
         <Route path="/student/schedule" element={<StudentSchedule />} />

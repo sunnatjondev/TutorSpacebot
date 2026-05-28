@@ -5,7 +5,7 @@ create extension if not exists "uuid-ossp";
 
 create table if not exists public.users (
   id uuid primary key default uuid_generate_v4(),
-  telegram_id bigint not null,
+  telegram_id bigint,
   first_name text not null,
   last_name text,
   username text,
@@ -124,7 +124,7 @@ alter table public.users
   alter column telegram_id type bigint using telegram_id::bigint;
 
 alter table public.users
-  alter column telegram_id set not null;
+  alter column telegram_id drop not null;
 
 alter table public.groups
   add column if not exists teacher_id uuid references public.users(id) on delete cascade;

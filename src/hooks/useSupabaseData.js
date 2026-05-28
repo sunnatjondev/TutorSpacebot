@@ -200,7 +200,12 @@ function removeSessionFromStudentGroupRows(rows = [], sessionId) {
 function setCachedUserRowByTelegramId(telegramId, userRow) {
   const cacheKey = getTelegramUserCacheKey(telegramId)
   if (!cacheKey) return
-  userRowByTelegramIdCache.set(cacheKey, userRow ?? null)
+  if (userRow) {
+    userRowByTelegramIdCache.set(cacheKey, userRow)
+    return
+  }
+
+  userRowByTelegramIdCache.delete(cacheKey)
 }
 
 function setCachedQueryValue(cacheKey, value) {
@@ -269,7 +274,7 @@ function buildManualStudentPayload({ name, contact }) {
   const username = usernameCandidate && /^[a-zA-Z0-9_]{3,}$/.test(usernameCandidate) ? usernameCandidate : null
 
   return {
-    telegram_id: -(Date.now() + Math.floor(Math.random() * 1000)),
+    telegram_id: null,
     first_name: firstName,
     last_name: lastName,
     username,
@@ -338,7 +343,7 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, opti
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const refetch = useCallback(async () => {
+  const fetchQuery = useCallback(async ({ force = false } = {}) => {
     if (!isSupabaseConfigured) {
       setError(null)
       setData(getCachedQueryValue(cacheKey, initialData))
@@ -348,7 +353,7 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, opti
 
     setError(null)
 
-    if (isCachedQueryFresh(cacheKey, staleMs)) {
+    if (!force && isCachedQueryFresh(cacheKey, staleMs)) {
       setData(getCachedQueryValue(cacheKey, initialData))
       setLoading(false)
       return
@@ -373,8 +378,8 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, opti
   }, [cacheKey, staleMs, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    refetch()
-  }, [refetch])
+    fetchQuery()
+  }, [fetchQuery])
 
   useEffect(() => {
     if (!cacheKey) return undefined
@@ -383,6 +388,8 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, opti
       setData(nextValue ?? initialData)
     })
   }, [cacheKey, initialData])
+
+  const refetch = useCallback(() => fetchQuery({ force: true }), [fetchQuery])
 
   return { data, loading, error, refetch }
 }
@@ -443,9 +450,30 @@ export async function upsertTelegramUser(tgUser) {
   return data
 }
 
-export async function saveUserRole(telegramId, role) {
+export async function saveUserRole(telegramUserOrId, role) {
+  const telegramId =
+    typeof telegramUserOrId === 'object' && telegramUserOrId !== null
+      ? telegramUserOrId.id
+      : telegramUserOrId
+
   if (!isSupabaseConfigured || !telegramId) return
-  await supabase.from('users').update({ role }).eq('telegram_id', telegramId)
+
+  const request =
+    typeof telegramUserOrId === 'object' && telegramUserOrId !== null
+      ? supabase
+          .from('users')
+          .upsert(
+            buildTelegramUserPayload(telegramUserOrId, { role }),
+            { onConflict: 'telegram_id', ignoreDuplicates: false }
+          )
+      : supabase
+          .from('users')
+          .update({ role, updated_at: new Date().toISOString() })
+          .eq('telegram_id', telegramId)
+
+  const { error } = await request
+  if (error) throw error
+
   const cacheKey = getTelegramUserCacheKey(telegramId)
   if (cacheKey && userRowByTelegramIdCache.has(cacheKey)) {
     userRowByTelegramIdCache.set(cacheKey, {
@@ -1295,14 +1323,14 @@ export function useTeacherDashboard(telegramId) {
       const totalStudents = groups.reduce((sum, group) => sum + (group.group_members?.[0]?.count || 0), 0)
 
       const sessionsRes = groupIds.length
-        ? supabase
+        ? await supabase
             .from('sessions')
-            .select('id, scheduled_at, status, group:groups(name, subject)')
+            .select('id, scheduled_at, status, group:groups(id, name, subject)')
             .in('group_id', groupIds)
             .gte('scheduled_at', todayStart.toISOString())
             .lt('scheduled_at', todayEnd.toISOString())
             .order('scheduled_at')
-        : Promise.resolve({ data: [], error: null })
+        : { data: [], error: null }
 
       if (sessionsRes.error) throw sessionsRes.error
 

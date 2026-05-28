@@ -27,19 +27,19 @@ export default function RoleSelection() {
     haptic?.medium()
     setSaving(true)
 
-    // 1. Save to localStorage FIRST (always works, instant)
     if (user?.id) {
+      try {
+        await saveUserRole(user, selected)
+      } catch (error) {
+        console.warn('[Auth] Supabase role save:', error)
+      }
+
       localStorage.setItem(LS_ROLE_KEY, selected)
       localStorage.setItem(LS_TG_ID_KEY, String(user.id))
     }
 
-    // 2. Also save to Supabase in background (best-effort)
-    if (user?.id) {
-      saveUserRole(user.id, selected).catch(e => console.warn('[Auth] Supabase role save:', e))
-    }
-
     setSaving(false)
-    navigate(selected === 'teacher' ? '/teacher/home' : '/student/home')
+    navigate(selected === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
   }
 
   return (
