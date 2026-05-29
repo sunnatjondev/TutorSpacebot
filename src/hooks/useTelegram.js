@@ -16,19 +16,19 @@ function getGreetingRu() {
 
 export function useTelegram() {
   const tg = window?.Telegram?.WebApp
-  const [user, setUser] = useState(null)
-  const [ready, setReady] = useState(false)
+  const [user, setUser] = useState(() => tg?.initDataUnsafe?.user || null)
+  const [ready, setReady] = useState(() => !!tg)
 
   useEffect(() => {
     if (tg) {
       tg.ready()
       tg.expand()
       tg.enableClosingConfirmation?.()
-      setUser(tg.initDataUnsafe?.user || null)
-    } else {
-      setUser(null)
+      const tgUser = tg.initDataUnsafe?.user
+      if (tgUser) {
+        setUser(tgUser)
+      }
     }
-
     setReady(true)
   }, [tg])
 

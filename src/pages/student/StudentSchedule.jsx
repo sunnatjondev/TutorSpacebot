@@ -35,10 +35,13 @@ const DAY_KEYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
 export default function StudentSchedule() {
   const { user, haptic } = useTelegram()
   const { t } = useI18n()
-  const [baseDate] = useState(() => new Date())
-  const today = baseDate
-  const [selectedDay, setSelectedDay] = useState(today.getDay() === 0 ? 6 : today.getDay() - 1)
-  const days = getDayDates(today)
+  const [baseDate, setBaseDate] = useState(() => new Date())
+  const today = new Date()
+  const [selectedDay, setSelectedDay] = useState(() => {
+    const d = new Date().getDay()
+    return d === 0 ? 6 : d - 1
+  })
+  const days = getDayDates(baseDate)
   const weekStartKey = days[0].getTime()
   const { data: sessions } = useStudentSchedule(user?.id, weekStartKey)
 
@@ -66,9 +69,30 @@ export default function StudentSchedule() {
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6">
-        <div className="mb-4">
-          <h1 className="text-[28px] font-extrabold text-on-surface">{t('studentSchedule.title')}</h1>
-          <p className="text-on-surface-variant text-sm">{t('studentSchedule.subtitle')}</p>
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <h1 className="text-[28px] font-extrabold text-on-surface">{t('studentSchedule.title')}</h1>
+            <p className="text-on-surface-variant text-sm">{t('studentSchedule.subtitle')}</p>
+          </div>
+          <button
+            onClick={() => document.getElementById('student-schedule-date-picker')?.showPicker?.() || document.getElementById('student-schedule-date-picker')?.click()}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform shrink-0"
+          >
+            <CalendarDays size={18} className="text-on-surface-variant" />
+          </button>
+          <input
+            type="date"
+            id="student-schedule-date-picker"
+            className="hidden"
+            onChange={(event) => {
+              if (event.target.value) {
+                const selected = new Date(event.target.value)
+                setBaseDate(selected)
+                const day = selected.getDay()
+                setSelectedDay(day === 0 ? 6 : day - 1)
+              }
+            }}
+          />
         </div>
 
         <div className="mb-4 flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>

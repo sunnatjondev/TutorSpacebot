@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useTelegram } from './hooks/useTelegram'
-import { upsertTelegramUser } from './hooks/useSupabaseData'
+import { upsertTelegramUser, joinGroupByToken } from './hooks/useSupabaseData'
 import { isSupabaseConfigured } from './lib/supabase'
 
 import RoleSelection from './pages/RoleSelection'
@@ -36,9 +36,27 @@ function AuthGate() {
       const savedTgId = localStorage.getItem(LS_TG_ID_KEY)
       const currentTgId = user ? String(user.id) : null
 
+      const tg = window?.Telegram?.WebApp
+      const startParam = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('startapp')
+      const isInvite = startParam && startParam.startsWith('join_')
+      const inviteToken = isInvite ? startParam.replace('join_', '') : null
+
       if (isSupabaseConfigured && user) {
         try {
-          const dbUser = await upsertTelegramUser(user)
+          let dbUser = await upsertTelegramUser(user)
+
+          if (inviteToken) {
+            const joinRes = await joinGroupByToken(user.id, inviteToken, user)
+            if (joinRes.success) {
+              dbUser = { ...dbUser, role: joinRes.role }
+              if (tg?.showAlert) {
+                tg.showAlert(`Tabriklaymiz! Siz "${joinRes.groupName}" guruhiga qo'shildingiz!`)
+              } else {
+                alert(`Tabriklaymiz! Siz "${joinRes.groupName}" guruhiga qo'shildingiz!`)
+              }
+            }
+          }
+
           if (dbUser?.role) {
             localStorage.setItem(LS_ROLE_KEY, dbUser.role)
             localStorage.setItem(LS_TG_ID_KEY, currentTgId)

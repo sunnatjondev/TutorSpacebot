@@ -217,12 +217,15 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
 export default function TeacherSchedule() {
   const { user, haptic } = useTelegram()
   const { t } = useI18n()
-  const [baseDate] = useState(() => new Date())
-  const today = baseDate
-  const [selectedDay, setSelectedDay] = useState(today.getDay() === 0 ? 6 : today.getDay() - 1)
+  const [baseDate, setBaseDate] = useState(() => new Date())
+  const today = new Date()
+  const [selectedDay, setSelectedDay] = useState(() => {
+    const d = new Date().getDay()
+    return d === 0 ? 6 : d - 1
+  })
   const [showCreate, setShowCreate] = useState(false)
   const [processingSessionId, setProcessingSessionId] = useState(null)
-  const days = getDayDates(today)
+  const days = getDayDates(baseDate)
   const dayKeys = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   const weekLabel = `${days[0].toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })} - ${days[6].toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })}`
 
@@ -302,9 +305,25 @@ export default function TeacherSchedule() {
             <h1 className="text-[28px] font-extrabold text-on-surface">{t('teacherSchedule.title')}</h1>
             <p className="text-sm text-on-surface-variant">{weekLabel}</p>
           </div>
-          <button className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform">
+          <button
+            onClick={() => document.getElementById('schedule-date-picker')?.showPicker?.() || document.getElementById('schedule-date-picker')?.click()}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform shrink-0"
+          >
             <CalendarDays size={18} className="text-on-surface-variant" />
           </button>
+          <input
+            type="date"
+            id="schedule-date-picker"
+            className="hidden"
+            onChange={(event) => {
+              if (event.target.value) {
+                const selected = new Date(event.target.value)
+                setBaseDate(selected)
+                const day = selected.getDay()
+                setSelectedDay(day === 0 ? 6 : day - 1)
+              }
+            }}
+          />
         </div>
 
         <div className="card mb-5 flex items-center justify-between gap-1 p-3">
@@ -358,7 +377,7 @@ export default function TeacherSchedule() {
                       isDone
                         ? 'border-outline-variant bg-surface-container'
                         : isInProgress
-                          ? 'border-paid-green/30 bg-surface-container'
+                          ? 'card-in-progress border-paid-green/30 bg-surface-container'
                           : 'border-brand/30 bg-surface-container'
                     }`}
                     style={
@@ -385,7 +404,7 @@ export default function TeacherSchedule() {
                         <CheckCircle size={16} className="shrink-0 text-paid-green" />
                       ) : (
                         <span className="flex shrink-0 items-center gap-1 text-[10px] text-on-surface-variant">
-                          <span className={`h-1.5 w-1.5 rounded-full ${isInProgress ? 'bg-paid-green' : 'bg-primary'} ${isInProgress ? '' : 'animate-pulse'}`} />
+                          <span className={`h-1.5 w-1.5 rounded-full ${isInProgress ? 'bg-paid-green animate-ping' : 'bg-primary'} ${isInProgress ? '' : 'animate-pulse'}`} />
                           {getStatusLabel(lesson.status)}
                         </span>
                       )}
@@ -412,14 +431,39 @@ export default function TeacherSchedule() {
                             }`}
                             title={isInProgress ? t('teacherSchedule.finishLesson') : t('teacherSchedule.startLesson')}
                           >
-                            {isInProgress ? <Square size={13} className="fill-white text-white" /> : <Play size={14} className="fill-white text-white" />}
+                            {isProcessing ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            ) : isInProgress ? (
+                              <Square size={13} className="fill-white text-white" />
+                            ) : (
+                              <Play size={14} className="fill-white text-white" />
+                            )}
                           </button>
                         )}
                       </div>
                     </div>
                     {!isDone && (
-                      <div className="mt-3 text-[11px] font-medium text-on-surface-variant">
-                        {isInProgress ? t('teacherSchedule.finishHint') : t('teacherSchedule.startHint')}
+                      <div className="mt-3 text-[11px] font-medium text-on-surface-variant flex items-center gap-1.5">
+                        {isInProgress ? (
+                          <>
+                            <span className="flex h-2 w-2 relative">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-paid-green opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-paid-green"></span>
+                            </span>
+                            <span className="text-paid-green font-bold animate-pulse">Dars ketmoqda... (Урок идет...)</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="inline-block">⏱️</span>
+                            <span>{t('teacherSchedule.startHint')}</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    {isDone && (
+                      <div className="mt-3 text-[11px] font-medium text-paid-green flex items-center gap-1">
+                        <span>✅</span>
+                        <span>Dars yakunlandi (Урок завершен)</span>
                       </div>
                     )}
                   </div>

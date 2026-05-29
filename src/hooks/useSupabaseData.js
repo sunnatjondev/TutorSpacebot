@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const queryCache = new Map()
@@ -343,6 +343,11 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, opti
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  const latestCacheKey = useRef(cacheKey)
+  useEffect(() => {
+    latestCacheKey.current = cacheKey
+  }, [cacheKey])
+
   // Track cacheKey transitions to synchronously load cached data on key changes
   const [prevCacheKey, setPrevCacheKey] = useState(cacheKey)
   if (cacheKey !== prevCacheKey) {
@@ -351,37 +356,50 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, opti
   }
 
   const fetchQuery = useCallback(async ({ force = false } = {}) => {
+    if (!cacheKey) {
+      setData(initialData)
+      setLoading(false)
+      return
+    }
+
+    const fetchKey = cacheKey
+
     if (!isSupabaseConfigured) {
       setError(null)
-      setData(getCachedQueryValue(cacheKey, initialData))
+      setData(getCachedQueryValue(fetchKey, initialData))
       setLoading(false)
       return
     }
 
     setError(null)
 
-    if (!force && isCachedQueryFresh(cacheKey, staleMs)) {
-      setData(getCachedQueryValue(cacheKey, initialData))
+    if (!force && isCachedQueryFresh(fetchKey, staleMs)) {
+      setData(getCachedQueryValue(fetchKey, initialData))
       setLoading(false)
       return
     }
 
     // Only set loading to true if we don't have this key in the cache yet
-    setLoading(!queryCache.has(cacheKey))
+    setLoading(!queryCache.has(fetchKey))
 
     try {
       const result = await withRetry(() => queryFn())
+      if (latestCacheKey.current !== fetchKey) return
+
       if (result?.error) throw result.error
       if (result?.data !== undefined) {
         setData(result.data)
-        setCachedQueryValue(cacheKey, result.data)
+        setCachedQueryValue(fetchKey, result.data)
       }
     } catch (err) {
+      if (latestCacheKey.current !== fetchKey) return
       setError(err)
       console.error('[Supabase] Query error:', err)
-      setData(getCachedQueryValue(cacheKey, initialData))
+      setData(getCachedQueryValue(fetchKey, initialData))
     } finally {
-      setLoading(false)
+      if (latestCacheKey.current === fetchKey) {
+        setLoading(false)
+      }
     }
   }, [cacheKey, staleMs, ...deps]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1464,4 +1482,144 @@ export function useStudentDashboard(telegramId) {
     getStudentDashboardCacheKey(telegramId),
     { staleMs: 20000 }
   )
+}
+
+export async function joinGroupByToken(telegramId, inviteToken, tgUser = null) {
+  if (!isSupabaseConfigured || !telegramId || !inviteToken) return { success: false }
+
+  let userRow = null
+  try {
+    userRow = await getUserRowByTelegramId(telegramId)
+  } catch (err) {
+    console.error('[joinGroupByToken] user lookup error:', err)
+  }
+
+  if (!userRow) {
+    const { data: newUser, error: createErr } = await supabase
+      .from('users')
+      .upsert(
+        buildTelegramUserPayload(tgUser, { telegram_id: telegramId, role: 'student' }),
+        { onConflict: 'telegram_id', ignoreDuplicates: false }
+      )
+      .select()
+      .single()
+
+    if (createErr) {
+      console.error('[joinGroupByToken] create user error:', createErr)
+      return { success: false, error: createErr }
+    }
+    userRow = newUser
+  }
+
+  const { data: group, error: groupErr } = await supabase
+    .from('groups')
+    .select('id, name, teacher_id')
+    .eq('invite_token', inviteToken)
+    .maybeSingle()
+
+  if (groupErr || !group) {
+    console.error('[joinGroupByToken] group lookup:', groupErr)
+    return { success: false, error: { message: 'Guruh topilmadi.' } }
+  }
+
+  const { error: memberErr } = await supabase
+    .from('group_members')
+    .upsert({ group_id: group.id, student_id: userRow.id }, { onConflict: 'group_id,student_id' })
+
+  if (memberErr) {
+    console.error('[joinGroupByToken] member add error:', memberErr)
+    return { success: false, error: memberErr }
+  }
+
+  const { month, year } = getCurrentPeriod()
+  
+  // Find or insert payment row
+  const { data: existingPayment } = await supabase
+    .from('payments')
+    .select('id')
+    .eq('student_id', userRow.id)
+    .eq('group_id', group.id)
+    .eq('period_month', month)
+    .eq('period_year', year)
+    .maybeSingle()
+
+  if (!existingPayment) {
+    await supabase
+      .from('payments')
+      .insert({
+        student_id: userRow.id,
+        group_id: group.id,
+        teacher_id: group.teacher_id,
+        amount: 0,
+        period_month: month,
+        period_year: year,
+        status: 'unpaid'
+      })
+  }
+
+  updateMatchingCaches('teacher-groups:', (groups = []) =>
+    groups.map((g) =>
+      g.id === group.id
+        ? { ...g, group_members: [{ count: (g.group_members?.[0]?.count || 0) + 1 }] }
+        : g
+    )
+  )
+
+  removeCachedValue(getGroupDetailCacheKey(group.id))
+  removeCachedValue(getTeacherDashboardCacheKey(telegramId))
+
+  return { success: true, groupName: group.name, role: userRow.role }
+}
+
+export async function updateStudentRate(groupId, studentId, amount) {
+  if (!isSupabaseConfigured || !groupId || !studentId) return { success: false }
+
+  const { month, year } = getCurrentPeriod()
+
+  // Get the teacher_id from group
+  const { data: group } = await supabase
+    .from('groups')
+    .select('teacher_id')
+    .eq('id', groupId)
+    .maybeSingle()
+
+  if (!group) return { success: false, error: { message: 'Guruh topilmadi.' } }
+
+  const { data: existingPayment } = await supabase
+    .from('payments')
+    .select('id')
+    .eq('student_id', studentId)
+    .eq('group_id', groupId)
+    .eq('period_month', month)
+    .eq('period_year', year)
+    .maybeSingle()
+
+  let error = null
+  if (existingPayment) {
+    const res = await supabase
+      .from('payments')
+      .update({ amount: Number(amount) || 0 })
+      .eq('id', existingPayment.id)
+    error = res.error
+  } else {
+    const res = await supabase
+      .from('payments')
+      .insert({
+        student_id: studentId,
+        group_id: groupId,
+        teacher_id: group.teacher_id,
+        amount: Number(amount) || 0,
+        period_month: month,
+        period_year: year,
+        status: 'unpaid',
+      })
+    error = res.error
+  }
+
+  if (!error) {
+    removeCachedValue(getGroupDetailCacheKey(groupId))
+    updateMatchingCaches('teacher-groups:', (groups = []) => groups)
+  }
+
+  return { success: !error, error }
 }
