@@ -386,25 +386,25 @@ export default function GroupDetail() {
           <p className="text-xs text-on-surface-variant mb-3">
             O'quvchilarni taklif qilish havolasi (Ссылка для приглашения):
           </p>
-          <div className="flex gap-2">
+          <div className="space-y-3">
             <input
               readOnly
-              value={`https://t.me/${botUsername}/app?startapp=join_${group?.invite_token}`}
-              className="input-field py-2 text-xs flex-1 bg-surface-high border-outline-variant text-on-surface-variant font-mono"
+              value={`https://t.me/${botUsername}?start=invite_${group?.invite_token}`}
+              className="input-field py-2.5 text-xs w-full bg-surface-high border-outline-variant text-on-surface-variant font-mono"
             />
             <button
               onClick={() => {
-                navigator.clipboard.writeText(`https://t.me/${botUsername}/app?startapp=join_${group?.invite_token}`)
+                navigator.clipboard.writeText(`https://t.me/${botUsername}?start=invite_${group?.invite_token}`)
                 haptic?.success()
                 if (window.Telegram?.WebApp?.showAlert) {
-                  window.Telegram.WebApp.showAlert("Havola nusxalandi! (Ссылка скопирована)")
+                  window.Telegram.WebApp.showAlert("Havola nusxalandi! (Ссылка для приглашения скопирована)")
                 } else {
                   alert("Havola nusxalandi!")
                 }
               }}
-              className="btn-ghost shrink-0 text-xs px-3"
+              className="w-full h-11 rounded-full bg-brand text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all duration-200"
             >
-              Nusxa
+              Пригласить студента
             </button>
           </div>
         </div>
