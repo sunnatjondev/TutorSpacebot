@@ -92,6 +92,7 @@ export default function GroupDetail() {
   const { haptic } = useTelegram()
   const { t } = useI18n()
   const { data, loading } = useGroupDetail(id)
+  const botUsername = import.meta.env.VITE_BOT_USERNAME || 'TutorSpaceBot'
 
   const group = data?.group
   const students = data?.students || []
@@ -388,12 +389,12 @@ export default function GroupDetail() {
           <div className="flex gap-2">
             <input
               readOnly
-              value={`https://t.me/tutorspace_bot/app?startapp=join_${group?.invite_token}`}
+              value={`https://t.me/${botUsername}/app?startapp=join_${group?.invite_token}`}
               className="input-field py-2 text-xs flex-1 bg-surface-high border-outline-variant text-on-surface-variant font-mono"
             />
             <button
               onClick={() => {
-                navigator.clipboard.writeText(`https://t.me/tutorspace_bot/app?startapp=join_${group?.invite_token}`)
+                navigator.clipboard.writeText(`https://t.me/${botUsername}/app?startapp=join_${group?.invite_token}`)
                 haptic?.success()
                 if (window.Telegram?.WebApp?.showAlert) {
                   window.Telegram.WebApp.showAlert("Havola nusxalandi! (Ссылка скопирована)")
