@@ -343,6 +343,13 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, opti
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  // Track cacheKey transitions to synchronously load cached data on key changes
+  const [prevCacheKey, setPrevCacheKey] = useState(cacheKey)
+  if (cacheKey !== prevCacheKey) {
+    setPrevCacheKey(cacheKey)
+    setData(getCachedQueryValue(cacheKey, initialData))
+  }
+
   const fetchQuery = useCallback(async ({ force = false } = {}) => {
     if (!isSupabaseConfigured) {
       setError(null)
@@ -359,6 +366,7 @@ function useSupabaseQuery(queryFn, initialData, deps = [], cacheKey = null, opti
       return
     }
 
+    // Only set loading to true if we don't have this key in the cache yet
     setLoading(!queryCache.has(cacheKey))
 
     try {
@@ -523,6 +531,37 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
   if (!isSupabaseConfigured) return { success: false, error: { message: 'Supabase sozlanmagan' } }
   if (!telegramId) return { success: false, error: { message: 'Telegram foydalanuvchisi aniqlanmadi.' } }
 
+  const tempId = `temp-${Date.now()}`
+  const groupsCacheKey = getTeacherGroupsCacheKey(telegramId)
+  
+  const optimisticGroup = {
+    id: tempId,
+    name,
+    subject: subject || 'General',
+    color: 'purple',
+    group_members: [{ count: 0 }],
+    sessions: [],
+    paidPercent: 0,
+    created_at: new Date().toISOString(),
+    isOptimistic: true,
+  }
+
+  // Optimistically insert into cache
+  if (groupsCacheKey) {
+    updateCachedValue(groupsCacheKey, (currentGroups = []) => {
+      if (currentGroups.some((g) => g.id === tempId)) return currentGroups
+      return [optimisticGroup, ...currentGroups]
+    })
+  }
+
+  const cleanupOptimistic = () => {
+    if (groupsCacheKey) {
+      updateCachedValue(groupsCacheKey, (currentGroups = []) => {
+        return currentGroups.filter((g) => g.id !== tempId)
+      })
+    }
+  }
+
   let userRow = null
   let findErr = null
 
@@ -549,6 +588,7 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
 
     if (createErr) {
       console.error('[createGroup] auto-create user error:', createErr)
+      cleanupOptimistic()
       return { success: false, error: { message: `Foydalanuvchi yaratib bo'lmadi: ${createErr.message}` } }
     }
 
@@ -557,10 +597,12 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
 
   if (findErr) {
     console.error('[createGroup] user lookup:', findErr)
+    cleanupOptimistic()
     return { success: false, error: { message: `User lookup: ${findErr.message}` } }
   }
 
   if (!userRow) {
+    cleanupOptimistic()
     return { success: false, error: { message: 'Foydalanuvchi topilmadi.' } }
   }
 
@@ -577,16 +619,19 @@ export async function createGroup(telegramId, { name, subject }, tgUser = null) 
       .single()
   )
 
-  if (error) console.error('[createGroup] insert:', error)
+  if (error) {
+    console.error('[createGroup] insert:', error)
+    cleanupOptimistic()
+  }
 
   if (!error && data) {
-    const groupsCacheKey = getTeacherGroupsCacheKey(telegramId)
     const dashboardCacheKey = getTeacherDashboardCacheKey(telegramId)
     const cachedGroup = buildCachedGroup(data)
 
     updateCachedValue(groupsCacheKey, (currentGroups = []) => {
-      if (currentGroups.some((group) => group.id === cachedGroup.id)) return currentGroups
-      return [cachedGroup, ...currentGroups]
+      const filtered = currentGroups.filter((g) => g.id !== tempId)
+      if (filtered.some((group) => group.id === cachedGroup.id)) return filtered
+      return [cachedGroup, ...filtered]
     })
 
     updateCachedValue(dashboardCacheKey, (currentDashboard) => {

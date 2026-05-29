@@ -11,26 +11,32 @@ import { useTeacherGroups, createGroup, deleteGroup } from '../../hooks/useSupab
 function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
 
   const handleCreate = async () => {
     if (!name.trim()) return
-    setLoading(true)
-    setError(null)
     haptic?.medium()
+
+    // Close modal immediately so the user can see the optimistic group in the list
+    onClose()
+
     const result = await createGroup(telegramId, { name: name.trim(), subject }, user)
-    setLoading(false)
 
     if (result.success) {
       haptic?.success?.()
       await onCreated(result.data)
-      onClose()
-      return
+    } else {
+      haptic?.warning?.()
+      const msg = result.error?.message || "Guruh yaratishda xatolik yuz berdi. Qayta urinib ko'ring."
+      if (window.Telegram?.WebApp?.showPopup) {
+        window.Telegram.WebApp.showPopup({
+          title: 'Xatolik',
+          message: msg,
+          buttons: [{ type: 'ok' }]
+        })
+      } else {
+        alert(msg)
+      }
     }
-
-    setError(result.error?.message || 'Xatolik yuz berdi.')
-    haptic?.warning?.()
   }
 
   return (
@@ -54,13 +60,8 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
           onChange={(event) => setSubject(event.target.value)}
         />
       </div>
-      {error && (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3">
-          <p className="text-red-400 text-sm">{error}</p>
-        </div>
-      )}
-      <button className="btn-primary" onClick={handleCreate} disabled={!name.trim() || loading}>
-        {loading ? 'Yaratilmoqda...' : '+ Guruh yaratish'}
+      <button className="btn-primary mt-2" onClick={handleCreate} disabled={!name.trim()}>
+        + Guruh yaratish
       </button>
     </div>
   )
@@ -123,22 +124,29 @@ export default function TeacherGroups() {
         )}
 
         <div className="space-y-4">
-          {displayGroups.map((group, index) => (
-            <button
-              key={group.id}
-              className="card w-full text-left stagger-item transition-all duration-200 active:scale-[0.98] relative"
-              style={{ animationDelay: `${index * 70}ms`, opacity: deletingId === group.id ? 0.5 : 1 }}
-              onClick={() => {
-                haptic?.light()
-                navigate(`/teacher/groups/${group.id}`)
-              }}
-            >
+          {displayGroups.map((group, index) => {
+            const isOptimistic = group.isOptimistic
+            return (
               <button
-                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-high flex items-center justify-center text-debt-red active:scale-90 z-10"
-                onClick={(event) => handleDelete(event, group.id)}
+                key={group.id}
+                className={`card w-full text-left stagger-item transition-all duration-200 relative ${
+                  isOptimistic ? 'opacity-60 pointer-events-none' : 'active:scale-[0.98]'
+                }`}
+                style={{ animationDelay: `${index * 70}ms`, opacity: deletingId === group.id ? 0.5 : undefined }}
+                onClick={() => {
+                  if (isOptimistic) return
+                  haptic?.light()
+                  navigate(`/teacher/groups/${group.id}`)
+                }}
               >
-                <Trash2 size={14} />
-              </button>
+                {!isOptimistic && (
+                  <button
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-high flex items-center justify-center text-debt-red active:scale-90 z-10"
+                    onClick={(event) => handleDelete(event, group.id)}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
 
               <div className="flex items-center gap-2 mb-3 pr-10">
                 <span className="chip chip-active text-[11px] font-bold py-1 px-3 max-w-[120px] truncate">
@@ -172,7 +180,8 @@ export default function TeacherGroups() {
                 <ProgressBar value={group.paidPercent ?? 0} />
               </div>
             </button>
-          ))}
+          )
+        })}
 
           {!loading && !displayGroups.length && (
             <div className="text-center py-12">
