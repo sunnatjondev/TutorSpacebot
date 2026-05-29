@@ -92,7 +92,7 @@ export default function GroupDetail() {
   const { haptic } = useTelegram()
   const { t } = useI18n()
   const { data, loading } = useGroupDetail(id)
-  const botUsername = import.meta.env.VITE_BOT_USERNAME || 'TutorSpaceBot'
+  const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tut0rspacebot'
 
   const group = data?.group
   const students = data?.students || []
