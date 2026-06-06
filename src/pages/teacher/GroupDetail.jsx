@@ -97,6 +97,10 @@ export default function GroupDetail() {
   const group = data?.group
   const students = data?.students || []
 
+  // Stable string key from student IDs — prevents re-running effects
+  // when the array reference changes but contents are the same (happens every 20s staleMs refetch)
+  const studentIdsKey = students.map((s) => s.id).join(',')
+
   // Date and Session state for Attendance
   const [attendanceBaseDate, setAttendanceBaseDate] = useState(() => new Date())
   const [selectedDayIndex, setSelectedDayIndex] = useState(() => {
@@ -173,7 +177,7 @@ export default function GroupDetail() {
     }
 
     loadDayAttendance()
-  }, [id, selectedAttendanceDate, students])
+  }, [id, selectedAttendanceDate, studentIdsKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch Monthly Stats & Selected Date Absences
   useEffect(() => {
@@ -223,7 +227,7 @@ export default function GroupDetail() {
     }
 
     loadMonthlyStats()
-  }, [id, students, attendance])
+  }, [id, studentIdsKey, attendance]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleAttendance = async (studentId) => {
     haptic?.light()

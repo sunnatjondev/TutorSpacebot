@@ -696,7 +696,7 @@ export function useGroupDetail(groupId) {
       const [{ data: group, error: groupError }, { data: memberships, error: membershipsError }, { data: paymentRows, error: paymentsError }] = await Promise.all([
         supabase
           .from('groups')
-          .select('id, name, subject, color, telegram_group_link, group_members(count)')
+          .select('id, name, subject, color, telegram_group_link, invite_token, group_members(count)')
           .eq('id', groupId)
           .maybeSingle(),
         supabase

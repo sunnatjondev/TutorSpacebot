@@ -38,8 +38,8 @@ function AuthGate() {
 
       const tg = window?.Telegram?.WebApp
       const startParam = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('startapp')
-      const isInvite = startParam && startParam.startsWith('join_')
-      const inviteToken = isInvite ? startParam.replace('join_', '') : null
+      const isInvite = startParam && startParam.startsWith('invite_')
+      const inviteToken = isInvite ? startParam.replace('invite_', '') : null
 
       if (isSupabaseConfigured && user) {
         try {
@@ -50,9 +50,16 @@ function AuthGate() {
             if (joinRes.success) {
               dbUser = { ...dbUser, role: joinRes.role }
               if (tg?.showAlert) {
-                tg.showAlert(`Tabriklaymiz! Siz "${joinRes.groupName}" guruhiga qo'shildingiz!`)
+                tg.showAlert(`Tabriklaymiz! Siz "${joinRes.groupName}" guruhiga qo'shildingiz! 🎉`)
               } else {
-                alert(`Tabriklaymiz! Siz "${joinRes.groupName}" guruhiga qo'shildingiz!`)
+                alert(`Tabriklaymiz! Siz "${joinRes.groupName}" guruhiga qo'shildingiz! 🎉`)
+              }
+            } else {
+              const errMsg = 'Guruh topilmadi yoki taklif havolasi yaroqsiz ❌'
+              if (tg?.showAlert) {
+                tg.showAlert(errMsg)
+              } else {
+                alert(errMsg)
               }
             }
           }
