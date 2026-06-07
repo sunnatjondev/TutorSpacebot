@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --brand: #6C63FF;
-  --brand-dim: #5a52e0;
-  --surface: #13121b;
-  --surface-container: #1f1f28;
-  --surface-high: #2a2933;
-  --on-surface: #e4e1ee;
-  --on-surface-variant: #c7c4d8;
-  --outline-variant: #464555;
-  --level-1: #1C1C1E;
-  --level-2: #2C2C2E;
+  --brand: #8AB4F8;
+  --brand-dim: #669DF6;
+  --surface: #0B0D10;
+  --surface-container: #16181D;
+  --surface-high: #21242C;
+  --on-surface: #E8EAED;
+  --on-surface-variant: #9AA0A6;
+  --outline-variant: #3C4043;
+  --level-1: #16181D;
+  --level-2: #21242C;
 }
 
 * {
@@ -24,8 +24,8 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: #0f0f14;
-  color: #e4e1ee;
+  background-color: #0B0D10;
+  color: #E8EAED;
   height: 100%;
   width: 100%;
   overflow-x: hidden;
@@ -34,7 +34,7 @@ html, body {
 #root {
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #0f0f14;
+  background-color: #0B0D10;
   display: flex;
   flex-direction: column;
   max-width: 480px;
@@ -60,41 +60,44 @@ html, body {
 @layer components {
   /* Card base */
   .card {
-    @apply rounded-card bg-level-1 border border-level-2 p-4;
+    @apply rounded-card bg-level-1 border border-transparent p-4 transition-all duration-200;
+  }
+  
+  .card:hover {
+    @apply border-level-2 bg-surface-high;
   }
 
   /* Primary button */
   .btn-primary {
-    @apply w-full h-[52px] rounded-full bg-brand text-white font-semibold text-base
+    @apply w-full h-[52px] rounded-full bg-brand text-on-primary font-semibold text-base
            flex items-center justify-center gap-2 transition-all duration-200
            active:scale-95 active:bg-brand-dim;
-    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.35);
   }
 
   .btn-primary:hover {
-    box-shadow: 0 6px 28px rgba(108, 99, 255, 0.5);
-    filter: brightness(1.08);
+    box-shadow: 0 4px 20px rgba(138, 180, 248, 0.25);
+    filter: brightness(1.05);
   }
 
   /* Secondary button */
   .btn-secondary {
     @apply w-full h-[52px] rounded-full bg-transparent border border-outline-variant
-           text-on-surface font-semibold text-base flex items-center justify-center gap-2
+           text-brand font-semibold text-base flex items-center justify-center gap-2
            transition-all duration-200 active:scale-95 active:bg-surface-high;
   }
 
   /* Ghost button */
   .btn-ghost {
-    @apply h-8 px-4 rounded-full bg-surface-high text-on-surface-variant font-medium text-sm
+    @apply h-8 px-4 rounded-full bg-surface-container text-on-surface-variant font-medium text-sm
            flex items-center justify-center gap-1.5 transition-all duration-200
-           active:scale-95;
+           active:scale-95 hover:bg-surface-high hover:text-on-surface;
   }
 
   /* Chip */
   .chip {
-    @apply inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-semibold
-           border border-outline-variant bg-surface-container text-on-surface-variant
-           transition-all duration-150 cursor-pointer active:scale-95;
+    @apply inline-flex items-center gap-1 h-8 px-4 rounded-full text-xs font-semibold
+           bg-surface-high text-on-surface-variant
+           transition-all duration-150 cursor-pointer active:scale-95 hover:bg-surface-highest;
     white-space: nowrap;
     max-width: 180px;
     overflow: hidden;
@@ -103,14 +106,14 @@ html, body {
   }
 
   .chip-active {
-    @apply bg-brand border-brand text-white;
-    box-shadow: 0 2px 12px rgba(108, 99, 255, 0.4);
+    @apply bg-brand text-on-primary;
+    box-shadow: 0 2px 12px rgba(138, 180, 248, 0.2);
   }
 
   /* Avatar */
   .avatar {
-    @apply rounded-full flex items-center justify-center font-bold text-white;
-    background: linear-gradient(135deg, #6C63FF, #a099ff);
+    @apply rounded-full flex items-center justify-center font-bold text-on-primary;
+    background: linear-gradient(135deg, #8AB4F8, #D2E3FC);
   }
 
   /* Progress bar */
@@ -120,19 +123,19 @@ html, body {
 
   .progress-fill {
     @apply h-full rounded-full transition-all duration-700;
-    background: linear-gradient(90deg, #6C63FF, #a099ff);
+    background: linear-gradient(90deg, #8AB4F8, #4C7AF2);
   }
 
   /* Stat card mini */
   .stat-card {
-    @apply flex-1 rounded-card bg-surface-container border border-outline-variant p-3
-           flex flex-col gap-2 items-start;
+    @apply flex-1 rounded-card bg-surface-container border border-transparent p-3
+           flex flex-col gap-2 items-start transition-colors duration-200 hover:bg-surface-high hover:border-level-2;
   }
 
   /* Bottom nav */
   .bottom-nav {
     @apply fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px]
-           bg-level-1 border-t border-outline-variant
+           bg-surface border-t border-level-2
            flex items-center justify-around px-2 z-50;
     padding-bottom: max(12px, env(safe-area-inset-bottom));
     padding-top: 10px;
@@ -141,7 +144,7 @@ html, body {
 
   .nav-item {
     @apply flex flex-col items-center gap-0.5 flex-1 cursor-pointer
-           transition-all duration-200 py-1 rounded-xl active:scale-90;
+           transition-all duration-200 py-1 rounded-full active:scale-90;
   }
 
   .nav-item-label {
@@ -154,36 +157,36 @@ html, body {
   }
 
   .section-title {
-    @apply text-base font-bold text-on-surface;
+    @apply text-base font-bold text-on-surface tracking-tight;
   }
 
   /* Badge / status */
   .badge-paid {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold;
-    background: rgba(74, 222, 128, 0.12);
-    color: #4ade80;
-    border: 1px solid rgba(74, 222, 128, 0.2);
+    background: rgba(129, 201, 149, 0.12);
+    color: #81C995;
+    border: 1px solid rgba(129, 201, 149, 0.15);
   }
 
   .badge-unpaid {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold;
-    background: rgba(248, 113, 113, 0.12);
-    color: #f87171;
-    border: 1px solid rgba(248, 113, 113, 0.2);
+    background: rgba(242, 139, 130, 0.12);
+    color: #F28B82;
+    border: 1px solid rgba(242, 139, 130, 0.15);
   }
 
   .badge-partial {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold;
-    background: rgba(251, 146, 60, 0.12);
-    color: #fb923c;
-    border: 1px solid rgba(251, 146, 60, 0.2);
+    background: rgba(242, 163, 89, 0.12);
+    color: #F2A359;
+    border: 1px solid rgba(242, 163, 89, 0.15);
   }
 
   .badge-debt {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold;
-    background: rgba(248, 113, 113, 0.15);
-    color: #f87171;
-    border: 1px solid rgba(248, 113, 113, 0.3);
+    background: rgba(242, 139, 130, 0.15);
+    color: #F28B82;
+    border: 1px solid rgba(242, 139, 130, 0.25);
   }
 
   /* Page wrapper */
@@ -194,14 +197,13 @@ html, body {
 
   /* Input field */
   .input-field {
-    @apply w-full h-[52px] rounded-full bg-level-1 border border-outline-variant
+    @apply w-full h-[52px] rounded-full bg-level-1 border border-transparent
            px-5 text-on-surface text-sm font-medium placeholder-on-surface-variant
-           outline-none transition-all duration-200;
+           outline-none transition-all duration-200 focus:bg-surface-high focus:border-outline-variant;
   }
 
   .input-field:focus {
-    @apply border-brand;
-    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.1);
   }
 
   /* Toggle */
@@ -210,12 +212,12 @@ html, body {
   }
 
   .toggle-knob {
-    @apply absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200;
+    @apply absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-on-surface shadow transition-transform duration-200;
   }
 
   /* Divider */
   .divider {
-    @apply border-0 border-t border-outline-variant my-0;
+    @apply border-0 border-t border-level-2 my-0;
   }
 }
 
@@ -263,15 +265,15 @@ html, body {
 /* FAB button */
 .fab {
   @apply fixed w-14 h-14 rounded-full flex items-center justify-center;
-  background: linear-gradient(135deg, #6C63FF, #4f44e2);
-  box-shadow: 0 8px 24px rgba(108, 99, 255, 0.5);
+  background: linear-gradient(135deg, #8AB4F8, #4C7AF2);
+  box-shadow: 0 8px 24px rgba(138, 180, 248, 0.4);
   z-index: 40;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .fab:active {
   transform: scale(0.92);
-  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);
 }
 
 /* Scrollable chip row */
