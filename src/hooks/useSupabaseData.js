@@ -1511,6 +1511,23 @@ export async function joinGroupByToken(telegramId, inviteToken, tgUser = null) {
     userRow = newUser
   }
 
+  if (userRow.role !== 'student') {
+    const { data: updatedUser, error: roleErr } = await supabase
+      .from('users')
+      .update({ role: 'student', updated_at: new Date().toISOString() })
+      .eq('id', userRow.id)
+      .select()
+      .single()
+
+    if (roleErr) {
+      console.error('[joinGroupByToken] set student role error:', roleErr)
+      return { success: false, error: roleErr }
+    }
+
+    userRow = updatedUser
+    setCachedUserRowByTelegramId(telegramId, userRow)
+  }
+
   const { data: group, error: groupErr } = await supabase
     .from('groups')
     .select('id, name, teacher_id')
@@ -1568,7 +1585,7 @@ export async function joinGroupByToken(telegramId, inviteToken, tgUser = null) {
   removeCachedValue(getGroupDetailCacheKey(group.id))
   removeCachedValue(getTeacherDashboardCacheKey(telegramId))
 
-  return { success: true, groupName: group.name, role: userRow.role }
+  return { success: true, groupName: group.name, role: 'student' }
 }
 
 export async function updateStudentRate(groupId, studentId, amount) {

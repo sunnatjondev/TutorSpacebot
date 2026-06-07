@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays } from 'lucide-react'
 import { Avatar } from '../../components/ui/Avatar'
@@ -19,6 +19,14 @@ function getDayDates(baseDate = new Date()) {
     date.setDate(monday.getDate() + index)
     return date
   })
+}
+
+function getLocalDateKey(date) {
+  if (!date) return ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDeleteGroup, manageStudents, t }) {
@@ -107,8 +115,9 @@ export default function GroupDetail() {
     const d = new Date().getDay()
     return d === 0 ? 6 : d - 1
   })
-  const attendanceDays = getDayDates(attendanceBaseDate)
+  const attendanceDays = useMemo(() => getDayDates(attendanceBaseDate), [attendanceBaseDate])
   const selectedAttendanceDate = attendanceDays[selectedDayIndex]
+  const selectedAttendanceDateKey = getLocalDateKey(selectedAttendanceDate)
 
   const [sessionId, setSessionId] = useState(null)
   const [loadingAttendance, setLoadingAttendance] = useState(false)
@@ -177,7 +186,7 @@ export default function GroupDetail() {
     }
 
     loadDayAttendance()
-  }, [id, selectedAttendanceDate, studentIdsKey]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [id, selectedAttendanceDateKey, studentIdsKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch Monthly Stats & Selected Date Absences
   useEffect(() => {
