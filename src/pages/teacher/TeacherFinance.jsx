@@ -6,7 +6,7 @@ import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { useTeacherPayments, markPaymentPaid } from '../../hooks/useSupabaseData'
+import { useTeacherPayments, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
 
 function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
   const [method, setMethod] = useState('cash')
@@ -24,15 +24,20 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
     : '?'
   const group = student?.group?.name || '—'
 
+  const markPaymentPaidMutation = useMarkPaymentPaid()
+
   const handleConfirm = async () => {
     setLoading(true)
     haptic?.medium()
-    const result = await markPaymentPaid(student.id, method)
-    setLoading(false)
-    if (result.success) {
+    try {
+      await markPaymentPaidMutation.mutateAsync({ paymentId: student.id, method })
       haptic?.success()
       onPaid()
       onClose()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
     }
   }
 

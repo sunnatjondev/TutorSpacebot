@@ -104,6 +104,8 @@ export default {
         'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
         'spin-slow': 'spin 3s linear infinite',
         'bounce-sm': 'bounceSm 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'orb-pulse': 'orbPulse 3s ease-in-out infinite',
+        'border-pulse': 'borderPulse 2s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -130,6 +132,14 @@ export default {
           '0%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.08)' },
           '100%': { transform: 'scale(1)' },
+        },
+        orbPulse: {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(196, 80, 220, 0.4), 0 0 40px rgba(108, 99, 255, 0.2)' },
+          '50%': { boxShadow: '0 0 35px rgba(196, 80, 220, 0.7), 0 0 70px rgba(108, 99, 255, 0.4)' },
+        },
+        borderPulse: {
+          '0%, 100%': { borderColor: 'rgba(74, 222, 128, 0.35)', boxShadow: '0 0 4px rgba(74, 222, 128, 0.15)' },
+          '50%': { borderColor: 'rgba(74, 222, 128, 0.7)', boxShadow: '0 0 12px rgba(74, 222, 128, 0.35)' },
         },
       },
     },

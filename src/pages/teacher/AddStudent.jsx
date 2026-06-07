@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Upload, Plus } from 'lucide-react'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { createStudent, useTeacherGroups } from '../../hooks/useSupabaseData'
+import { useTeacherGroups } from '../../hooks/api/useTeacher'
+import { useCreateStudent } from '../../hooks/api/useGroups'
 
 export default function AddStudent() {
   const navigate = useNavigate()
@@ -39,33 +40,34 @@ export default function AddStudent() {
     setError(null)
     haptic?.medium()
 
-    const result = await createStudent(user?.id, {
+    const createStudentMutation = useCreateStudent()
+
+    try {
+      const data = await createStudentMutation.mutateAsync({
       name: form.name,
       contact: form.contact,
       groupIds: selectedGroupIds,
       monthlyRate: form.rate,
       billingDay,
       subject: form.subject,
-      notes: form.notes,
-    })
+        notes: form.notes,
+      })
 
-    setSaving(false)
+      haptic?.success?.()
 
-    if (!result.success) {
-      setError(result.error?.message || "Talabani saqlab bo'lmadi.")
+      const targetGroupId = initialGroupId || data?.primaryGroupId
+      if (targetGroupId) {
+        navigate(`/teacher/groups/${targetGroupId}`, { replace: true })
+        return
+      }
+
+      navigate('/teacher/groups', { replace: true })
+    } catch (err) {
+      setError(err.message || "Talabani saqlab bo'lmadi.")
       haptic?.error?.()
-      return
+    } finally {
+      setSaving(false)
     }
-
-    haptic?.success?.()
-
-    const targetGroupId = initialGroupId || result.data?.primaryGroupId
-    if (targetGroupId) {
-      navigate(`/teacher/groups/${targetGroupId}`, { replace: true })
-      return
-    }
-
-    navigate('/teacher/groups', { replace: true })
   }
 
   return (

@@ -4,7 +4,7 @@ import { BottomNav } from '../../components/layout/BottomNav'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { useStudentPayments } from '../../hooks/useSupabaseData'
+import { useStudentPayments } from '../../hooks/api/useStudent'
 
 export default function StudentFinance() {
   const { user, haptic } = useTelegram()

@@ -6,11 +6,13 @@ import { ProgressBar } from '../../components/ui/ProgressBar'
 import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useTeacherGroups, createGroup, deleteGroup } from '../../hooks/useSupabaseData'
+import { useTeacherGroups, useCreateGroup, useDeleteGroup } from '../../hooks/api/useTeacher'
 
 function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
+
+  const createGroupMutation = useCreateGroup()
 
   const handleCreate = async () => {
     if (!name.trim()) return
@@ -19,14 +21,13 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
     // Close modal immediately so the user can see the optimistic group in the list
     onClose()
 
-    const result = await createGroup(telegramId, { name: name.trim(), subject }, user)
-
-    if (result.success) {
+    try {
+      const data = await createGroupMutation.mutateAsync({ telegramId, name: name.trim(), subject })
       haptic?.success?.()
-      await onCreated(result.data)
-    } else {
+      await onCreated(data)
+    } catch (err) {
       haptic?.warning?.()
-      const msg = result.error?.message || "Guruh yaratishda xatolik yuz berdi. Qayta urinib ko'ring."
+      const msg = err.message || "Guruh yaratishda xatolik yuz berdi. Qayta urinib ko'ring."
       if (window.Telegram?.WebApp?.showPopup) {
         window.Telegram.WebApp.showPopup({
           title: 'Xatolik',
@@ -78,15 +79,21 @@ export default function TeacherGroups() {
   const { data: groups, loading, refetch } = useTeacherGroups(telegramId)
   const displayGroups = groups || []
 
+  const deleteGroupMutation = useDeleteGroup()
+
   const handleDelete = async (event, groupId) => {
     event.stopPropagation()
     haptic?.heavy?.()
     if (!confirm("Bu guruhni o'chirmoqchimisiz?")) return
 
     setDeletingId(groupId)
-    await deleteGroup(groupId)
-    setDeletingId(null)
-    refetch()
+    try {
+      await deleteGroupMutation.mutateAsync(groupId)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   const getStudentCount = (group) => group.group_members?.[0]?.count ?? 0

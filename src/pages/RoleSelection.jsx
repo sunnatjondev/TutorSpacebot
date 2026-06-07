@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { GraduationCap, BookOpen, ArrowRight } from 'lucide-react'
 import { useTelegram } from '../hooks/useTelegram'
 import { useI18n } from '../i18n/index.jsx'
-import { saveUserRole } from '../hooks/useSupabaseData'
+import { saveUserRole } from '../hooks/api/auth'
 
 const LS_ROLE_KEY = 'ts_user_role'
 const LS_TG_ID_KEY = 'ts_tg_id'

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useTelegram } from './hooks/useTelegram'
-import { upsertTelegramUser, joinGroupByToken } from './hooks/useSupabaseData'
+import { upsertTelegramUser } from './hooks/api/auth'
+import { joinGroupByToken } from './hooks/api/useStudent'
 import { isSupabaseConfigured } from './lib/supabase'
 
 import RoleSelection from './pages/RoleSelection'

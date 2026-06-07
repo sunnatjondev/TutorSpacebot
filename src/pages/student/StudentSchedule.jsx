@@ -3,7 +3,7 @@ import { CalendarDays, CheckCircle, BookOpen } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useStudentSchedule } from '../../hooks/useSupabaseData'
+import { useStudentSchedule } from '../../hooks/api/useStudent'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()

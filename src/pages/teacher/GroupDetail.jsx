@@ -7,7 +7,8 @@ import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { supabase } from '../../lib/supabase'
-import { deleteGroup, removeStudentFromGroup, updateGroup, useGroupDetail, saveAttendance, createSession, updateStudentRate } from '../../hooks/useSupabaseData'
+import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance } from '../../hooks/api/useGroups'
+import { useDeleteGroup, useCreateSession } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -238,6 +239,13 @@ export default function GroupDetail() {
     loadMonthlyStats()
   }, [id, studentIdsKey, attendance]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const createSessionMutation = useCreateSession()
+  const saveAttendanceMutation = useSaveAttendance()
+  const updateStudentRateMutation = useUpdateStudentRate()
+  const updateGroupMutation = useUpdateGroup()
+  const removeStudentMutation = useRemoveStudentFromGroup()
+  const deleteGroupMutation = useDeleteGroup()
+
   const toggleAttendance = async (studentId) => {
     haptic?.light()
     const currentVal = !!attendance[studentId]
@@ -251,11 +259,11 @@ export default function GroupDetail() {
       // Create session on-demand for this date
       const scheduledAt = new Date(selectedAttendanceDate)
       scheduledAt.setHours(9, 0, 0, 0)
-      const res = await createSession({ groupId: id, scheduledAt: scheduledAt.toISOString() })
-      if (res.success && res.data) {
-        activeSessionId = res.data.id
+      try {
+        const data = await createSessionMutation.mutateAsync({ groupId: id, scheduledAt: scheduledAt.toISOString() })
+        activeSessionId = data.id
         setSessionId(activeSessionId)
-      } else {
+      } catch (err) {
         // Revert state
         setAttendance((prev) => ({ ...prev, [studentId]: currentVal }))
         alert("Sessiya yaratib bo'lmadi")
@@ -263,13 +271,13 @@ export default function GroupDetail() {
       }
     }
 
-    const res = await saveAttendance(activeSessionId, studentId, nextVal)
-    if (!res.success) {
+    try {
+      await saveAttendanceMutation.mutateAsync({ sessionId: activeSessionId, studentId, present: nextVal })
+      haptic?.success()
+    } catch (err) {
       // Revert state
       setAttendance((prev) => ({ ...prev, [studentId]: currentVal }))
       alert("Yo'qlamani saqlab bo'lmadi")
-    } else {
-      haptic?.success()
     }
   }
 
@@ -284,57 +292,54 @@ export default function GroupDetail() {
     setUpdatingRate(true)
     haptic?.medium()
 
-    const res = await updateStudentRate(id, editingStudent.id, Number(newRateValue))
-    setUpdatingRate(false)
-
-    if (res.success) {
+    try {
+      await updateStudentRateMutation.mutateAsync({ groupId: id, studentId: editingStudent.id, amount: Number(newRateValue) })
       haptic?.success()
       setEditingStudent(null)
-    } else {
+    } catch (err) {
       haptic?.error()
       alert("O'quv haqini yangilab bo'lmadi")
+    } finally {
+      setUpdatingRate(false)
     }
   }
 
   const handleSaveGroup = async (updates) => {
     setSaving(true)
-    const result = await updateGroup(id, updates)
-    setSaving(false)
-
-    if (!result.success) {
+    try {
+      await updateGroupMutation.mutateAsync({ groupId: id, updates })
+      haptic?.success?.()
+      setShowEdit(false)
+    } catch (err) {
       haptic?.error?.()
-      return
+    } finally {
+      setSaving(false)
     }
-
-    haptic?.success?.()
-    setShowEdit(false)
   }
 
   const handleRemoveStudent = async (studentId) => {
     haptic?.heavy?.()
     if (!confirm("Talabani guruhdan olib tashlamoqchimisiz?")) return
 
-    const result = await removeStudentFromGroup(id, studentId)
-    if (!result.success) {
+    try {
+      await removeStudentMutation.mutateAsync({ groupId: id, studentId })
+      haptic?.success?.()
+    } catch (err) {
       haptic?.error?.()
-      return
     }
-
-    haptic?.success?.()
   }
 
   const handleDeleteGroup = async () => {
     haptic?.heavy?.()
     if (!confirm("Bu guruhni o'chirmoqchimisiz?")) return
 
-    const result = await deleteGroup(id)
-    if (!result.success) {
+    try {
+      await deleteGroupMutation.mutateAsync(id)
+      haptic?.success?.()
+      navigate('/teacher/groups', { replace: true })
+    } catch (err) {
       haptic?.error?.()
-      return
     }
-
-    haptic?.success?.()
-    navigate('/teacher/groups', { replace: true })
   }
 
   return (

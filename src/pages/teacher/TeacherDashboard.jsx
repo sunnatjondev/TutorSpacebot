@@ -6,7 +6,7 @@ import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { useTeacherDashboard, useTeacherGroups, createGroup } from '../../hooks/useSupabaseData'
+import { useTeacherDashboard, useTeacherGroups, useCreateGroup } from '../../hooks/api/useTeacher'
 import { useNavigate } from 'react-router-dom'
 
 function StatCard({ icon: Icon, value, label, iconBg }) {
@@ -27,6 +27,8 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  const createGroupMutation = useCreateGroup()
+
   const handleCreate = async () => {
     if (!name.trim()) return
 
@@ -34,19 +36,18 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
     setError(null)
     haptic?.medium()
 
-    const result = await createGroup(telegramId, { name: name.trim(), subject: subject || 'BOSHQA' }, user)
-    setLoading(false)
-
-    if (result.success) {
+    try {
+      const data = await createGroupMutation.mutateAsync({ telegramId, name: name.trim(), subject: subject || 'BOSHQA' })
       haptic?.success?.()
-      await onCreated(result.data)
+      await onCreated(data)
       onClose()
-      return
+    } catch (err) {
+      console.error('[createGroup] error:', err)
+      setError(err.message || "Xatolik yuz berdi. Qayta urinib ko'ring.")
+      haptic?.warning?.()
+    } finally {
+      setLoading(false)
     }
-
-    console.error('[createGroup] error:', result.error)
-    setError(result.error?.message || "Xatolik yuz berdi. Qayta urinib ko'ring.")
-    haptic?.warning?.()
   }
 
   return (
@@ -113,7 +114,6 @@ export default function TeacherDashboard() {
   }
 
   const handleGroupCreated = async (group) => {
-    await Promise.all([refetch(), refetchGroups()])
 
     if (group?.id) {
       navigate(`/teacher/groups/${group.id}`)

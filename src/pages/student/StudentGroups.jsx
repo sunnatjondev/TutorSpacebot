@@ -4,7 +4,7 @@ import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useStudentGroups } from '../../hooks/useSupabaseData'
+import { useStudentGroups } from '../../hooks/api/useStudent'
 
 export default function StudentGroups() {
   const { user, haptic, openTelegramLink } = useTelegram()

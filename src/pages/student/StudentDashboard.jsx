@@ -4,7 +4,7 @@ import { BottomNav } from '../../components/layout/BottomNav'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { useStudentDashboard, useStudentHomework, markHomeworkDone } from '../../hooks/useSupabaseData'
+import { useStudentDashboard, useStudentHomework, useMarkHomeworkDone } from '../../hooks/api/useStudent'
 
 export default function StudentDashboard() {
   const { user } = useTelegram()
@@ -34,13 +34,19 @@ export default function StudentDashboard() {
     submissionId: submission.id,
   }))
 
+  const markHomeworkDoneMutation = useMarkHomeworkDone()
+
   const toggleHomework = async (id, submissionId) => {
     const newDone = !homework.find((item) => item.id === id)?.done
     setLocalDone((prev) => ({ ...prev, [id]: newDone }))
 
     if (submissionId) {
-      await markHomeworkDone(submissionId, newDone)
-      refetchHomework()
+      try {
+        await markHomeworkDoneMutation.mutateAsync({ submissionId, done: newDone })
+        refetchHomework()
+      } catch (err) {
+        setLocalDone((prev) => ({ ...prev, [id]: !newDone }))
+      }
     }
   }
 

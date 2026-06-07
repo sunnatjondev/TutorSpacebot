@@ -5,7 +5,7 @@ import { BottomNav } from '../../components/layout/BottomNav'
 import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { createSession, deleteSession, updateSessionStatus, useTeacherGroups, useTeacherSchedule } from '../../hooks/useSupabaseData'
+import { useCreateSession, useDeleteSession, useUpdateSessionStatus, useTeacherGroups, useTeacherSchedule } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -56,6 +56,8 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
     })
   }, [groups])
 
+  const createSessionMutation = useCreateSession()
+
   const handleCreate = async () => {
     if (!selectedGroupId || !scheduledAt) {
       setError(t('teacherSchedule.fillRequired'))
@@ -92,12 +94,15 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
 
     let allSuccess = true
     for (const d of datesToCreate) {
-      const result = await createSession({
-        groupId: selectedGroupId,
-        scheduledAt: d.toISOString(),
-        durationMin: dur,
-      })
-      if (!result.success) allSuccess = false
+      try {
+        await createSessionMutation.mutateAsync({
+          groupId: selectedGroupId,
+          scheduledAt: d.toISOString(),
+          durationMin: dur,
+        })
+      } catch (err) {
+        allSuccess = false
+      }
     }
 
     setLoading(false)
@@ -250,34 +255,35 @@ export default function TeacherSchedule() {
     return t('common.upcoming')
   }
 
+  const updateSessionStatusMutation = useUpdateSessionStatus()
+  const deleteSessionMutation = useDeleteSession()
+
   const handleStartLesson = async (sessionId) => {
     setProcessingSessionId(sessionId)
     haptic?.medium()
-    const result = await updateSessionStatus(sessionId, 'in_progress')
-    setProcessingSessionId(null)
-
-    if (!result.success) {
+    try {
+      await updateSessionStatusMutation.mutateAsync({ sessionId, status: 'in_progress' })
+      haptic?.success?.()
+      refetch()
+    } catch (err) {
       haptic?.error?.()
-      return
+    } finally {
+      setProcessingSessionId(null)
     }
-
-    haptic?.success?.()
-    refetch()
   }
 
   const handleFinishLesson = async (sessionId) => {
     setProcessingSessionId(sessionId)
     haptic?.medium()
-    const result = await updateSessionStatus(sessionId, 'done')
-    setProcessingSessionId(null)
-
-    if (!result.success) {
+    try {
+      await updateSessionStatusMutation.mutateAsync({ sessionId, status: 'done' })
+      haptic?.success?.()
+      refetch()
+    } catch (err) {
       haptic?.error?.()
-      return
+    } finally {
+      setProcessingSessionId(null)
     }
-
-    haptic?.success?.()
-    refetch()
   }
 
   const handleDeleteLesson = async (sessionId) => {
@@ -285,16 +291,15 @@ export default function TeacherSchedule() {
     if (!confirm(t('teacherSchedule.deleteConfirm'))) return
 
     setProcessingSessionId(sessionId)
-    const result = await deleteSession(sessionId)
-    setProcessingSessionId(null)
-
-    if (!result.success) {
+    try {
+      await deleteSessionMutation.mutateAsync(sessionId)
+      haptic?.success?.()
+      refetch()
+    } catch (err) {
       haptic?.error?.()
-      return
+    } finally {
+      setProcessingSessionId(null)
     }
-
-    haptic?.success?.()
-    refetch()
   }
 
   return (
