@@ -35,15 +35,23 @@ function toDateTimeLocalValue(date) {
 function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t }) {
   const navigate = useNavigate()
   const [selectedGroupId, setSelectedGroupId] = useState(groups[0]?.id || '')
-  const [scheduledAt, setScheduledAt] = useState(() => toDateTimeLocalValue(buildDefaultSessionDate(initialDate)))
+  const [lessonDate, setLessonDate] = useState(() => new Date(initialDate || new Date()))
+  const [lessonHour, setLessonHour] = useState('09')
+  const [lessonMinute, setLessonMinute] = useState('00')
+  const [showLessonCalendar, setShowLessonCalendar] = useState(false)
   const [durationMin, setDurationMin] = useState('90')
   const [repeat, setRepeat] = useState('none')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    setScheduledAt(toDateTimeLocalValue(buildDefaultSessionDate(initialDate)))
+    setLessonDate(new Date(initialDate || new Date()))
   }, [initialDate])
+
+  const formatDisplayDate = (date) => {
+    if (!date) return ''
+    return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`
+  }
 
   useEffect(() => {
     if (!groups.length) {
@@ -60,7 +68,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
   const createSessionMutation = useCreateSession()
 
   const handleCreate = async () => {
-    if (!selectedGroupId || !scheduledAt) {
+    if (!selectedGroupId || !lessonDate) {
       setError(t('teacherSchedule.fillRequired'))
       haptic?.warning?.()
       return
@@ -74,7 +82,8 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
     const dur = Number.isFinite(parsedDuration) && parsedDuration > 0 ? parsedDuration : 90
 
     const datesToCreate = []
-    const baseDate = new Date(scheduledAt)
+    const baseDate = new Date(lessonDate)
+    baseDate.setHours(Number(lessonHour), Number(lessonMinute), 0, 0)
     
     if (repeat === 'none') {
       datesToCreate.push(baseDate)
@@ -141,82 +150,119 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
-          {t('teacherSchedule.selectGroup')}
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {groups.map((group) => {
-            const active = group.id === selectedGroupId
+    <>
+      <div className="space-y-4">
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
+            {t('teacherSchedule.selectGroup')}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {groups.map((group) => {
+              const active = group.id === selectedGroupId
 
-            return (
-              <button
-                key={group.id}
-                onClick={() => {
-                  setSelectedGroupId(group.id)
-                  haptic?.selection?.()
-                }}
-                className={`rounded-2xl border px-4 py-3 text-left transition-all duration-200 ${
-                  active
-                    ? 'border-brand bg-brand/15 text-on-surface'
-                    : 'border-outline-variant bg-level-1 text-on-surface-variant'
-                }`}
-              >
-                <div className="font-semibold">{group.name}</div>
-                <div className="mt-1 text-xs">{group.subject || '-'}</div>
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => {
+                    setSelectedGroupId(group.id)
+                    haptic?.selection?.()
+                  }}
+                  className={`rounded-2xl border px-4 py-3 text-left transition-all duration-200 ${
+                    active
+                      ? 'border-brand bg-brand/15 text-on-surface'
+                      : 'border-outline-variant bg-level-1 text-on-surface-variant'
+                  }`}
+                >
+                  <div className="font-semibold">{group.name}</div>
+                  <div className="mt-1 text-xs">{group.subject || '-'}</div>
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
 
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
-          {t('teacherSchedule.lessonDate')}
-        </label>
-        <input
-          type="datetime-local"
-          className="input-field"
-          value={scheduledAt}
-          onChange={(event) => setScheduledAt(event.target.value)}
-        />
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">Takrorlash</label>
-        <div className="flex gap-2">
-          <button onClick={() => { setRepeat('none'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'none' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Faqat shu kun</button>
-          <button onClick={() => { setRepeat('odd'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'odd' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Toq kunlar</button>
-          <button onClick={() => { setRepeat('even'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'even' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Juft kunlar</button>
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
+            {t('teacherSchedule.lessonDate')}
+          </label>
+          <button
+            type="button"
+            onClick={() => { haptic?.light(); setShowLessonCalendar(true) }}
+            className="input-field w-full text-left flex items-center justify-between"
+          >
+            <span className="text-on-surface">
+              {formatDisplayDate(lessonDate)}, {lessonHour}:{lessonMinute}
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-3 mt-3">
+            <span className="text-sm text-on-surface-variant">Vaqt:</span>
+            <div className="flex items-center gap-2 bg-surface-container rounded-xl px-3 py-2">
+              <input
+                type="number"
+                min="0" max="23"
+                value={lessonHour}
+                onChange={(e) => setLessonHour(String(e.target.value).padStart(2, '0'))}
+                className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
+              />
+              <span className="text-on-surface font-bold">:</span>
+              <input
+                type="number"
+                min="0" max="59"
+                value={lessonMinute}
+                onChange={(e) => setLessonMinute(String(e.target.value).padStart(2, '0'))}
+                className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
+              />
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
-          {t('teacherSchedule.duration')}
-        </label>
-        <input
-          type="number"
-          min="15"
-          step="5"
-          className="input-field"
-          value={durationMin}
-          onChange={(event) => setDurationMin(event.target.value)}
-          placeholder="90"
-        />
-      </div>
-
-      {error && (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3">
-          <p className="text-sm text-red-300">{error}</p>
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-on-surface-variant">Takrorlash</label>
+          <div className="flex gap-2">
+            <button onClick={() => { setRepeat('none'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'none' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Faqat shu kun</button>
+            <button onClick={() => { setRepeat('odd'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'odd' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Toq kunlar</button>
+            <button onClick={() => { setRepeat('even'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'even' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Juft kunlar</button>
+          </div>
         </div>
-      )}
 
-      <button className="btn-primary" onClick={handleCreate} disabled={loading}>
-        {loading ? t('teacherSchedule.creating') : t('teacherSchedule.create')}
-      </button>
-    </div>
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
+            {t('teacherSchedule.duration')}
+          </label>
+          <input
+            type="number"
+            min="15"
+            step="5"
+            className="input-field"
+            value={durationMin}
+            onChange={(event) => setDurationMin(event.target.value)}
+            placeholder="90"
+          />
+        </div>
+
+        {error && (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3">
+            <p className="text-sm text-red-300">{error}</p>
+          </div>
+        )}
+
+        <button className="btn-primary" onClick={handleCreate} disabled={loading}>
+          {loading ? t('teacherSchedule.creating') : t('teacherSchedule.create')}
+        </button>
+      </div>
+
+      <CustomDatePickerModal
+        isOpen={showLessonCalendar}
+        onClose={() => setShowLessonCalendar(false)}
+        selectedDate={lessonDate}
+        onSelectDate={(date) => { setLessonDate(date); setShowLessonCalendar(false) }}
+        haptic={haptic}
+        t={t}
+      />
+    </>
   )
 }
 
