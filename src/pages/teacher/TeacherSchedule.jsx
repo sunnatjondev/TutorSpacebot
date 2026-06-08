@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { CalendarDays, Plus, Play, CheckCircle, Users, Trash2, Square } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Modal } from '../../components/ui/Modal'
+import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { useCreateSession, useDeleteSession, useUpdateSessionStatus, useTeacherGroups, useTeacherSchedule } from '../../hooks/api/useTeacher'
@@ -229,6 +230,7 @@ export default function TeacherSchedule() {
     return d === 0 ? 6 : d - 1
   })
   const [showCreate, setShowCreate] = useState(false)
+  const [showDatePicker, setShowDatePicker] = useState(false)
   const [processingSessionId, setProcessingSessionId] = useState(null)
   const days = getDayDates(baseDate)
   const dayKeys = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
@@ -311,24 +313,14 @@ export default function TeacherSchedule() {
             <p className="text-sm text-on-surface-variant">{weekLabel}</p>
           </div>
           <button
-            onClick={() => document.getElementById('schedule-date-picker')?.showPicker?.() || document.getElementById('schedule-date-picker')?.click()}
+            onClick={() => {
+              haptic?.medium()
+              setShowDatePicker(true)
+            }}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform shrink-0"
           >
             <CalendarDays size={18} className="text-on-surface-variant" />
           </button>
-          <input
-            type="date"
-            id="schedule-date-picker"
-            className="hidden"
-            onChange={(event) => {
-              if (event.target.value) {
-                const selected = new Date(event.target.value)
-                setBaseDate(selected)
-                const day = selected.getDay()
-                setSelectedDay(day === 0 ? 6 : day - 1)
-              }
-            }}
-          />
         </div>
 
         <div className="card mb-5 flex items-center justify-between gap-1 p-3">
@@ -508,6 +500,19 @@ export default function TeacherSchedule() {
       </Modal>
 
       <BottomNav role="teacher" />
+
+      <CustomDatePickerModal
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        selectedDate={baseDate}
+        haptic={haptic}
+        t={t}
+        onSelectDate={(selected) => {
+          setBaseDate(selected)
+          const day = selected.getDay()
+          setSelectedDay(day === 0 ? 6 : day - 1)
+        }}
+      />
     </div>
   )
 }

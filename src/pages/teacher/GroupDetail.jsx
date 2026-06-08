@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays } from 'lucide-react'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
+import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
@@ -194,6 +195,7 @@ export default function GroupDetail() {
   const homework = homeworkRows || []
 
   const [showCreateHomework, setShowCreateHomework] = useState(false)
+  const [showDatePicker, setShowDatePicker] = useState(false)
 
   // Stable string key from student IDs — prevents re-running effects
   // when the array reference changes but contents are the same (happens every 20s staleMs refetch)
@@ -366,7 +368,8 @@ export default function GroupDetail() {
     } catch (err) {
       // Revert state
       setAttendance((prev) => ({ ...prev, [studentId]: currentVal }))
-      alert("Yo'qlamani saqlab bo'lmadi")
+      console.error('[Attendance] save error:', err)
+      alert("Yo'qlamani saqlab bo'lmadi: " + (err.message || err))
     }
   }
 
@@ -527,24 +530,14 @@ export default function GroupDetail() {
                 {selectedAttendanceDate?.toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })}
               </span>
               <button
-                onClick={() => document.getElementById('group-detail-attendance-date')?.showPicker?.() || document.getElementById('group-detail-attendance-date')?.click()}
+                onClick={() => {
+                  haptic?.medium()
+                  setShowDatePicker(true)
+                }}
                 className="w-8 h-8 rounded-full bg-surface-high flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform shrink-0"
               >
                 <CalendarDays size={14} />
               </button>
-              <input
-                type="date"
-                id="group-detail-attendance-date"
-                className="hidden"
-                onChange={(event) => {
-                  if (event.target.value) {
-                    const selected = new Date(event.target.value)
-                    setAttendanceBaseDate(selected)
-                    const day = selected.getDay()
-                    setSelectedDayIndex(day === 0 ? 6 : day - 1)
-                  }
-                }}
-              />
             </div>
           </div>
 
@@ -769,6 +762,19 @@ export default function GroupDetail() {
         groupId={id}
         onCreated={() => {}}
         haptic={haptic}
+      />
+
+      <CustomDatePickerModal
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        selectedDate={attendanceBaseDate}
+        haptic={haptic}
+        t={t}
+        onSelectDate={(selected) => {
+          setAttendanceBaseDate(selected)
+          const day = selected.getDay()
+          setSelectedDayIndex(day === 0 ? 6 : day - 1)
+        }}
       />
     </div>
   )

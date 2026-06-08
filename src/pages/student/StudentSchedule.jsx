@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { CalendarDays, CheckCircle, BookOpen } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
+import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { useStudentSchedule } from '../../hooks/api/useStudent'
@@ -41,6 +42,7 @@ export default function StudentSchedule() {
     const d = new Date().getDay()
     return d === 0 ? 6 : d - 1
   })
+  const [showDatePicker, setShowDatePicker] = useState(false)
   const days = getDayDates(baseDate)
   const weekStartKey = days[0].getTime()
   const { data: sessions } = useStudentSchedule(user?.id, weekStartKey)
@@ -75,24 +77,14 @@ export default function StudentSchedule() {
             <p className="text-on-surface-variant text-sm">{t('studentSchedule.subtitle')}</p>
           </div>
           <button
-            onClick={() => document.getElementById('student-schedule-date-picker')?.showPicker?.() || document.getElementById('student-schedule-date-picker')?.click()}
+            onClick={() => {
+              haptic?.medium()
+              setShowDatePicker(true)
+            }}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform shrink-0"
           >
             <CalendarDays size={18} className="text-on-surface-variant" />
           </button>
-          <input
-            type="date"
-            id="student-schedule-date-picker"
-            className="hidden"
-            onChange={(event) => {
-              if (event.target.value) {
-                const selected = new Date(event.target.value)
-                setBaseDate(selected)
-                const day = selected.getDay()
-                setSelectedDay(day === 0 ? 6 : day - 1)
-              }
-            }}
-          />
         </div>
 
         <div className="mb-4 flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
@@ -177,6 +169,19 @@ export default function StudentSchedule() {
         </div>
       </div>
       <BottomNav role="student" />
+
+      <CustomDatePickerModal
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        selectedDate={baseDate}
+        haptic={haptic}
+        t={t}
+        onSelectDate={(selected) => {
+          setBaseDate(selected)
+          const day = selected.getDay()
+          setSelectedDay(day === 0 ? 6 : day - 1)
+        }}
+      />
     </div>
   )
 }
