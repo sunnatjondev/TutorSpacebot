@@ -98,12 +98,20 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving }) {
 
 function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
   const [title, setTitle] = useState('')
-  const [dueDate, setDueDate] = useState('')
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [timeHour, setTimeHour] = useState('23')
+  const [timeMinute, setTimeMinute] = useState('59')
+  const [showCalendar, setShowCalendar] = useState(false)
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const createHomeworkMutation = useCreateHomework()
+
+  const formatDisplayDate = (date) => {
+    if (!date) return null
+    return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`
+  }
 
   const handleCreate = async () => {
     if (!title.trim()) return
@@ -111,18 +119,27 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
     setError(null)
     haptic?.medium?.()
 
+    let dueDateISO = null
+    if (selectedDate) {
+      const d = new Date(selectedDate)
+      d.setHours(Number(timeHour), Number(timeMinute), 0, 0)
+      dueDateISO = d.toISOString()
+    }
+
     try {
       await createHomeworkMutation.mutateAsync({
         groupId,
         title: title.trim(),
-        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        dueDate: dueDateISO,
         description: description.trim(),
       })
       haptic?.success?.()
       onCreated()
       onClose()
       setTitle('')
-      setDueDate('')
+      setSelectedDate(null)
+      setTimeHour('23')
+      setTimeMinute('59')
       setDescription('')
     } catch (err) {
       setError(err.message || 'Xatolik yuz berdi')
@@ -133,51 +150,102 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Yangi vazifa berish">
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Vazifa nomi *</label>
-          <input
-            className="input-field"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Masalan: 5-mashq, 12-bet"
-            autoFocus
-          />
-        </div>
-        <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Muddati (Due Date)</label>
-          <input
-            type="datetime-local"
-            className="input-field"
-            value={dueDate}
-            onChange={(event) => setDueDate(event.target.value)}
-          />
-        </div>
-        <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Tavsif (Description)</label>
-          <textarea
-            className="w-full rounded-card bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="Vazifa haqida batafsil ma'lumot..."
-            rows={3}
-          />
-        </div>
-        {error && (
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-400 text-sm">
-            {error}
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} title="Yangi vazifa berish">
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Vazifa nomi *</label>
+            <input
+              className="input-field"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Masalan: 5-mashq, 12-bet"
+              autoFocus
+            />
           </div>
-        )}
-        <button
-          className="btn-primary"
-          onClick={handleCreate}
-          disabled={!title.trim() || loading}
-        >
-          {loading ? 'Yaratilmoqda...' : 'Yuborish'}
-        </button>
-      </div>
-    </Modal>
+
+          <div>
+            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Muddati (Due Date)</label>
+            <button
+              type="button"
+              onClick={() => { haptic?.light(); setShowCalendar(true) }}
+              className="input-field w-full text-left flex items-center justify-between"
+            >
+              <span className={selectedDate ? 'text-on-surface' : 'text-on-surface-variant'}>
+                {selectedDate
+                  ? `${formatDisplayDate(selectedDate)}, ${timeHour}:${timeMinute}`
+                  : "Sana tanlang (ixtiyoriy)"}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </button>
+            {selectedDate && (
+              <div className="flex items-center gap-3 mt-3">
+                <span className="text-sm text-on-surface-variant">Vaqt:</span>
+                <div className="flex items-center gap-2 bg-surface-container rounded-xl px-3 py-2">
+                  <input
+                    type="number"
+                    min="0" max="23"
+                    value={timeHour}
+                    onChange={(e) => setTimeHour(String(e.target.value).padStart(2, '0'))}
+                    className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
+                  />
+                  <span className="text-on-surface font-bold">:</span>
+                  <input
+                    type="number"
+                    min="0" max="59"
+                    value={timeMinute}
+                    onChange={(e) => setTimeMinute(String(e.target.value).padStart(2, '0'))}
+                    className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedDate(null)}
+                  className="text-xs text-red-400 hover:text-red-300 ml-auto"
+                >
+                  O'chirish
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Tavsif (Description)</label>
+            <textarea
+              className="w-full rounded-card bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Vazifa haqida batafsil ma'lumot..."
+              rows={3}
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+          <button
+            className="btn-primary"
+            onClick={handleCreate}
+            disabled={!title.trim() || loading}
+          >
+            {loading ? 'Yaratilmoqda...' : 'Yuborish'}
+          </button>
+        </div>
+      </Modal>
+
+      <CustomDatePickerModal
+        isOpen={showCalendar}
+        onClose={() => setShowCalendar(false)}
+        selectedDate={selectedDate || new Date()}
+        onSelectDate={(date) => { setSelectedDate(date); setShowCalendar(false) }}
+        haptic={haptic}
+        t={(k) => k}
+      />
+    </>
   )
 }
 
