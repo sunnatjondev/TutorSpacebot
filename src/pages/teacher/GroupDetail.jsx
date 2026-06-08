@@ -7,7 +7,7 @@ import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { supabase } from '../../lib/supabase'
-import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework } from '../../hooks/api/useGroups'
+import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework } from '../../hooks/api/useGroups'
 import { useDeleteGroup, useCreateSession } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
@@ -186,11 +186,12 @@ export default function GroupDetail() {
   const { haptic } = useTelegram()
   const { t } = useI18n()
   const { data, loading } = useGroupDetail(id)
+  const { data: homeworkRows } = useGroupHomework(id)
   const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tut0rspacebot'
 
   const group = data?.group
   const students = data?.students || []
-  const homework = data?.homework || []
+  const homework = homeworkRows || []
 
   const [showCreateHomework, setShowCreateHomework] = useState(false)
 

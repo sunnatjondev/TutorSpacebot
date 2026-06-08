@@ -12,8 +12,7 @@ export function useGroupDetail(groupId) {
       const [
         { data: group, error: groupError },
         { data: memberships, error: membershipsError },
-        { data: paymentRows, error: paymentsError },
-        { data: homeworkRows, error: homeworkError }
+        { data: paymentRows, error: paymentsError }
       ] = await Promise.all([
         supabase
           .from('groups')
@@ -29,17 +28,11 @@ export function useGroupDetail(groupId) {
           .select('student_id, amount, status, created_at')
           .eq('group_id', groupId)
           .order('created_at', { ascending: false }),
-        supabase
-          .from('homework')
-          .select('id, title, due_date, description, created_at')
-          .eq('group_id', groupId)
-          .order('created_at', { ascending: false }),
       ])
 
       if (groupError) throw groupError
       if (membershipsError) throw membershipsError
       if (paymentsError) throw paymentsError
-      if (homeworkError) throw homeworkError
 
       const paymentByStudentId = new Map()
       ;(paymentRows || []).forEach((payment) => {
@@ -62,8 +55,25 @@ export function useGroupDetail(groupId) {
       return {
         group,
         students,
-        homework: homeworkRows || [],
       }
+    },
+    enabled: !!groupId,
+  })
+}
+
+export function useGroupHomework(groupId) {
+  return useQuery({
+    queryKey: ['group-homework', groupId],
+    queryFn: async () => {
+      if (!isSupabaseConfigured || !groupId) return []
+      const { data, error } = await supabase
+        .from('homework')
+        .select('id, title, due_date, description, created_at')
+        .eq('group_id', groupId)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      return data || []
     },
     enabled: !!groupId,
   })
@@ -342,7 +352,7 @@ export function useCreateHomework() {
       return data
     },
     onSuccess: (data, { groupId }) => {
-      queryClient.invalidateQueries({ queryKey: ['group-detail', groupId] })
+      queryClient.invalidateQueries({ queryKey: ['group-homework', groupId] })
       queryClient.invalidateQueries({ queryKey: ['student-homework'] })
       queryClient.invalidateQueries({ queryKey: ['student-dashboard'] })
     },
