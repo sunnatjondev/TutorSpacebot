@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
-import { getUserRowByTelegramId, buildTelegramUserPayload } from './auth'
+import { getUserRowByTelegramId } from './auth'
 import { getCurrentPeriod } from './core'
 
 export function useStudentDashboard(telegramId) {

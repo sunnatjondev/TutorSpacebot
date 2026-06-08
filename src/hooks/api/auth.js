@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import { normalizeOptionalText } from './core'
 
-function buildTelegramUserPayload(tgUser, overrides = {}) {
+export function buildTelegramUserPayload(tgUser, overrides = {}) {
   return {
     telegram_id: overrides.telegram_id ?? tgUser?.id ?? null,
     first_name: normalizeOptionalText(tgUser?.first_name) || 'Foydalanuvchi',
