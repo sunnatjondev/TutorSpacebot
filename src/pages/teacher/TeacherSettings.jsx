@@ -10,8 +10,24 @@ export default function TeacherSettings() {
   const { user, haptic } = useTelegram()
   const { t, lang, setLanguage, languages } = useI18n()
   const navigate = useNavigate()
-  const [lessonReminders, setLessonReminders] = useState(true)
-  const [paymentAlerts, setPaymentAlerts] = useState(true)
+  const [lessonReminders, setLessonReminders] = useState(() => {
+    const saved = localStorage.getItem('setting_lessonReminders')
+    return saved !== null ? saved === 'true' : true
+  })
+  const [paymentAlerts, setPaymentAlerts] = useState(() => {
+    const saved = localStorage.getItem('setting_paymentAlerts')
+    return saved !== null ? saved === 'true' : true
+  })
+
+  const handleToggleLessonReminders = (value) => {
+    setLessonReminders(value)
+    localStorage.setItem('setting_lessonReminders', String(value))
+  }
+
+  const handleTogglePaymentAlerts = (value) => {
+    setPaymentAlerts(value)
+    localStorage.setItem('setting_paymentAlerts', String(value))
+  }
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'O\'qituvchi'
   const langLabels = { uz: 'UZ', ru: 'RU' }
@@ -42,20 +58,7 @@ export default function TeacherSettings() {
           </div>
         </div>
 
-        {/* Plan */}
-        <div className="card flex items-center gap-4">
-          <div className="w-11 h-11 rounded-2xl bg-brand/20 flex items-center justify-center">
-            <Star size={20} className="text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-on-surface truncate">{t('teacherSettings.currentPlan', { plan: 'Basic' })}</p>
-            <p className="text-on-surface-variant text-xs">{t('teacherSettings.freeTier')}</p>
-          </div>
-          <button onClick={() => haptic?.medium()}
-            className="bg-brand/20 text-primary text-xs font-bold px-3 py-2 rounded-full border border-brand/30 active:scale-95 transition-transform shrink-0">
-            {t('common.upgrade')}
-          </button>
-        </div>
+
 
 
 
@@ -66,11 +69,11 @@ export default function TeacherSettings() {
           </p>
           <div className="flex items-center justify-between">
             <p className="text-on-surface text-sm">{t('teacherSettings.lessonReminders')}</p>
-            <Toggle value={lessonReminders} onChange={setLessonReminders} />
+            <Toggle value={lessonReminders} onChange={handleToggleLessonReminders} />
           </div>
           <div className="flex items-center justify-between">
             <p className="text-on-surface text-sm">{t('teacherSettings.paymentAlerts')}</p>
-            <Toggle value={paymentAlerts} onChange={setPaymentAlerts} />
+            <Toggle value={paymentAlerts} onChange={handleTogglePaymentAlerts} />
           </div>
         </div>
 

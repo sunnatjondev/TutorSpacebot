@@ -7,7 +7,7 @@ import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { supabase } from '../../lib/supabase'
-import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance } from '../../hooks/api/useGroups'
+import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework } from '../../hooks/api/useGroups'
 import { useDeleteGroup, useCreateSession } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
@@ -95,6 +95,91 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving }) {
   )
 }
 
+function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
+  const [title, setTitle] = useState('')
+  const [dueDate, setDueDate] = useState('')
+  const [description, setDescription] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const createHomeworkMutation = useCreateHomework()
+
+  const handleCreate = async () => {
+    if (!title.trim()) return
+    setLoading(true)
+    setError(null)
+    haptic?.medium?.()
+
+    try {
+      await createHomeworkMutation.mutateAsync({
+        groupId,
+        title: title.trim(),
+        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        description: description.trim(),
+      })
+      haptic?.success?.()
+      onCreated()
+      onClose()
+      setTitle('')
+      setDueDate('')
+      setDescription('')
+    } catch (err) {
+      setError(err.message || 'Xatolik yuz berdi')
+      haptic?.error?.()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Yangi vazifa berish">
+      <div className="space-y-4">
+        <div>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Vazifa nomi *</label>
+          <input
+            className="input-field"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Masalan: 5-mashq, 12-bet"
+            autoFocus
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Muddati (Due Date)</label>
+          <input
+            type="datetime-local"
+            className="input-field"
+            value={dueDate}
+            onChange={(event) => setDueDate(event.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Tavsif (Description)</label>
+          <textarea
+            className="w-full rounded-card bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder="Vazifa haqida batafsil ma'lumot..."
+            rows={3}
+          />
+        </div>
+        {error && (
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+        <button
+          className="btn-primary"
+          onClick={handleCreate}
+          disabled={!title.trim() || loading}
+        >
+          {loading ? 'Yaratilmoqda...' : 'Yuborish'}
+        </button>
+      </div>
+    </Modal>
+  )
+}
+
 export default function GroupDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -105,6 +190,9 @@ export default function GroupDetail() {
 
   const group = data?.group
   const students = data?.students || []
+  const homework = data?.homework || []
+
+  const [showCreateHomework, setShowCreateHomework] = useState(false)
 
   // Stable string key from student IDs — prevents re-running effects
   // when the array reference changes but contents are the same (happens every 20s staleMs refetch)
@@ -566,6 +654,48 @@ export default function GroupDetail() {
           </div>
         </div>
 
+        {/* Homeworks Card */}
+        <div className="card">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold tracking-widest text-on-surface-variant">
+              Vazifalar / Домашние задания
+            </p>
+            <button
+              onClick={() => {
+                haptic?.medium()
+                setShowCreateHomework(true)
+              }}
+              className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center text-primary active:scale-90 transition-transform shrink-0"
+              title="Yangi vazifa"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+            {homework.map((item, index) => {
+              const dueStr = item.due_date
+                ? new Date(item.due_date).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                : '—'
+              return (
+                <div key={item.id} className="py-2 border-b border-outline-variant/40 last:border-0">
+                  <div className="flex justify-between items-start mb-1">
+                    <p className="text-sm font-semibold text-on-surface">{item.title}</p>
+                    <span className="text-[10px] text-on-surface-variant bg-surface-high px-2 py-0.5 rounded-full whitespace-nowrap">
+                      Muddat: {dueStr}
+                    </span>
+                  </div>
+                  {item.description && (
+                    <p className="text-xs text-on-surface-variant line-clamp-2 mt-0.5">{item.description}</p>
+                  )}
+                </div>
+              )
+            })}
+            {!homework.length && (
+              <p className="py-4 text-center text-sm text-on-surface-variant">Hali vazifalar berilmagan</p>
+            )}
+          </div>
+        </div>
+
         <button
           onClick={() => {
             haptic?.medium()
@@ -631,6 +761,14 @@ export default function GroupDetail() {
           </button>
         </div>
       </Modal>
+
+      <CreateHomeworkModal
+        isOpen={showCreateHomework}
+        onClose={() => setShowCreateHomework(false)}
+        groupId={id}
+        onCreated={() => {}}
+        haptic={haptic}
+      />
     </div>
   )
 }

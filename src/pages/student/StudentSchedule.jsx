@@ -21,7 +21,7 @@ function statusStyle(status) {
   switch (status) {
     case 'attended':
       return { border: '2px solid rgba(74,222,128,0.4)', borderLeft: '4px solid #4ade80' }
-    case 'in_progress':
+    case 'ongoing':
       return { border: '2px solid rgba(74,222,128,0.3)', borderLeft: '4px solid #4ade80' }
     case 'upcoming':
       return { border: '2px solid rgba(108,99,255,0.3)', borderLeft: '4px solid #6C63FF' }
@@ -149,7 +149,7 @@ export default function StudentSchedule() {
                       {t('common.upcoming')}
                     </span>
                   )}
-                  {lesson.status === 'in_progress' && (
+                  {lesson.status === 'ongoing' && (
                     <span className="flex items-center gap-1 rounded-full border border-paid-green/20 bg-paid-green/10 px-3 py-1 text-xs font-semibold text-paid-green">
                       <span className="h-1.5 w-1.5 rounded-full bg-paid-green" />
                       {t('common.inProgress')}

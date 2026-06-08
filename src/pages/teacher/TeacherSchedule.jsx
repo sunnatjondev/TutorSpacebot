@@ -251,7 +251,7 @@ export default function TeacherSchedule() {
 
   const getStatusLabel = (status) => {
     if (status === 'done') return t('common.done')
-    if (status === 'in_progress') return t('common.inProgress')
+    if (status === 'ongoing') return t('common.inProgress')
     return t('common.upcoming')
   }
 
@@ -262,7 +262,7 @@ export default function TeacherSchedule() {
     setProcessingSessionId(sessionId)
     haptic?.medium()
     try {
-      await updateSessionStatusMutation.mutateAsync({ sessionId, status: 'in_progress' })
+      await updateSessionStatusMutation.mutateAsync({ sessionId, status: 'ongoing' })
       haptic?.success?.()
       refetch()
     } catch (err) {
@@ -369,7 +369,7 @@ export default function TeacherSchedule() {
               const studentCount = lesson.attendance?.[0]?.count ?? 0
               const duration = lesson.duration_min ? `${lesson.duration_min} ${t('teacherSchedule.minutes')}` : ''
               const isDone = lesson.status === 'done'
-              const isInProgress = lesson.status === 'in_progress'
+              const isInProgress = lesson.status === 'ongoing'
               const isProcessing = processingSessionId === lesson.id
 
               return (

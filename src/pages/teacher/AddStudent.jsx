@@ -12,6 +12,7 @@ export default function AddStudent() {
   const { user, haptic } = useTelegram()
   const { t } = useI18n()
   const { data: groups } = useTeacherGroups(user?.id)
+  const createStudentMutation = useCreateStudent()
 
   const initialGroupId = location.state?.groupId || null
   const availableGroups = groups || []
@@ -40,16 +41,15 @@ export default function AddStudent() {
     setError(null)
     haptic?.medium()
 
-    const createStudentMutation = useCreateStudent()
-
     try {
       const data = await createStudentMutation.mutateAsync({
-      name: form.name,
-      contact: form.contact,
-      groupIds: selectedGroupIds,
-      monthlyRate: form.rate,
-      billingDay,
-      subject: form.subject,
+        teacherTelegramId: user?.id,
+        name: form.name,
+        contact: form.contact,
+        groupIds: selectedGroupIds,
+        monthlyRate: form.rate,
+        billingDay,
+        subject: form.subject,
         notes: form.notes,
       })
 

@@ -98,10 +98,11 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
 }
 
 export default function TeacherFinance() {
-  const { user, haptic } = useTelegram()
-  const { t } = useI18n()
+  const { user, haptic, openTelegramLink } = useTelegram()
+  const { t, lang } = useI18n()
   const [activeFilter, setActiveFilter] = useState('all')
   const [markStudent, setMarkStudent] = useState(null)
+  const [selectedPayment, setSelectedPayment] = useState(null)
 
   const telegramId = user?.id
   const { data: payments, refetch } = useTeacherPayments(telegramId, activeFilter)
@@ -197,7 +198,15 @@ export default function TeacherFinance() {
 
               {(payment.status === 'unpaid' || payment.status === 'partial') && (
                 <div className="flex gap-2">
-                  <button className="btn-secondary h-10 flex-1 text-sm">{t('common.details')}</button>
+                  <button
+                    onClick={() => {
+                      haptic?.light()
+                      setSelectedPayment(payment)
+                    }}
+                    className="btn-secondary h-10 flex-1 text-sm"
+                  >
+                    {t('common.details')}
+                  </button>
                   <button
                     onClick={() => {
                       haptic?.medium()
@@ -219,6 +228,71 @@ export default function TeacherFinance() {
           )}
         </div>
       </div>
+
+      <Modal isOpen={!!selectedPayment} onClose={() => setSelectedPayment(null)} title={t('common.details')}>
+        {selectedPayment && (
+          <div className="space-y-4 text-on-surface">
+            <div className="flex items-center gap-3 bg-surface-container rounded-2xl p-4">
+              <Avatar name={getName(selectedPayment)} size="md" />
+              <div className="flex-1 min-w-0">
+                <p className="font-bold truncate">{getName(selectedPayment)}</p>
+                <p className="text-on-surface-variant text-sm truncate">👥 {getGroup(selectedPayment)}</p>
+              </div>
+            </div>
+            
+            <div className="card space-y-3 p-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Oyi / Period:</span>
+                <span className="font-semibold">{selectedPayment.period_month}/{selectedPayment.period_year}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Summa / Amount:</span>
+                <span className="font-semibold text-brand">{formatUZS(selectedPayment.amount)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Holat / Status:</span>
+                <span className={`font-semibold ${selectedPayment.status === 'paid' ? 'text-paid-green' : 'text-debt-red'}`}>
+                  {selectedPayment.status === 'paid' ? t('common.paid') : t('common.unpaid')}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Sana / Date:</span>
+                <span className="font-semibold text-xs">
+                  {new Date(selectedPayment.created_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+            </div>
+
+            {selectedPayment.status !== 'paid' && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    haptic?.medium()
+                    const student = selectedPayment.student
+                    if (student) {
+                      const name = `${student.first_name || ''} ${student.last_name || ''}`.trim()
+                      const amountStr = formatUZS(selectedPayment.amount)
+                      const text = `Assalomu alaykum, ${name}. Sizda TutorSpace bot orqali ${amountStr} miqdorida to'lov kutilmoqda. Iltimos, imkon qadar tezroq amalga oshiring.`
+                      if (student.username) {
+                        openTelegramLink(`https://t.me/${student.username.replace(/^@/, '')}`)
+                      } else {
+                        navigator.clipboard.writeText(text).then(() => {
+                          window.Telegram?.WebApp?.showAlert?.(`Talaba username'ga ega emas. Eslatma xabari buferga nusxalandi! Siz uni boshqa kanallar orqali yuborishingiz mumkin:\n\n"${text}"`)
+                        }).catch(() => {
+                          window.Telegram?.WebApp?.showAlert?.(`Eslatma xabari:\n\n"${text}"`)
+                        })
+                      }
+                    }
+                  }}
+                  className="btn-primary flex-1 gap-1"
+                >
+                  🔔 {t('common.remind')}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
 
       <Modal isOpen={!!markStudent} onClose={() => setMarkStudent(null)} title={t('teacherFinance.markPayment')}>
         <MarkPaymentModal

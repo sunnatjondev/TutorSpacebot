@@ -88,7 +88,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
 }
 
 export default function TeacherDashboard() {
-  const { user, greeting, greetingRu, haptic } = useTelegram()
+  const { user, greeting, greetingRu, haptic, openTelegramLink, tg } = useTelegram()
   const { t, lang } = useI18n()
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
@@ -103,14 +103,34 @@ export default function TeacherDashboard() {
   const localizedGreeting = lang === 'ru' ? greetingRu : greeting
   const getSessionBadgeClass = (status) => {
     if (status === 'done') return 'badge-paid'
-    if (status === 'in_progress') return 'badge-partial'
+    if (status === 'ongoing') return 'badge-partial'
     return 'badge-debt'
   }
 
   const getSessionStatusLabel = (status) => {
     if (status === 'done') return t('common.done')
-    if (status === 'in_progress') return t('common.inProgress')
+    if (status === 'ongoing') return t('common.inProgress')
     return t('common.upcoming')
+  }
+
+  const handleRemind = (payment) => {
+    haptic?.medium()
+    const student = payment.student
+    if (!student) return
+
+    const name = `${student.first_name || ''} ${student.last_name || ''}`.trim()
+    const amountStr = formatUZS(payment.amount)
+    const text = `Assalomu alaykum, ${name}. Sizda TutorSpace bot orqali ${amountStr} miqdorida to'lov kutilmoqda. Iltimos, imkon qadar tezroq amalga oshiring.`
+
+    if (student.username) {
+      openTelegramLink(`https://t.me/${student.username.replace(/^@/, '')}`)
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        tg?.showAlert(`Talaba username'ga ega emas. Eslatma xabari buferga nusxalandi! Siz uni boshqa kanallar orqali yuborishingiz mumkin:\n\n"${text}"`)
+      }).catch(() => {
+        tg?.showAlert(`Eslatma xabari:\n\n"${text}"`)
+      })
+    }
   }
 
   const handleGroupCreated = async (group) => {
@@ -232,7 +252,7 @@ export default function TeacherDashboard() {
                   </p>
                   <p className="text-xs font-bold text-debt-red">{formatUZS(payment.amount)}</p>
                 </div>
-                <button onClick={() => haptic?.light()} className="btn-ghost shrink-0 gap-1 text-xs">
+                <button onClick={() => handleRemind(payment)} className="btn-ghost shrink-0 gap-1 text-xs">
                   <Bell size={12} /> {t('common.remind')}
                 </button>
               </div>

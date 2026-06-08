@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { BookOpen, Wallet, CheckCircle, Circle, AlertTriangle } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
+import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { useStudentDashboard, useStudentHomework, useMarkHomeworkDone } from '../../hooks/api/useStudent'
 
 export default function StudentDashboard() {
-  const { user } = useTelegram()
+  const { user, haptic } = useTelegram()
   const { t } = useI18n()
   const telegramId = user?.id
   const firstName = user?.first_name || 'Talaba'
@@ -15,6 +16,7 @@ export default function StudentDashboard() {
   const { data: dash } = useStudentDashboard(telegramId)
   const { data: homeworkRows, refetch: refetchHomework } = useStudentHomework(telegramId)
   const [localDone, setLocalDone] = useState({})
+  const [showAllTasks, setShowAllTasks] = useState(false)
 
   const attendance = dash?.attendance ?? 0
   const balance = dash?.balance ?? 0
@@ -157,7 +159,15 @@ export default function StudentDashboard() {
         <div className="stagger-item">
           <div className="section-header">
             <h2 className="section-title">{t('studentHome.upcomingTasks')}</h2>
-            <button className="text-sm font-semibold text-primary">{t('common.viewAll')}</button>
+            <button
+              onClick={() => {
+                haptic?.light()
+                setShowAllTasks(true)
+              }}
+              className="text-sm font-semibold text-primary"
+            >
+              {t('common.viewAll')}
+            </button>
           </div>
           <div className="card space-y-0">
             {homework.slice(0, 4).map((item, index) => (
@@ -196,6 +206,40 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
+      <Modal isOpen={showAllTasks} onClose={() => setShowAllTasks(false)} title={t('studentHome.upcomingTasks')}>
+        <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+          {homework.map((item, index) => (
+            <div key={item.id} className="flex items-start gap-3 py-3 border-b border-outline-variant/40 last:border-0 text-on-surface">
+              <button onClick={() => toggleHomework(item.id, item.submissionId)} className="mt-0.5 transition-transform active:scale-90">
+                {item.done ? <CheckCircle size={22} className="text-paid-green" /> : <Circle size={22} className="text-outline" />}
+              </button>
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-surface-high px-2 py-0.5 text-[10px] font-bold tracking-wide text-on-surface-variant">
+                    {item.subject}
+                  </span>
+                  {item.overdue ? (
+                    <span className="flex items-center gap-0.5 text-[10px] font-bold text-partial-orange">
+                      <AlertTriangle size={10} /> {item.due}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-on-surface-variant">{item.due}</span>
+                  )}
+                </div>
+                <p className={`text-sm font-medium ${item.done ? 'line-through text-on-surface-variant' : 'text-on-surface'} ${item.overdue && !item.done ? 'rounded-xl border border-debt-red/30 bg-debt-red/5 px-2 py-1' : ''}`}>
+                  {item.title}
+                </p>
+              </div>
+            </div>
+          ))}
+          {!homework.length && (
+            <div className="py-8 text-center text-sm text-on-surface-variant">
+              Hozircha topshiriqlar yo'q
+            </div>
+          )}
+        </div>
+      </Modal>
+
       <BottomNav role="student" />
     </div>
   )

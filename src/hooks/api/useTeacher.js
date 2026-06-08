@@ -48,7 +48,7 @@ export function useTeacherDashboard(telegramId) {
           .eq('teacher_id', user.id),
         supabase
           .from('payments')
-          .select('amount, status, student:users!payments_student_id_fkey(first_name, last_name)')
+          .select('amount, status, student:users!payments_student_id_fkey(first_name, last_name, username)')
           .eq('teacher_id', user.id)
           .in('status', ['unpaid', 'partial']),
       ])
@@ -128,7 +128,7 @@ export function useTeacherPayments(telegramId, filter = 'all') {
 
       let query = supabase
         .from('payments')
-        .select('*, student:users!payments_student_id_fkey(first_name, last_name), group:groups(name, subject)')
+        .select('*, student:users!payments_student_id_fkey(first_name, last_name, username), group:groups(name, subject)')
         .eq('teacher_id', user.id)
         .order('created_at', { ascending: false })
 

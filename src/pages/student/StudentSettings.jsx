@@ -7,11 +7,40 @@ import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 
 export default function StudentSettings() {
-  const { user, haptic } = useTelegram()
+  const { user, haptic, openTelegramLink } = useTelegram()
   const { t, lang, setLanguage, languages } = useI18n()
   const navigate = useNavigate()
-  const [lessonReminders, setLessonReminders] = useState(true)
-  const [paymentAlerts, setPaymentAlerts] = useState(false)
+  const [lessonReminders, setLessonReminders] = useState(() => {
+    const saved = localStorage.getItem('setting_lessonReminders')
+    return saved !== null ? saved === 'true' : true
+  })
+  const [paymentAlerts, setPaymentAlerts] = useState(() => {
+    const saved = localStorage.getItem('setting_paymentAlerts')
+    return saved !== null ? saved === 'true' : false
+  })
+
+  const handleToggleLessonReminders = (value) => {
+    setLessonReminders(value)
+    localStorage.setItem('setting_lessonReminders', String(value))
+  }
+
+  const handleTogglePaymentAlerts = (value) => {
+    setPaymentAlerts(value)
+    localStorage.setItem('setting_paymentAlerts', String(value))
+  }
+
+  const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tut0rspacebot'
+
+  const handleShare = () => {
+    haptic?.medium()
+    const text = "TutorSpace - darslar jadvali va to'lovlarni kuzatib borish uchun qulay bot!"
+    const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}&text=${encodeURIComponent(text)}`
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.openTelegramLink(shareUrl)
+    } else {
+      window.open(shareUrl, '_blank')
+    }
+  }
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'Talaba'
   const langLabels = { uz: 'UZ', ru: 'RU' }
@@ -49,11 +78,11 @@ export default function StudentSettings() {
           </p>
           <div className="flex items-center justify-between">
             <p className="text-on-surface text-sm">{t('teacherSettings.lessonReminders')}</p>
-            <Toggle value={lessonReminders} onChange={setLessonReminders} />
+            <Toggle value={lessonReminders} onChange={handleToggleLessonReminders} />
           </div>
           <div className="flex items-center justify-between">
             <p className="text-on-surface text-sm">{t('teacherSettings.paymentAlerts')}</p>
-            <Toggle value={paymentAlerts} onChange={setPaymentAlerts} />
+            <Toggle value={paymentAlerts} onChange={handleTogglePaymentAlerts} />
           </div>
         </div>
 
@@ -72,7 +101,7 @@ export default function StudentSettings() {
           </div>
         </div>
 
-        <button onClick={() => haptic?.light()} className="btn-primary"
+        <button onClick={handleShare} className="btn-primary"
           style={{ background: 'rgba(108,99,255,0.15)', boxShadow: 'none' }}>
           <Share2 size={18} className="text-primary" />
           <span className="text-primary">{t('teacherSettings.shareProfile')}</span>
