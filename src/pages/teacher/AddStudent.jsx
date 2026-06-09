@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Upload, Plus } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { useTeacherGroups } from '../../hooks/api/useTeacher'
@@ -86,14 +86,6 @@ export default function AddStudent() {
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-8 space-y-5">
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-20 h-20 rounded-full bg-brand/20 border-2 border-brand/40 flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
-            <span className="text-2xl font-extrabold text-primary">TD</span>
-          </div>
-          <span className="text-on-surface-variant text-sm flex items-center gap-1">
-            <Upload size={13} /> {t('addStudent.uploadPhoto')}
-          </span>
-        </div>
 
         <div className="space-y-3">
           <div className="relative">
