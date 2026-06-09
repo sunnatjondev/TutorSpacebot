@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Share2, LogOut, Bell, Globe } from 'lucide-react'
+import { LogOut, Bell, Globe } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
@@ -29,18 +29,6 @@ export default function StudentSettings() {
     localStorage.setItem('setting_paymentAlerts', String(value))
   }
 
-  const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tut0rspacebot'
-
-  const handleShare = () => {
-    haptic?.medium()
-    const text = "TutorSpace - darslar jadvali va to'lovlarni kuzatib borish uchun qulay bot!"
-    const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}&text=${encodeURIComponent(text)}`
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openTelegramLink(shareUrl)
-    } else {
-      window.open(shareUrl, '_blank')
-    }
-  }
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'Talaba'
   const langLabels = { uz: 'UZ', ru: 'RU' }
@@ -101,18 +89,14 @@ export default function StudentSettings() {
           </div>
         </div>
 
-        <button onClick={handleShare} className="btn-primary"
-          style={{ background: 'rgba(108,99,255,0.15)', boxShadow: 'none' }}>
-          <Share2 size={18} className="text-primary" />
-          <span className="text-primary">{t('teacherSettings.shareProfile')}</span>
-        </button>
-
         <button 
           className="w-full h-14 rounded-2xl border border-red-500/40 bg-red-500/10 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
           onClick={() => {
             haptic?.warning()
-            localStorage.clear()
-            navigate('/', { replace: true })
+            if (window.confirm("Haqiqatan ham chiqmoqchimisiz? Barcha ma'lumotlaringiz qurilmadan o'chiriladi.")) {
+              localStorage.clear()
+              navigate('/', { replace: true })
+            }
           }}
         >
           <LogOut size={18} /> Chiqish

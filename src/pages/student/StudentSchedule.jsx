@@ -87,7 +87,7 @@ export default function StudentSchedule() {
           </button>
         </div>
 
-        <div className="mb-4 flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+        <div className="card mb-5 flex items-center justify-between gap-1 p-3">
           {DAY_KEYS.map((dayKey, index) => {
             const date = days[index]
             const isToday = date.toDateString() === today.toDateString()
@@ -100,15 +100,17 @@ export default function StudentSchedule() {
                   setSelectedDay(index)
                   haptic?.selection()
                 }}
-                className={`flex w-16 flex-shrink-0 flex-col items-center gap-0.5 rounded-[20px] py-3 transition-all duration-200 ${
-                  isSelected
-                    ? 'bg-brand text-white shadow-glow-sm'
-                    : 'border border-outline-variant bg-surface-container text-on-surface-variant'
+                className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-0.5 py-1.5 transition-all duration-200 ${
+                  isSelected ? 'bg-brand' : isToday ? 'bg-surface-high' : ''
                 }`}
               >
-                <span className="text-[10px] font-bold tracking-wide">{t(`days.${dayKey}`)}</span>
-                <span className="text-xl font-extrabold">{date.getDate()}</span>
-                {isToday && !isSelected && <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary" />}
+                <span className={`text-[9px] font-bold tracking-wide ${isSelected ? 'text-white' : 'text-on-surface-variant'}`}>
+                  {t(`days.${dayKey}`)}
+                </span>
+                <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-on-surface'}`}>
+                  {date.getDate()}
+                </span>
+                {isToday && !isSelected && <span className="mt-0.5 h-1 w-1 rounded-full bg-brand" />}
               </button>
             )
           })}

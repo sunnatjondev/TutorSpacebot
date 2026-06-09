@@ -96,8 +96,10 @@ export default function TeacherSettings() {
           className="w-full h-14 rounded-2xl border border-red-500/40 bg-red-500/10 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
           onClick={() => {
             haptic?.warning()
-            localStorage.clear()
-            navigate('/', { replace: true })
+            if (window.confirm("Haqiqatan ham chiqmoqchimisiz? Barcha ma'lumotlaringiz qurilmadan o'chiriladi.")) {
+              localStorage.clear()
+              navigate('/', { replace: true })
+            }
           }}
         >
           <LogOut size={18} /> Chiqish

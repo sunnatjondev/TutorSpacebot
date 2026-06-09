@@ -72,15 +72,6 @@ export default function StudentGroups() {
                 </div>
               </div>
 
-              <button
-                onClick={() => {
-                  haptic?.medium()
-                  if (group.telegramLink) openTelegramLink?.(group.telegramLink)
-                }}
-                className="btn-primary mb-4"
-              >
-                <ExternalLink size={16} /> {t('studentGroups.openTelegram')}
-              </button>
             </div>
           ))}
 
