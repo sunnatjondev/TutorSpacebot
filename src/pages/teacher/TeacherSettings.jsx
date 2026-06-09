@@ -1,32 +1,50 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { LogOut, Bell, Globe } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
+import { getUserRowByTelegramId, updateNotificationPreferences } from '../../hooks/api/auth'
 
 export default function TeacherSettings() {
   const { user, haptic } = useTelegram()
   const { t, lang, setLanguage, languages } = useI18n()
   const navigate = useNavigate()
-  const [lessonReminders, setLessonReminders] = useState(() => {
-    const saved = localStorage.getItem('setting_lessonReminders')
-    return saved !== null ? saved === 'true' : true
+  const queryClient = useQueryClient()
+
+  const { data: dbUser } = useQuery({
+    queryKey: ['user-settings', user?.id],
+    queryFn: () => getUserRowByTelegramId(user?.id),
+    enabled: !!user?.id,
   })
-  const [paymentAlerts, setPaymentAlerts] = useState(() => {
-    const saved = localStorage.getItem('setting_paymentAlerts')
-    return saved !== null ? saved === 'true' : true
+
+  const [lessonReminders, setLessonReminders] = useState(true)
+  const [paymentAlerts, setPaymentAlerts] = useState(true)
+
+  useEffect(() => {
+    if (dbUser) {
+      setLessonReminders(dbUser.lesson_reminders_enabled ?? true)
+      setPaymentAlerts(dbUser.payment_alerts_enabled ?? true)
+    }
+  }, [dbUser])
+
+  const mutation = useMutation({
+    mutationFn: (payload) => updateNotificationPreferences(user.id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['user-settings', user?.id])
+    }
   })
 
   const handleToggleLessonReminders = (value) => {
     setLessonReminders(value)
-    localStorage.setItem('setting_lessonReminders', String(value))
+    mutation.mutate({ lesson_reminders_enabled: value })
   }
 
   const handleTogglePaymentAlerts = (value) => {
     setPaymentAlerts(value)
-    localStorage.setItem('setting_paymentAlerts', String(value))
+    mutation.mutate({ payment_alerts_enabled: value })
   }
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'O\'qituvchi'

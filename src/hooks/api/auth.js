@@ -18,7 +18,7 @@ export async function getUserRowByTelegramId(telegramId) {
 
   const { data, error } = await supabase
     .from('users')
-    .select('id, role, first_name, last_name, username, photo_url')
+    .select('id, role, first_name, last_name, username, photo_url, lesson_reminders_enabled, payment_alerts_enabled')
     .eq('telegram_id', telegramId)
     .maybeSingle()
 
@@ -32,7 +32,7 @@ export async function getUserRowByUsername(username) {
 
   const { data, error } = await supabase
     .from('users')
-    .select('id, role, first_name, last_name, username, photo_url, telegram_id')
+    .select('id, role, first_name, last_name, username, photo_url, telegram_id, lesson_reminders_enabled, payment_alerts_enabled')
     .eq('username', normalizedUsername)
     .maybeSingle()
 
@@ -82,5 +82,16 @@ export async function saveUserRole(telegramUserOrId, role) {
           .eq('telegram_id', telegramId)
 
   const { error } = await request
+  if (error) throw error
+}
+
+export async function updateNotificationPreferences(telegramId, payload) {
+  if (!isSupabaseConfigured || !telegramId) return
+
+  const { error } = await supabase
+    .from('users')
+    .update(payload)
+    .eq('telegram_id', telegramId)
+
   if (error) throw error
 }
