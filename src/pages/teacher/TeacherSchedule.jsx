@@ -20,18 +20,6 @@ function getDayDates(baseDate = new Date()) {
   })
 }
 
-function buildDefaultSessionDate(date) {
-  const nextDate = new Date(date)
-  nextDate.setHours(9, 0, 0, 0)
-  return nextDate
-}
-
-function toDateTimeLocalValue(date) {
-  const target = new Date(date)
-  const timezoneOffset = target.getTimezoneOffset() * 60 * 1000
-  return new Date(target.getTime() - timezoneOffset).toISOString().slice(0, 16)
-}
-
 function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t }) {
   const navigate = useNavigate()
   const [selectedGroupId, setSelectedGroupId] = useState(groups[0]?.id || '')

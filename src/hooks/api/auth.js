@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import { normalizeOptionalText } from './core'
 

@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Debug/scratch files
+scratch_*.js

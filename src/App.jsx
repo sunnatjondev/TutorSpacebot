@@ -4,6 +4,7 @@ import { useTelegram } from './hooks/useTelegram'
 import { upsertTelegramUser } from './hooks/api/auth'
 import { joinGroupByToken } from './hooks/api/useStudent'
 import { isSupabaseConfigured } from './lib/supabase'
+import RouteGuard from './components/RouteGuard'
 
 import RoleSelection from './pages/RoleSelection'
 
@@ -129,19 +130,19 @@ export default function App() {
       <Routes>
         <Route path="/" element={<AuthGate />} />
 
-        <Route path="/teacher/home" element={<TeacherDashboard />} />
-        <Route path="/teacher/groups" element={<TeacherGroups />} />
-        <Route path="/teacher/groups/:id" element={<GroupDetail />} />
-        <Route path="/teacher/schedule" element={<TeacherSchedule />} />
-        <Route path="/teacher/finance" element={<TeacherFinance />} />
-        <Route path="/teacher/settings" element={<TeacherSettings />} />
-        <Route path="/teacher/add-student" element={<AddStudent />} />
+        <Route path="/teacher/home" element={<RouteGuard role="teacher"><TeacherDashboard /></RouteGuard>} />
+        <Route path="/teacher/groups" element={<RouteGuard role="teacher"><TeacherGroups /></RouteGuard>} />
+        <Route path="/teacher/groups/:id" element={<RouteGuard role="teacher"><GroupDetail /></RouteGuard>} />
+        <Route path="/teacher/schedule" element={<RouteGuard role="teacher"><TeacherSchedule /></RouteGuard>} />
+        <Route path="/teacher/finance" element={<RouteGuard role="teacher"><TeacherFinance /></RouteGuard>} />
+        <Route path="/teacher/settings" element={<RouteGuard role="teacher"><TeacherSettings /></RouteGuard>} />
+        <Route path="/teacher/add-student" element={<RouteGuard role="teacher"><AddStudent /></RouteGuard>} />
 
-        <Route path="/student/home" element={<StudentDashboard />} />
-        <Route path="/student/groups" element={<StudentGroups />} />
-        <Route path="/student/schedule" element={<StudentSchedule />} />
-        <Route path="/student/finance" element={<StudentFinance />} />
-        <Route path="/student/settings" element={<StudentSettings />} />
+        <Route path="/student/home" element={<RouteGuard role="student"><StudentDashboard /></RouteGuard>} />
+        <Route path="/student/groups" element={<RouteGuard role="student"><StudentGroups /></RouteGuard>} />
+        <Route path="/student/schedule" element={<RouteGuard role="student"><StudentSchedule /></RouteGuard>} />
+        <Route path="/student/finance" element={<RouteGuard role="student"><StudentFinance /></RouteGuard>} />
+        <Route path="/student/settings" element={<RouteGuard role="student"><StudentSettings /></RouteGuard>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

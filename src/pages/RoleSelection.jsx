@@ -7,6 +7,7 @@ import { saveUserRole } from '../hooks/api/auth'
 
 const LS_ROLE_KEY = 'ts_user_role'
 const LS_TG_ID_KEY = 'ts_tg_id'
+const ADMIN_TELEGRAM_ID = Number(import.meta.env.VITE_ADMIN_TELEGRAM_ID) || 0
 
 export default function RoleSelection() {
   const navigate = useNavigate()
@@ -16,8 +17,10 @@ export default function RoleSelection() {
   const [saving, setSaving] = useState(false)
 
   const displayName = user?.first_name || 'User'
+  const isAdmin = user?.id && Number(user.id) === ADMIN_TELEGRAM_ID
 
   const handleSelect = (role) => {
+    if (role === 'teacher' && !isAdmin) return
     setSelected(role)
     haptic?.selection()
   }
@@ -78,24 +81,26 @@ export default function RoleSelection() {
 
       {/* Role Cards */}
       <div className="flex gap-4 w-full mt-8">
-        <button
-          onClick={() => handleSelect('teacher')}
-          className={`flex-1 rounded-card p-5 flex flex-col items-center gap-3 border-2 transition-all duration-300 active:scale-95 ${
-            selected === 'teacher'
-              ? 'border-brand bg-brand/10'
-              : 'border-outline-variant bg-surface-container'
-          }`}
-        >
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-            selected === 'teacher' ? 'bg-brand/20' : 'bg-surface-high'
-          }`}>
-            <GraduationCap size={24} className={selected === 'teacher' ? 'text-primary' : 'text-on-surface-variant'} />
-          </div>
-          <div className="text-center">
-            <p className="font-bold text-on-surface text-lg">{t('role.teacher')}</p>
-            <p className="text-on-surface-variant text-xs mt-1 leading-snug">{t('role.teacherDesc')}</p>
-          </div>
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => handleSelect('teacher')}
+            className={`flex-1 rounded-card p-5 flex flex-col items-center gap-3 border-2 transition-all duration-300 active:scale-95 ${
+              selected === 'teacher'
+                ? 'border-brand bg-brand/10'
+                : 'border-outline-variant bg-surface-container'
+            }`}
+          >
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+              selected === 'teacher' ? 'bg-brand/20' : 'bg-surface-high'
+            }`}>
+              <GraduationCap size={24} className={selected === 'teacher' ? 'text-primary' : 'text-on-surface-variant'} />
+            </div>
+            <div className="text-center">
+              <p className="font-bold text-on-surface text-lg">{t('role.teacher')}</p>
+              <p className="text-on-surface-variant text-xs mt-1 leading-snug">{t('role.teacherDesc')}</p>
+            </div>
+          </button>
+        )}
 
         <button
           onClick={() => handleSelect('student')}
