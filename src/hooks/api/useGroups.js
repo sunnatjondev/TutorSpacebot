@@ -233,18 +233,33 @@ export function useRemoveStudentFromGroup() {
   return useMutation({
     mutationFn: async ({ groupId, studentId }) => {
       if (!isSupabaseConfigured) throw new Error('Supabase sozlanmagan')
-      const { error } = await supabase
+      
+      // 1. Delete from group_members
+      const { error: memberError } = await supabase
         .from('group_members')
         .delete()
         .eq('group_id', groupId)
         .eq('student_id', studentId)
       
-      if (error) throw error
+      if (memberError) throw memberError
+
+      // 2. Delete unpaid/pending payments for this student in this group
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .delete()
+        .eq('group_id', groupId)
+        .eq('student_id', studentId)
+        .in('status', ['unpaid', 'pending'])
+
+      if (paymentError) {
+        console.error('[RemoveStudent] failed to clean up unpaid payments:', paymentError)
+      }
     },
     onSuccess: (data, { groupId }) => {
       queryClient.invalidateQueries({ queryKey: ['teacher-groups'] })
       queryClient.invalidateQueries({ queryKey: ['teacher-dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['group-detail', groupId] })
+      queryClient.invalidateQueries({ queryKey: ['teacher-payments'] })
     },
   })
 }

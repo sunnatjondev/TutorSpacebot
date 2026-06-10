@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 
-export function Modal({ isOpen, onClose, title, children }) {
+export function Modal({ isOpen, onClose, title, children, closeOnBackdropClick = true }) {
   const [availableHeight, setAvailableHeight] = useState('90dvh')
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function Modal({ isOpen, onClose, title, children }) {
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={closeOnBackdropClick ? onClose : undefined}
       />
       {/* Sheet */}
       <div
@@ -72,7 +72,7 @@ export function Modal({ isOpen, onClose, title, children }) {
           </button>
         </div>
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-6 pb-8">
+        <div className="flex-1 overflow-y-auto px-6 pb-24">
           {children}
         </div>
       </div>

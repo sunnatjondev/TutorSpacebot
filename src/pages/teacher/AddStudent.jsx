@@ -126,18 +126,25 @@ export default function AddStudent() {
         <div>
           <p className="font-semibold text-on-surface mb-3">{t('addStudent.assignGroup')}</p>
           <div className="chip-row flex-wrap gap-2">
-            {availableGroups.map((group) => (
-              <button
-                key={group.id}
-                onClick={() => toggleGroup(group.id)}
-                className={`chip ${selectedGroupIds.includes(group.id) ? 'chip-active' : ''}`}
-              >
-                {group.name}
-              </button>
-            ))}
+            {availableGroups.map((group) => {
+              const isSelected = selectedGroupIds.includes(group.id)
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => toggleGroup(group.id)}
+                  className={`chip whitespace-nowrap transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-brand text-on-primary font-bold shadow-glow-sm scale-105'
+                      : 'bg-surface-high text-on-surface-variant'
+                  }`}
+                >
+                  {group.name}
+                </button>
+              )
+            })}
           </div>
           {!availableGroups.length && (
-            <p className="text-on-surface-variant text-xs mt-2">Avval kamida bitta guruh yarating</p>
+            <p className="text-on-surface-variant text-xs mt-2">{t('addStudent.createGroupFirst')}</p>
           )}
         </div>
 

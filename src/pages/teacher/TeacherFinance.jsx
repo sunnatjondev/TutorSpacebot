@@ -91,7 +91,7 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
       </div>
 
       <button onClick={handleConfirm} disabled={loading} className="btn-primary mt-2">
-        <CheckCircle size={18} /> {loading ? 'Saqlanmoqda...' : t('teacherFinance.confirmPayment')}
+        <CheckCircle size={18} /> {loading ? t('groupDetail.saving') : t('teacherFinance.confirmPayment')}
       </button>
     </div>
   )
@@ -154,7 +154,7 @@ export default function TeacherFinance() {
               </div>
             </div>
             <p className="text-xl font-extrabold text-debt-red">{formatUZS(totalUnpaid, true)}</p>
-            <p className="text-on-surface-variant text-xs mt-0.5">Kutilayotgan</p>
+            <p className="text-on-surface-variant text-xs mt-0.5">{t('teacherFinance.pendingLabel')}</p>
           </div>
         </div>
 
@@ -166,7 +166,11 @@ export default function TeacherFinance() {
                 setActiveFilter(filter.key)
                 haptic?.selection()
               }}
-              className={`chip whitespace-nowrap ${activeFilter === filter.key ? 'chip-active' : ''}`}
+              className={`chip whitespace-nowrap transition-all duration-200 ${
+                activeFilter === filter.key
+                  ? 'bg-brand text-on-primary font-bold shadow-glow-sm scale-105'
+                  : 'bg-surface-high text-on-surface-variant'
+              }`}
             >
               {filter.label}
             </button>
@@ -175,7 +179,17 @@ export default function TeacherFinance() {
 
         <div className="space-y-3">
           {displayPayments.map((payment, index) => (
-            <div key={payment.id || index} className="card stagger-item" style={{ animationDelay: `${index * 60}ms` }}>
+            <div
+              key={payment.id || index}
+              className={`card stagger-item border-l-[4px] ${
+                payment.status === 'paid'
+                  ? 'border-l-paid-green'
+                  : payment.status === 'unpaid'
+                    ? 'border-l-debt-red'
+                    : 'border-l-partial-orange'
+              }`}
+              style={{ animationDelay: `${index * 60}ms` }}
+            >
               <div className="flex items-center gap-3 mb-3">
                 <Avatar name={getName(payment)} size="md" />
                 <div className="flex-1 min-w-0">
@@ -223,7 +237,7 @@ export default function TeacherFinance() {
 
           {!displayPayments.length && (
             <div className="card text-center py-10 text-on-surface-variant">
-              Hali to'lovlar yo'q
+              {t('teacherFinance.noPayments')}
             </div>
           )}
         </div>
@@ -242,21 +256,21 @@ export default function TeacherFinance() {
             
             <div className="card space-y-3 p-4">
               <div className="flex justify-between text-sm">
-                <span className="text-on-surface-variant">Oyi / Period:</span>
+                <span className="text-on-surface-variant">{t('teacherFinance.periodLabel')}:</span>
                 <span className="font-semibold">{selectedPayment.period_month}/{selectedPayment.period_year}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-on-surface-variant">Summa / Amount:</span>
+                <span className="text-on-surface-variant">{t('teacherFinance.amountLabel')}:</span>
                 <span className="font-semibold text-brand">{formatUZS(selectedPayment.amount)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-on-surface-variant">Holat / Status:</span>
+                <span className="text-on-surface-variant">{t('teacherFinance.statusLabel')}:</span>
                 <span className={`font-semibold ${selectedPayment.status === 'paid' ? 'text-paid-green' : 'text-debt-red'}`}>
                   {selectedPayment.status === 'paid' ? t('common.paid') : t('common.unpaid')}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-on-surface-variant">Sana / Date:</span>
+                <span className="text-on-surface-variant">{t('teacherFinance.dateLabel')}:</span>
                 <span className="font-semibold text-xs">
                   {new Date(selectedPayment.created_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
@@ -294,7 +308,7 @@ export default function TeacherFinance() {
         )}
       </Modal>
 
-      <Modal isOpen={!!markStudent} onClose={() => setMarkStudent(null)} title={t('teacherFinance.markPayment')}>
+      <Modal isOpen={!!markStudent} onClose={() => setMarkStudent(null)} title={t('teacherFinance.markPayment')} closeOnBackdropClick={false}>
         <MarkPaymentModal
           student={markStudent}
           onClose={() => setMarkStudent(null)}

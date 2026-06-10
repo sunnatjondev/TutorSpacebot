@@ -33,26 +33,57 @@ function getLocalDateKey(date) {
 
 function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDeleteGroup, manageStudents, t }) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Guruh boshqaruvi">
-      <div className="space-y-3">
-        <button className="btn-secondary" onClick={onEdit}>
-          <Pencil size={18} /> Guruhni tahrirlash
-        </button>
-        <button className="btn-secondary" onClick={onManageStudents}>
-          <Trash2 size={18} /> {manageStudents ? t('groupDetail.hideManageStudents') : t('groupDetail.manageStudents')}
-        </button>
+    <Modal isOpen={isOpen} onClose={onClose} title={t('groupDetail.groupManagement')}>
+      <div className="divide-y divide-outline-variant/30 bg-surface-container rounded-3xl overflow-hidden border border-outline-variant/20">
+        {/* Edit Group */}
         <button
-          className="w-full h-[52px] rounded-full bg-red-500/10 border border-red-500/30 text-red-400 font-semibold text-base flex items-center justify-center gap-2 transition-all duration-200 active:scale-95"
-          onClick={onDeleteGroup}
+          onClick={() => { onEdit(); onClose(); }}
+          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-high/50 active:bg-surface-high transition-colors text-left"
         >
-          <Trash2 size={18} /> Guruhni o'chirish
+          <div className="w-10 h-10 rounded-2xl bg-brand/10 flex items-center justify-center text-brand shrink-0">
+            <Pencil size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-on-surface">{t('groupDetail.editGroup')}</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t('groupDetail.groupName')}</p>
+          </div>
+        </button>
+
+        {/* Manage Students */}
+        <button
+          onClick={() => { onManageStudents(); onClose(); }}
+          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-high/50 active:bg-surface-high transition-colors text-left"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-sat-blue/10 flex items-center justify-center text-sat-blue shrink-0">
+            <Trash2 size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-on-surface">
+              {manageStudents ? t('groupDetail.hideManageStudents') : t('groupDetail.manageStudents')}
+            </p>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t('groupDetail.editRateHint')}</p>
+          </div>
+        </button>
+
+        {/* Delete Group */}
+        <button
+          onClick={() => { onDeleteGroup(); onClose(); }}
+          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-red-500/5 active:bg-red-500/10 transition-colors text-left"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">
+            <Trash2 size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-red-400">{t('groupDetail.deleteGroup')}</p>
+            <p className="text-xs text-red-500/70 mt-0.5">{t('groupDetail.deleteGroupConfirm')}</p>
+          </div>
         </button>
       </div>
     </Modal>
   )
 }
 
-function EditGroupModal({ isOpen, onClose, group, onSave, saving }) {
+function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
   const [name, setName] = useState(group?.name || '')
   const [subject, setSubject] = useState(group?.subject || '')
 
@@ -64,24 +95,24 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving }) {
   }, [group?.name, group?.subject, isOpen])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Guruhni tahrirlash">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('groupDetail.editGroup')} closeOnBackdropClick={false}>
       <div className="space-y-4">
         <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Guruh nomi</label>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('groupDetail.groupName')}</label>
           <input
             className="input-field"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Masalan: Fizika 101"
+            placeholder={t('groupDetail.groupNamePlaceholder')}
           />
         </div>
         <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Fan</label>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('groupDetail.subject')}</label>
           <input
             className="input-field"
             value={subject}
             onChange={(event) => setSubject(event.target.value)}
-            placeholder="Masalan: Matematika"
+            placeholder={t('groupDetail.subjectPlaceholder')}
           />
         </div>
         <button
@@ -89,14 +120,14 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving }) {
           disabled={!name.trim() || !subject.trim() || saving}
           onClick={() => onSave({ name, subject })}
         >
-          {saving ? 'Saqlanmoqda...' : "O'zgarishlarni saqlash"}
+          {saving ? t('groupDetail.saving') : t('groupDetail.saveChanges')}
         </button>
       </div>
     </Modal>
   )
 }
 
-function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
+function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t }) {
   const [title, setTitle] = useState('')
   const [selectedDate, setSelectedDate] = useState(null)
   const [timeHour, setTimeHour] = useState('23')
@@ -133,6 +164,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
         dueDate: dueDateISO,
         description: description.trim(),
       })
+
       haptic?.success?.()
       onCreated()
       onClose()
@@ -151,21 +183,21 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} title="Yangi vazifa berish">
+      <Modal isOpen={isOpen} onClose={onClose} title={t('homework.createTitle')} closeOnBackdropClick={false}>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Vazifa nomi *</label>
+            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('homework.title')}</label>
             <input
               className="input-field"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder="Masalan: 5-mashq, 12-bet"
+              placeholder={t('homework.titlePlaceholder')}
               autoFocus
             />
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Muddati (Due Date)</label>
+            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('homework.dueDate')}</label>
             <button
               type="button"
               onClick={() => { haptic?.light(); setShowCalendar(true) }}
@@ -174,7 +206,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
               <span className={selectedDate ? 'text-on-surface' : 'text-on-surface-variant'}>
                 {selectedDate
                   ? `${formatDisplayDate(selectedDate)}, ${timeHour}:${timeMinute}`
-                  : "Sana tanlang (ixtiyoriy)"}
+                  : t('homework.selectDate')}
               </span>
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -205,19 +237,19 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
                   onClick={() => setSelectedDate(null)}
                   className="text-xs text-red-400 hover:text-red-300 ml-auto"
                 >
-                  O'chirish
+                  {t('common.delete')}
                 </button>
               </div>
             )}
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Tavsif (Description)</label>
+            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('homework.description')}</label>
             <textarea
               className="w-full rounded-card bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Vazifa haqida batafsil ma'lumot..."
+              placeholder={t('homework.descriptionPlaceholder')}
               rows={3}
             />
           </div>
@@ -232,7 +264,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
             onClick={handleCreate}
             disabled={!title.trim() || loading}
           >
-            {loading ? 'Yaratilmoqda...' : 'Yuborish'}
+            {loading ? t('common.sending') : t('common.send')}
           </button>
         </div>
       </Modal>
@@ -243,7 +275,6 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic }) {
         selectedDate={selectedDate || new Date()}
         onSelectDate={(date) => { setSelectedDate(date); setShowCalendar(false) }}
         haptic={haptic}
-        t={(k) => k}
       />
     </>
   )
@@ -479,7 +510,7 @@ export default function GroupDetail() {
 
   const handleRemoveStudent = async (studentId) => {
     haptic?.heavy?.()
-    if (!confirm("Talabani guruhdan olib tashlamoqchimisiz?")) return
+    if (!confirm(t('groupDetail.removeStudentConfirm'))) return
 
     try {
       await removeStudentMutation.mutateAsync({ groupId: id, studentId })
@@ -491,7 +522,7 @@ export default function GroupDetail() {
 
   const handleDeleteGroup = async () => {
     haptic?.heavy?.()
-    if (!confirm("Bu guruhni o'chirmoqchimisiz?")) return
+    if (!confirm(t('groupDetail.deleteGroupConfirm'))) return
 
     try {
       await deleteGroupMutation.mutateAsync(id)
@@ -532,37 +563,37 @@ export default function GroupDetail() {
         )}
 
         <div className="flex gap-2 mb-1">
-          <span className="chip chip-active text-xs font-bold">{group?.subject || '-'}</span>
-          <span className="chip text-xs">{group?.group_members?.[0]?.count ?? 0} {t('teacherGroups.students')}</span>
+          <span className="chip bg-brand text-on-primary font-bold text-xs">{group?.subject || '-'}</span>
+          <span className="chip bg-surface-high text-on-surface-variant text-xs">{t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? 0 })}</span>
         </div>
 
         {/* Statistics Card */}
         <div className="card grid grid-cols-3 gap-2 text-center p-3">
           <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
-            <span className="text-[10px] text-on-surface-variant font-medium">Qarzdorlar</span>
-            <span className="text-lg font-extrabold text-debt-red mt-1">{monthlyStats.unpaidCount} ta</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">Не оплатили</span>
+            <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.debtors')}</span>
+            <span className="text-lg font-extrabold text-debt-red mt-1">{t('groupDetail.studentsCount', { count: monthlyStats.unpaidCount })}</span>
+            <span className="text-[9px] text-on-surface-variant mt-0.5">{t('common.unpaid').toLowerCase()}</span>
           </div>
           <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
-            <span className="text-[10px] text-on-surface-variant font-medium">Kelmadi</span>
-            <span className="text-lg font-extrabold text-orange-400 mt-1">{monthlyStats.absentCount} ta</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">Не пришли</span>
+            <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.absent')}</span>
+            <span className="text-lg font-extrabold text-orange-400 mt-1">{t('groupDetail.studentsCount', { count: monthlyStats.absentCount })}</span>
+            <span className="text-[9px] text-on-surface-variant mt-0.5">{t('groupDetail.absent').toLowerCase()}</span>
           </div>
           <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
-            <span className="text-[10px] text-on-surface-variant font-medium">Davomat</span>
+            <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.attendanceStats')}</span>
             <span className="text-lg font-extrabold text-paid-green mt-1">{monthlyStats.averageAttendance}%</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">{monthlyStats.totalClasses} dars</span>
+            <span className="text-[9px] text-on-surface-variant mt-0.5">{t('groupDetail.lessonsCount', { count: monthlyStats.totalClasses })}</span>
           </div>
         </div>
 
         {/* Invitation Link Card */}
         <div className="card bg-brand/10 border border-brand/20 p-4">
           <div className="flex items-start justify-between mb-1">
-            <h3 className="text-sm font-bold text-on-surface">Taklif havolasi</h3>
-            <span className="text-[10px] bg-brand/20 text-primary px-2 py-0.5 rounded-full font-bold">Havola</span>
+            <h3 className="text-sm font-bold text-on-surface">{t('groupDetail.inviteLink')}</h3>
+            <span className="text-[10px] bg-brand/20 text-primary px-2 py-0.5 rounded-full font-bold">{t('groupDetail.inviteLinkBadge')}</span>
           </div>
           <p className="text-xs text-on-surface-variant mb-3">
-            O'quvchilarni taklif qilish havolasi (Ссылка для приглашения):
+            {t('groupDetail.inviteLinkDesc')}
           </p>
           <div className="space-y-3">
             <input
@@ -575,14 +606,14 @@ export default function GroupDetail() {
                 navigator.clipboard.writeText(`https://t.me/${botUsername}?start=invite_${group?.invite_token}`)
                 haptic?.success()
                 if (window.Telegram?.WebApp?.showAlert) {
-                  window.Telegram.WebApp.showAlert("Havola nusxalandi! (Ссылка для приглашения скопирована)")
+                  window.Telegram.WebApp.showAlert(t('groupDetail.inviteLinkCopied'))
                 } else {
-                  alert("Havola nusxalandi!")
+                  alert(t('groupDetail.inviteLinkCopied'))
                 }
               }}
               className="w-full h-11 rounded-full bg-brand text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all duration-200"
             >
-              Пригласить студента
+              {t('groupDetail.inviteStudent')}
             </button>
           </div>
         </div>
@@ -638,11 +669,11 @@ export default function GroupDetail() {
             })}
           </div>
 
-          {manageStudents && <div className="text-red-400 text-xs font-semibold mb-3">Boshqaruv rejimi</div>}
+          {manageStudents && <div className="text-red-400 text-xs font-semibold mb-3">{t('groupDetail.manageMode')}</div>}
 
           {loadingAttendance ? (
             <div className="py-8 text-center text-on-surface-variant text-xs animate-pulse">
-              Yo'qlama yuklanmoqda...
+              {t('groupDetail.loadingAttendance')}
             </div>
           ) : (
             <div className="space-y-0">
@@ -652,7 +683,7 @@ export default function GroupDetail() {
                     <Avatar name={student.name} size="md" />
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-on-surface text-sm truncate">{student.name}</p>
-                      <p className="text-on-surface-variant text-xs truncate">@{student.username || "username yo'q"}</p>
+                      <p className="text-on-surface-variant text-xs truncate">{student.username ? `@${student.username}` : '—'}</p>
                     </div>
                     {manageStudents && (
                       <button
@@ -676,7 +707,7 @@ export default function GroupDetail() {
 
               {!students.length && (
                 <div className="py-6 text-center text-on-surface-variant text-sm">
-                  Bu guruhda hali talabalar yo'q
+                  {t('groupDetail.noStudents')}
                 </div>
               )}
             </div>
@@ -689,10 +720,10 @@ export default function GroupDetail() {
             <p className="text-xs font-bold tracking-widest text-on-surface-variant">
               {t('groupDetail.paymentStatus')}
             </p>
-            <span className="text-[10px] bg-surface-high text-on-surface-variant px-2 py-0.5 rounded-full">Tahrirlash</span>
+            <span className="text-[10px] bg-surface-high text-on-surface-variant px-2 py-0.5 rounded-full">{t('common.edit')}</span>
           </div>
           <p className="text-[10px] text-on-surface-variant mb-2">
-            Talaba to'lovini o'zgartirish uchun talabaning ustiga bosing (Нажмите для редактирования оплаты)
+            {t('groupDetail.editRateHint')}
           </p>
           <div className="space-y-0">
             {students.map((student, index) => (
@@ -720,7 +751,7 @@ export default function GroupDetail() {
         <div className="card">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-bold tracking-widest text-on-surface-variant">
-              Vazifalar / Домашние задания
+              {t('groupDetail.homeworkTitle')}
             </p>
             <button
               onClick={() => {
@@ -728,7 +759,7 @@ export default function GroupDetail() {
                 setShowCreateHomework(true)
               }}
               className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center text-primary active:scale-90 transition-transform shrink-0"
-              title="Yangi vazifa"
+              title={t('homework.createTitle')}
             >
               <Plus size={16} />
             </button>
@@ -743,7 +774,7 @@ export default function GroupDetail() {
                   <div className="flex justify-between items-start mb-1">
                     <p className="text-sm font-semibold text-on-surface">{item.title}</p>
                     <span className="text-[10px] text-on-surface-variant bg-surface-high px-2 py-0.5 rounded-full whitespace-nowrap">
-                      Muddat: {dueStr}
+                      {t('homework.dueDate')}: {dueStr}
                     </span>
                   </div>
                   {item.description && (
@@ -753,7 +784,7 @@ export default function GroupDetail() {
               )
             })}
             {!homework.length && (
-              <p className="py-4 text-center text-sm text-on-surface-variant">Hali vazifalar berilmagan</p>
+              <p className="py-4 text-center text-sm text-on-surface-variant">{t('homework.noTasks')}</p>
             )}
           </div>
         </div>
@@ -794,14 +825,15 @@ export default function GroupDetail() {
         group={group}
         onSave={handleSaveGroup}
         saving={saving}
+        t={t}
       />
 
       {/* Edit Student Rate Modal */}
-      <Modal isOpen={!!editingStudent} onClose={() => setEditingStudent(null)} title="O'quv haqini tahrirlash">
+      <Modal isOpen={!!editingStudent} onClose={() => setEditingStudent(null)} title={t('groupDetail.editRateTitle')} closeOnBackdropClick={false}>
         <div className="space-y-4">
           <div>
             <p className="text-sm font-semibold text-on-surface mb-1">{editingStudent?.name}</p>
-            <p className="text-xs text-on-surface-variant mb-3">Talabaning oylik o'quv haqini belgilang.</p>
+            <p className="text-xs text-on-surface-variant mb-3">{t('groupDetail.editRateDesc')}</p>
             <div className="relative">
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
               <input
@@ -819,7 +851,7 @@ export default function GroupDetail() {
             onClick={handleSaveRate}
             disabled={updatingRate}
           >
-            {updatingRate ? 'Saqlanmoqda...' : 'Saqlash'}
+            {updatingRate ? t('groupDetail.saving') : t('common.save')}
           </button>
         </div>
       </Modal>
@@ -830,6 +862,7 @@ export default function GroupDetail() {
         groupId={id}
         onCreated={() => {}}
         haptic={haptic}
+        t={t}
       />
 
       <CustomDatePickerModal
@@ -837,7 +870,6 @@ export default function GroupDetail() {
         onClose={() => setShowDatePicker(false)}
         selectedDate={attendanceBaseDate}
         haptic={haptic}
-        t={t}
         onSelectDate={(selected) => {
           setAttendanceBaseDate(selected)
           const day = selected.getDay()

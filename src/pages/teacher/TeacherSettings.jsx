@@ -103,7 +103,11 @@ export default function TeacherSettings() {
           <div className="flex gap-2">
             {languages.map(l => (
               <button key={l} onClick={() => { setLanguage(l); haptic?.selection() }}
-                className={`chip ${lang === l ? 'chip-active' : ''}`}>
+                className={`chip whitespace-nowrap transition-all duration-200 ${
+                  lang === l
+                    ? 'bg-brand text-on-primary font-bold shadow-glow-sm scale-105'
+                    : 'bg-surface-high text-on-surface-variant'
+                }`}>
                 {langLabels[l] || l.toUpperCase()}
               </button>
             ))}
@@ -114,13 +118,13 @@ export default function TeacherSettings() {
           className="w-full h-14 rounded-2xl border border-red-500/40 bg-red-500/10 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
           onClick={() => {
             haptic?.warning()
-            if (window.confirm("Haqiqatan ham chiqmoqchimisiz? Barcha ma'lumotlaringiz qurilmadan o'chiriladi.")) {
+            if (window.confirm(t('common.logoutConfirm'))) {
               localStorage.clear()
               navigate('/', { replace: true })
             }
           }}
         >
-          <LogOut size={18} /> Chiqish
+          <LogOut size={18} /> {t('common.logout')}
         </button>
       </div>
       

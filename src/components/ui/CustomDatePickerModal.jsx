@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { Modal } from './Modal'
+import { useI18n } from '../../i18n/index.jsx'
 
-export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectDate, haptic, t }) {
+export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectDate, haptic }) {
+  const { lang } = useI18n()
   const [currentMonth, setCurrentMonth] = useState(() => new Date(selectedDate || new Date()))
 
   const year = currentMonth.getFullYear()
@@ -16,7 +18,7 @@ export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectD
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
   ]
   
-  const isRu = t('common.done') === 'Готово' || window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code === 'ru'
+  const isRu = lang === 'ru'
   const displayMonth = isRu ? monthNamesRu[month] : monthNames[month]
 
   const daysInMonth = new Date(year, month + 1, 0).getDate()

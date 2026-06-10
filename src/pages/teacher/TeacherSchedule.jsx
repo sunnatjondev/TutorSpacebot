@@ -481,7 +481,7 @@ export default function TeacherSchedule() {
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-paid-green opacity-75"></span>
                               <span className="relative inline-flex rounded-full h-2 w-2 bg-paid-green"></span>
                             </span>
-                            <span className="text-paid-green font-bold animate-pulse">Dars ketmoqda... (Урок идет...)</span>
+                            <span className="text-paid-green font-bold animate-pulse">{t('teacherSchedule.lessonInProgress')}</span>
                           </>
                         ) : (
                           <>
@@ -494,7 +494,7 @@ export default function TeacherSchedule() {
                     {isDone && (
                       <div className="mt-3 text-[11px] font-medium text-paid-green flex items-center gap-1">
                         <span>✅</span>
-                        <span>Dars yakunlandi (Урок завершен)</span>
+                        <span>{t('teacherSchedule.lessonFinished')}</span>
                       </div>
                     )}
                   </div>

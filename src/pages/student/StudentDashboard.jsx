@@ -78,7 +78,7 @@ export default function StudentDashboard() {
           </div>
 
           <h2 className="mb-3 truncate text-2xl font-extrabold leading-tight text-white">
-            {nextLesson?.group?.subject || "Keyingi dars hali yo'q"}
+            {nextLesson?.group?.subject || t('studentHome.noUpcomingLessons')}
           </h2>
 
           {nextLesson?.group?.teacher ? (
@@ -91,7 +91,7 @@ export default function StudentDashboard() {
               </p>
             </div>
           ) : (
-            <p className="text-sm text-white/70">O'qituvchi va vaqt keyinroq chiqadi</p>
+            <p className="text-sm text-white/70">{t('studentHome.teacherAndTimeWillShowLater')}</p>
           )}
         </div>
 
@@ -131,7 +131,7 @@ export default function StudentDashboard() {
                 <BookOpen size={18} className="text-error" />
               </div>
               {hwOverdue > 0 && (
-                <span className="badge-unpaid text-[10px]">{hwOverdue} muddati o'tgan</span>
+                <span className="badge-unpaid text-[10px]">{t('studentHome.overdueCount', { count: hwOverdue })}</span>
               )}
             </div>
             <p className="text-xs font-medium tracking-wide text-on-surface-variant">{t('studentHome.homework')}</p>
@@ -200,7 +200,7 @@ export default function StudentDashboard() {
 
             {!homework.length && (
               <div className="py-8 text-center text-sm text-on-surface-variant">
-                Hozircha topshiriqlar yo'q
+                {t('studentHome.noTasks')}
               </div>
             )}
           </div>
@@ -234,7 +234,7 @@ export default function StudentDashboard() {
           ))}
           {!homework.length && (
             <div className="py-8 text-center text-sm text-on-surface-variant">
-              Hozircha topshiriqlar yo'q
+              {t('studentHome.noTasks')}
             </div>
           )}
         </div>

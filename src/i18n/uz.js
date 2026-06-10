@@ -19,6 +19,7 @@ const uz = {
     "details": "Batafsil",
     "confirm": "Tasdiqlash",
     "logout": "Chiqish",
+    "logoutConfirm": "Haqiqatan ham chiqmoqchimisiz? Barcha ma'lumotlaringiz qurilmadan o'chiriladi.",
     "share": "Ulashish",
     "upgrade": "Pro ga o'tish",
     "today": "Bugun",
@@ -35,7 +36,9 @@ const uz = {
     "overdue": "Muddati o'tgan",
     "total": "Jami",
     "loading": "Yuklanmoqda...",
-    "done": "Tugadi"
+    "done": "Tugadi",
+    "send": "Yuborish",
+    "sending": "Yuborilmoqda..."
   },
   "role": {
     "greeting": "Salom, {name}!",
@@ -72,7 +75,43 @@ const uz = {
     "paymentStatus": "TO'LOV HOLATI",
     "addStudent": "Talaba qo'shish",
     "manageStudents": "Talabalarni boshqarish",
-    "hideManageStudents": "Talabalarni yashirish"
+    "hideManageStudents": "Talabalarni yashirish",
+    "groupManagement": "Guruh boshqaruvi",
+    "editGroup": "Guruhni tahrirlash",
+    "deleteGroup": "Guruhni o'chirish",
+    "groupName": "Guruh nomi",
+    "groupNamePlaceholder": "Masalan: Fizika 101",
+    "subject": "Fan",
+    "subjectPlaceholder": "Masalan: Matematika",
+    "saveChanges": "O'zgarishlarni saqlash",
+    "saving": "Saqlanmoqda...",
+    "debtors": "Qarzdorlar",
+    "absent": "Kelmadi",
+    "attendanceStats": "Davomat",
+    "studentsCount": "{count} ta",
+    "lessonsCount": "{count} dars",
+    "inviteLink": "Taklif havolasi",
+    "inviteLinkBadge": "Havola",
+    "inviteLinkDesc": "O'quvchilarni taklif qilish havolasi:",
+    "inviteLinkCopied": "Havola nusxalandi!",
+    "inviteStudent": "Talabani taklif qilish",
+    "manageMode": "Boshqaruv rejimi",
+    "loadingAttendance": "Yo'qlama yuklanmoqda...",
+    "editRateTitle": "O'quv haqini tahrirlash",
+    "editRateDesc": "Talabaning oylik o'quv haqini belgilang.",
+    "rateAmount": "O'quv haqi",
+    "save": "Saqlash",
+    "editRateHint": "Talaba to'lovini o'zgartirish uchun talabaning ustiga bosing",
+    "homeworkTitle": "Vazifalar"
+  },
+  "homework": {
+    "createTitle": "Yangi vazifa berish",
+    "title": "Vazifa nomi *",
+    "titlePlaceholder": "Masalan: 5-mashq, 12-bet",
+    "dueDate": "Muddati (Due Date)",
+    "selectDate": "Sana tanlang (ixtiyoriy)",
+    "description": "Tavsif (Description)",
+    "descriptionPlaceholder": "Vazifa haqida batafsil ma'lumot..."
   },
   "teacherSchedule": {
     "title": "Dars jadvali",
@@ -94,7 +133,9 @@ const uz = {
     "finishLesson": "Darsni tugatish",
     "deleteConfirm": "Bu darsni o'chirmoqchimisiz?",
     "startHint": "Boshlash tugmasi bosilsa, dars hozir davom etayotgan holatga o'tadi.",
-    "finishHint": "Dars tugagach, uni yakunlangan deb belgilang."
+    "finishHint": "Dars tugagach, uni yakunlangan deb belgilang.",
+    "lessonInProgress": "Dars o'tilmoqda...",
+    "lessonFinished": "Dars yakunlandi"
   },
   "teacherFinance": {
     "title": "Moliya",
@@ -113,7 +154,13 @@ const uz = {
     "card": "Karta",
     "transfer": "O'tkazma",
     "note": "Izoh (ixtiyoriy)",
-    "confirmPayment": "To'lovni tasdiqlash"
+    "confirmPayment": "To'lovni tasdiqlash",
+    "pendingLabel": "Kutilayotgan",
+    "noPayments": "Hali to'lovlar yo'q",
+    "periodLabel": "Davr",
+    "amountLabel": "Summa",
+    "statusLabel": "Holati",
+    "dateLabel": "Sana"
   },
   "teacherSettings": {
     "title": "Sozlamalar",
@@ -137,7 +184,11 @@ const uz = {
     "homework": "VAZIFA",
     "balance": "BALANS",
     "debtContact": "O'qituvchingiz bilan bog'laning",
-    "upcomingTasks": "Kelgusi vazifalar"
+    "upcomingTasks": "Kelgusi vazifalar",
+    "noUpcomingLessons": "Keyingi dars hali yo'q",
+    "teacherAndTimeWillShowLater": "O'qituvchi va vaqt keyinroq chiqadi",
+    "overdueCount": "{count} ta muddati o'tgan",
+    "noTasks": "Hozircha topshiriqlar yo'q"
   },
   "studentGroups": {
     "title": "Mening guruhlarim",
@@ -171,7 +222,8 @@ const uz = {
     "billingDay": "Oylik hisob-kitob kuni",
     "notes": "Izohlar",
     "notesPlaceholder": "Talaba haqida ixtiyoriy izohlar...",
-    "submit": "Talaba qo'shish"
+    "submit": "Talaba qo'shish",
+    "createGroupFirst": "Avval kamida bitta guruh yarating"
   },
   "days": {
     "MON": "Du",
