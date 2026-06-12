@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom'
 import { upsertTelegramUser } from '../hooks/api/auth'
 import { useTelegram } from '../hooks/useTelegram'
 import { isBackendConfigured } from '../lib/backend'
-import { isSupabaseConfigured } from '../lib/supabase'
 
 const LS_ROLE_KEY = 'ts_user_role'
 const LS_TG_ID_KEY = 'ts_tg_id'
@@ -46,7 +45,8 @@ export default function RouteGuard({ role, children }) {
       } catch (error) {
         console.warn('[RouteGuard] role check failed:', error)
 
-        if (!isBackendConfigured && !isSupabaseConfigured) {
+        // Fallback to localStorage if backend is not available
+        if (!isBackendConfigured) {
           const savedRole = localStorage.getItem(LS_ROLE_KEY)
           const savedTgId = localStorage.getItem(LS_TG_ID_KEY)
           setStatus(savedRole === role && savedTgId === String(user.id) ? 'allowed' : 'denied')

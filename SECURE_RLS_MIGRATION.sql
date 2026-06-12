@@ -92,7 +92,8 @@ alter table public.attendance enable row level security;
 alter table public.payments enable row level security;
 alter table public.homework enable row level security;
 alter table public.homework_submissions enable row level security;
-alter table public.bot_notification_events enable row level security;
+-- bot_notification_events: uncomment when the table is created
+-- alter table public.bot_notification_events enable row level security;
 
 drop policy if exists "Allow all for anon" on public.users;
 drop policy if exists "Allow all for anon" on public.groups;
@@ -291,7 +292,8 @@ with check (
   )
 );
 
-drop policy if exists bot_notification_events_service_role on public.bot_notification_events;
-create policy bot_notification_events_service_role on public.bot_notification_events
-for all using (auth.role() = 'service_role')
-with check (auth.role() = 'service_role');
+-- bot_notification_events: uncomment when the table is created
+-- drop policy if exists bot_notification_events_service_role on public.bot_notification_events;
+-- create policy bot_notification_events_service_role on public.bot_notification_events
+-- for all using (auth.role() = 'service_role')
+-- with check (auth.role() = 'service_role');

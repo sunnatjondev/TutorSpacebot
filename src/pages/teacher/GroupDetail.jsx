@@ -7,7 +7,7 @@ import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { supabase } from '../../lib/supabase'
+import { fetchGroupDayAttendance, fetchGroupMonthlyStats } from '../../lib/backend'
 import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework } from '../../hooks/api/useGroups'
 import { useDeleteGroup, useCreateSession } from '../../hooks/api/useTeacher'
 
@@ -345,15 +345,7 @@ export default function GroupDetail() {
       endOfDay.setHours(23, 59, 59, 999)
 
       try {
-        const { data: sessions, error } = await supabase
-          .from('sessions')
-          .select('id, attendance(student_id, present)')
-          .eq('group_id', id)
-          .gte('scheduled_at', startOfDay.toISOString())
-          .lte('scheduled_at', endOfDay.toISOString())
-          .order('scheduled_at', { ascending: true })
-
-        if (error) throw error
+        const { sessions } = await fetchGroupDayAttendance({ groupId: id, date: selectedAttendanceDate })
 
         const session = sessions?.[0]
         if (session) {
@@ -395,35 +387,13 @@ export default function GroupDetail() {
       const absentCount = students.filter((s) => !attendance[s.id]).length
 
       try {
-        const { data: monthSessions, error } = await supabase
-          .from('sessions')
-          .select('id, attendance(present)')
-          .eq('group_id', id)
-          .gte('scheduled_at', startOfMonth.toISOString())
-          .lte('scheduled_at', endOfMonth.toISOString())
-
-        if (error) throw error
-
-        let totalAttendanceMarks = 0
-        let presentAttendanceMarks = 0
-        const totalClasses = monthSessions?.length || 0
-
-        monthSessions?.forEach((session) => {
-          session.attendance?.forEach((att) => {
-            totalAttendanceMarks++
-            if (att.present) presentAttendanceMarks++
-          })
-        })
-
-        const averageAttendance = totalAttendanceMarks > 0
-          ? Math.round((presentAttendanceMarks / totalAttendanceMarks) * 100)
-          : 0
+        const statsData = await fetchGroupMonthlyStats(id)
 
         setMonthlyStats({
           unpaidCount,
           absentCount,
-          averageAttendance,
-          totalClasses,
+          averageAttendance: statsData.averageAttendance,
+          totalClasses: statsData.totalClasses,
         })
       } catch (err) {
         console.error('[Stats] load error:', err)

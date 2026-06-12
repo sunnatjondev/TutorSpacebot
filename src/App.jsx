@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import { useTelegram } from './hooks/useTelegram'
 import { upsertTelegramUser } from './hooks/api/auth'
 import { joinGroupByToken } from './hooks/api/useStudent'
-import { isSupabaseConfigured } from './lib/supabase'
+import { isBackendConfigured } from './lib/backend'
 import RouteGuard from './components/RouteGuard'
 
 const RoleSelection = lazy(() => import('./pages/RoleSelection'))
@@ -54,7 +54,7 @@ function AuthGate() {
       const isInvite = startParam && startParam.startsWith('invite_')
       const inviteToken = isInvite ? startParam.replace('invite_', '') : null
 
-      if (isSupabaseConfigured && user) {
+      if (isBackendConfigured && user) {
         try {
           let dbUser = await upsertTelegramUser(user)
 
