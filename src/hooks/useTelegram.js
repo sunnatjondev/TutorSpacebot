@@ -20,16 +20,26 @@ export function useTelegram() {
   const [ready, setReady] = useState(() => !!tg)
 
   useEffect(() => {
+    let cancelled = false
+
     if (tg) {
       tg.ready()
       tg.expand()
       tg.enableClosingConfirmation?.()
       const tgUser = tg.initDataUnsafe?.user
-      if (tgUser) {
-        setUser(tgUser)
-      }
+      window.requestAnimationFrame(() => {
+        if (cancelled) return
+        if (tgUser) setUser(tgUser)
+        setReady(true)
+      })
+      return () => { cancelled = true }
     }
-    setReady(true)
+
+    window.requestAnimationFrame(() => {
+      if (!cancelled) setReady(true)
+    })
+
+    return () => { cancelled = true }
   }, [tg])
 
   const displayName = user?.first_name || 'User'

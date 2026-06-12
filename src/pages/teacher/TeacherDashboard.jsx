@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Users, CalendarDays, Bell, Plus, CheckCircle2 } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
@@ -21,7 +21,7 @@ function StatCard({ icon: Icon, value, label, iconBg }) {
   )
 }
 
-function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
+function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
   const [loading, setLoading] = useState(false)
@@ -94,8 +94,8 @@ export default function TeacherDashboard() {
   const [showCreate, setShowCreate] = useState(false)
 
   const telegramId = user?.id
-  const { data: dash, refetch } = useTeacherDashboard(telegramId)
-  const { data: groups, refetch: refetchGroups } = useTeacherGroups(telegramId)
+  const { data: dash } = useTeacherDashboard(telegramId)
+  const { data: groups } = useTeacherGroups(telegramId)
 
   const today = new Date().toLocaleDateString('uz-UZ', { month: 'long', day: 'numeric' })
   const firstName = user?.first_name || "O'qituvchi"

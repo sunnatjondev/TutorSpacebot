@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { BookOpen, Wallet, CheckCircle, Circle, AlertTriangle } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Modal } from '../../components/ui/Modal'
@@ -46,7 +46,7 @@ export default function StudentDashboard() {
       try {
         await markHomeworkDoneMutation.mutateAsync({ submissionId, done: newDone })
         refetchHomework()
-      } catch (err) {
+      } catch {
         setLocalDone((prev) => ({ ...prev, [id]: !newDone }))
       }
     }
@@ -208,7 +208,7 @@ export default function StudentDashboard() {
       </div>
       <Modal isOpen={showAllTasks} onClose={() => setShowAllTasks(false)} title={t('studentHome.upcomingTasks')}>
         <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
-          {homework.map((item, index) => (
+          {homework.map((item) => (
             <div key={item.id} className="flex items-start gap-3 py-3 border-b border-outline-variant/40 last:border-0 text-on-surface">
               <button onClick={() => toggleHomework(item.id, item.submissionId)} className="mt-0.5 transition-transform active:scale-90">
                 {item.done ? <CheckCircle size={22} className="text-paid-green" /> : <Circle size={22} className="text-outline" />}

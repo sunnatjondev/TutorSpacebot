@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarDays, Plus, Play, CheckCircle, Users, Trash2, Square } from 'lucide-react'
+import { CalendarDays, CheckCircle, Play, Plus, Square, Trash2, Users } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Modal } from '../../components/ui/Modal'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useCreateSession, useDeleteSession, useUpdateSessionStatus, useTeacherGroups, useTeacherSchedule } from '../../hooks/api/useTeacher'
+import { useCreateSession, useDeleteSession, useTeacherGroups, useTeacherSchedule, useUpdateSessionStatus } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -33,7 +33,11 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    setLessonDate(new Date(initialDate || new Date()))
+    const frameId = window.requestAnimationFrame(() => {
+      setLessonDate(new Date(initialDate || new Date()))
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
   }, [initialDate])
 
   const formatDisplayDate = (date) => {
@@ -42,15 +46,19 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
   }
 
   useEffect(() => {
-    if (!groups.length) {
-      setSelectedGroupId('')
-      return
-    }
+    const frameId = window.requestAnimationFrame(() => {
+      if (!groups.length) {
+        setSelectedGroupId('')
+        return
+      }
 
-    setSelectedGroupId((currentValue) => {
-      if (currentValue && groups.some((group) => group.id === currentValue)) return currentValue
-      return groups[0].id
+      setSelectedGroupId((currentValue) => {
+        if (currentValue && groups.some((group) => group.id === currentValue)) return currentValue
+        return groups[0].id
+      })
     })
+
+    return () => window.cancelAnimationFrame(frameId)
   }, [groups])
 
   const createSessionMutation = useCreateSession()
@@ -67,21 +75,20 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
     haptic?.medium()
 
     const parsedDuration = Number.parseInt(durationMin, 10)
-    const dur = Number.isFinite(parsedDuration) && parsedDuration > 0 ? parsedDuration : 90
+    const duration = Number.isFinite(parsedDuration) && parsedDuration > 0 ? parsedDuration : 90
 
     const datesToCreate = []
     const baseDate = new Date(lessonDate)
     baseDate.setHours(Number(lessonHour), Number(lessonMinute), 0, 0)
-    
+
     if (repeat === 'none') {
       datesToCreate.push(baseDate)
     } else {
       const day = baseDate.getDay()
       const monday = new Date(baseDate)
       monday.setDate(baseDate.getDate() - ((day === 0 ? 7 : day) - 1))
-      
       const targetDays = repeat === 'odd' ? [0, 2, 4] : [1, 3, 5]
-      
+
       for (const offset of targetDays) {
         const newDate = new Date(monday)
         newDate.setDate(monday.getDate() + offset)
@@ -91,14 +98,14 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
     }
 
     let allSuccess = true
-    for (const d of datesToCreate) {
+    for (const date of datesToCreate) {
       try {
         await createSessionMutation.mutateAsync({
           groupId: selectedGroupId,
-          scheduledAt: d.toISOString(),
-          durationMin: dur,
+          scheduledAt: date.toISOString(),
+          durationMin: duration,
         })
-      } catch (err) {
+      } catch {
         allSuccess = false
       }
     }
@@ -175,7 +182,10 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
           </label>
           <button
             type="button"
-            onClick={() => { haptic?.light(); setShowLessonCalendar(true) }}
+            onClick={() => {
+              haptic?.light()
+              setShowLessonCalendar(true)
+            }}
             className="input-field w-full text-left flex items-center justify-between"
           >
             <span className="text-on-surface">
@@ -190,17 +200,19 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
             <div className="flex items-center gap-2 bg-surface-container rounded-xl px-3 py-2">
               <input
                 type="number"
-                min="0" max="23"
+                min="0"
+                max="23"
                 value={lessonHour}
-                onChange={(e) => setLessonHour(String(e.target.value).padStart(2, '0'))}
+                onChange={(event) => setLessonHour(String(event.target.value).padStart(2, '0'))}
                 className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
               />
               <span className="text-on-surface font-bold">:</span>
               <input
                 type="number"
-                min="0" max="59"
+                min="0"
+                max="59"
                 value={lessonMinute}
-                onChange={(e) => setLessonMinute(String(e.target.value).padStart(2, '0'))}
+                onChange={(event) => setLessonMinute(String(event.target.value).padStart(2, '0'))}
                 className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
               />
             </div>
@@ -246,7 +258,10 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
         isOpen={showLessonCalendar}
         onClose={() => setShowLessonCalendar(false)}
         selectedDate={lessonDate}
-        onSelectDate={(date) => { setLessonDate(date); setShowLessonCalendar(false) }}
+        onSelectDate={(date) => {
+          setLessonDate(date)
+          setShowLessonCalendar(false)
+        }}
         haptic={haptic}
         t={t}
       />
@@ -260,8 +275,8 @@ export default function TeacherSchedule() {
   const [baseDate, setBaseDate] = useState(() => new Date())
   const today = new Date()
   const [selectedDay, setSelectedDay] = useState(() => {
-    const d = new Date().getDay()
-    return d === 0 ? 6 : d - 1
+    const day = new Date().getDay()
+    return day === 0 ? 6 : day - 1
   })
   const [showCreate, setShowCreate] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
@@ -297,11 +312,12 @@ export default function TeacherSchedule() {
   const handleStartLesson = async (sessionId) => {
     setProcessingSessionId(sessionId)
     haptic?.medium()
+
     try {
       await updateSessionStatusMutation.mutateAsync({ sessionId, status: 'ongoing' })
       haptic?.success?.()
       refetch()
-    } catch (err) {
+    } catch {
       haptic?.error?.()
     } finally {
       setProcessingSessionId(null)
@@ -311,11 +327,12 @@ export default function TeacherSchedule() {
   const handleFinishLesson = async (sessionId) => {
     setProcessingSessionId(sessionId)
     haptic?.medium()
+
     try {
       await updateSessionStatusMutation.mutateAsync({ sessionId, status: 'done' })
       haptic?.success?.()
       refetch()
-    } catch (err) {
+    } catch {
       haptic?.error?.()
     } finally {
       setProcessingSessionId(null)
@@ -331,7 +348,7 @@ export default function TeacherSchedule() {
       await deleteSessionMutation.mutateAsync(sessionId)
       haptic?.success?.()
       refetch()
-    } catch (err) {
+    } catch {
       haptic?.error?.()
     } finally {
       setProcessingSessionId(null)
@@ -484,16 +501,12 @@ export default function TeacherSchedule() {
                             <span className="text-paid-green font-bold animate-pulse">{t('teacherSchedule.lessonInProgress')}</span>
                           </>
                         ) : (
-                          <>
-                            <span className="inline-block">⏱️</span>
-                            <span>{t('teacherSchedule.startHint')}</span>
-                          </>
+                          <span>{t('teacherSchedule.startHint')}</span>
                         )}
                       </div>
                     )}
                     {isDone && (
                       <div className="mt-3 text-[11px] font-medium text-paid-green flex items-center gap-1">
-                        <span>✅</span>
                         <span>{t('teacherSchedule.lessonFinished')}</span>
                       </div>
                     )}
@@ -507,8 +520,6 @@ export default function TeacherSchedule() {
               <p className="text-sm">{t('teacherSchedule.noLessons')}</p>
             </div>
           )}
-
-          {/* Floating Action Button (FAB) moved to the bottom right */}
         </div>
       </div>
 

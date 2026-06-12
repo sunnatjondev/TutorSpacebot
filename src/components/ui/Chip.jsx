@@ -1,4 +1,3 @@
-import React from 'react'
 
 export function Chip({ children, active, onClick, color, className = '' }) {
   const activeStyle = color

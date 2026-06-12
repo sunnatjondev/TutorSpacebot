@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays } from 'lucide-react'
 import { Avatar } from '../../components/ui/Avatar'
@@ -88,10 +88,14 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
   const [subject, setSubject] = useState(group?.subject || '')
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return
+
+    const frameId = window.requestAnimationFrame(() => {
       setName(group?.name || '')
       setSubject(group?.subject || '')
-    }
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
   }, [group?.name, group?.subject, isOpen])
 
   return (
@@ -453,7 +457,7 @@ export default function GroupDetail() {
         const data = await createSessionMutation.mutateAsync({ groupId: id, scheduledAt: scheduledAt.toISOString() })
         activeSessionId = data.id
         setSessionId(activeSessionId)
-      } catch (err) {
+      } catch {
         // Revert state
         setAttendance((prev) => ({ ...prev, [studentId]: currentVal }))
         alert("Sessiya yaratib bo'lmadi")
@@ -487,7 +491,7 @@ export default function GroupDetail() {
       await updateStudentRateMutation.mutateAsync({ groupId: id, studentId: editingStudent.id, amount: Number(newRateValue) })
       haptic?.success()
       setEditingStudent(null)
-    } catch (err) {
+    } catch {
       haptic?.error()
       alert("O'quv haqini yangilab bo'lmadi")
     } finally {
@@ -501,7 +505,7 @@ export default function GroupDetail() {
       await updateGroupMutation.mutateAsync({ groupId: id, updates })
       haptic?.success?.()
       setShowEdit(false)
-    } catch (err) {
+    } catch {
       haptic?.error?.()
     } finally {
       setSaving(false)
@@ -515,7 +519,7 @@ export default function GroupDetail() {
     try {
       await removeStudentMutation.mutateAsync({ groupId: id, studentId })
       haptic?.success?.()
-    } catch (err) {
+    } catch {
       haptic?.error?.()
     }
   }
@@ -528,7 +532,7 @@ export default function GroupDetail() {
       await deleteGroupMutation.mutateAsync(id)
       haptic?.success?.()
       navigate('/teacher/groups', { replace: true })
-    } catch (err) {
+    } catch {
       haptic?.error?.()
     }
   }
@@ -765,7 +769,7 @@ export default function GroupDetail() {
             </button>
           </div>
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-            {homework.map((item, index) => {
+            {homework.map((item) => {
               const dueStr = item.due_date
                 ? new Date(item.due_date).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                 : '—'

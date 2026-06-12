@@ -128,7 +128,12 @@ export function useTeacherPayments(telegramId, filter = 'all') {
 
       let query = supabase
         .from('payments')
-        .select('*, student:users!payments_student_id_fkey(first_name, last_name, username), group:groups(name, subject)')
+        .select(`
+          id, student_id, teacher_id, group_id, amount, status, method,
+          period_year, period_month, note, paid_at, created_at,
+          student:users!payments_student_id_fkey(first_name, last_name, username),
+          group:groups(name, subject)
+        `)
         .eq('teacher_id', user.id)
         .order('created_at', { ascending: false })
 
@@ -196,7 +201,7 @@ export function useCreateGroup() {
           teacher_id: userRow.id,
           invite_token: generateInviteToken(),
         })
-        .select()
+        .select('id, teacher_id, name, subject, invite_token, color, created_at')
         .single()
 
       if (error) throw error
@@ -232,7 +237,7 @@ export function useCreateSession() {
       const { data, error } = await supabase
         .from('sessions')
         .insert({ group_id: groupId, scheduled_at: scheduledAt, duration_min: durationMin, status: 'upcoming' })
-        .select()
+        .select('id, group_id, scheduled_at, duration_min, status')
         .single()
       if (error) throw error
       return data
@@ -325,7 +330,7 @@ export function useCreatePayment() {
           period_year: new Date().getFullYear(),
           status: 'unpaid',
         })
-        .select()
+        .select('id, student_id, teacher_id, group_id, amount, status, period_month, period_year, created_at')
         .single()
       if (error) throw error
       return data

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useTelegram } from './hooks/useTelegram'
 import { upsertTelegramUser } from './hooks/api/auth'
@@ -6,24 +6,35 @@ import { joinGroupByToken } from './hooks/api/useStudent'
 import { isSupabaseConfigured } from './lib/supabase'
 import RouteGuard from './components/RouteGuard'
 
-import RoleSelection from './pages/RoleSelection'
-
-import TeacherDashboard from './pages/teacher/TeacherDashboard'
-import TeacherGroups from './pages/teacher/TeacherGroups'
-import GroupDetail from './pages/teacher/GroupDetail'
-import TeacherSchedule from './pages/teacher/TeacherSchedule'
-import TeacherFinance from './pages/teacher/TeacherFinance'
-import TeacherSettings from './pages/teacher/TeacherSettings'
-import AddStudent from './pages/teacher/AddStudent'
-
-import StudentDashboard from './pages/student/StudentDashboard'
-import StudentGroups from './pages/student/StudentGroups'
-import StudentSchedule from './pages/student/StudentSchedule'
-import StudentFinance from './pages/student/StudentFinance'
-import StudentSettings from './pages/student/StudentSettings'
+const RoleSelection = lazy(() => import('./pages/RoleSelection'))
+const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'))
+const TeacherGroups = lazy(() => import('./pages/teacher/TeacherGroups'))
+const GroupDetail = lazy(() => import('./pages/teacher/GroupDetail'))
+const TeacherSchedule = lazy(() => import('./pages/teacher/TeacherSchedule'))
+const TeacherFinance = lazy(() => import('./pages/teacher/TeacherFinance'))
+const TeacherSettings = lazy(() => import('./pages/teacher/TeacherSettings'))
+const AddStudent = lazy(() => import('./pages/teacher/AddStudent'))
+const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'))
+const StudentGroups = lazy(() => import('./pages/student/StudentGroups'))
+const StudentSchedule = lazy(() => import('./pages/student/StudentSchedule'))
+const StudentFinance = lazy(() => import('./pages/student/StudentFinance'))
+const StudentSettings = lazy(() => import('./pages/student/StudentSettings'))
 
 const LS_ROLE_KEY = 'ts_user_role'
 const LS_TG_ID_KEY = 'ts_tg_id'
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-surface-lowest flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 rounded-full bg-brand/20 flex items-center justify-center animate-pulse-glow">
+          <div className="w-6 h-6 rounded-full bg-brand animate-spin-slow" />
+        </div>
+        <p className="text-on-surface-variant text-sm animate-pulse">Yuklanmoqda...</p>
+      </div>
+    </div>
+  )
+}
 
 function AuthGate() {
   const { user, ready } = useTelegram()
@@ -96,16 +107,7 @@ function AuthGate() {
   }, [ready, user, navigate])
 
   if (checking) {
-    return (
-      <div className="min-h-screen bg-surface-lowest flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-brand/20 flex items-center justify-center animate-pulse-glow">
-            <div className="w-6 h-6 rounded-full bg-brand animate-spin-slow" />
-          </div>
-          <p className="text-on-surface-variant text-sm animate-pulse">Yuklanmoqda...</p>
-        </div>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   if (!user) {
@@ -127,25 +129,27 @@ function AuthGate() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AuthGate />} />
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes>
+          <Route path="/" element={<AuthGate />} />
 
-        <Route path="/teacher/home" element={<RouteGuard role="teacher"><TeacherDashboard /></RouteGuard>} />
-        <Route path="/teacher/groups" element={<RouteGuard role="teacher"><TeacherGroups /></RouteGuard>} />
-        <Route path="/teacher/groups/:id" element={<RouteGuard role="teacher"><GroupDetail /></RouteGuard>} />
-        <Route path="/teacher/schedule" element={<RouteGuard role="teacher"><TeacherSchedule /></RouteGuard>} />
-        <Route path="/teacher/finance" element={<RouteGuard role="teacher"><TeacherFinance /></RouteGuard>} />
-        <Route path="/teacher/settings" element={<RouteGuard role="teacher"><TeacherSettings /></RouteGuard>} />
-        <Route path="/teacher/add-student" element={<RouteGuard role="teacher"><AddStudent /></RouteGuard>} />
+          <Route path="/teacher/home" element={<RouteGuard role="teacher"><TeacherDashboard /></RouteGuard>} />
+          <Route path="/teacher/groups" element={<RouteGuard role="teacher"><TeacherGroups /></RouteGuard>} />
+          <Route path="/teacher/groups/:id" element={<RouteGuard role="teacher"><GroupDetail /></RouteGuard>} />
+          <Route path="/teacher/schedule" element={<RouteGuard role="teacher"><TeacherSchedule /></RouteGuard>} />
+          <Route path="/teacher/finance" element={<RouteGuard role="teacher"><TeacherFinance /></RouteGuard>} />
+          <Route path="/teacher/settings" element={<RouteGuard role="teacher"><TeacherSettings /></RouteGuard>} />
+          <Route path="/teacher/add-student" element={<RouteGuard role="teacher"><AddStudent /></RouteGuard>} />
 
-        <Route path="/student/home" element={<RouteGuard role="student"><StudentDashboard /></RouteGuard>} />
-        <Route path="/student/groups" element={<RouteGuard role="student"><StudentGroups /></RouteGuard>} />
-        <Route path="/student/schedule" element={<RouteGuard role="student"><StudentSchedule /></RouteGuard>} />
-        <Route path="/student/finance" element={<RouteGuard role="student"><StudentFinance /></RouteGuard>} />
-        <Route path="/student/settings" element={<RouteGuard role="student"><StudentSettings /></RouteGuard>} />
+          <Route path="/student/home" element={<RouteGuard role="student"><StudentDashboard /></RouteGuard>} />
+          <Route path="/student/groups" element={<RouteGuard role="student"><StudentGroups /></RouteGuard>} />
+          <Route path="/student/schedule" element={<RouteGuard role="student"><StudentSchedule /></RouteGuard>} />
+          <Route path="/student/finance" element={<RouteGuard role="student"><StudentFinance /></RouteGuard>} />
+          <Route path="/student/settings" element={<RouteGuard role="student"><StudentSettings /></RouteGuard>} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }

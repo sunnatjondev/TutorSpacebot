@@ -1,4 +1,3 @@
-import React from 'react'
 
 export function Button({ children, variant = 'primary', onClick, className = '', disabled, icon, size = 'md' }) {
   const base = 'flex items-center justify-center gap-2 font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-full'
@@ -19,7 +18,7 @@ export function Button({ children, variant = 'primary', onClick, className = '',
 
   return (
     <button
-      className={`${base} ${variants[variant]} ${size === 'full' ? 'w-full' : ''} ${className}`}
+      className={`${base} ${variants[variant]} ${sizes[size] ?? sizes.md} ${className}`}
       onClick={onClick}
       disabled={disabled}
     >

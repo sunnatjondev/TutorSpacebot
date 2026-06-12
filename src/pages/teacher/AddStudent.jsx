@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Smartphone, UserRound, UserRoundPlus } from 'lucide-react'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { useTeacherGroups } from '../../hooks/api/useTeacher'
@@ -86,10 +86,9 @@ export default function AddStudent() {
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-8 space-y-5">
-
         <div className="space-y-3">
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">👤</span>
+            <UserRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
             <input
               className="input-field pl-10"
               placeholder={t('addStudent.fullName')}
@@ -98,7 +97,7 @@ export default function AddStudent() {
             />
           </div>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">📱</span>
+            <Smartphone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
             <input
               className="input-field pl-10"
               placeholder={t('addStudent.contact')}
@@ -107,7 +106,7 @@ export default function AddStudent() {
             />
           </div>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">🎓</span>
+            <GraduationCap size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
             <input
               className="input-field pl-10"
               placeholder={t('addStudent.subject')}
@@ -198,11 +197,12 @@ export default function AddStudent() {
 
       <div className="px-4 pb-6 pt-2 border-t border-outline-variant/40">
         <button
-          className="btn-primary"
+          className="btn-primary gap-2"
           onClick={handleSubmit}
           disabled={!canSubmit || saving}
         >
-          👤 {saving ? t('common.loading') : t('addStudent.submit')}
+          <UserRoundPlus size={18} />
+          {saving ? t('common.loading') : t('addStudent.submit')}
         </button>
       </div>
     </div>

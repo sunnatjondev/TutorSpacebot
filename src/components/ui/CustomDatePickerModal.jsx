@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Modal } from './Modal'
 import { useI18n } from '../../i18n/index.jsx'
 
@@ -10,14 +10,14 @@ export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectD
   const month = currentMonth.getMonth()
 
   const monthNames = [
-    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 
-    'Iyul', 'Avgust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
+    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
+    'Iyul', 'Avgust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr',
   ]
   const monthNamesRu = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
   ]
-  
+
   const isRu = lang === 'ru'
   const displayMonth = isRu ? monthNamesRu[month] : monthNames[month]
 
@@ -35,21 +35,21 @@ export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectD
   }
 
   const days = []
-  for (let i = 0; i < firstDayIndex; i++) {
+  for (let index = 0; index < firstDayIndex; index += 1) {
     days.push(null)
   }
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(new Date(year, month, i))
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    days.push(new Date(year, month, day))
   }
 
-  const isSameDay = (d1, d2) => {
-    if (!d1 || !d2) return false
-    return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate()
+  const isSameDay = (left, right) => {
+    if (!left || !right) return false
+    return left.getFullYear() === right.getFullYear() &&
+      left.getMonth() === right.getMonth() &&
+      left.getDate() === right.getDate()
   }
 
-  const weekdayLabels = isRu 
+  const weekdayLabels = isRu
     ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
     : ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
 
@@ -57,15 +57,15 @@ export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectD
     <Modal isOpen={isOpen} onClose={onClose} title={isRu ? 'Выбор даты' : 'Sana tanlash'}>
       <div className="space-y-4 text-on-surface">
         <div className="flex items-center justify-between px-1">
-          <button 
-            onClick={handlePrevMonth} 
+          <button
+            onClick={handlePrevMonth}
             className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center font-bold text-lg active:scale-90 transition-transform text-on-surface"
           >
             &lt;
           </button>
           <span className="font-extrabold text-base text-on-surface">{displayMonth} {year}</span>
-          <button 
-            onClick={handleNextMonth} 
+          <button
+            onClick={handleNextMonth}
             className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center font-bold text-lg active:scale-90 transition-transform text-on-surface"
           >
             &gt;
@@ -73,17 +73,17 @@ export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectD
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-center">
-          {weekdayLabels.map((lbl, idx) => (
-            <span key={idx} className="text-[11px] font-bold text-on-surface-variant py-1">
-              {lbl}
+          {weekdayLabels.map((label) => (
+            <span key={label} className="text-[11px] font-bold text-on-surface-variant py-1">
+              {label}
             </span>
           ))}
         </div>
 
         <div className="grid grid-cols-7 gap-1">
-          {days.map((dateObj, idx) => {
+          {days.map((dateObj, index) => {
             if (!dateObj) {
-              return <div key={`empty-${idx}`} />
+              return <div key={`empty-${index}`} />
             }
 
             const isSelected = isSameDay(dateObj, selectedDate)
@@ -91,7 +91,7 @@ export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectD
 
             return (
               <button
-                key={`day-${idx}`}
+                key={`day-${index}`}
                 onClick={() => {
                   haptic?.selection()
                   onSelectDate(dateObj)

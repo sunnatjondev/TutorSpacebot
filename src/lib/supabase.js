@@ -1,11 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
+import { getTrustedAccessToken, isBackendConfigured } from './backend'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // Will be null if env vars not set — app falls back to mock data
 export const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(
+      supabaseUrl,
+      supabaseAnonKey,
+      isBackendConfigured ? { accessToken: getTrustedAccessToken } : undefined
+    )
   : null
 
 export const isSupabaseConfigured = !!supabase

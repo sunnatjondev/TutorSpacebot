@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GraduationCap, BookOpen, ArrowRight } from 'lucide-react'
 import { useTelegram } from '../hooks/useTelegram'
@@ -11,7 +11,7 @@ const ADMIN_TELEGRAM_ID = Number(import.meta.env.VITE_ADMIN_TELEGRAM_ID) || 0
 
 export default function RoleSelection() {
   const navigate = useNavigate()
-  const { user, haptic } = useTelegram()
+  const { user, haptic, tg } = useTelegram()
   const { t } = useI18n()
   const [selected, setSelected] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -30,19 +30,31 @@ export default function RoleSelection() {
     haptic?.medium()
     setSaving(true)
 
+    let finalRole = selected
+
     if (user?.id) {
       try {
-        await saveUserRole(user, selected)
+        const savedUser = await saveUserRole(user, selected)
+        finalRole = savedUser?.role || selected
       } catch (error) {
         console.warn('[Auth] Supabase role save:', error)
+        haptic?.error()
+        const message = "Rolni saqlab bo'lmadi. Iltimos, qayta urinib ko'ring."
+        if (tg?.showAlert) {
+          tg.showAlert(message)
+        } else {
+          alert(message)
+        }
+        setSaving(false)
+        return
       }
 
-      localStorage.setItem(LS_ROLE_KEY, selected)
+      localStorage.setItem(LS_ROLE_KEY, finalRole)
       localStorage.setItem(LS_TG_ID_KEY, String(user.id))
     }
 
     setSaving(false)
-    navigate(selected === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
+    navigate(finalRole === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
   }
 
   return (

@@ -1,4 +1,3 @@
-import React from 'react'
 
 export function Avatar({ name, size = 'md', src, color }) {
   const initials = name

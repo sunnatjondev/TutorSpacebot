@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Users, CalendarDays, Trash2 } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
@@ -8,7 +8,7 @@ import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { useTeacherGroups, useCreateGroup, useDeleteGroup } from '../../hooks/api/useTeacher'
 
-function CreateGroupModal({ onClose, onCreated, telegramId, user, haptic }) {
+function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
 

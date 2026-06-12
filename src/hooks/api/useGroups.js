@@ -90,7 +90,7 @@ export function useAddStudentToGroup() {
       const { data, error } = await supabase
         .from('group_members')
         .upsert({ group_id: groupId, student_id: user.id }, { onConflict: 'group_id,student_id' })
-        .select()
+        .select('id, group_id, student_id')
       
       if (error) throw error
       return data
@@ -281,7 +281,7 @@ export function useUpdateGroup() {
         .from('groups')
         .update(payload)
         .eq('id', groupId)
-        .select()
+        .select('id, teacher_id, name, subject, color, telegram_group_link, invite_token, created_at')
         .single()
       
       if (error) throw error
@@ -360,7 +360,7 @@ export function useCreateHomework() {
       const { data, error } = await supabase
         .from('homework')
         .insert({ group_id: groupId, title, due_date: dueDate, description })
-        .select()
+        .select('id, group_id, title, description, due_date, created_at')
         .single()
       
       if (error) throw error

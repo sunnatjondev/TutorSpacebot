@@ -1,5 +1,8 @@
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
+import { fetchTrustedUser, isBackendConfigured, saveTrustedRole } from '../../lib/backend'
 import { normalizeOptionalText } from './core'
+
+const ADMIN_TELEGRAM_ID = Number(import.meta.env.VITE_ADMIN_TELEGRAM_ID) || 0
 
 export function buildTelegramUserPayload(tgUser, overrides = {}) {
   return {
@@ -41,6 +44,11 @@ export async function getUserRowByUsername(username) {
 }
 
 export async function upsertTelegramUser(tgUser) {
+  if (isBackendConfigured) {
+    const { user } = await fetchTrustedUser()
+    return user
+  }
+
   if (!isSupabaseConfigured || !tgUser?.id) return null
 
   const { data, error } = await supabase
@@ -49,7 +57,7 @@ export async function upsertTelegramUser(tgUser) {
       buildTelegramUserPayload(tgUser),
       { onConflict: 'telegram_id', ignoreDuplicates: false }
     )
-    .select()
+    .select('id, telegram_id, role, first_name, last_name, username, photo_url, lesson_reminders_enabled, payment_alerts_enabled')
     .single()
 
   if (error) {
@@ -66,23 +74,34 @@ export async function saveUserRole(telegramUserOrId, role) {
       ? telegramUserOrId.id
       : telegramUserOrId
 
+  if (isBackendConfigured) {
+    const { user } = await saveTrustedRole(role)
+    return user
+  }
+
   if (!isSupabaseConfigured || !telegramId) return
+
+  const safeRole = role === 'teacher' && Number(telegramId) === ADMIN_TELEGRAM_ID
+    ? 'teacher'
+    : 'student'
 
   const request =
     typeof telegramUserOrId === 'object' && telegramUserOrId !== null
       ? supabase
           .from('users')
           .upsert(
-            buildTelegramUserPayload(telegramUserOrId, { role }),
+            buildTelegramUserPayload(telegramUserOrId, { role: safeRole }),
             { onConflict: 'telegram_id', ignoreDuplicates: false }
           )
       : supabase
           .from('users')
-          .update({ role, updated_at: new Date().toISOString() })
+          .update({ role: safeRole, updated_at: new Date().toISOString() })
           .eq('telegram_id', telegramId)
 
   const { error } = await request
   if (error) throw error
+
+  return { role: safeRole }
 }
 
 export async function updateNotificationPreferences(telegramId, payload) {

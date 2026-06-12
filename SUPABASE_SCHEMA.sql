@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
   photo_url     TEXT,
   role          TEXT CHECK (role IN ('teacher', 'student')),
   language      TEXT DEFAULT 'uz' CHECK (language IN ('uz', 'ru')),
+  lesson_reminders_enabled BOOLEAN DEFAULT TRUE,
+  payment_alerts_enabled   BOOLEAN DEFAULT TRUE,
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
 );
@@ -84,7 +86,7 @@ CREATE TABLE IF NOT EXISTS payments (
   teacher_id  UUID REFERENCES users(id) ON DELETE CASCADE,
   group_id    UUID REFERENCES groups(id) ON DELETE SET NULL,
   amount      BIGINT NOT NULL,               -- in UZS
-  status      TEXT DEFAULT 'unpaid' CHECK (status IN ('unpaid', 'partial', 'paid')),
+  status      TEXT DEFAULT 'unpaid' CHECK (status IN ('unpaid', 'partial', 'paid', 'pending')),
   method      TEXT CHECK (method IN ('cash', 'card', 'transfer')),
   period_year INT,
   period_month INT,
@@ -118,6 +120,19 @@ CREATE TABLE IF NOT EXISTS homework_submissions (
   UNIQUE(homework_id, student_id)
 );
 
+-- ----------------------------------------------------------------
+-- BOT NOTIFICATION EVENTS
+-- Prevents cron reminders from being sent more than once.
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS bot_notification_events (
+  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  event_type            TEXT NOT NULL,
+  entity_id             TEXT NOT NULL,
+  recipient_telegram_id BIGINT NOT NULL,
+  sent_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(event_type, entity_id, recipient_telegram_id)
+);
+
 -- ================================================================
 -- ROW LEVEL SECURITY (RLS)
 -- ================================================================
@@ -130,6 +145,7 @@ ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE homework ENABLE ROW LEVEL SECURITY;
 ALTER TABLE homework_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bot_notification_events ENABLE ROW LEVEL SECURITY;
 
 -- For now, allow all operations (you can restrict later when auth is set up):
 CREATE POLICY "Allow all for anon" ON users FOR ALL USING (true) WITH CHECK (true);
@@ -140,6 +156,14 @@ CREATE POLICY "Allow all for anon" ON attendance FOR ALL USING (true) WITH CHECK
 CREATE POLICY "Allow all for anon" ON payments FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all for anon" ON homework FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all for anon" ON homework_submissions FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Service role manages notification events" ON bot_notification_events
+  FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+
+CREATE INDEX IF NOT EXISTS idx_payments_teacher_status_period ON payments(teacher_id, status, period_year, period_month);
+CREATE INDEX IF NOT EXISTS idx_payments_student_status ON payments(student_id, status);
+CREATE INDEX IF NOT EXISTS idx_sessions_group_scheduled_status ON sessions(group_id, scheduled_at, status);
+CREATE INDEX IF NOT EXISTS idx_group_members_student_group ON group_members(student_id, group_id);
+CREATE INDEX IF NOT EXISTS idx_bot_notification_events_sent_at ON bot_notification_events(sent_at);
 
 -- ================================================================
 -- HELPER VIEWS

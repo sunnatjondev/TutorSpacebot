@@ -1,5 +1,4 @@
-import React from 'react'
-import { ExternalLink, Users, CalendarDays } from 'lucide-react'
+import { Users, CalendarDays } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
@@ -7,7 +6,7 @@ import { useI18n } from '../../i18n/index.jsx'
 import { useStudentGroups } from '../../hooks/api/useStudent'
 
 export default function StudentGroups() {
-  const { user, haptic, openTelegramLink } = useTelegram()
+  const { user } = useTelegram()
   const { t } = useI18n()
   const { data: groupsRaw } = useStudentGroups(user?.id)
 

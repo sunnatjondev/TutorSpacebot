@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 
 export function Modal({ isOpen, onClose, title, children, closeOnBackdropClick = true }) {
@@ -10,12 +10,10 @@ export function Modal({ isOpen, onClose, title, children, closeOnBackdropClick =
   }, [isOpen])
 
   useEffect(() => {
-    if (!isOpen) {
-      setAvailableHeight('90dvh')
-      return
-    }
+    if (!isOpen) return
 
     const tg = window.Telegram?.WebApp
+    let frameId = null
 
     const update = () => {
       if (tg && tg.viewportStableHeight && tg.viewportHeight) {
@@ -33,9 +31,10 @@ export function Modal({ isOpen, onClose, title, children, closeOnBackdropClick =
     window.visualViewport?.addEventListener('resize', update)
     window.addEventListener('resize', update)
 
-    update()
+    frameId = window.requestAnimationFrame(update)
 
     return () => {
+      if (frameId) window.cancelAnimationFrame(frameId)
       tg?.offEvent('viewportChanged', update)
       window.visualViewport?.removeEventListener('resize', update)
       window.removeEventListener('resize', update)

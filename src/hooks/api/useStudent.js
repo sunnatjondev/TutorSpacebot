@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
+import { isBackendConfigured, joinTrustedInvite } from '../../lib/backend'
 import { getUserRowByTelegramId } from './auth'
 import { getCurrentPeriod } from './core'
 
@@ -115,7 +116,11 @@ export function useStudentPayments(telegramId) {
 
       const { data, error } = await supabase
         .from('payments')
-        .select('*, group:groups(name, subject)')
+        .select(`
+          id, student_id, teacher_id, group_id, amount, status, method,
+          period_year, period_month, note, paid_at, created_at,
+          group:groups(name, subject)
+        `)
         .eq('student_id', user.id)
         .order('created_at', { ascending: false })
 
@@ -190,6 +195,10 @@ export function useMarkHomeworkDone() {
 }
 
 export async function joinGroupByToken(telegramId, inviteToken, tgUser = null) {
+  if (isBackendConfigured) {
+    return joinTrustedInvite(inviteToken)
+  }
+
   if (!isSupabaseConfigured || !telegramId || !inviteToken) return { success: false }
 
   let userRow = null
@@ -207,7 +216,7 @@ export async function joinGroupByToken(telegramId, inviteToken, tgUser = null) {
         { ...tgUser, telegram_id: telegramId, role: 'student' },
         { onConflict: 'telegram_id', ignoreDuplicates: false }
       )
-      .select()
+      .select('id, telegram_id, role, first_name, last_name, username, photo_url')
       .single()
 
     if (createErr) {
@@ -222,7 +231,7 @@ export async function joinGroupByToken(telegramId, inviteToken, tgUser = null) {
       .from('users')
       .update({ role: 'student', updated_at: new Date().toISOString() })
       .eq('id', userRow.id)
-      .select()
+      .select('id, telegram_id, role, first_name, last_name, username, photo_url')
       .single()
 
     if (roleErr) {

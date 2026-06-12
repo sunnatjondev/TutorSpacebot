@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { LogOut, Bell, Globe } from 'lucide-react'
@@ -7,6 +7,18 @@ import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { getUserRowByTelegramId, updateNotificationPreferences } from '../../hooks/api/auth'
+
+function NotificationToggle({ value, onChange }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!value)}
+      className={`toggle ${value ? 'bg-brand' : 'bg-surface-highest'}`}
+    >
+      <span className={`toggle-knob ${value ? 'translate-x-5' : 'translate-x-0'}`} />
+    </button>
+  )
+}
 
 export default function TeacherSettings() {
   const { user, haptic } = useTelegram()
@@ -20,42 +32,32 @@ export default function TeacherSettings() {
     enabled: !!user?.id,
   })
 
-  const [lessonReminders, setLessonReminders] = useState(true)
-  const [paymentAlerts, setPaymentAlerts] = useState(true)
-
-  useEffect(() => {
-    if (dbUser) {
-      setLessonReminders(dbUser.lesson_reminders_enabled ?? true)
-      setPaymentAlerts(dbUser.payment_alerts_enabled ?? true)
-    }
-  }, [dbUser])
+  const [notificationOverrides, setNotificationOverrides] = useState({})
+  const lessonReminders = notificationOverrides.lesson_reminders_enabled ?? dbUser?.lesson_reminders_enabled ?? true
+  const paymentAlerts = notificationOverrides.payment_alerts_enabled ?? dbUser?.payment_alerts_enabled ?? true
 
   const mutation = useMutation({
     mutationFn: (payload) => updateNotificationPreferences(user.id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries(['user-settings', user?.id])
+      queryClient.invalidateQueries({ queryKey: ['user-settings', user?.id] })
     }
   })
 
   const handleToggleLessonReminders = (value) => {
-    setLessonReminders(value)
+    haptic?.selection()
+    setNotificationOverrides((current) => ({ ...current, lesson_reminders_enabled: value }))
     mutation.mutate({ lesson_reminders_enabled: value })
   }
 
   const handleTogglePaymentAlerts = (value) => {
-    setPaymentAlerts(value)
+    haptic?.selection()
+    setNotificationOverrides((current) => ({ ...current, payment_alerts_enabled: value }))
     mutation.mutate({ payment_alerts_enabled: value })
   }
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'O\'qituvchi'
   const langLabels = { uz: 'UZ', ru: 'RU' }
 
-  const Toggle = ({ value, onChange }) => (
-    <button onClick={() => { onChange(!value); haptic?.selection() }}
-      className={`toggle ${value ? 'bg-brand' : 'bg-surface-highest'}`}>
-      <span className={`toggle-knob ${value ? 'translate-x-5' : 'translate-x-0'}`} />
-    </button>
-  )
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
@@ -87,11 +89,11 @@ export default function TeacherSettings() {
           </p>
           <div className="flex items-center justify-between">
             <p className="text-on-surface text-sm">{t('teacherSettings.lessonReminders')}</p>
-            <Toggle value={lessonReminders} onChange={handleToggleLessonReminders} />
+            <NotificationToggle value={lessonReminders} onChange={handleToggleLessonReminders} />
           </div>
           <div className="flex items-center justify-between">
             <p className="text-on-surface text-sm">{t('teacherSettings.paymentAlerts')}</p>
-            <Toggle value={paymentAlerts} onChange={handleTogglePaymentAlerts} />
+            <NotificationToggle value={paymentAlerts} onChange={handleTogglePaymentAlerts} />
           </div>
         </div>
 

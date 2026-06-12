@@ -90,6 +90,15 @@ create table if not exists public.homework_submissions (
   created_at timestamptz default now()
 );
 
+create table if not exists public.bot_notification_events (
+  id uuid primary key default uuid_generate_v4(),
+  event_type text not null,
+  entity_id text not null,
+  recipient_telegram_id bigint not null,
+  sent_at timestamptz not null default now(),
+  unique (event_type, entity_id, recipient_telegram_id)
+);
+
 alter table public.users
   add column if not exists id uuid default uuid_generate_v4();
 
@@ -119,6 +128,12 @@ alter table public.users
 
 alter table public.users
   add column if not exists updated_at timestamptz default now();
+
+alter table public.users
+  add column if not exists lesson_reminders_enabled boolean default true;
+
+alter table public.users
+  add column if not exists payment_alerts_enabled boolean default true;
 
 alter table public.users
   alter column telegram_id type bigint using telegram_id::bigint;
@@ -282,6 +297,21 @@ alter table public.homework_submissions
 alter table public.homework_submissions
   add column if not exists created_at timestamptz default now();
 
+alter table public.bot_notification_events
+  add column if not exists id uuid default uuid_generate_v4();
+
+alter table public.bot_notification_events
+  add column if not exists event_type text;
+
+alter table public.bot_notification_events
+  add column if not exists entity_id text;
+
+alter table public.bot_notification_events
+  add column if not exists recipient_telegram_id bigint;
+
+alter table public.bot_notification_events
+  add column if not exists sent_at timestamptz not null default now();
+
 alter table public.users
   drop constraint if exists users_telegram_id_key;
 
@@ -319,6 +349,13 @@ alter table public.homework_submissions
 alter table public.homework_submissions
   add constraint homework_submissions_homework_id_student_id_key unique (homework_id, student_id);
 
+alter table public.bot_notification_events
+  drop constraint if exists bot_notification_events_event_type_entity_id_recipient_telegram_id_key;
+
+alter table public.bot_notification_events
+  add constraint bot_notification_events_event_type_entity_id_recipient_telegram_id_key
+  unique (event_type, entity_id, recipient_telegram_id);
+
 do $$
 begin
   if exists (
@@ -346,6 +383,11 @@ create index if not exists idx_attendance_student_id on public.attendance(studen
 create index if not exists idx_payments_group_id on public.payments(group_id);
 create index if not exists idx_payments_teacher_id on public.payments(teacher_id);
 create index if not exists idx_payments_student_id on public.payments(student_id);
+create index if not exists idx_payments_teacher_status_period on public.payments(teacher_id, status, period_year, period_month);
+create index if not exists idx_payments_student_status on public.payments(student_id, status);
+create index if not exists idx_sessions_group_scheduled_status on public.sessions(group_id, scheduled_at, status);
+create index if not exists idx_group_members_student_group on public.group_members(student_id, group_id);
+create index if not exists idx_bot_notification_events_sent_at on public.bot_notification_events(sent_at);
 create index if not exists idx_homework_submissions_student_id on public.homework_submissions(student_id);
 create index if not exists idx_homework_submissions_homework_id on public.homework_submissions(homework_id);
 
@@ -357,6 +399,7 @@ alter table public.attendance enable row level security;
 alter table public.payments enable row level security;
 alter table public.homework enable row level security;
 alter table public.homework_submissions enable row level security;
+alter table public.bot_notification_events enable row level security;
 
 drop policy if exists "Allow all for anon" on public.users;
 drop policy if exists "Allow all for anon" on public.groups;
@@ -375,6 +418,7 @@ drop policy if exists allow_all_attendance on public.attendance;
 drop policy if exists allow_all_payments on public.payments;
 drop policy if exists allow_all_homework on public.homework;
 drop policy if exists allow_all_homework_submissions on public.homework_submissions;
+drop policy if exists bot_notification_events_service_role on public.bot_notification_events;
 
 create policy allow_all_users on public.users
 for all using (true) with check (true);
@@ -399,3 +443,6 @@ for all using (true) with check (true);
 
 create policy allow_all_homework_submissions on public.homework_submissions
 for all using (true) with check (true);
+
+create policy bot_notification_events_service_role on public.bot_notification_events
+for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');

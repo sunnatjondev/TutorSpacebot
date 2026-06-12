@@ -4,10 +4,5 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "env": {
-    "VITE_SUPABASE_URL": "https://rflupdbnyrkowxijbkyq.supabase.co",
-    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmbHVwZGJueXJrb3d4aWpia3lxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTc0MDcsImV4cCI6MjA5NDA3MzQwN30.COm_SimFRUmZhNMfL39GLGaO4IhLRtQRM3XDYIT4lmc",
-    "VITE_ADMIN_TELEGRAM_ID": "1065033031"
-  }
+  ]
 }

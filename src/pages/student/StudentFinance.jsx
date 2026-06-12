@@ -1,5 +1,4 @@
-import React from 'react'
-import { MessageCircle, CheckCircle } from 'lucide-react'
+import { CheckCircle, MessageCircle } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
