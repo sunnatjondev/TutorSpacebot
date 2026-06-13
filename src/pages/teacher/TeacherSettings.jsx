@@ -6,7 +6,7 @@ import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { getUserRowByTelegramId, updateNotificationPreferences } from '../../hooks/api/auth'
+import { upsertTelegramUser, updateNotificationPreferences } from '../../hooks/api/auth'
 
 function NotificationToggle({ value, onChange }) {
   return (
@@ -28,7 +28,7 @@ export default function TeacherSettings() {
 
   const { data: dbUser } = useQuery({
     queryKey: ['user-settings', user?.id],
-    queryFn: () => getUserRowByTelegramId(user?.id),
+    queryFn: () => upsertTelegramUser(),
     enabled: !!user?.id,
   })
 
