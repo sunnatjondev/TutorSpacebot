@@ -533,7 +533,7 @@ export default function GroupDetail() {
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6 space-y-4">
         {loading && !group && (
-          <div className="m3-m3-card text-center py-8 text-on-surface-variant">Yuklanmoqda...</div>
+          <div className="m3-card text-center py-8 text-on-surface-variant">Yuklanmoqda...</div>
         )}
 
         <div className="flex gap-2 mb-1">
@@ -542,7 +542,7 @@ export default function GroupDetail() {
         </div>
 
         {/* Statistics m3-card */}
-        <div className="m3-m3-card grid grid-cols-3 gap-2 text-center p-3">
+        <div className="m3-card grid grid-cols-3 gap-2 text-center p-3">
           <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
             <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.debtors')}</span>
             <span className="text-lg font-extrabold text-debt-red mt-1">{t('groupDetail.studentsCount', { count: monthlyStats.unpaidCount })}</span>
@@ -561,7 +561,7 @@ export default function GroupDetail() {
         </div>
 
         {/* Invitation Link m3-card */}
-        <div className="m3-m3-card bg-brand/10 border border-brand/20 p-4">
+        <div className="m3-card bg-brand/10 border border-brand/20 p-4">
           <div className="flex items-start justify-between mb-1">
             <h3 className="text-sm font-bold text-on-surface">{t('groupDetail.inviteLink')}</h3>
             <span className="text-[10px] bg-brand/20 text-primary px-2 py-0.5 rounded-full font-bold">{t('groupDetail.inviteLinkBadge')}</span>
@@ -593,7 +593,7 @@ export default function GroupDetail() {
         </div>
 
         {/* Attendance m3-card */}
-        <div className="m3-m3-card">
+        <div className="m3-card">
           <div className="mb-3 flex items-center justify-between">
             <p className="m3-label">
               {t('groupDetail.attendance')}
@@ -689,7 +689,7 @@ export default function GroupDetail() {
         </div>
 
         {/* Payments m3-card */}
-        <div className="m3-m3-card">
+        <div className="m3-card">
           <div className="flex items-center justify-between mb-3">
             <p className="m3-label">
               {t('groupDetail.paymentStatus')}
@@ -722,7 +722,7 @@ export default function GroupDetail() {
         </div>
 
         {/* Homeworks m3-card */}
-        <div className="m3-m3-card">
+        <div className="m3-card">
           <div className="flex items-center justify-between mb-3">
             <p className="m3-label">
               {t('groupDetail.homeworkTitle')}
@@ -808,8 +808,8 @@ export default function GroupDetail() {
           <div>
             <p className="text-sm font-semibold text-on-surface mb-1">{editingStudent?.name}</p>
             <p className="text-xs text-on-surface-variant mb-3">{t('groupDetail.editRateDesc')}</p>
-            <div className="m3-m3-card-interactive">
-              <span className="m3-fabsolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
+            <div className="m3-card-interactive">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
               <input
                 type="number"
                 className="m3-input pr-14"
