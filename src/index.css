@@ -255,7 +255,7 @@ h1, h2, h3, .font-serif {
 
 /* Restored Missing Classes */
 .chip-row {
-  @apply flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar;
+  @apply flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 ;
 }
 .chip {
   @apply px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer border border-outline-variant/30;
@@ -279,3 +279,4 @@ h1, h2, h3, .font-serif {
 .toggle-knob {
   @apply inline-block h-6 w-6 transform rounded-full bg-on-primary transition-transform shadow-m3-elevation-1;
 }
+.chip-row { scrollbar-width: none; } .chip-row::-webkit-scrollbar { display: none; }
