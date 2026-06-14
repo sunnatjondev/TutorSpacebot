@@ -115,7 +115,7 @@ export default function TeacherGroups() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="m3-display-md">{t('teacherGroups.title')}</h1>
           <button
-            className="m3-fab static shadow-none w-14 h-14"
+            className="m3-m3-fab static shadow-none w-14 h-14"
             onClick={() => {
               haptic?.medium()
               setShowCreate(true)
@@ -135,7 +135,7 @@ export default function TeacherGroups() {
             return (
               <button
                 key={group.id}
-                className={`m3-card w-full text-left stagger-item transition-all duration-200 relative ${
+                className={`m3-m3-card w-full text-left stagger-item transition-all duration-200 relative ${
                   isOptimistic ? 'opacity-60 pointer-events-none' : 'active:scale-[0.98]'
                 }`}
                 style={{ animationDelay: `${index * 70}ms`, opacity: deletingId === group.id ? 0.5 : undefined }}

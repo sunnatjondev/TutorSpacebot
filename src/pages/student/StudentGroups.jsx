@@ -37,15 +37,15 @@ export default function StudentGroups() {
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6">
-        <h1 className="text-[28px] font-extrabold text-on-surface mb-5">{t('studentGroups.title')}</h1>
+        <h1 className="m3-display-md mb-5">{t('studentGroups.title')}</h1>
 
         <div className="space-y-4">
           {groups.map((group, index) => (
-            <div key={group.id} className="card stagger-item" style={{ animationDelay: `${index * 70}ms` }}>
-              <h2 className="text-xl font-extrabold text-on-surface mb-1 truncate">{group.subject}</h2>
+            <div key={group.id} className="m3-card stagger-item" style={{ animationDelay: `${index * 70}ms` }}>
+              <h2 className="m3-title-lg mb-1 truncate">{group.subject}</h2>
               <p className="text-on-surface-variant text-sm mb-4 truncate">{group.teacher}</p>
 
-              <div className="rounded-card p-4 mb-4" style={{ background: '#2a2933' }}>
+              <div className="rounded-[24px] p-4 mb-4" style={{ background: '#2a2933' }}>
                 <div className="flex items-center gap-3 mb-3">
                   <Avatar name={group.teacher} size="lg" />
                   <div className="min-w-0">
@@ -75,7 +75,7 @@ export default function StudentGroups() {
           ))}
 
           {!groups.length && (
-            <div className="card text-center py-10 text-on-surface-variant">
+            <div className="m3-card text-center py-10 text-on-surface-variant">
               Siz hali hech qaysi guruhga qo'shilmagansiz
             </div>
           )}

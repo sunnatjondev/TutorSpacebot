@@ -63,7 +63,7 @@ export default function StudentDashboard() {
         </div>
 
         <div
-          className="stagger-item rounded-card p-5"
+          className="stagger-item rounded-[24px] p-5"
           style={{ background: 'linear-gradient(135deg, #5a52e0 0%, #7c74ff 60%, #a099ff 100%)', boxShadow: '0 8px 32px rgba(108,99,255,0.4)' }}
         >
           <div className="mb-3 flex items-start justify-between">
@@ -96,7 +96,7 @@ export default function StudentDashboard() {
         </div>
 
         <div className="stagger-item grid grid-cols-2 gap-3">
-          <div className="card">
+          <div className="m3-card">
             <div className="mb-2 flex items-center justify-between">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/20">
                 <CheckCircle size={18} className="text-primary" />
@@ -125,7 +125,7 @@ export default function StudentDashboard() {
             </p>
           </div>
 
-          <div className="card">
+          <div className="m3-card">
             <div className="mb-2 flex items-start justify-between">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-error-container/30">
                 <BookOpen size={18} className="text-error" />
@@ -140,7 +140,7 @@ export default function StudentDashboard() {
         </div>
 
         <div
-          className="card stagger-item"
+          className="m3-card stagger-item"
           style={{ background: 'linear-gradient(135deg, #1f1f28, #2a1a1a)', border: '1px solid rgba(248,113,113,0.25)' }}
         >
           <div className="mb-3 flex items-center justify-between">
@@ -158,7 +158,7 @@ export default function StudentDashboard() {
 
         <div className="stagger-item">
           <div className="section-header">
-            <h2 className="section-title">{t('studentHome.upcomingTasks')}</h2>
+            <h2 className="m3-title-lg">{t('studentHome.upcomingTasks')}</h2>
             <button
               onClick={() => {
                 haptic?.light()
@@ -169,7 +169,7 @@ export default function StudentDashboard() {
               {t('common.viewAll')}
             </button>
           </div>
-          <div className="card space-y-0">
+          <div className="m3-card space-y-0">
             {homework.slice(0, 4).map((item, index) => (
               <div key={item.id}>
                 <div className="flex items-start gap-3 py-3">

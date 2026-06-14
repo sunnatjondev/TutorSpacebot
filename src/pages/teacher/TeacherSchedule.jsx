@@ -131,7 +131,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
           <p className="mt-2 text-sm text-on-surface-variant">{t('teacherSchedule.noGroups')}</p>
         </div>
         <button
-          className="btn-primary"
+          className="m3-btn-filled"
           onClick={() => {
             haptic?.light?.()
             onClose()
@@ -186,7 +186,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
               haptic?.light()
               setShowLessonCalendar(true)
             }}
-            className="input-field w-full text-left flex items-center justify-between"
+            className="m3-input w-full text-left flex items-center justify-between"
           >
             <span className="text-on-surface">
               {formatDisplayDate(lessonDate)}, {lessonHour}:{lessonMinute}
@@ -236,7 +236,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
             type="number"
             min="15"
             step="5"
-            className="input-field"
+            className="m3-input"
             value={durationMin}
             onChange={(event) => setDurationMin(event.target.value)}
             placeholder="90"
@@ -249,7 +249,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
           </div>
         )}
 
-        <button className="btn-primary" onClick={handleCreate} disabled={loading}>
+        <button className="m3-btn-filled" onClick={handleCreate} disabled={loading}>
           {loading ? t('teacherSchedule.creating') : t('teacherSchedule.create')}
         </button>
       </div>
@@ -360,7 +360,7 @@ export default function TeacherSchedule() {
       <div className="page-wrapper px-4 pt-6">
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <h1 className="text-[28px] font-extrabold text-on-surface">{t('teacherSchedule.title')}</h1>
+            <h1 className="m3-display-md">{t('teacherSchedule.title')}</h1>
             <p className="text-sm text-on-surface-variant">{weekLabel}</p>
           </div>
           <button
@@ -374,7 +374,7 @@ export default function TeacherSchedule() {
           </button>
         </div>
 
-        <div className="card mb-5 flex items-center justify-between gap-1 p-3">
+        <div className="m3-card mb-5 flex items-center justify-between gap-1 p-3">
           {dayKeys.map((dayKey, index) => {
             const date = days[index]
             const isToday = date.toDateString() === today.toDateString()
@@ -421,7 +421,7 @@ export default function TeacherSchedule() {
                     <p className="text-xs font-semibold text-on-surface-variant">{time}</p>
                   </div>
                   <div
-                    className={`flex-1 rounded-card border p-4 transition-all duration-200 ${
+                    className={`flex-1 rounded-[24px] border p-4 transition-all duration-200 ${
                       isDone
                         ? 'border-outline-variant bg-surface-container'
                         : isInProgress
@@ -524,7 +524,7 @@ export default function TeacherSchedule() {
       </div>
 
       <button
-        className="fab bottom-[88px] right-4"
+        className="m3-fab bottom-[88px] right-4"
         onClick={() => {
           haptic?.medium()
           setShowCreate(true)

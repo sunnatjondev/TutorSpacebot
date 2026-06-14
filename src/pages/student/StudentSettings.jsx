@@ -73,14 +73,14 @@ export default function StudentSettings() {
             </div>
           </div>
           <div className="text-center">
-            <p className="text-xl font-bold text-on-surface">{fullName}</p>
+            <p className="m3-title-lg">{fullName}</p>
             {user?.username && <p className="text-on-surface-variant text-sm">@{user.username}</p>}
             <p className="text-on-surface-variant text-xs mt-0.5">{t('teacherSettings.syncedTelegram')}</p>
           </div>
         </div>
 
         {/* Notifications */}
-        <div className="card space-y-4">
+        <div className="m3-card space-y-4">
           <p className="font-bold text-on-surface flex items-center gap-2">
             <Bell size={16} className="text-primary" /> {t('teacherSettings.notifications')}
           </p>
@@ -95,7 +95,7 @@ export default function StudentSettings() {
         </div>
 
         {/* Language */}
-        <div className="card">
+        <div className="m3-card">
           <p className="font-bold text-on-surface mb-3 flex items-center gap-2">
             <Globe size={16} className="text-primary" /> {t('teacherSettings.language')}
           </p>

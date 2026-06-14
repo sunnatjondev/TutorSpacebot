@@ -15,7 +15,7 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
 
   const methods = [
     { key: 'cash', label: t('teacherFinance.cash') },
-    { key: 'card', label: t('teacherFinance.card') },
+    { key: 'm3-card', label: t('teacherFinance.m3-card') },
     { key: 'transfer', label: t('teacherFinance.transfer') },
   ]
 
@@ -63,7 +63,7 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
           type="number"
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
-          className="input-field"
+          className="m3-input"
           placeholder="0"
         />
       </div>
@@ -90,7 +90,7 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
         </div>
       </div>
 
-      <button onClick={handleConfirm} disabled={loading} className="btn-primary mt-2">
+      <button onClick={handleConfirm} disabled={loading} className="m3-btn-filled mt-2">
         <CheckCircle size={18} /> {loading ? t('groupDetail.saving') : t('teacherFinance.confirmPayment')}
       </button>
     </div>
@@ -132,21 +132,21 @@ export default function TeacherFinance() {
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6">
         <div className="mb-5">
-          <h1 className="text-[28px] font-extrabold text-on-surface">{t('teacherFinance.title')}</h1>
+          <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
           <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
         </div>
 
         <div className="flex gap-3 mb-5">
-          <div className="flex-1 card">
+          <div className="flex-1 m3-card">
             <div className="flex items-start justify-between mb-2">
               <p className="text-on-surface-variant text-xs font-medium">{t('teacherFinance.earned')}</p>
               <div className="w-8 h-8 rounded-xl bg-surface-high flex items-center justify-center">
                 <TrendingUp size={14} className="text-paid-green" />
               </div>
             </div>
-            <p className="text-xl font-extrabold text-on-surface">{formatUZS(totalEarned, true)}</p>
+            <p className="m3-title-lg">{formatUZS(totalEarned, true)}</p>
           </div>
-          <div className="flex-1 card">
+          <div className="flex-1 m3-card">
             <div className="flex items-start justify-between mb-2">
               <p className="text-on-surface-variant text-xs font-medium">{t('teacherFinance.outstanding')}</p>
               <div className="w-8 h-8 rounded-xl bg-surface-high flex items-center justify-center">
@@ -181,7 +181,7 @@ export default function TeacherFinance() {
           {displayPayments.map((payment, index) => (
             <div
               key={payment.id || index}
-              className={`card stagger-item border-l-[4px] ${
+              className={`m3-card stagger-item border-l-[4px] ${
                 payment.status === 'paid'
                   ? 'border-l-paid-green'
                   : payment.status === 'unpaid'
@@ -217,7 +217,7 @@ export default function TeacherFinance() {
                       haptic?.light()
                       setSelectedPayment(payment)
                     }}
-                    className="btn-secondary h-10 flex-1 text-sm"
+                    className="m3-btn-tonal h-10 flex-1 text-sm"
                   >
                     {t('common.details')}
                   </button>
@@ -226,7 +226,7 @@ export default function TeacherFinance() {
                       haptic?.medium()
                       setMarkStudent(payment)
                     }}
-                    className="btn-primary h-10 flex-1 text-sm"
+                    className="m3-btn-filled h-10 flex-1 text-sm"
                   >
                     ✓ {t('teacherFinance.markPaid')}
                   </button>
@@ -236,7 +236,7 @@ export default function TeacherFinance() {
           ))}
 
           {!displayPayments.length && (
-            <div className="card text-center py-10 text-on-surface-variant">
+            <div className="m3-card text-center py-10 text-on-surface-variant">
               {t('teacherFinance.noPayments')}
             </div>
           )}
@@ -254,7 +254,7 @@ export default function TeacherFinance() {
               </div>
             </div>
             
-            <div className="card space-y-3 p-4">
+            <div className="m3-card space-y-3 p-4">
               <div className="flex justify-between text-sm">
                 <span className="text-on-surface-variant">{t('teacherFinance.periodLabel')}:</span>
                 <span className="font-semibold">{selectedPayment.period_month}/{selectedPayment.period_year}</span>
@@ -298,7 +298,7 @@ export default function TeacherFinance() {
                       }
                     }
                   }}
-                  className="btn-primary flex-1 gap-1"
+                  className="m3-btn-filled flex-1 gap-1"
                 >
                   🔔 {t('common.remind')}
                 </button>

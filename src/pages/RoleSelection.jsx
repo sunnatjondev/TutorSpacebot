@@ -96,7 +96,7 @@ export default function RoleSelection() {
         {isAdmin && (
           <button
             onClick={() => handleSelect('teacher')}
-            className={`flex-1 rounded-card p-5 flex flex-col items-center gap-3 border-2 transition-all duration-300 active:scale-95 ${
+            className={`flex-1 rounded-[24px] p-5 flex flex-col items-center gap-3 border-2 transition-all duration-300 active:scale-95 ${
               selected === 'teacher'
                 ? 'border-brand bg-brand/10'
                 : 'border-outline-variant bg-surface-container'
@@ -116,7 +116,7 @@ export default function RoleSelection() {
 
         <button
           onClick={() => handleSelect('student')}
-          className={`flex-1 rounded-card p-5 flex flex-col items-center gap-3 border-2 transition-all duration-300 active:scale-95 ${
+          className={`flex-1 rounded-[24px] p-5 flex flex-col items-center gap-3 border-2 transition-all duration-300 active:scale-95 ${
             selected === 'student'
               ? 'border-brand bg-brand/10'
               : 'border-outline-variant bg-surface-container'
@@ -138,7 +138,7 @@ export default function RoleSelection() {
       <button
         onClick={handleContinue}
         disabled={!selected || saving}
-        className={`btn-primary mt-10 transition-all duration-300 ${!selected ? 'opacity-40' : ''}`}
+        className={`m3-btn-filled mt-10 transition-all duration-300 ${!selected ? 'opacity-40' : ''}`}
       >
         {saving ? t('common.loading') : t('common.continue')}
         <ArrowRight size={18} />

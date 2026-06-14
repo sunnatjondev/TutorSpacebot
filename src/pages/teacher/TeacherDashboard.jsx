@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 
 function StatCard({ icon: Icon, value, label, iconBg }) {
   return (
-    <div className="m3-card flex-1 p-4 flex flex-col items-center justify-center text-center gap-2">
+    <div className="m3-m3-card flex-1 p-4 flex flex-col items-center justify-center text-center gap-2">
       <div className={`flex h-12 w-12 items-center justify-center rounded-[18px] ${iconBg}`}>
         <Icon size={24} className="text-on-surface" />
       </div>
@@ -55,7 +55,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
       <div>
         <label className="mb-2 block text-sm font-semibold text-on-surface-variant">Guruh nomi</label>
         <input
-          className="input-field"
+          className="m3-input"
           placeholder="Masalan: Fizika 101"
           value={name}
           onChange={(event) => setName(event.target.value)}
@@ -65,7 +65,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
       <div>
         <label className="mb-2 block text-sm font-semibold text-on-surface-variant">Fan</label>
         <input
-          className="input-field"
+          className="m3-input"
           placeholder="Masalan: Matematika"
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
@@ -155,7 +155,7 @@ export default function TeacherDashboard() {
           <StatCard icon={CalendarDays} value={dash?.todaySessions?.length ?? 0} label={t('teacherHome.lessons')} iconBg="bg-surface-high" />
         </div>
 
-        <div className="m3-card mb-4 stagger-item">
+        <div className="m3-m3-card mb-4 stagger-item">
           <div className="mb-3 flex items-center justify-between">
             <span className="m3-label">{t('teacherHome.recentGroups')}</span>
             <button
@@ -197,7 +197,7 @@ export default function TeacherDashboard() {
           )}
         </div>
 
-        <div className="m3-card mb-4 stagger-item">
+        <div className="m3-m3-card mb-4 stagger-item">
           <div className="mb-3 flex items-center justify-between">
             <span className="m3-label">{t('teacherHome.today')}</span>
             <span className="text-sm font-semibold text-primary">{today}</span>
@@ -230,12 +230,12 @@ export default function TeacherDashboard() {
 
         {dash?.unpaid?.length > 0 && (
           <div
-            className="stagger-item mb-6 m3-card"
+            className="stagger-item mb-6 m3-m3-card"
             style={{ borderLeft: '4px solid var(--error)' }}
           >
             <div className="mb-3 flex items-center justify-between">
               <span className="m3-label text-error">{t('teacherHome.unpaidWeek')}</span>
-              <span className="font-serif text-xl font-bold text-on-surface">
+              <span className="font-serif m3-title-lg">
                 {formatUZS(dash.unpaid.reduce((sum, payment) => sum + (payment.amount || 0), 0))}
               </span>
             </div>
@@ -258,7 +258,7 @@ export default function TeacherDashboard() {
       </div>
 
       <button
-        className="m3-fab"
+        className="m3-m3-fab"
         onClick={() => {
           haptic?.medium()
           setShowCreate(true)

@@ -250,7 +250,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
           <div>
             <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('homework.description')}</label>
             <textarea
-              className="w-full rounded-card bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
+              className="w-full rounded-[24px] bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder={t('homework.descriptionPlaceholder')}
@@ -533,7 +533,7 @@ export default function GroupDetail() {
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6 space-y-4">
         {loading && !group && (
-          <div className="m3-card text-center py-8 text-on-surface-variant">Yuklanmoqda...</div>
+          <div className="m3-m3-card text-center py-8 text-on-surface-variant">Yuklanmoqda...</div>
         )}
 
         <div className="flex gap-2 mb-1">
@@ -541,8 +541,8 @@ export default function GroupDetail() {
           <span className="chip bg-surface-high text-on-surface-variant text-xs">{t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? 0 })}</span>
         </div>
 
-        {/* Statistics Card */}
-        <div className="m3-card grid grid-cols-3 gap-2 text-center p-3">
+        {/* Statistics m3-card */}
+        <div className="m3-m3-card grid grid-cols-3 gap-2 text-center p-3">
           <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
             <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.debtors')}</span>
             <span className="text-lg font-extrabold text-debt-red mt-1">{t('groupDetail.studentsCount', { count: monthlyStats.unpaidCount })}</span>
@@ -560,8 +560,8 @@ export default function GroupDetail() {
           </div>
         </div>
 
-        {/* Invitation Link Card */}
-        <div className="m3-card bg-brand/10 border border-brand/20 p-4">
+        {/* Invitation Link m3-card */}
+        <div className="m3-m3-card bg-brand/10 border border-brand/20 p-4">
           <div className="flex items-start justify-between mb-1">
             <h3 className="text-sm font-bold text-on-surface">{t('groupDetail.inviteLink')}</h3>
             <span className="text-[10px] bg-brand/20 text-primary px-2 py-0.5 rounded-full font-bold">{t('groupDetail.inviteLinkBadge')}</span>
@@ -592,8 +592,8 @@ export default function GroupDetail() {
           </div>
         </div>
 
-        {/* Attendance Card */}
-        <div className="m3-card">
+        {/* Attendance m3-card */}
+        <div className="m3-m3-card">
           <div className="mb-3 flex items-center justify-between">
             <p className="m3-label">
               {t('groupDetail.attendance')}
@@ -671,7 +671,7 @@ export default function GroupDetail() {
                       {attendance[student.id] ? (
                         <CheckCircle size={24} className="text-paid-green" />
                       ) : (
-                        <Circle size={24} className="m3-btn-outline" />
+                        <Circle size={24} className="m3-m3-btn-outline" />
                       )}
                     </button>
                   </div>
@@ -688,8 +688,8 @@ export default function GroupDetail() {
           )}
         </div>
 
-        {/* Payments Card */}
-        <div className="m3-card">
+        {/* Payments m3-card */}
+        <div className="m3-m3-card">
           <div className="flex items-center justify-between mb-3">
             <p className="m3-label">
               {t('groupDetail.paymentStatus')}
@@ -721,8 +721,8 @@ export default function GroupDetail() {
           </div>
         </div>
 
-        {/* Homeworks Card */}
-        <div className="m3-card">
+        {/* Homeworks m3-card */}
+        <div className="m3-m3-card">
           <div className="flex items-center justify-between mb-3">
             <p className="m3-label">
               {t('groupDetail.homeworkTitle')}
@@ -808,7 +808,7 @@ export default function GroupDetail() {
           <div>
             <p className="text-sm font-semibold text-on-surface mb-1">{editingStudent?.name}</p>
             <p className="text-xs text-on-surface-variant mb-3">{t('groupDetail.editRateDesc')}</p>
-            <div className="m3-card-interactive">
+            <div className="m3-m3-card-interactive">
               <span className="m3-fabsolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
               <input
                 type="number"

@@ -186,7 +186,7 @@ export default function AddStudent() {
         <div>
           <p className="font-semibold text-on-surface mb-2">{t('addStudent.notes')}</p>
           <textarea
-            className="w-full rounded-card bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
+            className="w-full rounded-[24px] bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
             placeholder={t('addStudent.notesPlaceholder')}
             rows={3}
             value={form.notes}

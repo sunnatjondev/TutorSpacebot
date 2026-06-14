@@ -73,7 +73,7 @@ export default function StudentSchedule() {
       <div className="page-wrapper px-4 pt-6">
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <h1 className="text-[28px] font-extrabold text-on-surface">{t('studentSchedule.title')}</h1>
+            <h1 className="m3-display-md">{t('studentSchedule.title')}</h1>
             <p className="text-on-surface-variant text-sm">{t('studentSchedule.subtitle')}</p>
           </div>
           <button
@@ -87,7 +87,7 @@ export default function StudentSchedule() {
           </button>
         </div>
 
-        <div className="card mb-5 flex items-center justify-between gap-1 p-3">
+        <div className="m3-card mb-5 flex items-center justify-between gap-1 p-3">
           {DAY_KEYS.map((dayKey, index) => {
             const date = days[index]
             const isToday = date.toDateString() === today.toDateString()
@@ -121,7 +121,7 @@ export default function StudentSchedule() {
             daySessions.map((lesson, index) => (
               <div
                 key={lesson.id}
-                className="stagger-item rounded-card bg-surface-container p-4"
+                className="stagger-item rounded-[24px] bg-surface-container p-4"
                 style={{ ...statusStyle(lesson.status), animationDelay: `${index * 80}ms` }}
               >
                 <div className="mb-1 flex items-start justify-between">

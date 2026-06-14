@@ -39,28 +39,28 @@ export default function StudentFinance() {
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6 space-y-5">
-        <h1 className="text-[28px] font-extrabold text-on-surface">{t('studentFinance.title')}</h1>
+        <h1 className="m3-display-md">{t('studentFinance.title')}</h1>
 
         {totalUnpaid > 0 && (
           <div
-            className="rounded-card p-5 stagger-item"
+            className="rounded-[24px] p-5 stagger-item"
             style={{ background: 'linear-gradient(135deg, #2a1a1a, #1f1520)', border: '1px solid rgba(248,113,113,0.2)' }}
           >
             <p className="text-on-surface-variant text-sm mb-2">{t('studentFinance.outstanding')}</p>
             <div className="flex items-baseline gap-3 mb-4">
               <p className="text-3xl font-extrabold text-debt-red">{formatUZS(totalUnpaid)}</p>
             </div>
-            <button onClick={() => haptic?.light()} className="btn-secondary h-11 text-sm">
+            <button onClick={() => haptic?.light()} className="m3-btn-tonal h-11 text-sm">
               <MessageCircle size={16} /> {t('studentFinance.contactTeacher')}
             </button>
           </div>
         )}
 
         <div>
-          <h2 className="text-xl font-bold text-on-surface mb-4">{t('studentFinance.paymentHistory')}</h2>
+          <h2 className="m3-title-lg mb-4">{t('studentFinance.paymentHistory')}</h2>
 
           {!Object.keys(grouped).length && (
-            <div className="card text-center py-10 text-on-surface-variant">
+            <div className="m3-card text-center py-10 text-on-surface-variant">
               To'lovlar tarixi hozircha bo'sh
             </div>
           )}
@@ -68,7 +68,7 @@ export default function StudentFinance() {
           {Object.entries(grouped).map(([month, monthPayments]) => (
             <div key={month} className="mb-5">
               <p className="text-on-surface-variant text-sm font-semibold mb-3 capitalize">{month}</p>
-              <div className="card space-y-0">
+              <div className="m3-card space-y-0">
                 {monthPayments.map((payment, index) => {
                   const subjectName = payment.group?.name || payment.group?.subject || '—'
                   const isPaid = payment.status === 'paid'
