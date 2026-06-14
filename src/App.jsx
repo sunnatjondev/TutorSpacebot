@@ -25,12 +25,10 @@ const LS_TG_ID_KEY = 'ts_tg_id'
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-surface-lowest flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-brand/20 flex items-center justify-center animate-pulse-glow">
-          <div className="w-6 h-6 rounded-full bg-brand animate-spin-slow" />
-        </div>
-        <p className="text-on-surface-variant text-sm animate-pulse">Yuklanmoqda...</p>
+    <div className="min-h-screen m3-surface flex items-center justify-center">
+      <div className="flex flex-col items-center gap-6">
+        <div className="m3-loader shadow-m3-elevation-2" />
+        <p className="m3-label animate-pulse">Yuklanmoqda...</p>
       </div>
     </div>
   )

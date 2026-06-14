@@ -7,75 +7,82 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
+        sans: ['Outfit', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
       },
       colors: {
-        // Surface layers (PrepCore ultra-dark theme)
-        surface: '#0B0D10',
-        'surface-dim': '#0B0D10',
-        'surface-bright': '#21242C',
-        'surface-lowest': '#050608',
-        'surface-low': '#111318',
-        'surface-container': '#16181D',
-        'surface-high': '#21242C',
-        'surface-highest': '#2A2E38',
-        // On-surface
-        'on-surface': '#E8EAED',
-        'on-surface-variant': '#9AA0A6',
-        // Outline
-        outline: '#5F6368',
-        'outline-variant': '#3C4043',
-        // Primary (PrepCore Light Blue)
-        primary: '#8AB4F8',
-        'on-primary': '#0B0D10',
-        'primary-container': '#20304C',
-        'on-primary-container': '#D2E3FC',
-        // Brand (Same as primary for consistency)
-        brand: '#8AB4F8',
-        'brand-dim': '#669DF6',
-        // Exams / Subjects
-        'sat-blue': '#4C7AF2',
-        'ielts-amber': '#F2A359',
-        'academic-green': '#81C995',
-        'hard-red': '#F28B82',
-        // Background
-        background: '#0B0D10',
-        'on-background': '#E8EAED',
-        // Card/elevation levels
-        'level-0': '#0B0D10',
-        'level-1': '#16181D',
-        'level-2': '#21242C',
-        // Status colors (mapped to pastel variants)
-        'paid-green': '#81C995',
-        'paid-green-bg': 'rgba(129, 201, 149, 0.12)',
-        'debt-red': '#F28B82',
-        'debt-red-bg': 'rgba(242, 139, 130, 0.12)',
-        'partial-orange': '#F2A359',
-        'partial-orange-bg': 'rgba(242, 163, 89, 0.12)',
+        // Material 3 Expressive Dark Theme (Seed: Indigo/Purple)
+        primary: '#D0BCFF',
+        'on-primary': '#381E72',
+        'primary-container': '#4F378B',
+        'on-primary-container': '#EADDFF',
+        secondary: '#CCC2DC',
+        'on-secondary': '#332D41',
+        'secondary-container': '#4A4458',
+        'on-secondary-container': '#E8DEF8',
+        tertiary: '#91F0A1', // Neon Mint for highlights
+        'on-tertiary': '#003916',
+        'tertiary-container': '#005324',
+        'on-tertiary-container': '#ADF0B6',
+        error: '#FFB4AB',
+        'on-error': '#690005',
+        'error-container': '#93000A',
+        'on-error-container': '#FFDAD6',
+        
+        // Surfaces
+        background: '#141218',
+        'on-background': '#E6E0E9',
+        surface: '#141218',
+        'on-surface': '#E6E0E9',
+        'surface-variant': '#49454F',
+        'on-surface-variant': '#CAC4D0',
+        outline: '#938F99',
+        'outline-variant': '#49454F',
+        
+        // Surface Containers (M3 Elevation)
+        'surface-lowest': '#0F0D13',
+        'surface-low': '#1D1B20',
+        'surface-container': '#211F26',
+        'surface-high': '#2B2930',
+        'surface-highest': '#36343B',
+        
+        // Legacy compatibility mappings
+        brand: '#D0BCFF',
+        'brand-dim': '#4F378B',
+        'paid-green': '#91F0A1',
+        'paid-green-bg': 'rgba(145, 240, 161, 0.15)',
+        'debt-red': '#FFB4AB',
+        'debt-red-bg': 'rgba(255, 180, 171, 0.15)',
+        'partial-orange': '#FFB870',
+        'partial-orange-bg': 'rgba(255, 184, 112, 0.15)',
       },
       borderRadius: {
         'sm': '0.5rem',
         DEFAULT: '1rem',
         'md': '1.5rem',
         'lg': '2rem',
-        'xl': '3rem',
+        'xl': '2.5rem',
+        '2xl': '3rem',
+        '3xl': '4rem',
         'full': '9999px',
-        'card': '1.5rem', // 24px, MD3 standard
+        // M3 Extra Large Squircles
+        'card': '2rem', // 32px
+        'modal': '2.5rem', // 40px
       },
       spacing: {
         'safe': '16px',
         'gutter': '12px',
       },
       backgroundImage: {
-        'primary-gradient': 'linear-gradient(135deg, #8AB4F8 0%, #4C7AF2 100%)',
-        'hero-gradient': 'radial-gradient(ellipse at top, rgba(138, 180, 248, 0.15) 0%, transparent 70%)',
-        'card-glow': 'radial-gradient(ellipse at top, rgba(138, 180, 248, 0.08) 0%, transparent 70%)',
-        'danger-glow': 'radial-gradient(ellipse at left, rgba(242, 139, 130, 0.08) 0%, transparent 70%)',
+        'primary-gradient': 'linear-gradient(135deg, #D0BCFF 0%, #91F0A1 100%)',
+        'card-gradient': 'linear-gradient(180deg, rgba(43, 41, 48, 0.4) 0%, rgba(33, 31, 38, 0.4) 100%)',
+        'scrim': 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%)',
       },
       boxShadow: {
-        'glow-primary': '0 0 20px rgba(138, 180, 248, 0.25)',
-        'glow-sm': '0 0 10px rgba(138, 180, 248, 0.15)',
-        'card': '0 8px 32px rgba(0,0,0,0.3)',
+        'm3-elevation-1': '0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15)',
+        'm3-elevation-2': '0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15)',
+        'm3-elevation-3': '0px 1px 3px 0px rgba(0, 0, 0, 0.3), 0px 4px 8px 3px rgba(0, 0, 0, 0.15)',
+        'glow-primary': '0 0 24px rgba(208, 188, 255, 0.2)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',

@@ -47,12 +47,12 @@ export function Modal({ isOpen, onClose, title, children, closeOnBackdropClick =
     <div className="fixed inset-0 z-[100] flex items-end justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-scrim animate-fade-in"
         onClick={closeOnBackdropClick ? onClose : undefined}
       />
       {/* Sheet */}
       <div
-        className="relative w-full max-w-[480px] bg-surface-high rounded-t-[28px] border-t border-outline-variant/50 animate-slide-up"
+        className="relative w-full max-w-[480px] bg-surface-container rounded-t-modal shadow-m3-elevation-3 animate-slide-up"
         style={{
           height: availableHeight,
           display: 'flex',
@@ -62,10 +62,10 @@ export function Modal({ isOpen, onClose, title, children, closeOnBackdropClick =
       >
         {/* Fixed Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
-          <h2 className="text-xl font-bold text-on-surface">{title}</h2>
+          <h2 className="m3-title-lg">{title}</h2>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform"
+            className="m3-btn-icon bg-surface-high"
           >
             <X size={18} />
           </button>

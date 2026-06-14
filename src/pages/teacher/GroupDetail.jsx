@@ -104,7 +104,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         <div>
           <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('groupDetail.groupName')}</label>
           <input
-            className="input-field"
+            className="m3-input"
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder={t('groupDetail.groupNamePlaceholder')}
@@ -113,14 +113,14 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         <div>
           <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('groupDetail.subject')}</label>
           <input
-            className="input-field"
+            className="m3-input"
             value={subject}
             onChange={(event) => setSubject(event.target.value)}
             placeholder={t('groupDetail.subjectPlaceholder')}
           />
         </div>
         <button
-          className="btn-primary"
+          className="m3-btn-filled"
           disabled={!name.trim() || !subject.trim() || saving}
           onClick={() => onSave({ name, subject })}
         >
@@ -192,7 +192,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
           <div>
             <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('homework.title')}</label>
             <input
-              className="input-field"
+              className="m3-input"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder={t('homework.titlePlaceholder')}
@@ -205,7 +205,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
             <button
               type="button"
               onClick={() => { haptic?.light(); setShowCalendar(true) }}
-              className="input-field w-full text-left flex items-center justify-between"
+              className="m3-input w-full text-left flex items-center justify-between"
             >
               <span className={selectedDate ? 'text-on-surface' : 'text-on-surface-variant'}>
                 {selectedDate
@@ -264,7 +264,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
             </div>
           )}
           <button
-            className="btn-primary"
+            className="m3-btn-filled"
             onClick={handleCreate}
             disabled={!title.trim() || loading}
           >
@@ -533,7 +533,7 @@ export default function GroupDetail() {
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6 space-y-4">
         {loading && !group && (
-          <div className="card text-center py-8 text-on-surface-variant">Yuklanmoqda...</div>
+          <div className="m3-card text-center py-8 text-on-surface-variant">Yuklanmoqda...</div>
         )}
 
         <div className="flex gap-2 mb-1">
@@ -542,7 +542,7 @@ export default function GroupDetail() {
         </div>
 
         {/* Statistics Card */}
-        <div className="card grid grid-cols-3 gap-2 text-center p-3">
+        <div className="m3-card grid grid-cols-3 gap-2 text-center p-3">
           <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
             <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.debtors')}</span>
             <span className="text-lg font-extrabold text-debt-red mt-1">{t('groupDetail.studentsCount', { count: monthlyStats.unpaidCount })}</span>
@@ -561,7 +561,7 @@ export default function GroupDetail() {
         </div>
 
         {/* Invitation Link Card */}
-        <div className="card bg-brand/10 border border-brand/20 p-4">
+        <div className="m3-card bg-brand/10 border border-brand/20 p-4">
           <div className="flex items-start justify-between mb-1">
             <h3 className="text-sm font-bold text-on-surface">{t('groupDetail.inviteLink')}</h3>
             <span className="text-[10px] bg-brand/20 text-primary px-2 py-0.5 rounded-full font-bold">{t('groupDetail.inviteLinkBadge')}</span>
@@ -573,7 +573,7 @@ export default function GroupDetail() {
             <input
               readOnly
               value={`https://t.me/${botUsername}?start=invite_${group?.invite_token}`}
-              className="input-field py-2.5 text-xs w-full bg-surface-high border-outline-variant text-on-surface-variant font-mono"
+              className="m3-input py-2.5 text-xs w-full bg-surface-high border-outline-variant text-on-surface-variant font-mono"
             />
             <button
               onClick={() => {
@@ -593,9 +593,9 @@ export default function GroupDetail() {
         </div>
 
         {/* Attendance Card */}
-        <div className="card">
+        <div className="m3-card">
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs font-bold tracking-widest text-on-surface-variant">
+            <p className="m3-label">
               {t('groupDetail.attendance')}
             </p>
             <div className="flex items-center gap-2">
@@ -671,7 +671,7 @@ export default function GroupDetail() {
                       {attendance[student.id] ? (
                         <CheckCircle size={24} className="text-paid-green" />
                       ) : (
-                        <Circle size={24} className="text-outline" />
+                        <Circle size={24} className="m3-btn-outline" />
                       )}
                     </button>
                   </div>
@@ -689,9 +689,9 @@ export default function GroupDetail() {
         </div>
 
         {/* Payments Card */}
-        <div className="card">
+        <div className="m3-card">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-bold tracking-widest text-on-surface-variant">
+            <p className="m3-label">
               {t('groupDetail.paymentStatus')}
             </p>
             <span className="text-[10px] bg-surface-high text-on-surface-variant px-2 py-0.5 rounded-full">{t('common.edit')}</span>
@@ -722,9 +722,9 @@ export default function GroupDetail() {
         </div>
 
         {/* Homeworks Card */}
-        <div className="card">
+        <div className="m3-card">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-bold tracking-widest text-on-surface-variant">
+            <p className="m3-label">
               {t('groupDetail.homeworkTitle')}
             </p>
             <button
@@ -768,7 +768,7 @@ export default function GroupDetail() {
             haptic?.medium()
             navigate('/teacher/add-student', { state: { groupId: id } })
           }}
-          className="btn-secondary"
+          className="m3-btn-tonal"
         >
           <Plus size={18} /> {t('groupDetail.addStudent')}
         </button>
@@ -808,11 +808,11 @@ export default function GroupDetail() {
           <div>
             <p className="text-sm font-semibold text-on-surface mb-1">{editingStudent?.name}</p>
             <p className="text-xs text-on-surface-variant mb-3">{t('groupDetail.editRateDesc')}</p>
-            <div className="relative">
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
+            <div className="m3-card-interactive">
+              <span className="m3-fabsolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
               <input
                 type="number"
-                className="input-field pr-14"
+                className="m3-input pr-14"
                 value={newRateValue}
                 onChange={(event) => setNewRateValue(event.target.value)}
                 placeholder="200 000"
@@ -821,7 +821,7 @@ export default function GroupDetail() {
             </div>
           </div>
           <button
-            className="btn-primary"
+            className="m3-btn-filled"
             onClick={handleSaveRate}
             disabled={updatingRate}
           >

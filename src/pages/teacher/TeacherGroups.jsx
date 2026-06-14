@@ -43,9 +43,9 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Guruh nomi</label>
+        <label className="m3-label block mb-2">Guruh nomi</label>
         <input
-          className="input-field"
+          className="m3-input"
           placeholder="Masalan: Fizika 101"
           value={name}
           onChange={(event) => setName(event.target.value)}
@@ -53,15 +53,15 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
         />
       </div>
       <div>
-        <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Fan</label>
+        <label className="m3-label block mb-2">Fan</label>
         <input
-          className="input-field"
+          className="m3-input"
           placeholder="Masalan: Matematika"
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
         />
       </div>
-      <button className="btn-primary mt-2" onClick={handleCreate} disabled={!name.trim()}>
+      <button className="m3-btn-filled w-full mt-4" onClick={handleCreate} disabled={!name.trim()}>
         + Guruh yaratish
       </button>
     </div>
@@ -112,17 +112,16 @@ export default function TeacherGroups() {
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6">
-        <div className="flex items-center justify-between mb-5">
-          <h1 className="text-[28px] font-extrabold text-on-surface">{t('teacherGroups.title')}</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="m3-display-md">{t('teacherGroups.title')}</h1>
           <button
-            className="w-11 h-11 rounded-full flex items-center justify-center text-white shrink-0"
-            style={{ background: 'linear-gradient(135deg, #6C63FF, #4f44e2)', boxShadow: '0 4px 16px rgba(108,99,255,0.4)' }}
+            className="m3-fab static shadow-none w-14 h-14"
             onClick={() => {
               haptic?.medium()
               setShowCreate(true)
             }}
           >
-            <Plus size={20} />
+            <Plus size={28} />
           </button>
         </div>
 
@@ -136,7 +135,7 @@ export default function TeacherGroups() {
             return (
               <button
                 key={group.id}
-                className={`card w-full text-left stagger-item transition-all duration-200 relative ${
+                className={`m3-card w-full text-left stagger-item transition-all duration-200 relative ${
                   isOptimistic ? 'opacity-60 pointer-events-none' : 'active:scale-[0.98]'
                 }`}
                 style={{ animationDelay: `${index * 70}ms`, opacity: deletingId === group.id ? 0.5 : undefined }}
@@ -148,10 +147,10 @@ export default function TeacherGroups() {
               >
                 {!isOptimistic && (
                   <button
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-high flex items-center justify-center text-debt-red active:scale-90 z-10"
+                    className="absolute top-4 right-4 w-10 h-10 rounded-full bg-error-container/20 flex items-center justify-center text-error active:scale-90 z-10 transition-transform"
                     onClick={(event) => handleDelete(event, group.id)}
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={18} />
                   </button>
                 )}
 
@@ -164,7 +163,7 @@ export default function TeacherGroups() {
                 </span>
               </div>
 
-              <h2 className="text-xl font-bold text-on-surface mb-3 truncate pr-8">{group.name}</h2>
+              <h2 className="m3-title-lg mb-4 truncate pr-8">{group.name}</h2>
 
               <div className="flex items-center gap-3 bg-surface-high rounded-2xl p-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center shrink-0">
@@ -177,11 +176,10 @@ export default function TeacherGroups() {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-on-surface-variant">{t('teacherGroups.paymentProgress')}</span>
-                  <span className="text-xs font-bold text-on-surface">
-                    {group.paidPercent ?? 0}
-                    {t('teacherGroups.paidPercent')}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="m3-label">{t('teacherGroups.paymentProgress')}</span>
+                  <span className="font-serif font-bold text-on-surface">
+                    {group.paidPercent ?? 0}%
                   </span>
                 </div>
                 <ProgressBar value={group.paidPercent ?? 0} />
@@ -195,8 +193,8 @@ export default function TeacherGroups() {
               <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4">
                 <Users size={28} className="text-primary" />
               </div>
-              <p className="text-on-surface-variant">Hali guruhlar yo'q</p>
-              <button className="btn-primary mt-4" onClick={() => setShowCreate(true)}>
+              <p className="m3-body-lg mb-6">Hali guruhlar yo'q</p>
+              <button className="m3-btn-filled mx-auto" onClick={() => setShowCreate(true)}>
                 + Guruh yaratish
               </button>
             </div>

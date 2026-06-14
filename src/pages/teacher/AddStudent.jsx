@@ -82,7 +82,7 @@ export default function AddStudent() {
         >
           <ArrowLeft size={18} className="text-on-surface" />
         </button>
-        <h1 className="font-bold text-on-surface text-lg flex-1">{t('addStudent.title')}</h1>
+        <h1 className="m3-label-large text-lg flex-1">{t('addStudent.title')}</h1>
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-8 space-y-5">
@@ -90,7 +90,7 @@ export default function AddStudent() {
           <div className="relative">
             <UserRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
             <input
-              className="input-field pl-10"
+              className="m3-input pl-10"
               placeholder={t('addStudent.fullName')}
               value={form.name}
               onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
@@ -99,7 +99,7 @@ export default function AddStudent() {
           <div className="relative">
             <Smartphone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
             <input
-              className="input-field pl-10"
+              className="m3-input pl-10"
               placeholder={t('addStudent.contact')}
               value={form.contact}
               onChange={(event) => setForm((prev) => ({ ...prev, contact: event.target.value }))}
@@ -108,7 +108,7 @@ export default function AddStudent() {
           <div className="relative">
             <GraduationCap size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
             <input
-              className="input-field pl-10"
+              className="m3-input pl-10"
               placeholder={t('addStudent.subject')}
               value={form.subject}
               onChange={(event) => setForm((prev) => ({ ...prev, subject: event.target.value }))}
@@ -153,7 +153,7 @@ export default function AddStudent() {
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
             <input
               type="number"
-              className="input-field pr-14"
+              className="m3-input pr-14"
               placeholder="200 000"
               value={form.rate}
               onChange={(event) => setForm((prev) => ({ ...prev, rate: event.target.value }))}
@@ -163,7 +163,7 @@ export default function AddStudent() {
 
         <div>
           <p className="font-semibold text-on-surface mb-3">{t('addStudent.billingDay')}</p>
-          <div className="card grid grid-cols-7 gap-1 p-3">
+          <div className="m3-btn-tonal grid grid-cols-7 gap-1 p-3">
             {Array.from({ length: 31 }, (_, index) => index + 1).map((day) => (
               <button
                 key={day}
@@ -197,7 +197,7 @@ export default function AddStudent() {
 
       <div className="px-4 pb-6 pt-2 border-t border-outline-variant/40">
         <button
-          className="btn-primary gap-2"
+          className="m3-btn-filled gap-2"
           onClick={handleSubmit}
           disabled={!canSubmit || saving}
         >

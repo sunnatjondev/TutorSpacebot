@@ -33,7 +33,7 @@ export function BottomNav({ role = 'teacher' }) {
   const tabs = role === 'teacher' ? teacherPaths : studentPaths
 
   return (
-    <nav className="bottom-nav">
+    <nav className="m3-bottom-nav">
       {tabs.map((tab) => {
         const Icon = tab.icon
         const isActive = location.pathname.startsWith(tab.path)
@@ -41,30 +41,19 @@ export function BottomNav({ role = 'teacher' }) {
         return (
           <button
             key={tab.path}
-            className="nav-item"
+            className={`m3-nav-item ${isActive ? 'active' : ''}`}
             onClick={() => {
               haptic?.selection()
               navigate(tab.path)
             }}
           >
-            <div
-              className={`w-10 h-7 flex items-center justify-center rounded-full transition-all duration-200 ${
-                isActive ? 'bg-brand/20' : ''
-              }`}
-            >
-              <Icon
-                size={20}
-                className={`transition-colors duration-200 ${
-                  isActive ? 'text-primary' : 'text-on-surface-variant'
-                }`}
-                strokeWidth={isActive ? 2.5 : 1.8}
-              />
-            </div>
-            <span
-              className={`nav-item-label ${
-                isActive ? 'text-primary' : 'text-on-surface-variant'
-              }`}
-            >
+            <div className="m3-nav-indicator" />
+            <Icon
+              size={24}
+              strokeWidth={isActive ? 2.5 : 2}
+              className="z-10 transition-transform active:scale-90"
+            />
+            <span className={`text-[10px] font-medium tracking-wide z-10 ${isActive ? 'text-on-secondary-container' : 'text-on-surface-variant'}`}>
               {t(tab.key)}
             </span>
           </button>

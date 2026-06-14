@@ -11,12 +11,12 @@ import { useNavigate } from 'react-router-dom'
 
 function StatCard({ icon: Icon, value, label, iconBg }) {
   return (
-    <div className="stat-card">
-      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}>
-        <Icon size={20} className="text-on-surface" />
+    <div className="m3-card flex-1 p-4 flex flex-col items-center justify-center text-center gap-2">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-[18px] ${iconBg}`}>
+        <Icon size={24} className="text-on-surface" />
       </div>
-      <p className="text-2xl font-extrabold text-on-surface">{value ?? '-'}</p>
-      <p className="text-xs font-medium text-on-surface-variant">{label}</p>
+      <p className="font-serif text-3xl font-bold text-on-surface">{value ?? '-'}</p>
+      <p className="m3-label text-center">{label}</p>
     </div>
   )
 }
@@ -76,12 +76,8 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
           <p className="text-sm text-error">{error}</p>
         </div>
       )}
-      <button
-        className="btn-primary mt-2"
-        onClick={handleCreate}
-        disabled={!name.trim() || loading}
-      >
-        {loading ? 'Yaratilmoqda...' : 'Guruh yaratish'}
+      <button className="m3-btn-filled w-full" onClick={handleCreate} disabled={loading}>
+        {loading ? 'Yaratilmoqda...' : 'Yaratish'}
       </button>
     </div>
   )
@@ -146,11 +142,11 @@ export default function TeacherDashboard() {
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6">
-        <div className="mb-5 animate-slide-down">
-          <h1 className="text-2xl font-extrabold text-on-surface">
+        <div className="mb-6 animate-slide-down">
+          <h1 className="m3-display-md">
             {t('teacherHome.greeting', { greeting: localizedGreeting, name: firstName })}
           </h1>
-          <p className="mt-0.5 text-sm text-on-surface-variant">{t('teacherHome.subtitle')}</p>
+          <p className="mt-2 m3-body-lg">{t('teacherHome.subtitle')}</p>
         </div>
 
         <div className="mb-5 flex gap-3">
@@ -159,9 +155,9 @@ export default function TeacherDashboard() {
           <StatCard icon={CalendarDays} value={dash?.todaySessions?.length ?? 0} label={t('teacherHome.lessons')} iconBg="bg-surface-high" />
         </div>
 
-        <div className="card mb-4 stagger-item">
+        <div className="m3-card mb-4 stagger-item">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-bold tracking-widest text-on-surface-variant">{t('teacherHome.recentGroups')}</span>
+            <span className="m3-label">{t('teacherHome.recentGroups')}</span>
             <button
               onClick={() => {
                 haptic?.light()
@@ -191,8 +187,8 @@ export default function TeacherDashboard() {
                       {group.subject} - {group.group_members?.[0]?.count ?? 0} {t('teacherGroups.students')}
                     </p>
                   </div>
-                  <span className="chip shrink-0 text-[11px]">{group.paidPercent ?? 0}%</span>
-                  {index < recentGroups.length - 1 && <hr className="divider" />}
+                  <span className="badge-paid shrink-0">{group.paidPercent ?? 0}%</span>
+                  {index < recentGroups.length - 1 && <hr className="w-full h-px bg-outline-variant/30 my-1 border-0 absolute bottom-0 left-0" />}
                 </button>
               ))}
             </div>
@@ -201,9 +197,9 @@ export default function TeacherDashboard() {
           )}
         </div>
 
-        <div className="card mb-4 stagger-item">
+        <div className="m3-card mb-4 stagger-item">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-bold tracking-widest text-on-surface-variant">{t('teacherHome.today')}</span>
+            <span className="m3-label">{t('teacherHome.today')}</span>
             <span className="text-sm font-semibold text-primary">{today}</span>
           </div>
           {dash?.todaySessions?.length > 0 ? (
@@ -234,12 +230,12 @@ export default function TeacherDashboard() {
 
         {dash?.unpaid?.length > 0 && (
           <div
-            className="stagger-item mb-6 rounded-card p-4"
-            style={{ background: '#1f1f28', border: '1px solid rgba(248,113,113,0.2)', borderLeft: '3px solid #f87171' }}
+            className="stagger-item mb-6 m3-card"
+            style={{ borderLeft: '4px solid var(--error)' }}
           >
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-bold tracking-widest text-debt-red">{t('teacherHome.unpaidWeek')}</span>
-              <span className="text-sm font-bold text-on-surface">
+              <span className="m3-label text-error">{t('teacherHome.unpaidWeek')}</span>
+              <span className="font-serif text-xl font-bold text-on-surface">
                 {formatUZS(dash.unpaid.reduce((sum, payment) => sum + (payment.amount || 0), 0))}
               </span>
             </div>
@@ -252,7 +248,7 @@ export default function TeacherDashboard() {
                   </p>
                   <p className="text-xs font-bold text-debt-red">{formatUZS(payment.amount)}</p>
                 </div>
-                <button onClick={() => handleRemind(payment)} className="btn-ghost shrink-0 gap-1 text-xs">
+                <button onClick={() => handleRemind(payment)} className="m3-btn-tonal shrink-0 gap-1 text-[11px] px-3 py-1.5 h-auto">
                   <Bell size={12} /> {t('common.remind')}
                 </button>
               </div>
@@ -262,13 +258,13 @@ export default function TeacherDashboard() {
       </div>
 
       <button
-        className="fab bottom-[88px] right-4"
+        className="m3-fab"
         onClick={() => {
           haptic?.medium()
           setShowCreate(true)
         }}
       >
-        <Plus size={24} className="text-white" />
+        <Plus size={28} />
       </button>
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Yangi guruh yaratish">
