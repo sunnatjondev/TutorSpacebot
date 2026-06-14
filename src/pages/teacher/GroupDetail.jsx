@@ -740,8 +740,8 @@ export default function GroupDetail() {
           </div>
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
             {homework.map((item) => {
-              const dueStr = item.due_date
-                ? new Date(item.due_date).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+              const dueStr = item.due_at
+                ? new Date(item.due_at).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                 : '—'
               return (
                 <div key={item.id} className="py-2 border-b border-outline-variant/40 last:border-0">

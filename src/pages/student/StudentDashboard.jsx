@@ -28,10 +28,10 @@ export default function StudentDashboard() {
     id: submission.id,
     subject: submission.homework?.group?.subject || 'BOSHQA',
     title: submission.homework?.title || '-',
-    due: submission.homework?.due_date
-      ? new Date(submission.homework.due_date).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })
+    due: submission.homework?.due_at
+      ? new Date(submission.homework.due_at).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })
       : '-',
-    overdue: submission.homework?.due_date && new Date(submission.homework.due_date) < new Date(),
+    overdue: submission.homework?.due_at && new Date(submission.homework.due_at) < new Date(),
     done: localDone[submission.id] ?? submission.done,
     submissionId: submission.id,
   }))
