@@ -138,6 +138,15 @@ h1, h2, h3, .font-serif {
   .btn-danger {
     @apply flex items-center justify-center gap-2 rounded-full bg-error-container text-on-error-container px-6 py-4 font-bold transition-all active:scale-95;
   }
+  .m3-btn-text {
+    @apply text-primary font-bold px-4 py-3 rounded-full hover:bg-primary/10 transition-colors active:scale-95;
+  }
+  .m3-btn-sm-filled {
+    @apply bg-primary text-on-primary rounded-full px-4 py-2 font-bold text-sm shadow-m3-elevation-1 transition-all active:scale-[0.98] disabled:opacity-50;
+  }
+  .m3-btn-sm-tonal {
+    @apply bg-secondary-container text-on-secondary-container rounded-full px-4 py-2 font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50;
+  }
 
   /* Inputs */
   .m3-input {
@@ -173,7 +182,8 @@ h1, h2, h3, .font-serif {
     @apply flex flex-col items-center justify-center gap-1 flex-1 py-2 relative transition-all duration-300;
   }
   .m3-nav-indicator {
-    @apply absolute w-16 h-8 rounded-full bg-secondary-container opacity-0 transition-all duration-300 scale-50 -z-10;
+    @apply absolute w-14 h-8 rounded-full bg-secondary-container opacity-0 transition-all duration-300 scale-50 -z-10;
+    top: 4px;
   }
   .m3-nav-item.active .m3-nav-indicator {
     @apply opacity-100 scale-100;
@@ -237,20 +247,14 @@ h1, h2, h3, .font-serif {
   transform: rotate(45deg);
 }
 
-/* Morphing Loader */
+/* Clean Spinner */
 .m3-loader {
-  width: 48px;
-  height: 48px;
-  background: var(--primary);
-  border-radius: 24px;
-  animation: morphLoader 2s ease-in-out infinite alternate;
-}
-@keyframes morphLoader {
-  0% { border-radius: 24px; transform: scale(1) rotate(0deg); }
-  25% { border-radius: 8px; transform: scale(1.1) rotate(90deg); background: var(--tertiary); }
-  50% { border-radius: 16px 24px 8px 32px; transform: scale(0.9) rotate(180deg); }
-  75% { border-radius: 32px 8px 24px 16px; transform: scale(1.1) rotate(270deg); }
-  100% { border-radius: 24px; transform: scale(1) rotate(360deg); }
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--surface-variant);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 /* Restored Missing Classes */
@@ -258,7 +262,7 @@ h1, h2, h3, .font-serif {
   @apply flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 ;
 }
 .chip {
-  @apply px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer border border-outline-variant/30;
+  @apply px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer border border-outline-variant/30;
 }
 .chip-active {
   @apply bg-primary text-on-primary border-primary;
@@ -274,9 +278,9 @@ h1, h2, h3, .font-serif {
 
 /* Toggles */
 .toggle {
-  @apply relative inline-flex h-8 w-14 items-center rounded-full transition-colors cursor-pointer;
+  @apply relative inline-flex h-7 w-12 items-center rounded-full transition-colors cursor-pointer;
 }
 .toggle-knob {
-  @apply inline-block h-6 w-6 transform rounded-full bg-on-primary transition-transform shadow-m3-elevation-1;
+  @apply inline-block h-5 w-5 transform rounded-full bg-on-primary transition-transform shadow-m3-elevation-1;
 }
 .chip-row { scrollbar-width: none; } .chip-row::-webkit-scrollbar { display: none; }

@@ -163,7 +163,7 @@ export default function AddStudent() {
 
         <div>
           <p className="font-semibold text-on-surface mb-3">{t('addStudent.billingDay')}</p>
-          <div className="m3-btn-tonal grid grid-cols-7 gap-1 p-3">
+          <div className="bg-surface-container rounded-[24px] grid grid-cols-7 gap-1 p-4 shadow-m3-elevation-1">
             {Array.from({ length: 31 }, (_, index) => index + 1).map((day) => (
               <button
                 key={day}

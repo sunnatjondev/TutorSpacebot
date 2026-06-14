@@ -217,7 +217,7 @@ export default function TeacherFinance() {
                       haptic?.light()
                       setSelectedPayment(payment)
                     }}
-                    className="m3-btn-tonal h-10 flex-1 text-sm"
+                    className="m3-btn-sm-tonal flex-1"
                   >
                     {t('common.details')}
                   </button>
@@ -226,7 +226,7 @@ export default function TeacherFinance() {
                       haptic?.medium()
                       setMarkStudent(payment)
                     }}
-                    className="m3-btn-filled h-10 flex-1 text-sm"
+                    className="m3-btn-sm-filled flex-1"
                   >
                     ✓ {t('teacherFinance.markPaid')}
                   </button>

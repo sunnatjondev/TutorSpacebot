@@ -102,7 +102,8 @@ const uz = {
     "rateAmount": "O'quv haqi",
     "save": "Saqlash",
     "editRateHint": "Talaba to'lovini o'zgartirish uchun talabaning ustiga bosing",
-    "homeworkTitle": "Vazifalar"
+    "homeworkTitle": "Vazifalar",
+    "noStudents": "Guruhda talabalar yo'q"
   },
   "homework": {
     "createTitle": "Yangi vazifa berish",
@@ -111,7 +112,8 @@ const uz = {
     "dueDate": "Muddati (Due Date)",
     "selectDate": "Sana tanlang (ixtiyoriy)",
     "description": "Tavsif (Description)",
-    "descriptionPlaceholder": "Vazifa haqida batafsil ma'lumot..."
+    "descriptionPlaceholder": "Vazifa haqida batafsil ma'lumot...",
+    "noTasks": "Hozircha vazifalar yo'q"
   },
   "teacherSchedule": {
     "title": "Dars jadvali",

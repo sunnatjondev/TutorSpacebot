@@ -585,7 +585,7 @@ export default function GroupDetail() {
                   alert(t('groupDetail.inviteLinkCopied'))
                 }
               }}
-              className="w-full h-11 rounded-full bg-brand text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all duration-200"
+              className="w-full h-11 rounded-full bg-brand text-on-primary font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all duration-200"
             >
               {t('groupDetail.inviteStudent')}
             </button>
@@ -628,14 +628,14 @@ export default function GroupDetail() {
                     setSelectedDayIndex(idx)
                     haptic?.selection()
                   }}
-                  className={`flex flex-col items-center gap-0.5 rounded-xl py-1 flex-1 transition-all duration-200 ${
-                    isSelected ? 'bg-brand text-white' : isToday ? 'bg-surface-high' : ''
+                  className={`flex flex-col items-center justify-center gap-0.5 rounded-full py-1.5 flex-1 transition-all duration-200 ${
+                    isSelected ? 'bg-brand text-on-primary shadow-m3-elevation-1 scale-105' : isToday ? 'bg-surface-high' : ''
                   }`}
                 >
-                  <span className={`text-[8px] font-bold ${isSelected ? 'text-white' : 'text-on-surface-variant'}`}>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider ${isSelected ? 'text-on-primary/80' : 'text-on-surface-variant'}`}>
                     {t(`days.${dayKey}`)}
                   </span>
-                  <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-on-surface'}`}>
+                  <span className={`text-sm font-bold ${isSelected ? 'text-on-primary' : 'text-on-surface'}`}>
                     {date.getDate()}
                   </span>
                 </button>

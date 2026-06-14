@@ -102,7 +102,8 @@ const ru = {
     "rateAmount": "Стоимость",
     "save": "Сохранить",
     "editRateHint": "Нажмите на ученика, чтобы изменить стоимость обучения",
-    "homeworkTitle": "Домашние задания"
+    "homeworkTitle": "Домашние задания",
+    "noStudents": "В группе нет студентов"
   },
   "homework": {
     "createTitle": "Дать домашнее задание",
@@ -111,7 +112,8 @@ const ru = {
     "dueDate": "Срок сдачи (Due Date)",
     "selectDate": "Выберите дату (опционально)",
     "description": "Описание (Description)",
-    "descriptionPlaceholder": "Подробная информация о домашнем задании..."
+    "descriptionPlaceholder": "Подробная информация о домашнем задании...",
+    "noTasks": "Пока нет домашних заданий"
   },
   "teacherSchedule": {
     "title": "Расписание",
