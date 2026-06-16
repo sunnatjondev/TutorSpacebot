@@ -336,7 +336,6 @@ export default function GroupDetail() {
   const [showEdit, setShowEdit] = useState(false)
   const [manageStudents, setManageStudents] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [showCreateHomework, setShowCreateHomework] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
 
   useTelegramBackButton(() => navigate(-1))
@@ -387,9 +386,6 @@ export default function GroupDetail() {
   useEffect(() => {
     async function loadMonthlyStats() {
       if (!id) return
-      const now = new Date()
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
 
       const unpaidCount = students.filter((s) => s.status !== 'paid').length
       const absentCount = students.filter((s) => !attendance[s.id]).length
@@ -896,7 +892,7 @@ export default function GroupDetail() {
                     await deleteHomeworkMutation.mutateAsync(selectedTask.id)
                     setSelectedTask(null)
                     haptic?.success()
-                  } catch (e) {
+                  } catch {
                     haptic?.error()
                   }
                 }

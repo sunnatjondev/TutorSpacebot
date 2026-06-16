@@ -59,7 +59,7 @@ export function useAddStudentToGroup() {
 export function useCreateStudent() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ teacherTelegramId, name, contact, groupIds, monthlyRate }) => {
+    mutationFn: async ({ name, contact, groupIds, monthlyRate }) => {
       const result = await apiCreateStudent({ name, contact, groupIds, monthlyRate })
       return result
     },

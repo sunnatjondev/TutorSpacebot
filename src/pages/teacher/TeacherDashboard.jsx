@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Users, User, Layers, CalendarDays, Bell, Plus, CheckCircle2 } from 'lucide-react'
+import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2 } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'

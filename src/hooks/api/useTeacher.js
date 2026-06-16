@@ -65,7 +65,7 @@ export function useTeacherSchedule(telegramId, weekStart) {
 export function useCreateGroup() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ telegramId, name, subject }) => {
+    mutationFn: async ({ name, subject }) => {
       const { group } = await apiCreateGroup({ name, subject })
       return group
     },
