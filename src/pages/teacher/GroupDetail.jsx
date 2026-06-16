@@ -224,7 +224,10 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
                     type="number"
                     min="0" max="23"
                     value={timeHour}
-                    onChange={(e) => setTimeHour(String(e.target.value).padStart(2, '0'))}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      setTimeHour(isNaN(val) ? '00' : String(val % 100).padStart(2, '0'));
+                    }}
                     className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
                   />
                   <span className="text-on-surface font-bold">:</span>
@@ -232,7 +235,10 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
                     type="number"
                     min="0" max="59"
                     value={timeMinute}
-                    onChange={(e) => setTimeMinute(String(e.target.value).padStart(2, '0'))}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      setTimeMinute(isNaN(val) ? '00' : String(val % 100).padStart(2, '0'));
+                    }}
                     className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
                   />
                 </div>
@@ -537,8 +543,8 @@ export default function GroupDetail() {
         )}
 
         <div className="flex gap-2 mb-1">
-          <span className="chip bg-brand text-on-primary font-bold text-xs">{group?.subject || '-'}</span>
-          <span className="chip bg-surface-high text-on-surface-variant text-xs">{t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? 0 })}</span>
+          <span className="chip bg-brand text-on-primary font-bold text-xs h-7 inline-flex items-center px-3">{group?.subject || '-'}</span>
+          <span className="chip bg-surface-high text-on-surface-variant text-xs h-7 inline-flex items-center px-3">{t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? 0 })}</span>
         </div>
 
         {/* Statistics Cards Grid */}

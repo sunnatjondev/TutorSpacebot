@@ -162,7 +162,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
                     setSelectedGroupId(group.id)
                     haptic?.selection?.()
                   }}
-                  className={`rounded-2xl border px-4 py-3 text-left transition-all duration-200 ${
+                  className={`rounded-[16px] border px-4 py-3 text-left transition-all duration-200 ${
                     active
                       ? 'border-brand bg-brand/15 text-on-surface'
                       : 'border-outline-variant bg-level-1 text-on-surface-variant'
@@ -203,7 +203,10 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
                 min="0"
                 max="23"
                 value={lessonHour}
-                onChange={(event) => setLessonHour(String(event.target.value).padStart(2, '0'))}
+                onChange={(event) => {
+                  const val = parseInt(event.target.value, 10);
+                  setLessonHour(isNaN(val) ? '00' : String(val % 100).padStart(2, '0'));
+                }}
                 className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
               />
               <span className="text-on-surface font-bold">:</span>
@@ -212,7 +215,10 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
                 min="0"
                 max="59"
                 value={lessonMinute}
-                onChange={(event) => setLessonMinute(String(event.target.value).padStart(2, '0'))}
+                onChange={(event) => {
+                  const val = parseInt(event.target.value, 10);
+                  setLessonMinute(isNaN(val) ? '00' : String(val % 100).padStart(2, '0'));
+                }}
                 className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
               />
             </div>
@@ -221,10 +227,10 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
 
         <div>
           <label className="mb-2 block text-sm font-semibold text-on-surface-variant">{t('teacherSchedule.repeat')}</label>
-          <div className="flex gap-2">
-            <button onClick={() => { setRepeat('none'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'none' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatNone')}</button>
-            <button onClick={() => { setRepeat('odd'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'odd' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatOdd')}</button>
-            <button onClick={() => { setRepeat('even'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'even' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatEven')}</button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => { setRepeat('none'); haptic?.selection() }} className={`px-4 py-2.5 text-xs font-semibold rounded-[12px] border ${repeat === 'none' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatNone')}</button>
+            <button onClick={() => { setRepeat('odd'); haptic?.selection() }} className={`px-4 py-2.5 text-xs font-semibold rounded-[12px] border ${repeat === 'odd' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatOdd')}</button>
+            <button onClick={() => { setRepeat('even'); haptic?.selection() }} className={`px-4 py-2.5 text-xs font-semibold rounded-[12px] border ${repeat === 'even' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatEven')}</button>
           </div>
         </div>
 

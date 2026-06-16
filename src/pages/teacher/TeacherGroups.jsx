@@ -156,11 +156,12 @@ export default function TeacherGroups() {
                 )}
 
               <div className="flex items-center gap-2 mb-3 pr-10">
-                <span className="chip chip-active text-[11px] font-bold py-1 px-3 max-w-[120px] truncate">
+                <span className="chip chip-active h-7 inline-flex items-center text-xs font-semibold px-3 max-w-[120px] truncate">
                   {group.subject}
                 </span>
-                <span className="chip text-xs shrink-0">
-                  <Users size={12} /> {getStudentCount(group)} {t('teacherGroups.students')}
+                <span className="chip h-7 inline-flex items-center gap-1.5 text-xs font-semibold px-3 shrink-0">
+                  <Users size={12} className="text-on-surface-variant/80 align-middle" />
+                  <span>{getStudentCount(group)} {t('teacherGroups.students')}</span>
                 </span>
               </div>
 

@@ -136,25 +136,31 @@ export default function TeacherFinance() {
           <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
         </div>
 
-        <div className="flex gap-3 mb-5">
-          <div className="flex-1 m3-card">
-            <div className="flex items-start justify-between mb-2">
-              <p className="text-on-surface-variant text-xs font-medium">{t('teacherFinance.earned')}</p>
-              <div className="w-8 h-8 rounded-xl bg-surface-high flex items-center justify-center">
-                <TrendingUp size={14} className="text-paid-green" />
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="m3-card flex flex-col justify-between p-4 h-32">
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <p className="text-on-surface-variant text-xs font-semibold uppercase tracking-wider line-clamp-2">{t('teacherFinance.earned')}</p>
+                <div className="w-8 h-8 rounded-xl bg-surface-high flex items-center justify-center shrink-0">
+                  <TrendingUp size={14} className="text-paid-green" />
+                </div>
               </div>
             </div>
-            <p className="m3-title-lg">{formatUZS(totalEarned, true)}</p>
+            <p className="text-xl font-extrabold text-paid-green">{formatUZS(totalEarned, true)}</p>
           </div>
-          <div className="flex-1 m3-card">
-            <div className="flex items-start justify-between mb-2">
-              <p className="text-on-surface-variant text-xs font-medium">{t('teacherFinance.outstanding')}</p>
-              <div className="w-8 h-8 rounded-xl bg-surface-high flex items-center justify-center">
-                <Clock size={14} className="text-partial-orange" />
+          <div className="m3-card flex flex-col justify-between p-4 h-32">
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <p className="text-on-surface-variant text-xs font-semibold uppercase tracking-wider line-clamp-2">{t('teacherFinance.outstanding')}</p>
+                <div className="w-8 h-8 rounded-xl bg-surface-high flex items-center justify-center shrink-0">
+                  <Clock size={14} className="text-partial-orange" />
+                </div>
               </div>
             </div>
-            <p className="text-xl font-extrabold text-debt-red">{formatUZS(totalUnpaid, true)}</p>
-            <p className="text-on-surface-variant text-xs mt-0.5">{t('teacherFinance.pendingLabel')}</p>
+            <div>
+              <p className="text-xl font-extrabold text-debt-red">{formatUZS(totalUnpaid, true)}</p>
+              <p className="text-on-surface-variant text-[10px] mt-0.5">{t('teacherFinance.pendingLabel')}</p>
+            </div>
           </div>
         </div>
 

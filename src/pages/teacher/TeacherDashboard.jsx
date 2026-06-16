@@ -241,17 +241,20 @@ export default function TeacherDashboard() {
               </span>
             </div>
             {dash.unpaid.slice(0, 3).map((payment, index) => (
-              <div key={index} className="flex items-center gap-3 py-1.5">
-                <Avatar name={`${payment.student?.first_name || '?'} ${payment.student?.last_name || ''}`} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-on-surface">
-                    {payment.student?.first_name} {payment.student?.last_name}
-                  </p>
-                  <p className="text-xs font-bold text-debt-red">{formatUZS(payment.amount)}</p>
+              <div key={index}>
+                <div className="flex items-center gap-3 py-3">
+                  <Avatar name={`${payment.student?.first_name || '?'} ${payment.student?.last_name || ''}`} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-on-surface">
+                      {payment.student?.first_name} {payment.student?.last_name}
+                    </p>
+                    <p className="text-xs font-bold text-debt-red">{formatUZS(payment.amount)}</p>
+                  </div>
+                  <button onClick={() => handleRemind(payment)} className="m3-btn-tonal shrink-0 gap-1 text-[11px] px-3 py-1.5 h-auto">
+                    <Bell size={12} /> {t('common.remind')}
+                  </button>
                 </div>
-                <button onClick={() => handleRemind(payment)} className="m3-btn-tonal shrink-0 gap-1 text-[11px] px-3 py-1.5 h-auto">
-                  <Bell size={12} /> {t('common.remind')}
-                </button>
+                {index < dash.unpaid.slice(0, 3).length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
               </div>
             ))}
           </div>
