@@ -32,7 +32,7 @@ export default function StudentDashboard() {
       ? new Date(submission.homework.due_at).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })
       : '-',
     overdue: submission.homework?.due_at && new Date(submission.homework.due_at) < new Date(),
-    done: localDone[submission.id] ?? submission.done,
+    done: localDone[submission.id] ?? (submission.status === 'submitted' || submission.status === 'graded'),
     submissionId: submission.id,
   }))
 
