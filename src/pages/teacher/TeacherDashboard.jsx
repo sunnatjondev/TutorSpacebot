@@ -149,6 +149,47 @@ export default function TeacherDashboard() {
           <p className="mt-2 m3-body-lg">{t('teacherHome.subtitle')}</p>
         </div>
 
+        {/* Subscription Banner */}
+        {dash?.subscription && dash.subscription.status === 'expired' && (
+          <div className="mb-6 m3-card bg-red-500/10 border-2 border-red-500/30 flex items-center justify-between">
+            <div className="flex-1">
+              <h3 className="text-red-500 font-bold text-lg mb-1">{lang === 'ru' ? 'Подписка истекла' : 'Obunangiz tugagan'}</h3>
+              <p className="text-on-surface-variant text-sm pr-2">
+                {lang === 'ru' ? 'Оплатите подписку, чтобы продолжить работу со студентами.' : 'Talabalar bilan ishlashni davom ettirish uchun obunangizni uzaytiring.'}
+              </p>
+            </div>
+            <button 
+              onClick={() => { haptic?.selection(); navigate('/teacher/subscription') }}
+              className="bg-red-500 text-white px-4 py-2 rounded-xl font-bold whitespace-nowrap active:scale-95 transition-transform shadow-glow-sm shadow-red-500/20"
+            >
+              {lang === 'ru' ? 'Оплатить' : 'To\'lash'}
+            </button>
+          </div>
+        )}
+        {dash?.subscription && (dash.subscription.status === 'trial' || dash.subscription.status === 'active') && (() => {
+          const expiresAt = new Date(dash.subscription.expiresAt)
+          const daysLeft = Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24))
+          if (daysLeft <= 3 && daysLeft > 0) {
+            return (
+              <div className="mb-6 m3-card bg-orange-500/10 border-2 border-orange-500/30 flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="text-orange-500 font-bold text-base mb-1">{lang === 'ru' ? `Подписка истекает через ${daysLeft} дн.` : `Obunangiz ${daysLeft} kundan so'ng tugaydi`}</h3>
+                  <p className="text-on-surface-variant text-xs pr-2">
+                    {lang === 'ru' ? 'Оплатите сейчас, чтобы не потерять доступ.' : 'Kirishni yo\'qotmaslik uchun hozir to\'lang.'}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => { haptic?.selection(); navigate('/teacher/subscription') }}
+                  className="bg-orange-500 text-white px-3 py-1.5 rounded-xl font-bold text-sm whitespace-nowrap active:scale-95 transition-transform"
+                >
+                  {lang === 'ru' ? 'Продлить' : 'Uzaytirish'}
+                </button>
+              </div>
+            )
+          }
+          return null
+        })()}
+
         <div className="mb-5 grid grid-cols-3 gap-3">
           <StatCard icon={User} value={dash?.totalStudents} label={t('teacherHome.students')} iconBg="bg-brand/20" />
           <StatCard icon={Layers} value={dash?.totalGroups} label={t('teacherHome.groups')} iconBg="bg-tertiary/20" />

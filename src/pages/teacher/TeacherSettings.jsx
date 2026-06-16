@@ -102,6 +102,22 @@ export default function TeacherSettings() {
 
 
 
+        {/* Subscription */}
+        <div 
+          className="m3-card space-y-2 active:scale-95 transition-transform cursor-pointer"
+          onClick={() => { haptic?.selection(); navigate('/teacher/subscription') }}
+        >
+          <div className="flex justify-between items-center">
+            <p className="font-bold text-on-surface flex items-center gap-2">
+              <span className="text-xl">💳</span> {lang === 'ru' ? 'Подписка' : 'Obuna'}
+            </p>
+            <span className="text-primary font-bold">{lang === 'ru' ? 'Управление' : 'Boshqarish'} &rarr;</span>
+          </div>
+          <p className="text-sm text-on-surface-variant">
+            {lang === 'ru' ? 'Управление тарифом и оплата' : 'Ta\'rifni boshqarish va to\'lov'}
+          </p>
+        </div>
+
         {/* Notifications */}
         <div className="m3-card space-y-4">
           <p className="font-bold text-on-surface flex items-center gap-2">

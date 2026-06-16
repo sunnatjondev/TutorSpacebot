@@ -17,10 +17,8 @@ export default function RoleSelection() {
   const [saving, setSaving] = useState(false)
 
   const displayName = user?.first_name || 'User'
-  const isAdmin = user?.id && Number(user.id) === ADMIN_TELEGRAM_ID
 
   const handleSelect = (role) => {
-    if (role === 'teacher' && !isAdmin) return
     setSelected(role)
     haptic?.selection()
   }
@@ -93,7 +91,6 @@ export default function RoleSelection() {
 
       {/* Role Cards */}
       <div className="flex gap-4 w-full mt-8">
-        {isAdmin && (
           <button
             onClick={() => handleSelect('teacher')}
             className={`flex-1 rounded-[24px] p-5 flex flex-col items-center gap-3 border-2 transition-all duration-300 active:scale-95 ${
@@ -112,7 +109,6 @@ export default function RoleSelection() {
               <p className="text-on-surface-variant text-xs mt-1 leading-snug">{t('role.teacherDesc')}</p>
             </div>
           </button>
-        )}
 
         <button
           onClick={() => handleSelect('student')}

@@ -189,3 +189,13 @@ export function updateUserSettings(payload) {
 export function deleteUserAccount() {
   return requestBackend('/api/user/delete')
 }
+
+// ─── Billing API ──────────────────────────────────────────
+
+export function fetchBillingStatus() {
+  return requestBackend('/api/billing/status')
+}
+
+export function createBillingOrder({ planId }) {
+  return requestBackend('/api/billing/create-order', { planId })
+}

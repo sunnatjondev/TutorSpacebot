@@ -11,6 +11,8 @@ import {
   deleteSession as apiDeleteSession,
   markPaymentPaid as apiMarkPaymentPaid,
   createPayment as apiCreatePayment,
+  fetchBillingStatus,
+  createBillingOrder,
 } from '../../lib/backend'
 
 export function useTeacherDashboard(telegramId) {
@@ -165,5 +167,25 @@ export function useCreatePayment() {
       queryClient.invalidateQueries({ queryKey: ['teacher-payments'] })
       queryClient.invalidateQueries({ queryKey: ['group-detail'] })
     },
+  })
+}
+
+// ─── Billing Hooks ──────────────────────────────────────────
+
+export function useBillingStatus(telegramId) {
+  return useQuery({
+    queryKey: ['billing-status', telegramId],
+    queryFn: async () => {
+      const data = await fetchBillingStatus()
+      if (!data.ok) throw new Error(data.error || 'Failed to fetch billing status')
+      return data.subscription
+    },
+    enabled: !!telegramId,
+  })
+}
+
+export function useCreateBillingOrder() {
+  return useMutation({
+    mutationFn: (payload) => createBillingOrder(payload),
   })
 }
