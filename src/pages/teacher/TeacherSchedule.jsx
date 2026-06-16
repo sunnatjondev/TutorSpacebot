@@ -93,11 +93,14 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
       monday.setDate(baseDate.getDate() - ((day === 0 ? 7 : day) - 1))
       const targetDays = repeat === 'odd' ? [0, 2, 4] : [1, 3, 5]
 
-      for (const offset of targetDays) {
-        const newDate = new Date(monday)
-        newDate.setDate(monday.getDate() + offset)
-        newDate.setHours(baseDate.getHours(), baseDate.getMinutes(), 0, 0)
-        datesToCreate.push(newDate)
+      // Create sessions for the current week and the next 3 weeks (4 weeks total)
+      for (let week = 0; week < 4; week++) {
+        for (const offset of targetDays) {
+          const newDate = new Date(monday)
+          newDate.setDate(monday.getDate() + offset + (week * 7))
+          newDate.setHours(baseDate.getHours(), baseDate.getMinutes(), 0, 0)
+          datesToCreate.push(newDate)
+        }
       }
     }
 

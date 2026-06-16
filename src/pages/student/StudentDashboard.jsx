@@ -18,6 +18,7 @@ export default function StudentDashboard() {
   const { data: homeworkRows, refetch: refetchHomework } = useStudentHomework(telegramId)
   const [localDone, setLocalDone] = useState({})
   const [showAllTasks, setShowAllTasks] = useState(false)
+  const [selectedTask, setSelectedTask] = useState(null)
 
   const attendance = dash?.attendance ?? 0
   const balance = dash?.balance ?? 0
@@ -29,11 +30,12 @@ export default function StudentDashboard() {
     id: submission.id,
     subject: submission.homework?.group?.subject || 'BOSHQA',
     title: submission.homework?.title || '-',
+    description: submission.homework?.description || '',
     due: submission.homework?.due_at
       ? new Date(submission.homework.due_at).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })
       : '-',
     overdue: submission.homework?.due_at && new Date(submission.homework.due_at) < new Date(),
-    done: localDone[submission.id] ?? (submission.status === 'submitted' || submission.status === 'graded'),
+    done: localDone[submission.id] ?? (submission.status === 'done' || submission.status === 'graded'),
     submissionId: submission.id,
   }))
 
@@ -181,7 +183,13 @@ export default function StudentDashboard() {
                   <button onClick={() => toggleHomework(item.id, item.submissionId)} className="mt-0.5 transition-transform active:scale-90">
                     {item.done ? <CheckCircle size={22} className="text-paid-green" /> : <Circle size={22} className="text-outline" />}
                   </button>
-                  <div className="min-w-0 flex-1">
+                  <div 
+                    className="min-w-0 flex-1 cursor-pointer active:scale-[0.98] transition-transform"
+                    onClick={() => {
+                      haptic?.selection()
+                      setSelectedTask(item)
+                    }}
+                  >
                     <div className="mb-1 flex flex-wrap items-center gap-2">
                       <span className="rounded-full bg-surface-high px-2 py-0.5 text-[10px] font-bold tracking-wide text-on-surface-variant">
                         {item.subject}
@@ -212,37 +220,70 @@ export default function StudentDashboard() {
         </div>
       </div>
       <Modal isOpen={showAllTasks} onClose={() => setShowAllTasks(false)} title={t('studentHome.upcomingTasks')}>
-        <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+        <div className="space-y-4 pt-2">
           {homework.map((item) => (
-            <div key={item.id} className="flex items-start gap-3 py-3 border-b border-outline-variant/40 last:border-0 text-on-surface">
+            <div key={item.id} className="flex items-start gap-3 rounded-2xl bg-surface-high p-4">
               <button onClick={() => toggleHomework(item.id, item.submissionId)} className="mt-0.5 transition-transform active:scale-90">
                 {item.done ? <CheckCircle size={22} className="text-paid-green" /> : <Circle size={22} className="text-outline" />}
               </button>
-              <div className="min-w-0 flex-1">
-                <div className="mb-1 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-surface-high px-2 py-0.5 text-[10px] font-bold tracking-wide text-on-surface-variant">
+              <div 
+                className="min-w-0 flex-1 cursor-pointer"
+                onClick={() => {
+                  haptic?.selection()
+                  setSelectedTask(item)
+                }}
+              >
+                <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-surface-highest px-2 py-0.5 text-[10px] font-bold tracking-wide text-on-surface-variant">
                     {item.subject}
                   </span>
-                  {item.overdue ? (
-                    <span className="flex items-center gap-0.5 text-[10px] font-bold text-partial-orange">
-                      <AlertTriangle size={10} /> {item.due}
-                    </span>
-                  ) : (
-                    <span className="text-[10px] text-on-surface-variant">{item.due}</span>
-                  )}
+                  <span className={`text-[10px] font-bold ${item.overdue ? 'text-partial-orange' : 'text-on-surface-variant'}`}>
+                    {item.due}
+                  </span>
                 </div>
-                <p className={`text-sm font-medium ${item.done ? 'line-through text-on-surface-variant' : 'text-on-surface'} ${item.overdue && !item.done ? 'rounded-xl border border-debt-red/30 bg-debt-red/5 px-2 py-1' : ''}`}>
+                <p className={`text-sm font-medium ${item.done ? 'line-through text-on-surface-variant' : 'text-on-surface'}`}>
                   {item.title}
                 </p>
               </div>
             </div>
           ))}
-          {!homework.length && (
             <div className="py-8 text-center text-sm text-on-surface-variant">
               {t('studentHome.noTasks')}
             </div>
           )}
         </div>
+      </Modal>
+
+      <Modal isOpen={!!selectedTask} onClose={() => setSelectedTask(null)} title={selectedTask?.title || ''}>
+        {selectedTask && (
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-surface-high px-3 py-1 text-xs font-bold tracking-wide text-on-surface-variant">
+                {selectedTask.subject}
+              </span>
+              <span className={`text-xs font-medium ${selectedTask.overdue ? 'text-partial-orange' : 'text-on-surface-variant'}`}>
+                {selectedTask.due}
+              </span>
+            </div>
+            <div className="rounded-xl bg-surface-high p-4 text-sm text-on-surface">
+              {selectedTask.description ? (
+                <p className="whitespace-pre-wrap leading-relaxed">{selectedTask.description}</p>
+              ) : (
+                <p className="italic text-on-surface-variant">{t('studentHome.noDescription') || 'Описание отсутствует'}</p>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                haptic?.selection()
+                toggleHomework(selectedTask.id, selectedTask.submissionId)
+                setSelectedTask(null)
+              }}
+              className="m3-btn-primary w-full"
+            >
+              {selectedTask.done ? (t('studentHome.markNotDone') || 'Отменить') : (t('studentHome.markDone') || 'Отметить как выполнено')}
+            </button>
+          </div>
+        )}
       </Modal>
 
       <BottomNav role="student" />
