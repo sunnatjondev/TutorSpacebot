@@ -8,6 +8,7 @@ import {
   updateStudentRate as apiUpdateStudentRate,
   createHomework as apiCreateHomework,
   saveAttendance as apiSaveAttendance,
+  deleteGroupHomework as apiDeleteGroupHomework,
 } from '../../lib/backend'
 
 export function useGroupDetail(groupId) {
@@ -147,6 +148,18 @@ export function useSaveAttendance() {
       queryClient.invalidateQueries({ queryKey: ['teacher-schedule'] })
       queryClient.invalidateQueries({ queryKey: ['student-schedule'] })
       queryClient.invalidateQueries({ queryKey: ['student-attendance'] })
+    },
+  })
+}
+
+export function useDeleteGroupHomework() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (homeworkId) => {
+      await apiDeleteGroupHomework(homeworkId)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['group-homework'] })
     },
   })
 }

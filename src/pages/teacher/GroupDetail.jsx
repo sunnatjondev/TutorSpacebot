@@ -8,7 +8,7 @@ import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { fetchGroupDayAttendance, fetchGroupMonthlyStats } from '../../lib/backend'
-import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework } from '../../hooks/api/useGroups'
+import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework, useDeleteGroupHomework } from '../../hooks/api/useGroups'
 import { useDeleteGroup, useCreateSession } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
@@ -336,6 +336,8 @@ export default function GroupDetail() {
   const [showEdit, setShowEdit] = useState(false)
   const [manageStudents, setManageStudents] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [showCreateHomework, setShowCreateHomework] = useState(false)
+  const [selectedTask, setSelectedTask] = useState(null)
 
   useTelegramBackButton(() => navigate(-1))
 
@@ -415,6 +417,7 @@ export default function GroupDetail() {
   const updateGroupMutation = useUpdateGroup()
   const removeStudentMutation = useRemoveStudentFromGroup()
   const deleteGroupMutation = useDeleteGroup()
+  const deleteHomeworkMutation = useDeleteGroupHomework()
 
   const toggleAttendance = async (studentId) => {
     haptic?.light()
@@ -747,27 +750,47 @@ export default function GroupDetail() {
             </button>
           </div>
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-            {homework.map((item) => {
-              const dueStr = item.due_at
-                ? new Date(item.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-                : '—'
-              return (
-                <div key={item.id} className="py-2 border-b border-outline-variant/40 last:border-0">
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-sm font-semibold text-on-surface">{item.title}</p>
-                    <span className="text-[10px] text-on-surface-variant bg-surface-high px-2 py-0.5 rounded-full whitespace-nowrap">
-                      {t('homework.dueDate')}: {dueStr}
-                    </span>
+            {(() => {
+              const todayStart = new Date()
+              todayStart.setHours(0, 0, 0, 0)
+              const activeHomework = homework.filter(h => !h.due_at || new Date(h.due_at) >= todayStart)
+
+              if (!activeHomework.length) {
+                return <p className="py-4 text-center text-sm text-on-surface-variant">{t('homework.noTasks')}</p>
+              }
+
+              return activeHomework.map((item) => {
+                const dueStr = item.due_at
+                  ? new Date(item.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                  : '—'
+                return (
+                  <div 
+                    key={item.id} 
+                    className="py-2 border-b border-outline-variant/40 last:border-0 cursor-pointer active:scale-[0.98] transition-transform"
+                    onClick={() => {
+                      haptic?.selection()
+                      setSelectedTask(item)
+                    }}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <p className="text-sm font-semibold text-on-surface">{item.title}</p>
+                      <span className="text-[10px] text-on-surface-variant bg-surface-high px-2 py-0.5 rounded-full whitespace-nowrap">
+                        {t('homework.dueDate')}: {dueStr}
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-on-surface-variant line-clamp-2 mt-0.5">{item.description}</p>
+                    )}
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <CheckCircle size={12} className={item.doneCount === item.totalCount && item.totalCount > 0 ? "text-paid-green" : "text-on-surface-variant"} />
+                      <span className="text-[10px] text-on-surface-variant font-medium">
+                        {t('homework.completed') || 'Bajarildi'}: <span className="text-on-surface font-bold">{item.doneCount || 0}</span> / {item.totalCount || 0}
+                      </span>
+                    </div>
                   </div>
-                  {item.description && (
-                    <p className="text-xs text-on-surface-variant line-clamp-2 mt-0.5">{item.description}</p>
-                  )}
-                </div>
-              )
-            })}
-            {!homework.length && (
-              <p className="py-4 text-center text-sm text-on-surface-variant">{t('homework.noTasks')}</p>
-            )}
+                )
+              })
+            })()}
           </div>
         </div>
 
@@ -836,6 +859,54 @@ export default function GroupDetail() {
             {updatingRate ? t('groupDetail.saving') : t('common.save')}
           </button>
         </div>
+      </Modal>
+
+      <Modal isOpen={!!selectedTask} onClose={() => setSelectedTask(null)} title={selectedTask?.title || ''}>
+        {selectedTask && (
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-surface-high px-3 py-1 text-xs font-bold tracking-wide text-on-surface-variant">
+                {t('homework.dueDate')}
+              </span>
+              <span className={`text-xs font-medium text-on-surface-variant`}>
+                {selectedTask.due_at ? new Date(selectedTask.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
+              </span>
+            </div>
+            <div className="rounded-xl bg-surface-high p-4 text-sm text-on-surface">
+              {selectedTask.description ? (
+                <p className="whitespace-pre-wrap leading-relaxed">{selectedTask.description}</p>
+              ) : (
+                <p className="italic text-on-surface-variant">{t('studentHome.noDescription') || 'Описание отсутствует'}</p>
+              )}
+            </div>
+            
+            <div className="rounded-xl border border-outline-variant/30 p-4 flex items-center justify-between bg-surface-high/50">
+              <span className="text-sm font-semibold text-on-surface">{t('homework.completed') || 'Bajarildi'}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-on-surface">{selectedTask.doneCount || 0}</span>
+                <span className="text-on-surface-variant">/ {selectedTask.totalCount || 0}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={async () => {
+                haptic?.heavy()
+                if (confirm(t('homework.deleteConfirm') || 'Rostdan ham bu vazifani o`chirmoqchimisiz?')) {
+                  try {
+                    await deleteHomeworkMutation.mutateAsync(selectedTask.id)
+                    setSelectedTask(null)
+                    haptic?.success()
+                  } catch (e) {
+                    haptic?.error()
+                  }
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] bg-red-500/10 text-red-500 font-bold active:scale-95 transition-transform"
+            >
+              <Trash2 size={18} /> {t('common.delete') || 'O`chirish'}
+            </button>
+          </div>
+        )}
       </Modal>
 
       <CreateHomeworkModal

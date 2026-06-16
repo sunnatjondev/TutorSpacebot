@@ -114,7 +114,9 @@ const uz = {
     "selectDate": "Sana tanlang (ixtiyoriy)",
     "description": "Tavsif",
     "descriptionPlaceholder": "Vazifa haqida batafsil ma'lumot...",
-    "noTasks": "Hozircha vazifalar yo'q"
+    "noTasks": "Hozircha vazifalar yo'q",
+    "completed": "Bajarildi",
+    "deleteConfirm": "Rostdan ham bu vazifani o'chirmoqchimisiz?"
   },
   "teacherSchedule": {
     "title": "Dars jadvali",
@@ -196,7 +198,10 @@ const uz = {
     "noUpcomingLessons": "Keyingi dars hali yo'q",
     "teacherAndTimeWillShowLater": "O'qituvchi va vaqt keyinroq chiqadi",
     "overdueCount": "{count} ta muddati o'tgan",
-    "noTasks": "Hozircha topshiriqlar yo'q"
+    "noTasks": "Hozircha topshiriqlar yo'q",
+    "markDone": "Bajarildi deb belgilash",
+    "markNotDone": "Bekor qilish",
+    "noDescription": "Tavsif yo'q"
   },
   "studentGroups": {
     "title": "Mening guruhlarim",

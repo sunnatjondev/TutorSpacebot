@@ -114,7 +114,9 @@ const ru = {
     "selectDate": "Выберите дату (опционально)",
     "description": "Описание",
     "descriptionPlaceholder": "Подробная информация о домашнем задании...",
-    "noTasks": "Пока нет домашних заданий"
+    "noTasks": "Пока нет домашних заданий",
+    "completed": "Выполнено",
+    "deleteConfirm": "Вы уверены, что хотите удалить это задание?"
   },
   "teacherSchedule": {
     "title": "Расписание",
@@ -196,7 +198,10 @@ const ru = {
     "noUpcomingLessons": "Будущих уроков нет",
     "teacherAndTimeWillShowLater": "Преподаватель и время появятся позже",
     "overdueCount": "просрочено: {count}",
-    "noTasks": "Заданий пока нет"
+    "noTasks": "Заданий пока нет",
+    "markDone": "Отметить как выполнено",
+    "markNotDone": "Отменить выполнение",
+    "noDescription": "Описание отсутствует"
   },
   "studentGroups": {
     "title": "Мои группы",

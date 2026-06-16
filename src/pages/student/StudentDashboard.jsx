@@ -279,7 +279,7 @@ export default function StudentDashboard() {
                 toggleHomework(selectedTask.id, selectedTask.submissionId)
                 setSelectedTask(null)
               }}
-              className="m3-btn-primary w-full"
+              className="m3-btn-filled w-full"
             >
               {selectedTask.done ? (t('studentHome.markNotDone') || 'Отменить') : (t('studentHome.markDone') || 'Отметить как выполнено')}
             </button>

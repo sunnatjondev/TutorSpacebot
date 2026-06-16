@@ -102,6 +102,10 @@ export function saveAttendance({ sessionId, studentId, present }) {
   return requestBackend('/api/groups/attendance', { sessionId, studentId, present })
 }
 
+export function deleteGroupHomework(homeworkId) {
+  return requestBackend('/api/groups/homework/delete', { homeworkId })
+}
+
 // ─── Student Management ───────────────────────────────────
 
 export function createStudent({ name, contact, groupIds, monthlyRate }) {
