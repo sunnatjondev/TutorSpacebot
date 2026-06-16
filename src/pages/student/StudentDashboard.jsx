@@ -5,14 +5,15 @@ import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
+import { useNavigate } from 'react-router-dom'
 import { useStudentDashboard, useStudentHomework, useMarkHomeworkDone } from '../../hooks/api/useStudent'
-
 export default function StudentDashboard() {
   const { user, haptic } = useTelegram()
   const { t } = useI18n()
   const telegramId = user?.id
   const firstName = user?.first_name || 'Talaba'
 
+  const navigate = useNavigate()
   const { data: dash } = useStudentDashboard(telegramId)
   const { data: homeworkRows, refetch: refetchHomework } = useStudentHomework(telegramId)
   const [localDone, setLocalDone] = useState({})
@@ -63,8 +64,12 @@ export default function StudentDashboard() {
         </div>
 
         <div
-          className="stagger-item rounded-[24px] p-5"
+          className="stagger-item rounded-[24px] p-5 cursor-pointer active:scale-[0.98] transition-transform"
           style={{ background: 'linear-gradient(135deg, #5a52e0 0%, #7c74ff 60%, #a099ff 100%)', boxShadow: '0 8px 32px rgba(108,99,255,0.4)' }}
+          onClick={() => {
+            haptic?.light()
+            navigate('/student/schedule')
+          }}
         >
           <div className="mb-3 flex items-start justify-between">
             <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold tracking-widest text-white/80">
