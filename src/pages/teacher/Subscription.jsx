@@ -22,24 +22,21 @@ export default function Subscription() {
     haptic?.selection()
     setLoadingPlan(planId)
     try {
-      const { paymentUrl } = await createOrder.mutateAsync({ planId })
+      await createOrder.mutateAsync({ planId })
       
-      if (tg?.openInvoice) {
-        tg.openInvoice(paymentUrl, (status) => {
-          if (status === 'paid') {
-            tg.showAlert(lang === 'ru' ? 'Оплата прошла успешно!' : 'To\'lov muvaffaqiyatli o\'tdi!')
-            // Status will be updated via telegram bot webhook automatically
-          } else if (status === 'failed') {
-            tg.showAlert(lang === 'ru' ? 'Ошибка при оплате' : 'To\'lovda xatolik yuz berdi')
-          }
+      const successMsg = lang === 'ru' 
+        ? 'Реквизиты для оплаты отправлены вам в личные сообщения бота. Пожалуйста, закройте это окно.'
+        : 'To\'lov ma\'lumotlari botga yuborildi. Iltimos, bu oynani yoping va botga qayting.'
+        
+      if (tg?.showAlert) {
+        tg.showAlert(successMsg, () => {
+          tg.close()
         })
-      } else if (tg?.openLink) {
-        tg.openLink(paymentUrl)
       } else {
-        window.open(paymentUrl, '_blank')
+        alert(successMsg)
       }
     } catch (error) {
-      tg?.showAlert(lang === 'ru' ? 'Ошибка при создании инвойса' : "Invoys yaratishda xatolik")
+      tg?.showAlert(lang === 'ru' ? 'Ошибка при создании заявки' : "So'rov yaratishda xatolik")
     } finally {
       setLoadingPlan(null)
     }
