@@ -181,3 +181,7 @@ export function fetchGroupMonthlyStats(groupId) {
 export function updateUserSettings(payload) {
   return requestBackend('/api/user/settings', payload)
 }
+
+export function deleteUserAccount() {
+  return requestBackend('/api/user/delete')
+}
