@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Bell, Globe, Trash2 } from 'lucide-react'
+import { Bell, Globe, Trash2 } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
@@ -133,20 +133,7 @@ export default function StudentSettings() {
           </div>
         </div>
 
-        <div className="space-y-3 pt-2">
-          <button 
-            className="w-full h-14 rounded-2xl border border-outline-variant/30 bg-surface-container flex items-center justify-center gap-2 text-on-surface font-semibold text-base active:scale-95 transition-transform"
-            onClick={() => {
-              haptic?.warning()
-              if (window.confirm(t('common.logoutConfirm'))) {
-                localStorage.clear()
-                navigate('/', { replace: true })
-              }
-            }}
-          >
-            <LogOut size={18} className="text-on-surface-variant" /> {t('common.logout')}
-          </button>
-
+        <div className="pt-2">
           <button 
             className="w-full h-14 rounded-2xl border border-red-500/30 bg-red-500/5 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
             onClick={handleDeleteAccount}
