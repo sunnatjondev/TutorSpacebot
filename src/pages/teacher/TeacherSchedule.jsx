@@ -196,7 +196,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
             </svg>
           </button>
           <div className="flex items-center gap-3 mt-3">
-            <span className="text-sm text-on-surface-variant">Vaqt:</span>
+            <span className="text-sm text-on-surface-variant">{t('teacherSchedule.time')}</span>
             <div className="flex items-center gap-2 bg-surface-container rounded-xl px-3 py-2">
               <input
                 type="number"
@@ -220,11 +220,11 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-on-surface-variant">Takrorlash</label>
+          <label className="mb-2 block text-sm font-semibold text-on-surface-variant">{t('teacherSchedule.repeat')}</label>
           <div className="flex gap-2">
-            <button onClick={() => { setRepeat('none'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'none' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Faqat shu kun</button>
-            <button onClick={() => { setRepeat('odd'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'odd' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Toq kunlar</button>
-            <button onClick={() => { setRepeat('even'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'even' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>Juft kunlar</button>
+            <button onClick={() => { setRepeat('none'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'none' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatNone')}</button>
+            <button onClick={() => { setRepeat('odd'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'odd' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatOdd')}</button>
+            <button onClick={() => { setRepeat('even'); haptic?.selection() }} className={`flex-1 py-2 text-xs font-semibold rounded-xl border ${repeat === 'even' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatEven')}</button>
           </div>
         </div>
 

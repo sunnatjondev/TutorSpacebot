@@ -9,6 +9,7 @@ import { useI18n } from '../../i18n/index.jsx'
 import { useTeacherGroups, useCreateGroup, useDeleteGroup } from '../../hooks/api/useTeacher'
 
 function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
+  const { t } = useI18n()
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
 
@@ -43,26 +44,26 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="m3-label block mb-2">Guruh nomi</label>
+        <label className="m3-label block mb-2">{t('groupDetail.groupName')}</label>
         <input
           className="m3-input"
-          placeholder="Masalan: Fizika 101"
+          placeholder={t('groupDetail.groupNamePlaceholder')}
           value={name}
           onChange={(event) => setName(event.target.value)}
           autoFocus
         />
       </div>
       <div>
-        <label className="m3-label block mb-2">Fan</label>
+        <label className="m3-label block mb-2">{t('groupDetail.subject')}</label>
         <input
           className="m3-input"
-          placeholder="Masalan: Matematika"
+          placeholder={t('groupDetail.subjectPlaceholder')}
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
         />
       </div>
       <button className="m3-btn-filled w-full mt-4" onClick={handleCreate} disabled={!name.trim()}>
-        + Guruh yaratish
+        + {t('teacherGroups.createGroup')}
       </button>
     </div>
   )
@@ -70,7 +71,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
 
 export default function TeacherGroups() {
   const { user, haptic } = useTelegram()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
@@ -102,7 +103,7 @@ export default function TeacherGroups() {
     const next = group.sessions?.find((session) => session.status === 'upcoming')
     if (!next?.scheduled_at) return '—'
 
-    return new Date(next.scheduled_at).toLocaleString('uz-UZ', {
+    return new Date(next.scheduled_at).toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', {
       weekday: 'short',
       hour: '2-digit',
       minute: '2-digit',
@@ -126,7 +127,7 @@ export default function TeacherGroups() {
         </div>
 
         {loading && !displayGroups.length && (
-          <div className="text-center text-on-surface-variant py-8">Yuklanmoqda...</div>
+          <div className="text-center text-on-surface-variant py-8">{t('common.loading')}</div>
         )}
 
         <div className="space-y-4">
@@ -193,16 +194,16 @@ export default function TeacherGroups() {
               <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4">
                 <Users size={28} className="text-primary" />
               </div>
-              <p className="m3-body-lg mb-6">Hali guruhlar yo'q</p>
+              <p className="m3-body-lg mb-6">{t('teacherHome.noGroupsYet')}</p>
               <button className="m3-btn-filled mx-auto" onClick={() => setShowCreate(true)}>
-                + Guruh yaratish
+                + {t('teacherGroups.createGroup')}
               </button>
             </div>
           )}
         </div>
       </div>
 
-      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Yangi guruh">
+      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title={t('teacherGroups.createGroup')}>
         <CreateGroupModal
           telegramId={telegramId}
           user={user}

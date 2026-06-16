@@ -218,7 +218,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
             </button>
             {selectedDate && (
               <div className="flex items-center gap-3 mt-3">
-                <span className="text-sm text-on-surface-variant">Vaqt:</span>
+                <span className="text-sm text-on-surface-variant">{t('teacherSchedule.time')}</span>
                 <div className="flex items-center gap-2 bg-surface-container rounded-xl px-3 py-2">
                   <input
                     type="number"
@@ -288,7 +288,7 @@ export default function GroupDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { haptic } = useTelegram()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const { data, loading } = useGroupDetail(id)
   const { data: homeworkRows } = useGroupHomework(id)
   const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tut0rspacebot'
@@ -533,7 +533,7 @@ export default function GroupDetail() {
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6 space-y-4">
         {loading && !group && (
-          <div className="m3-card text-center py-8 text-on-surface-variant">Yuklanmoqda...</div>
+          <div className="m3-card text-center py-8 text-on-surface-variant">{t('common.loading')}</div>
         )}
 
         <div className="flex gap-2 mb-1">
@@ -671,7 +671,7 @@ export default function GroupDetail() {
                       {attendance[student.id] ? (
                         <CheckCircle size={24} className="text-paid-green" />
                       ) : (
-                        <Circle size={24} className="m3-m3-btn-outline" />
+                        <Circle size={24} className="text-outline" />
                       )}
                     </button>
                   </div>
@@ -741,7 +741,7 @@ export default function GroupDetail() {
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
             {homework.map((item) => {
               const dueStr = item.due_at
-                ? new Date(item.due_at).toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                ? new Date(item.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                 : '—'
               return (
                 <div key={item.id} className="py-2 border-b border-outline-variant/40 last:border-0">

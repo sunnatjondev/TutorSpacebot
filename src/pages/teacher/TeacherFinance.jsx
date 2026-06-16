@@ -15,7 +15,7 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
 
   const methods = [
     { key: 'cash', label: t('teacherFinance.cash') },
-    { key: 'm3-card', label: t('teacherFinance.m3-card') },
+    { key: 'card', label: t('teacherFinance.card') },
     { key: 'transfer', label: t('teacherFinance.transfer') },
   ]
 

@@ -103,7 +103,8 @@ const uz = {
     "save": "Saqlash",
     "editRateHint": "Talaba to'lovini o'zgartirish uchun talabaning ustiga bosing",
     "homeworkTitle": "Vazifalar",
-    "noStudents": "Guruhda talabalar yo'q"
+    "noStudents": "Guruhda talabalar yo'q",
+    "deleteGroupConfirm": "Bu amalni qaytarib bo'lmaydi. Barcha ma'lumotlar o'chiriladi."
   },
   "homework": {
     "createTitle": "Yangi vazifa berish",
@@ -137,7 +138,12 @@ const uz = {
     "startHint": "Boshlash tugmasi bosilsa, dars hozir davom etayotgan holatga o'tadi.",
     "finishHint": "Dars tugagach, uni yakunlangan deb belgilang.",
     "lessonInProgress": "Dars o'tilmoqda...",
-    "lessonFinished": "Dars yakunlandi"
+    "lessonFinished": "Dars yakunlandi",
+    "time": "Vaqt:",
+    "repeat": "Takrorlash",
+    "repeatNone": "Faqat shu kun",
+    "repeatOdd": "Toq kunlar",
+    "repeatEven": "Juft kunlar"
   },
   "teacherFinance": {
     "title": "Moliya",
