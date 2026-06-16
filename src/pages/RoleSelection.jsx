@@ -59,21 +59,13 @@ export default function RoleSelection() {
     <div className="min-h-screen bg-surface-lowest flex flex-col items-center justify-between px-5 py-10 animate-fade-in">
       {/* Top Section */}
       <div className="flex flex-col items-center gap-6 mt-8">
-        {/* Glowing Orb */}
-        <div
-          className="w-24 h-24 rounded-full flex items-center justify-center orb-ring"
-          style={{
-            background: 'radial-gradient(circle at 40% 35%, #6C63FF, #2a0080)',
-            border: '2px solid rgba(196, 80, 220, 0.5)',
-          }}
-        >
-          <div
-            className="w-16 h-16 rounded-full"
-            style={{
-              background: 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.15), transparent)',
-              border: '2px solid rgba(196, 80, 220, 0.6)',
-            }}
-          />
+        {/* Logo / Icon Area */}
+        <div className="relative flex items-center justify-center w-24 h-24 mb-2">
+          <div className="absolute inset-0 bg-brand/10 rounded-full animate-pulse-slow" />
+          <div className="absolute inset-2 bg-gradient-to-tr from-brand to-brand-variant rounded-full opacity-20 blur-sm" />
+          <div className="relative flex items-center justify-center w-16 h-16 bg-surface rounded-full shadow-glow-sm border border-brand/20">
+            <GraduationCap size={32} className="text-brand" />
+          </div>
         </div>
 
         <div className="text-center">
