@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Users, CalendarDays, Bell, Plus, CheckCircle2 } from 'lucide-react'
+import { Users, User, Layers, CalendarDays, Bell, Plus, CheckCircle2 } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -149,10 +149,10 @@ export default function TeacherDashboard() {
           <p className="mt-2 m3-body-lg">{t('teacherHome.subtitle')}</p>
         </div>
 
-        <div className="mb-5 flex gap-3">
-          <StatCard icon={Users} value={dash?.totalStudents} label={t('teacherHome.students')} iconBg="bg-brand/20" />
-          <StatCard icon={Users} value={dash?.totalGroups} label={t('teacherHome.groups')} iconBg="bg-tertiary/20" />
-          <StatCard icon={CalendarDays} value={dash?.todaySessions?.length ?? 0} label={t('teacherHome.lessons')} iconBg="bg-surface-high" />
+        <div className="mb-5 grid grid-cols-3 gap-3">
+          <StatCard icon={User} value={dash?.totalStudents} label={t('teacherHome.students')} iconBg="bg-brand/20" />
+          <StatCard icon={Layers} value={dash?.totalGroups} label={t('teacherHome.groups')} iconBg="bg-tertiary/20" />
+          <StatCard icon={CalendarDays} value={dash?.todaySessions?.length ?? 0} label={t('teacherHome.lessons')} iconBg="bg-secondary/20" />
         </div>
 
         <div className="m3-card mb-4 stagger-item">
@@ -172,24 +172,25 @@ export default function TeacherDashboard() {
           {recentGroups.length > 0 ? (
             <div className="space-y-0">
               {recentGroups.map((group, index) => (
-                <button
-                  key={group.id}
-                  className="flex w-full items-center gap-3 py-3 text-left transition-transform active:scale-[0.99]"
-                  onClick={() => {
-                    haptic?.light()
-                    navigate(`/teacher/groups/${group.id}`)
-                  }}
-                >
-                  <Avatar name={group.name} size="md" color={group.color} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-on-surface">{group.name}</p>
-                    <p className="truncate text-xs text-on-surface-variant">
-                      {group.subject} - {group.group_members?.[0]?.count ?? 0} {t('teacherGroups.students')}
-                    </p>
-                  </div>
-                  <span className="badge-paid shrink-0">{group.paidPercent ?? 0}%</span>
-                  {index < recentGroups.length - 1 && <hr className="w-full h-px bg-outline-variant/30 my-1 border-0 absolute bottom-0 left-0" />}
-                </button>
+                <div key={group.id} className="relative w-full">
+                  <button
+                    className="flex w-full items-center gap-3 py-3 text-left transition-transform active:scale-[0.99]"
+                    onClick={() => {
+                      haptic?.light()
+                      navigate(`/teacher/groups/${group.id}`)
+                    }}
+                  >
+                    <Avatar name={group.name} size="md" color={group.color} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-on-surface">{group.name}</p>
+                      <p className="truncate text-xs text-on-surface-variant">
+                        {group.subject} - {group.group_members?.[0]?.count ?? 0} {t('teacherGroups.students')}
+                      </p>
+                    </div>
+                    <span className="badge-paid shrink-0">{group.paidPercent ?? 0}%</span>
+                  </button>
+                  {index < recentGroups.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
+                </div>
               ))}
             </div>
           ) : (
@@ -219,7 +220,7 @@ export default function TeacherDashboard() {
                       {getSessionStatusLabel(session.status)}
                     </span>
                   </div>
-                  {index < dash.todaySessions.length - 1 && <hr className="divider" />}
+                  {index < dash.todaySessions.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
                 </div>
               ))}
             </div>

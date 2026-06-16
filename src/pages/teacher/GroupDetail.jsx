@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users } from 'lucide-react'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
@@ -34,11 +34,11 @@ function getLocalDateKey(date) {
 function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDeleteGroup, manageStudents, t }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('groupDetail.groupManagement')}>
-      <div className="divide-y divide-outline-variant/30 bg-surface-container rounded-3xl overflow-hidden border border-outline-variant/20">
+      <div className="divide-y divide-outline-variant/20 bg-surface-high rounded-2xl overflow-hidden border border-outline-variant/15">
         {/* Edit Group */}
         <button
           onClick={() => { onEdit(); onClose(); }}
-          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-high/50 active:bg-surface-high transition-colors text-left"
+          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container/50 active:bg-surface-container transition-colors text-left"
         >
           <div className="w-10 h-10 rounded-2xl bg-brand/10 flex items-center justify-center text-brand shrink-0">
             <Pencil size={18} />
@@ -52,10 +52,10 @@ function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDelete
         {/* Manage Students */}
         <button
           onClick={() => { onManageStudents(); onClose(); }}
-          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-high/50 active:bg-surface-high transition-colors text-left"
+          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container/50 active:bg-surface-container transition-colors text-left"
         >
-          <div className="w-10 h-10 rounded-2xl bg-sat-blue/10 flex items-center justify-center text-sat-blue shrink-0">
-            <Trash2 size={18} />
+          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <Users size={18} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-on-surface">
@@ -541,22 +541,22 @@ export default function GroupDetail() {
           <span className="chip bg-surface-high text-on-surface-variant text-xs">{t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? 0 })}</span>
         </div>
 
-        {/* Statistics m3-card */}
-        <div className="m3-card grid grid-cols-3 gap-2 text-center p-3">
-          <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
-            <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.debtors')}</span>
-            <span className="text-lg font-extrabold text-debt-red mt-1">{t('groupDetail.studentsCount', { count: monthlyStats.unpaidCount })}</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">{t('common.unpaid').toLowerCase()}</span>
+        {/* Statistics Cards Grid */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
+            <span className="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">{t('groupDetail.debtors')}</span>
+            <span className="text-lg font-extrabold text-debt-red mt-2">{t('groupDetail.studentsCount', { count: monthlyStats.unpaidCount })}</span>
+            <span className="text-[9px] text-on-surface-variant mt-1">{t('common.unpaid').toLowerCase()}</span>
           </div>
-          <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
-            <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.absent')}</span>
-            <span className="text-lg font-extrabold text-orange-400 mt-1">{t('groupDetail.studentsCount', { count: monthlyStats.absentCount })}</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">{t('groupDetail.absent').toLowerCase()}</span>
+          <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
+            <span className="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">{t('groupDetail.absent')}</span>
+            <span className="text-lg font-extrabold text-orange-400 mt-2">{t('groupDetail.studentsCount', { count: monthlyStats.absentCount })}</span>
+            <span className="text-[9px] text-on-surface-variant mt-1">{t('groupDetail.absent').toLowerCase()}</span>
           </div>
-          <div className="flex flex-col items-center justify-center p-2 rounded-2xl bg-surface-high/30">
-            <span className="text-[10px] text-on-surface-variant font-medium">{t('groupDetail.attendanceStats')}</span>
-            <span className="text-lg font-extrabold text-paid-green mt-1">{monthlyStats.averageAttendance}%</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">{t('groupDetail.lessonsCount', { count: monthlyStats.totalClasses })}</span>
+          <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
+            <span className="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">{t('groupDetail.attendanceStats')}</span>
+            <span className="text-lg font-extrabold text-paid-green mt-2">{monthlyStats.averageAttendance}%</span>
+            <span className="text-[9px] text-on-surface-variant mt-1">{t('groupDetail.lessonsCount', { count: monthlyStats.totalClasses })}</span>
           </div>
         </div>
 
@@ -594,13 +594,11 @@ export default function GroupDetail() {
 
         {/* Attendance m3-card */}
         <div className="m3-card">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="m3-label">
-              {t('groupDetail.attendance')}
-            </p>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="m3-title-md !font-sans !text-base">{t('groupDetail.attendance')}</h3>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-primary">
-                {selectedAttendanceDate?.toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' })}
+              <span className="px-3 py-1 text-xs font-bold rounded-full bg-primary/10 text-primary">
+                {selectedAttendanceDate?.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'short', day: 'numeric' })}
               </span>
               <button
                 onClick={() => {
@@ -615,7 +613,7 @@ export default function GroupDetail() {
           </div>
 
           {/* Horizontal Week Strip */}
-          <div className="mb-3 flex items-center justify-between gap-1 bg-surface-high/20 rounded-2xl p-2">
+          <div className="mb-4 flex items-center justify-between gap-1 bg-surface-high/30 rounded-[20px] p-2">
             {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((dayKey, idx) => {
               const date = attendanceDays[idx]
               const isSelected = idx === selectedDayIndex
@@ -628,8 +626,12 @@ export default function GroupDetail() {
                     setSelectedDayIndex(idx)
                     haptic?.selection()
                   }}
-                  className={`flex flex-col items-center justify-center gap-0.5 rounded-full py-1.5 flex-1 transition-all duration-200 ${
-                    isSelected ? 'bg-brand text-on-primary shadow-m3-elevation-1 scale-105' : isToday ? 'bg-surface-high' : ''
+                  className={`flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-2 flex-1 transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-brand text-on-primary shadow-m3-elevation-1 scale-105 font-bold'
+                      : isToday
+                        ? 'bg-surface-high text-on-surface'
+                        : 'text-on-surface-variant hover:bg-surface-high/20'
                   }`}
                 >
                   <span className={`text-[9px] font-bold uppercase tracking-wider ${isSelected ? 'text-on-primary/80' : 'text-on-surface-variant'}`}>
@@ -675,7 +677,7 @@ export default function GroupDetail() {
                       )}
                     </button>
                   </div>
-                  {index < students.length - 1 && <hr className="divider" />}
+                  {index < students.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
                 </div>
               ))}
 
@@ -715,7 +717,7 @@ export default function GroupDetail() {
                   {student.status === 'unpaid' && <span className="badge-unpaid">{t('common.unpaid')}</span>}
                   {student.status === 'partial' && <span className="badge-partial">{t('common.partial')}</span>}
                 </div>
-                {index < students.length - 1 && <hr className="divider" />}
+                {index < students.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
               </div>
             ))}
           </div>

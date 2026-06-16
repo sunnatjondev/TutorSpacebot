@@ -71,7 +71,7 @@ const uz = {
     "createGroup": "Guruh yaratish"
   },
   "groupDetail": {
-    "attendance": "DAVOMAT - BUGUN",
+    "attendance": "Davomat",
     "paymentStatus": "TO'LOV HOLATI",
     "addStudent": "Talaba qo'shish",
     "manageStudents": "Talabalarni boshqarish",
@@ -110,9 +110,9 @@ const uz = {
     "createTitle": "Yangi vazifa berish",
     "title": "Vazifa nomi *",
     "titlePlaceholder": "Masalan: 5-mashq, 12-bet",
-    "dueDate": "Muddati (Due Date)",
+    "dueDate": "Muddati",
     "selectDate": "Sana tanlang (ixtiyoriy)",
-    "description": "Tavsif (Description)",
+    "description": "Tavsif",
     "descriptionPlaceholder": "Vazifa haqida batafsil ma'lumot...",
     "noTasks": "Hozircha vazifalar yo'q"
   },

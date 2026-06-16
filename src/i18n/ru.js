@@ -71,7 +71,7 @@ const ru = {
     "createGroup": "Создать группу"
   },
   "groupDetail": {
-    "attendance": "ПОСЕЩАЕМОСТЬ - СЕГОДНЯ",
+    "attendance": "Посещаемость",
     "paymentStatus": "СТАТУС ОПЛАТЫ",
     "addStudent": "Добавить студента",
     "manageStudents": "Управлять студентами",
@@ -110,9 +110,9 @@ const ru = {
     "createTitle": "Дать домашнее задание",
     "title": "Название задания *",
     "titlePlaceholder": "Например: Упражнение 5, страница 12",
-    "dueDate": "Срок сдачи (Due Date)",
+    "dueDate": "Срок сдачи",
     "selectDate": "Выберите дату (опционально)",
-    "description": "Описание (Description)",
+    "description": "Описание",
     "descriptionPlaceholder": "Подробная информация о домашнем задании...",
     "noTasks": "Пока нет домашних заданий"
   },
