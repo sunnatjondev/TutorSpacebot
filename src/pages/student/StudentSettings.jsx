@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Bell, Globe } from 'lucide-react'
+import { LogOut, Bell, Globe, Trash2 } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { upsertTelegramUser, updateNotificationPreferences } from '../../hooks/api/auth'
+import { deleteUserAccount } from '../../lib/backend'
 
 function NotificationToggle({ value, onChange }) {
   return (
@@ -15,7 +16,7 @@ function NotificationToggle({ value, onChange }) {
       onClick={() => onChange(!value)}
       className={`toggle ${value ? 'bg-brand' : 'bg-surface-highest'}`}
     >
-      <span className={`toggle-knob ${value ? 'translate-x-5' : 'translate-x-0'}`} />
+      <span className={`toggle-knob ${value ? 'translate-x-5 bg-on-primary' : 'translate-x-0 bg-outline'}`} />
     </button>
   )
 }
@@ -53,6 +54,25 @@ export default function StudentSettings() {
     haptic?.selection()
     setNotificationOverrides((current) => ({ ...current, payment_alerts_enabled: value }))
     mutation.mutate({ payment_alerts_enabled: value })
+  }
+
+  const handleDeleteAccount = async () => {
+    haptic?.heavy?.()
+    const confirmText = lang === 'ru' 
+      ? 'Вы уверены, что хотите НАВСЕГДА удалить свой аккаунт? Все ваши группы, студенты, уроки и платежи будут стерты безвозвратно.'
+      : 'Hisobingizni BUTUNLAY o\'chirib tashlamoqchimisiz? Barcha guruhlaringiz, talabalaringiz, darslaringiz va to\'lovlaringiz qayta tiklanmaydigan qilib o\'chiriladi.'
+      
+    if (window.confirm(confirmText)) {
+      try {
+        await deleteUserAccount()
+        localStorage.clear()
+        navigate('/', { replace: true })
+        haptic?.success?.()
+      } catch (err) {
+        haptic?.error?.()
+        alert('Xatolik yuz berdi: ' + err.message)
+      }
+    }
   }
 
 
@@ -113,18 +133,27 @@ export default function StudentSettings() {
           </div>
         </div>
 
-        <button 
-          className="w-full h-14 rounded-2xl border border-red-500/40 bg-red-500/10 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
-          onClick={() => {
-            haptic?.warning()
-            if (window.confirm(t('common.logoutConfirm'))) {
-              localStorage.clear()
-              navigate('/', { replace: true })
-            }
-          }}
-        >
-          <LogOut size={18} /> {t('common.logout')}
-        </button>
+        <div className="space-y-3 pt-2">
+          <button 
+            className="w-full h-14 rounded-2xl border border-outline-variant/30 bg-surface-container flex items-center justify-center gap-2 text-on-surface font-semibold text-base active:scale-95 transition-transform"
+            onClick={() => {
+              haptic?.warning()
+              if (window.confirm(t('common.logoutConfirm'))) {
+                localStorage.clear()
+                navigate('/', { replace: true })
+              }
+            }}
+          >
+            <LogOut size={18} className="text-on-surface-variant" /> {t('common.logout')}
+          </button>
+
+          <button 
+            className="w-full h-14 rounded-2xl border border-red-500/30 bg-red-500/5 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
+            onClick={handleDeleteAccount}
+          >
+            <Trash2 size={18} /> {lang === 'ru' ? 'Удалить аккаунт' : 'Hisobni o\'chirish'}
+          </button>
+        </div>
       </div>
       <BottomNav role="student" />
     </div>

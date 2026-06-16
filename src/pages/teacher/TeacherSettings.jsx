@@ -14,7 +14,7 @@ function NotificationToggle({ value, onChange }) {
     <button
       type="button"
       onClick={() => onChange(!value)}
-      className={`toggle p-1 ${value ? 'bg-primary' : 'bg-surface-highest'}`}
+      className={`toggle ${value ? 'bg-primary' : 'bg-surface-highest'}`}
     >
       <span className={`toggle-knob ${value ? 'translate-x-5 bg-on-primary' : 'translate-x-0 bg-outline'}`} />
     </button>
