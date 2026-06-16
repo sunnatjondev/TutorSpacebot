@@ -55,13 +55,13 @@ export default function StudentGroups() {
                 </div>
                 <hr className="divider my-2" />
                 <div className="grid grid-cols-2 gap-3 mt-2">
-                  <div className="rounded-xl bg-surface-container p-3">
+                  <div className="rounded-[12px] bg-surface-container p-3">
                     <p className="text-on-surface-variant text-xs mb-1">{t('studentGroups.students')}</p>
                     <p className="flex items-center gap-1.5 font-bold text-on-surface text-sm">
                       <Users size={14} className="text-primary" /> {group.studentsCount}
                     </p>
                   </div>
-                  <div className="rounded-xl bg-surface-container p-3">
+                  <div className="rounded-[12px] bg-surface-container p-3">
                     <p className="text-on-surface-variant text-xs mb-1">{t('studentGroups.nextLesson')}</p>
                     <p className="flex items-center gap-1.5 font-bold text-on-surface text-sm">
                       <CalendarDays size={14} className="text-primary shrink-0" />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CalendarDays, CheckCircle, Play, Plus, Square, Trash2, Users } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
@@ -63,13 +63,17 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
 
   const createSessionMutation = useCreateSession()
 
+  const isCreating = useRef(false)
+
   const handleCreate = async () => {
+    if (isCreating.current) return
     if (!selectedGroupId || !lessonDate) {
       setError(t('teacherSchedule.fillRequired'))
       haptic?.warning?.()
       return
     }
 
+    isCreating.current = true
     setLoading(true)
     setError(null)
     haptic?.medium()
@@ -111,6 +115,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
     }
 
     setLoading(false)
+    isCreating.current = false
 
     if (allSuccess) {
       haptic?.success?.()
