@@ -23,14 +23,23 @@ export default function Subscription() {
     setLoadingPlan(planId)
     try {
       const { paymentUrl } = await createOrder.mutateAsync({ planId })
-      // Open click in Telegram WebApp
-      if (tg?.openLink) {
+      
+      if (tg?.openInvoice) {
+        tg.openInvoice(paymentUrl, (status) => {
+          if (status === 'paid') {
+            tg.showAlert(lang === 'ru' ? 'Оплата прошла успешно!' : 'To\'lov muvaffaqiyatli o\'tdi!')
+            // Status will be updated via telegram bot webhook automatically
+          } else if (status === 'failed') {
+            tg.showAlert(lang === 'ru' ? 'Ошибка при оплате' : 'To\'lovda xatolik yuz berdi')
+          }
+        })
+      } else if (tg?.openLink) {
         tg.openLink(paymentUrl)
       } else {
         window.open(paymentUrl, '_blank')
       }
     } catch (error) {
-      tg?.showAlert(lang === 'ru' ? 'Ошибка при создании заказа' : "Buyurtma yaratishda xatolik")
+      tg?.showAlert(lang === 'ru' ? 'Ошибка при создании инвойса' : "Invoys yaratishda xatolik")
     } finally {
       setLoadingPlan(null)
     }
@@ -137,7 +146,7 @@ export default function Subscription() {
             className="w-full mt-6 h-12 rounded-2xl bg-brand text-on-primary font-bold shadow-glow-sm active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loadingPlan === 'solo' ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
-            {lang === 'ru' ? 'Оплатить через Click' : 'Click orqali to\'lash'}
+            {lang === 'ru' ? 'Оплатить' : 'To\'lash'}
           </button>
         </div>
 
@@ -158,7 +167,7 @@ export default function Subscription() {
             className="w-full mt-6 h-12 rounded-2xl bg-surface-highest text-on-surface font-bold active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loadingPlan === 'center' ? <div className="h-5 w-5 border-2 border-brand/30 border-t-brand rounded-full animate-spin" /> : null}
-            {lang === 'ru' ? 'Оплатить через Click' : 'Click orqali to\'lash'}
+            {lang === 'ru' ? 'Оплатить' : 'To\'lash'}
           </button>
         </div>
 
