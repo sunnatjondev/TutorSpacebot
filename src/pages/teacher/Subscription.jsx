@@ -45,7 +45,10 @@ export default function Subscription() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface-lowest">
-        <div className="h-8 w-8 rounded-full border-2 border-brand/30 border-t-brand animate-spin" />
+        <div className="flex flex-col items-center gap-5">
+          <div className="h-10 w-10 rounded-full border-[3px] border-surface-container-highest border-t-brand animate-spin" />
+          <p className="m3-label text-on-surface-variant font-medium animate-pulse">Yuklanmoqda...</p>
+        </div>
       </div>
     )
   }
