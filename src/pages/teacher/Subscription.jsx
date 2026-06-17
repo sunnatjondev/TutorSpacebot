@@ -59,6 +59,55 @@ export default function Subscription() {
   const expiresAt = subscription?.expiresAt ? new Date(subscription.expiresAt) : null
   const daysLeft = expiresAt ? Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24)) : 0
 
+  // Plan-specific dynamic styles for the active status cards
+  const getActivePlanStyles = () => {
+    if (isExpired) {
+      return {
+        card: 'bg-red-500/10 border border-red-500/30 relative overflow-hidden rounded-card p-5 transition-all duration-300',
+        title: 'text-red-300/85',
+        value: 'text-red-400 font-bold',
+        muted: 'text-red-300/70',
+        badge: 'bg-red-500/20 text-red-400 border border-red-500/30',
+        icon: 'text-red-400'
+      }
+    }
+    
+    const slug = subscription?.plan?.slug
+    if (slug === 'solo') {
+      return {
+        card: 'bg-gradient-to-br from-[#4c1d95]/40 to-[#581c87]/15 border border-[#9333ea]/50 shadow-[0_0_25px_rgba(147,51,234,0.15)] relative overflow-hidden rounded-card p-5 transition-all duration-300',
+        title: 'text-purple-200/80',
+        value: 'text-[#c084fc] font-bold',
+        muted: 'text-purple-200/60',
+        badge: 'bg-[#9333ea]/35 text-[#c084fc] border border-[#9333ea]/50 font-bold shadow-[0_0_15px_rgba(147,51,234,0.3)]',
+        icon: 'text-[#c084fc]'
+      }
+    }
+    
+    if (slug === 'center') {
+      return {
+        card: 'bg-gradient-to-br from-[#431407]/70 to-[#7c2d12]/20 border border-[#fb923c]/40 shadow-[0_0_25px_rgba(249,115,22,0.15)] relative overflow-hidden rounded-card p-5 transition-all duration-300',
+        title: 'text-orange-200/80',
+        value: 'text-[#fdba74] font-bold',
+        muted: 'text-orange-200/60',
+        badge: 'bg-[#ea580c]/30 text-[#fdba74] border border-[#ea580c]/40 font-bold shadow-[0_0_15px_rgba(234,88,12,0.2)]',
+        icon: 'text-[#fdba74]'
+      }
+    }
+    
+    // Default (Trial / Free / Generic active state)
+    return {
+      card: 'bg-gradient-to-br from-[#1e1b4b]/40 to-[#311042]/10 border border-[#6366f1]/35 shadow-[0_0_20px_rgba(99,102,241,0.08)] relative overflow-hidden rounded-card p-5 transition-all duration-300',
+      title: 'text-indigo-200/80',
+      value: 'text-[#a5b4fc] font-bold',
+      muted: 'text-indigo-200/60',
+      badge: 'bg-[#6366f1]/30 text-[#a5b4fc] border border-[#6366f1]/40 font-bold',
+      icon: 'text-[#818cf8]'
+    }
+  }
+
+  const cardStyles = getActivePlanStyles()
+
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest pb-6">
       {/* Header */}
@@ -74,7 +123,7 @@ export default function Subscription() {
       <div className="px-4 pt-4 space-y-6 page-wrapper">
         
         {/* Status Card */}
-        <div className={`m3-card relative overflow-hidden ${isExpired ? 'bg-red-500/10 border-red-500/30' : 'bg-surface'}`}>
+        <div className={cardStyles.card}>
           {isExpired && (
             <div className="absolute top-0 right-0 p-3 opacity-10">
               <AlertTriangle size={64} className="text-red-500" />
@@ -83,10 +132,10 @@ export default function Subscription() {
           
           <div className="flex items-center justify-between mt-1">
             <div>
-              <p className="text-sm text-on-surface-variant font-medium">
+              <p className={`text-sm font-medium ${cardStyles.title}`}>
                 {lang === 'ru' ? 'Текущий статус' : 'Joriy holat'}
               </p>
-              <h2 className={`text-2xl font-bold mt-1 ${isExpired ? 'text-red-500' : 'text-on-surface'}`}>
+              <h2 className={`text-2xl font-bold mt-1 ${isExpired ? 'text-red-500' : 'text-white'}`}>
                 {isExpired ? (lang === 'ru' ? 'Истёк' : 'Tugagan') 
                   : isTrial ? (lang === 'ru' ? 'Пробный' : 'Sinov') 
                   : (lang === 'ru' ? 'Активный' : 'Faol')}
@@ -95,10 +144,10 @@ export default function Subscription() {
             
             {subscription?.plan?.name_uz && (
               <div className="text-right">
-                <p className="text-sm text-on-surface-variant font-medium">
+                <p className={`text-sm font-medium ${cardStyles.title}`}>
                   {lang === 'ru' ? 'Ваш тариф' : 'Sizning ta\'rifingiz'}
                 </p>
-                <span className={`inline-block mt-1 text-sm font-bold px-3 py-1 rounded-lg ${isExpired ? 'bg-surface-variant text-on-surface-variant' : 'bg-brand/20 text-brand border border-brand/30'}`}>
+                <span className={`inline-block mt-1 text-sm font-bold px-3 py-1 rounded-lg ${cardStyles.badge}`}>
                   {lang === 'ru' ? subscription.plan.name_ru : subscription.plan.name_uz}
                 </span>
               </div>
@@ -106,36 +155,42 @@ export default function Subscription() {
           </div>
           
           {expiresAt && (
-            <p className="text-sm mt-3 font-medium text-on-surface-variant flex items-center gap-2">
-              <CreditCard size={16} /> 
-              {daysLeft > 0 
-                ? (lang === 'ru' ? `Осталось дней: ${daysLeft}` : `Qolgan kunlar: ${daysLeft}`)
-                : (lang === 'ru' ? 'Подписка закончилась' : 'Obuna yakunlangan')}
+            <p className={`text-sm mt-3 font-medium flex items-center gap-2 ${cardStyles.title}`}>
+              <CreditCard size={16} className={cardStyles.icon} /> 
+              <span>
+                {daysLeft > 0 
+                  ? (lang === 'ru' ? `Осталось дней: ${daysLeft}` : `Qolgan kunlar: ${daysLeft}`)
+                  : (lang === 'ru' ? 'Подписка закончилась' : 'Obuna yakunlangan')}
+              </span>
             </p>
           )}
         </div>
 
         {/* Limits Info */}
         {!isExpired && subscription?.limits && (
-          <div className="m3-card space-y-3">
-            <h3 className="font-bold text-on-surface">{lang === 'ru' ? 'Ваши лимиты' : 'Sizning limitlaringiz'}</h3>
+          <div className={`${cardStyles.card} space-y-3`}>
+            <h3 className={`font-bold ${cardStyles.title}`}>{lang === 'ru' ? 'Ваши лимиты' : 'Sizning limitlaringiz'}</h3>
             <div className="flex items-center justify-between">
-              <span className="text-on-surface-variant">{lang === 'ru' ? 'Группы' : 'Guruhlar'}</span>
-              <span className="font-bold">{subscription.limits.maxGroups || <Infinity size={18} className="inline"/>}</span>
+              <span className={cardStyles.title}>{lang === 'ru' ? 'Группы' : 'Guruhlar'}</span>
+              <span className={`font-bold ${cardStyles.value}`}>
+                {subscription.limits.maxGroups || <Infinity size={18} className="inline"/>}
+              </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-on-surface-variant">{lang === 'ru' ? 'Студенты' : 'Talabalar'}</span>
-              <span className="font-bold">{subscription.limits.maxStudents || <Infinity size={18} className="inline"/>}</span>
+              <span className={cardStyles.title}>{lang === 'ru' ? 'Студенты' : 'Talabalar'}</span>
+              <span className={`font-bold ${cardStyles.value}`}>
+                {subscription.limits.maxStudents || <Infinity size={18} className="inline"/>}
+              </span>
             </div>
           </div>
         )}
 
         {/* Change/Cancel Info */}
-        <div className="bg-surface-variant/20 rounded-[20px] p-4 border border-outline-variant/20">
-          <h4 className="text-sm font-bold text-on-surface mb-1">
+        <div className={cardStyles.card}>
+          <h4 className={`text-sm font-bold mb-1 ${cardStyles.title}`}>
             {lang === 'ru' ? 'Смена и отмена тарифа' : "Ta'rifni o'zgartirish va bekor qilish"}
           </h4>
-          <p className="text-xs text-on-surface-variant leading-relaxed">
+          <p className={`text-xs leading-relaxed ${cardStyles.title}`}>
             {lang === 'ru' 
               ? 'Вы можете сменить тариф в любое время, купив новый. Старые дни автоматически прибавятся. Чтобы отменить подписку, просто не оплачивайте следующий месяц — списаний не будет.' 
               : "Ta'rifingizni xohlagan vaqtda yangisini sotib olib o'zgartirishingiz mumkin. Qoldiq kunlar avtomatik qo'shiladi. Obunani bekor qilish uchun keyingi oy to'lov qilmasangiz kifoya — avtomatik yechib olish yo'q."}
