@@ -63,7 +63,13 @@ export default function AddStudent() {
 
       navigate('/teacher/groups', { replace: true })
     } catch (err) {
-      setError(err.message || "Talabani saqlab bo'lmadi.")
+      let displayError = err.message || "Talabani saqlab bo'lmadi."
+      if (err.message === 'plan_limit_reached') {
+        displayError = "Ta'rif rejangizdagi talabalar limitiga yetdingiz! Iltimos, obunangizni yangilang."
+      } else if (err.message === 'subscription_expired') {
+        displayError = "Obuna muddati tugagan! Yangi talaba qo'shish uchun obunangizni uzaytiring."
+      }
+      setError(displayError)
       haptic?.error?.()
     } finally {
       setSaving(false)

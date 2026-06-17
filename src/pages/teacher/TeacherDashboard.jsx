@@ -43,7 +43,13 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
       onClose()
     } catch (err) {
       console.error('[createGroup] error:', err)
-      setError(err.message || "Xatolik yuz berdi. Qayta urinib ko'ring.")
+      let displayError = err.message || "Xatolik yuz berdi. Qayta urinib ko'ring."
+      if (err.message === 'plan_limit_reached') {
+        displayError = "Ta'rif rejangizdagi guruhlar limitiga yetdingiz! Cheklovni olib tashlash uchun obunangizni yangilang."
+      } else if (err.message === 'subscription_expired') {
+        displayError = "Obuna muddati tugagan! Guruh yaratish uchun obunangizni uzaytiring."
+      }
+      setError(displayError)
       haptic?.warning?.()
     } finally {
       setLoading(false)

@@ -28,7 +28,12 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
       await onCreated(data)
     } catch (err) {
       haptic?.warning?.()
-      const msg = err.message || "Guruh yaratishda xatolik yuz berdi. Qayta urinib ko'ring."
+      let msg = err.message || "Guruh yaratishda xatolik yuz berdi. Qayta urinib ko'ring."
+      if (err.message === 'plan_limit_reached') {
+        msg = "Ta'rif rejangizdagi limitga yetdingiz! Iltimos, obunangizni yangilang."
+      } else if (err.message === 'subscription_expired') {
+        msg = "Obuna muddati tugagan! Iltimos, obunangizni uzaytiring."
+      }
       if (window.Telegram?.WebApp?.showPopup) {
         window.Telegram.WebApp.showPopup({
           title: 'Xatolik',
