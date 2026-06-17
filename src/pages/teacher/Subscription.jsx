@@ -81,19 +81,27 @@ export default function Subscription() {
             </div>
           )}
           
-          <p className="text-sm text-on-surface-variant font-medium">
-            {lang === 'ru' ? 'Текущий статус' : 'Joriy holat'}
-          </p>
-          <div className="flex items-end gap-2 mt-1">
-            <h2 className={`text-2xl font-bold ${isExpired ? 'text-red-500' : 'text-on-surface'}`}>
-              {isExpired ? (lang === 'ru' ? 'Истёк' : 'Tugagan') 
-                : isTrial ? (lang === 'ru' ? 'Пробный' : 'Sinov') 
-                : (lang === 'ru' ? 'Активный' : 'Faol')}
-            </h2>
-            {subscription?.plan?.slug && !isExpired && (
-              <span className="text-sm font-bold bg-brand/10 text-brand px-2 py-0.5 rounded-full mb-1">
-                {subscription.plan.slug.toUpperCase()}
-              </span>
+          <div className="flex items-center justify-between mt-1">
+            <div>
+              <p className="text-sm text-on-surface-variant font-medium">
+                {lang === 'ru' ? 'Текущий статус' : 'Joriy holat'}
+              </p>
+              <h2 className={`text-2xl font-bold mt-1 ${isExpired ? 'text-red-500' : 'text-on-surface'}`}>
+                {isExpired ? (lang === 'ru' ? 'Истёк' : 'Tugagan') 
+                  : isTrial ? (lang === 'ru' ? 'Пробный' : 'Sinov') 
+                  : (lang === 'ru' ? 'Активный' : 'Faol')}
+              </h2>
+            </div>
+            
+            {subscription?.plan?.name_uz && (
+              <div className="text-right">
+                <p className="text-sm text-on-surface-variant font-medium">
+                  {lang === 'ru' ? 'Ваш тариф' : 'Sizning ta\'rifingiz'}
+                </p>
+                <span className={`inline-block mt-1 text-sm font-bold px-3 py-1 rounded-lg ${isExpired ? 'bg-surface-variant text-on-surface-variant' : 'bg-brand/20 text-brand border border-brand/30'}`}>
+                  {lang === 'ru' ? subscription.plan.name_ru : subscription.plan.name_uz}
+                </span>
+              </div>
             )}
           </div>
           
@@ -121,6 +129,18 @@ export default function Subscription() {
             </div>
           </div>
         )}
+
+        {/* Change/Cancel Info */}
+        <div className="bg-surface-variant/20 rounded-[20px] p-4 border border-outline-variant/20">
+          <h4 className="text-sm font-bold text-on-surface mb-1">
+            {lang === 'ru' ? 'Смена и отмена тарифа' : "Ta'rifni o'zgartirish va bekor qilish"}
+          </h4>
+          <p className="text-xs text-on-surface-variant leading-relaxed">
+            {lang === 'ru' 
+              ? 'Вы можете сменить тариф в любое время, купив новый. Старые дни автоматически прибавятся. Чтобы отменить подписку, просто не оплачивайте следующий месяц — списаний не будет.' 
+              : "Ta'rifingizni xohlagan vaqtda yangisini sotib olib o'zgartirishingiz mumkin. Qoldiq kunlar avtomatik qo'shiladi. Obunani bekor qilish uchun keyingi oy to'lov qilmasangiz kifoya — avtomatik yechib olish yo'q."}
+          </p>
+        </div>
 
         <h3 className="font-bold text-on-surface text-lg pt-2">
           {lang === 'ru' ? 'Тарифные планы' : 'Ta\'rif rejalari'}

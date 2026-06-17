@@ -123,7 +123,7 @@ export default function AddStudent() {
         </div>
 
         {error && (
-          <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-red-400 text-sm">
+          <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3 text-red-400 text-sm">
             {error}
           </div>
         )}

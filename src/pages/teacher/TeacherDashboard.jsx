@@ -78,7 +78,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
         />
       </div>
       {error && (
-        <div className="rounded-xl border border-error-container bg-error-container/30 px-4 py-3">
+        <div className="rounded-lg border border-error-container bg-error-container/30 px-4 py-3">
           <p className="text-sm text-error">{error}</p>
         </div>
       )}
