@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -29,8 +30,32 @@ export function BottomNav({ role = 'teacher' }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useI18n()
-  const { haptic } = useTelegram()
+  const { haptic, tg } = useTelegram()
   const tabs = role === 'teacher' ? teacherPaths : studentPaths
+
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (tg && tg.viewportStableHeight > 0) {
+        setIsKeyboardOpen(tg.viewportStableHeight - tg.viewportHeight > 50)
+      } else {
+        setIsKeyboardOpen(window.innerHeight < window.outerHeight * 0.75)
+      }
+    }
+    if (tg) tg.onEvent('viewportChanged', handleResize)
+    window.visualViewport?.addEventListener('resize', handleResize)
+    window.addEventListener('resize', handleResize)
+    handleResize()
+
+    return () => {
+      if (tg) tg.offEvent('viewportChanged', handleResize)
+      window.visualViewport?.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [tg])
+
+  if (isKeyboardOpen) return null
 
   return (
     <nav className="m3-bottom-nav">
