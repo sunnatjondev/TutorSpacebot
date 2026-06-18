@@ -59,6 +59,24 @@ export default function Subscription() {
   const expiresAt = subscription?.expiresAt ? new Date(subscription.expiresAt) : null
   const daysLeft = expiresAt ? Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24)) : 0
 
+  // Infer plan if backend didn't join the plan object
+  let activePlan = subscription?.plan
+  if (!activePlan && subscription?.limits) {
+    if (subscription.limits.maxGroups === 3 && subscription.limits.maxStudents === 30) {
+      activePlan = {
+        slug: isTrial ? 'trial' : 'solo',
+        name_uz: isTrial ? 'Sinov' : 'Solo',
+        name_ru: isTrial ? 'Пробный' : 'Solo'
+      }
+    } else if (!subscription.limits.maxGroups && !subscription.limits.maxStudents) {
+      activePlan = {
+        slug: 'center',
+        name_uz: 'Center',
+        name_ru: 'Центр'
+      }
+    }
+  }
+
   // Plan-specific dynamic styles for the ACTIVE STATUS CARD ONLY
   const getActivePlanStyles = () => {
     if (isExpired) {
@@ -72,7 +90,7 @@ export default function Subscription() {
       }
     }
     
-    const slug = subscription?.plan?.slug
+    const slug = activePlan?.slug
     if (slug === 'solo') {
       return {
         card: 'bg-gradient-to-br from-[#4c1d95]/40 to-[#581c87]/10 border border-[#9333ea]/50 shadow-[0_0_20px_rgba(147,51,234,0.15)] relative overflow-hidden rounded-[24px] p-5 transition-all duration-300',
@@ -142,13 +160,13 @@ export default function Subscription() {
               </h2>
             </div>
             
-            {subscription?.plan?.name_uz && (
+            {activePlan?.name_uz && (
               <div className="text-right">
                 <p className={`text-sm ${cardStyles.muted}`}>
                   {lang === 'ru' ? 'Ваш тариф' : 'Sizning ta\'rifingiz'}
                 </p>
                 <span className={`inline-block mt-1 text-sm px-3 py-1 rounded-lg ${cardStyles.badge}`}>
-                  {lang === 'ru' ? subscription.plan.name_ru : subscription.plan.name_uz}
+                  {lang === 'ru' ? activePlan.name_ru : activePlan.name_uz}
                 </span>
               </div>
             )}
