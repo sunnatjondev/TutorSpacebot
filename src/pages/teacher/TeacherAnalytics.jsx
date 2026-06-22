@@ -48,7 +48,9 @@ export default function TeacherAnalytics() {
       <div className="px-4 pt-6 pb-2 sticky top-0 bg-surface-lowest/90 backdrop-blur-xl z-20 flex justify-between items-center animate-slide-down">
         <div>
           <h1 className="m3-display-md !text-2xl">{t('nav.analytics')}</h1>
-          <p className="text-on-surface-variant text-xs">{today.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'long', year: 'numeric' })}</p>
+          <p className="text-on-surface-variant text-xs capitalize">
+            {today.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'long', year: 'numeric' })}
+          </p>
         </div>
         <button
           onClick={() => {
@@ -70,75 +72,96 @@ export default function TeacherAnalytics() {
         ) : (
           <div className="space-y-4">
             {/* Revenue Card */}
-            <div className="bg-gradient-to-br from-[#4c1d95]/40 to-[#581c87]/10 border border-[#9333ea]/50 rounded-card p-5 relative overflow-hidden shadow-[0_0_20px_rgba(147,51,234,0.15)] animate-slide-up">
+            <div className="bg-gradient-to-br from-[#4c1d95]/40 to-[#581c87]/10 border border-[#9333ea]/50 rounded-[28px] p-5 relative overflow-hidden shadow-[0_0_20px_rgba(147,51,234,0.15)] animate-slide-up">
               <div className="absolute top-4 right-4 w-10 h-10 bg-[#9333ea]/20 rounded-full flex items-center justify-center">
                 <TrendingUp size={20} className="text-[#c084fc]" />
               </div>
-              <h2 className="text-sm text-purple-200/80 mb-1">{t('teacherAnalytics.earnedThisMonth')}</h2>
-              <div className="text-3xl font-bold text-[#c084fc] mb-4">{formatUZS(earnedThisMonth, true)}</div>
+              <h2 className="text-sm font-semibold text-purple-200/80 mb-2">{t('teacherAnalytics.earnedThisMonth')}</h2>
+              <div className="text-4xl font-extrabold text-white tracking-tight mb-5" style={{ textShadow: '0 2px 10px rgba(192, 132, 252, 0.4)' }}>
+                {formatUZS(earnedThisMonth, true)}
+              </div>
               
-              <div className="flex items-center gap-2">
-                <div className="flex-1 bg-surface-lowest/50 rounded-2xl p-3">
-                  <p className="text-xs text-purple-200/60 mb-1">{t('teacherAnalytics.paymentProgress')}</p>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-white text-sm">{overallPaymentPercent}%</span>
-                    <span className="text-[10px] text-purple-200/60">{totalStudentsPaid}/{totalStudentsExpectedToPay}</span>
-                  </div>
-                  <div className="w-full bg-[#3b0764]/50 rounded-full h-1.5">
-                    <div 
-                      className="bg-[#c084fc] h-1.5 rounded-full transition-all duration-500" 
-                      style={{ width: `${overallPaymentPercent}%` }}
-                    />
-                  </div>
+              <div className="bg-[#3b0764]/40 rounded-2xl p-3 border border-white/5 backdrop-blur-sm">
+                <p className="text-xs text-purple-200/80 mb-2 font-medium">{t('teacherAnalytics.paymentProgress')}</p>
+                
+                {/* Visual Chart Area */}
+                <div className="flex gap-1 h-8 mb-2 items-end">
+                  {Array.from({ length: 12 }).map((_, i) => {
+                    const threshold = (i / 12) * 100
+                    const isFilled = overallPaymentPercent > threshold
+                    return (
+                      <div 
+                        key={i} 
+                        className={`flex-1 rounded-t-sm transition-all duration-700 ${isFilled ? 'bg-[#c084fc]' : 'bg-white/10'}`}
+                        style={{ 
+                          height: isFilled ? `${40 + (Math.random() * 60)}%` : '20%',
+                          opacity: isFilled ? 1 : 0.5
+                        }}
+                      />
+                    )
+                  })}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white text-sm">{overallPaymentPercent}%</span>
+                  <span className="text-[10px] font-bold text-purple-200/80">{totalStudentsPaid} / {totalStudentsExpectedToPay}</span>
                 </div>
               </div>
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 gap-3 animate-slide-up" style={{ animationDelay: '50ms' }}>
-              <div className="m3-card p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-tertiary/20 flex items-center justify-center shrink-0">
-                  <Users size={18} className="text-tertiary" />
+            <div className="grid grid-cols-3 gap-3 animate-slide-up" style={{ animationDelay: '50ms' }}>
+              <div className="m3-card p-3 flex flex-col items-center justify-center text-center">
+                <div className="w-8 h-8 mb-2 rounded-xl bg-tertiary/20 flex items-center justify-center">
+                  <Users size={16} className="text-tertiary" />
                 </div>
-                <div>
-                  <p className="text-xl font-bold text-on-surface">{dash?.totalStudents || 0}</p>
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">{t('teacherHome.students')}</p>
-                </div>
+                <p className="text-lg font-bold text-on-surface">{dash?.totalStudents || 0}</p>
+                <p className="text-[9px] text-on-surface-variant uppercase tracking-wider font-semibold">{t('teacherHome.students')}</p>
               </div>
-              <div className="m3-card p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center shrink-0">
-                  <Layers size={18} className="text-brand" />
+              <div className="m3-card p-3 flex flex-col items-center justify-center text-center">
+                <div className="w-8 h-8 mb-2 rounded-xl bg-brand/20 flex items-center justify-center">
+                  <Layers size={16} className="text-brand" />
                 </div>
-                <div>
-                  <p className="text-xl font-bold text-on-surface">{dash?.totalGroups || 0}</p>
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">{t('teacherHome.groups')}</p>
+                <p className="text-lg font-bold text-on-surface">{dash?.totalGroups || 0}</p>
+                <p className="text-[9px] text-on-surface-variant uppercase tracking-wider font-semibold">{t('teacherHome.groups')}</p>
+              </div>
+              <div className="m3-card p-3 flex flex-col items-center justify-center text-center">
+                <div className="w-8 h-8 mb-2 rounded-xl bg-paid-green/20 flex items-center justify-center">
+                  <BookOpen size={16} className="text-paid-green" />
                 </div>
+                <p className="text-lg font-bold text-on-surface">{dash?.attendancePercent || 0}%</p>
+                <p className="text-[9px] text-on-surface-variant uppercase tracking-wider font-semibold">{t('teacherAnalytics.attendance') || 'DAVOMAT'}</p>
               </div>
             </div>
 
             {/* Groups Payment Status */}
             <div className="m3-card animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <h3 className="m3-title-md !text-lg mb-4">{t('teacherAnalytics.groupsPayment')}</h3>
+              <h3 className="m3-title-md !text-lg mb-4 flex items-center gap-2">
+                <Layers size={18} className="text-primary" />
+                {t('teacherAnalytics.groupsPayment')}
+              </h3>
               
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {groups && groups.length > 0 ? groups.map(group => (
                   <div key={group.id}>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <Avatar name={group.name} size="sm" color={group.color} />
-                        <span className="text-sm font-semibold truncate max-w-[150px]">{group.name}</span>
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Avatar name={group.name} size="md" color={group.color} />
+                        <span className="text-sm font-bold text-on-surface truncate max-w-[150px]">{group.name}</span>
                       </div>
-                      <span className="text-xs font-bold text-paid-green">{group.paidPercent}%</span>
+                      <span className={`text-sm font-extrabold ${group.paidPercent === 100 ? 'text-paid-green' : group.paidPercent > 0 ? 'text-primary' : 'text-on-surface-variant'}`}>
+                        {group.paidPercent}%
+                      </span>
                     </div>
-                    <div className="w-full bg-surface-highest rounded-full h-1.5">
+                    <div className="w-full bg-surface-highest rounded-full h-2.5 overflow-hidden">
                       <div 
-                        className="bg-paid-green h-1.5 rounded-full transition-all duration-500" 
+                        className={`h-full rounded-full transition-all duration-1000 ${group.paidPercent === 100 ? 'bg-paid-green' : 'bg-primary'}`} 
                         style={{ width: `${group.paidPercent}%` }}
                       />
                     </div>
                   </div>
                 )) : (
-                  <p className="text-center text-sm text-on-surface-variant py-2">{t('teacherHome.noGroupsYet')}</p>
+                  <p className="text-center text-sm text-on-surface-variant py-4">{t('teacherHome.noGroupsYet')}</p>
                 )}
               </div>
             </div>
@@ -159,28 +182,27 @@ export default function TeacherAnalytics() {
                   </div>
                 </div>
 
-                <div className="space-y-0">
-                  {unpaidThisMonth.slice(0, 5).map((payment, idx) => (
-                    <div key={payment.id || idx}>
-                      <div className="flex items-center justify-between py-2">
+                <div className="space-y-3 mt-4">
+                  {unpaidThisMonth.slice(0, 5).map((payment, idx) => {
+                    const studentName = `${payment.student?.first_name || ''} ${payment.student?.last_name || ''}`.trim() || 'No Name'
+                    const groupName = payment.group?.name || '—'
+                    return (
+                      <div key={payment.id || idx} className="flex items-center justify-between bg-surface-highest/50 rounded-xl p-3 border border-outline-variant/30">
                         <div className="flex items-center gap-3 min-w-0">
-                          <Avatar name={`${payment.student?.first_name || '?'} ${payment.student?.last_name || ''}`} size="sm" />
+                          <Avatar name={studentName} size="sm" />
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-on-surface truncate">
-                              {payment.student?.first_name} {payment.student?.last_name}
-                            </p>
-                            <p className="text-[10px] text-on-surface-variant truncate">{payment.group?.name}</p>
+                            <p className="text-sm font-bold text-on-surface truncate">{studentName}</p>
+                            <p className="text-[10px] text-on-surface-variant truncate font-medium mt-0.5">{groupName}</p>
                           </div>
                         </div>
-                        <span className="text-sm font-bold text-debt-red whitespace-nowrap shrink-0">{formatUZS(payment.amount)}</span>
+                        <span className="text-sm font-extrabold text-debt-red whitespace-nowrap shrink-0">{formatUZS(payment.amount)}</span>
                       </div>
-                      {idx < Math.min(unpaidThisMonth.length, 5) - 1 && <hr className="border-outline-variant/20" />}
-                    </div>
-                  ))}
+                    )
+                  })}
                   {unpaidThisMonth.length > 5 && (
                     <button 
                       onClick={() => navigate('/teacher/finance')}
-                      className="w-full py-2 mt-2 text-xs font-semibold text-primary"
+                      className="w-full py-2.5 mt-2 text-xs font-bold bg-surface-highest rounded-xl text-primary active:scale-95 transition-transform"
                     >
                       {t('common.viewAll')} ({unpaidThisMonth.length})
                     </button>

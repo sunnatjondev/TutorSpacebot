@@ -188,7 +188,8 @@ const uz = {
     "paymentProgress": "To'lovlar jarayoni",
     "groupsPayment": "Guruhlar to'lovi",
     "debtors": "Qarzdorlar",
-    "unpaidTotal": "{amount} to'lanmagan"
+    "unpaidTotal": "{amount} to'lanmagan",
+    "attendance": "Davomat"
   },
   "studentHome": {
     "greeting": "Salom, {name}!",

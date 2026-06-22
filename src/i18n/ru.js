@@ -192,7 +192,8 @@ const ru = {
     "paymentProgress": "Прогресс оплат",
     "groupsPayment": "Оплаты по группам",
     "debtors": "Должники",
-    "unpaidTotal": "{amount} не оплачено"
+    "unpaidTotal": "{amount} не оплачено",
+    "attendance": "Посещаемость"
   },
   "studentHome": {
     "greeting": "Привет, {name} 👋",
