@@ -174,10 +174,10 @@ export default function TeacherDashboard() {
       <div className="page-wrapper px-4 pt-6">
         <div className="mb-6 animate-slide-down flex justify-between items-start">
           <div>
-            <h1 className="m3-display-md">
+            <h1 className="text-3xl font-serif font-bold text-on-surface leading-tight">
               {t('teacherHome.greeting', { greeting: localizedGreeting, name: firstName })}
             </h1>
-            <p className="mt-2 m3-body-lg">{t('teacherHome.subtitle')}</p>
+            <p className="mt-1 text-sm text-on-surface-variant font-medium">{t('teacherHome.subtitle')}</p>
           </div>
         </div>
 
@@ -228,7 +228,7 @@ export default function TeacherDashboard() {
             <TrendingUp size={20} className="text-[#c084fc]" />
           </div>
           <h2 className="text-sm font-semibold text-purple-200/80 mb-2">{t('teacherAnalytics.earnedThisMonth')}</h2>
-          <div className="text-4xl font-extrabold text-white tracking-tight mb-5" style={{ textShadow: '0 2px 10px rgba(192, 132, 252, 0.4)' }}>
+          <div className="text-3xl font-extrabold text-white tracking-tight mb-5 drop-shadow-sm">
             {formatUZS(earnedThisMonth, true)}
           </div>
           
