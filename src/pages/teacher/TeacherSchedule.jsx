@@ -377,26 +377,15 @@ export default function TeacherSchedule() {
             <h1 className="m3-display-md">{t('teacherSchedule.title')}</h1>
             <p className="text-sm text-on-surface-variant">{weekLabel}</p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => {
-                haptic?.selection()
-                navigate('/teacher/settings')
-              }}
-              className="w-11 h-11 rounded-full bg-surface-high flex items-center justify-center active:scale-90 transition-transform"
-            >
-              <span className="text-xl">⚙️</span>
-            </button>
-            <button
-              onClick={() => {
-                haptic?.medium()
-                setShowDatePicker(true)
-              }}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform"
-            >
-              <CalendarDays size={18} className="text-on-surface-variant" />
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              haptic?.medium()
+              setShowDatePicker(true)
+            }}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform shrink-0"
+          >
+            <CalendarDays size={18} className="text-on-surface-variant" />
+          </button>
         </div>
 
         <div className="m3-card mb-5 flex items-center justify-between gap-1 p-3">

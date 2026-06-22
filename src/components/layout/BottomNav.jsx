@@ -16,7 +16,7 @@ const teacherPaths = [
   { icon: Users, path: '/teacher/groups', key: 'nav.groups' },
   { icon: CalendarDays, path: '/teacher/schedule', key: 'nav.schedule' },
   { icon: Wallet, path: '/teacher/finance', key: 'nav.finance' },
-  { icon: BarChart3, path: '/teacher/analytics', key: 'nav.analytics' },
+  { icon: Settings, path: '/teacher/settings', key: 'nav.settings' },
 ]
 
 const studentPaths = [

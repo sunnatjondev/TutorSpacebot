@@ -84,12 +84,6 @@ export default function TeacherSettings() {
       <div className="page-wrapper px-4 pt-6 space-y-4">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button 
-            onClick={() => { haptic?.selection(); navigate(-1) }}
-            className="w-10 h-10 rounded-full bg-surface-high flex items-center justify-center active:scale-90 transition-transform"
-          >
-            <ArrowLeft size={20} className="text-on-surface" />
-          </button>
           <h1 className="m3-display-md">{t('teacherSettings.title')}</h1>
         </div>
 
@@ -172,6 +166,8 @@ export default function TeacherSettings() {
           </button>
         </div>
       </div>
+      
+      <BottomNav role="teacher" />
     </div>
   )
 }

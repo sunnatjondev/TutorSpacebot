@@ -119,18 +119,7 @@ export default function TeacherGroups() {
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <h1 className="m3-display-md">{t('teacherGroups.title')}</h1>
-            <button
-              onClick={() => {
-                haptic?.selection()
-                navigate('/teacher/settings')
-              }}
-              className="w-10 h-10 rounded-full bg-surface-high flex items-center justify-center active:scale-90 transition-transform"
-            >
-              <span className="text-xl">⚙️</span>
-            </button>
-          </div>
+          <h1 className="m3-display-md">{t('teacherGroups.title')}</h1>
           <button
             className="m3-fab static shadow-none w-14 h-14"
             onClick={() => {
