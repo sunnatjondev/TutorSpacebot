@@ -108,7 +108,9 @@ function AttendanceModal({ groups, groupAttendance, lang }) {
               <Avatar name={group.name} size="md" color={group.color} />
               <div className="min-w-0">
                 <p className="text-sm font-bold text-on-surface truncate">{group.name}</p>
-                <p className="text-[10px] text-on-surface-variant truncate font-medium mt-0.5">{group.subject}</p>
+                <p className="text-[10px] text-on-surface-variant truncate font-medium mt-0.5">
+                  {group.subject} • {ga.present} / {ga.total} {lang === 'ru' ? 'студ.' : 'talaba'}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -137,6 +139,7 @@ export default function TeacherDashboard() {
   const todayDate = new Date()
   const currentMonth = todayDate.getMonth() + 1
   const currentYear = todayDate.getFullYear()
+  const currentMonthName = todayDate.toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'long' })
   
   // 1. Calculate Monthly Revenue (Paid payments this month)
   const thisMonthPayments = payments?.filter(p => p.period_month === currentMonth && p.period_year === currentYear) || []
@@ -423,13 +426,17 @@ export default function TeacherDashboard() {
               </span>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-on-surface">
-                {lang === 'ru' ? 'Посещаемость за месяц' : 'Oylik davomat'}
+              <p className="text-sm font-semibold text-on-surface capitalize">
+                {lang === 'ru' ? `Посещаемость: ${currentMonthName}` : `${currentMonthName} oyi davomati`}
               </p>
               <p className="text-xs text-on-surface-variant mt-1">
-                {lang === 'ru' 
-                  ? 'Нажмите, чтобы увидеть статистику по группам' 
-                  : 'Guruhlar bo\'yicha statistikani ko\'rish uchun bosing'}
+                {dash?.attendanceTotalRecords > 0 
+                  ? (lang === 'ru' 
+                      ? `${dash?.attendancePresent} из ${dash?.attendanceTotalRecords} студ. посетили` 
+                      : `${dash?.attendanceTotalRecords} talabadan ${dash?.attendancePresent} tasi kelgan`)
+                  : (lang === 'ru'
+                      ? 'Нажмите для статистики по группам'
+                      : 'Guruhlar statistikasi uchun bosing')}
               </p>
             </div>
           </div>
