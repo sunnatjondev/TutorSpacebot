@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, AlertCircle, BookOpen } from 'lucide-react'
+import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, AlertCircle, BookOpen, ChevronRight } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -89,11 +89,45 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
   )
 }
 
+function AttendanceModal({ groups, groupAttendance, lang }) {
+  const tTitle = lang === 'ru' ? 'Посещаемость по группам' : 'Guruhlar davomati'
+  const tNoData = lang === 'ru' ? 'Нет данных за этот месяц' : 'Bu oy uchun maʼlumot yoʻq'
+  
+  if (!groupAttendance || groupAttendance.length === 0) {
+    return <p className="text-center text-on-surface-variant py-4">{tNoData}</p>
+  }
+
+  return (
+    <div className="space-y-3">
+      {groupAttendance.map(ga => {
+        const group = groups?.find(g => g.id === ga.groupId)
+        if (!group) return null
+        return (
+          <div key={ga.groupId} className="flex items-center justify-between bg-surface-high p-3 rounded-xl">
+            <div className="flex items-center gap-3 min-w-0">
+              <Avatar name={group.name} size="md" color={group.color} />
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-on-surface truncate">{group.name}</p>
+                <p className="text-[10px] text-on-surface-variant truncate font-medium mt-0.5">{group.subject}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <div className={`w-2.5 h-2.5 rounded-full ${ga.percent >= 80 ? 'bg-paid-green' : ga.percent >= 50 ? 'bg-primary' : 'bg-error'}`} />
+              <span className="font-serif font-bold text-lg text-on-surface">{ga.percent}%</span>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function TeacherDashboard() {
   const { user, greeting, greetingRu, haptic, openTelegramLink, tg } = useTelegram()
   const { t, lang } = useI18n()
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
+  const [showAttendance, setShowAttendance] = useState(false)
 
   const telegramId = user?.id
   const { data: dash } = useTeacherDashboard(telegramId)
@@ -359,10 +393,16 @@ export default function TeacherDashboard() {
         )}
 
         {/* Attendance Stats */}
-        <div className="m3-card mb-20 stagger-item">
-          <div className="mb-3 flex items-center gap-2">
-            <BookOpen size={18} className="text-paid-green" />
-            <span className="m3-label">{t('teacherAnalytics.attendance') || 'DAVOMAT'}</span>
+        <button 
+          className="m3-card mb-20 stagger-item w-full text-left active:scale-[0.98] transition-transform"
+          onClick={() => { haptic?.light(); setShowAttendance(true) }}
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BookOpen size={18} className="text-paid-green" />
+              <span className="m3-label">{t('teacherAnalytics.attendance') || 'DAVOMAT'}</span>
+            </div>
+            <ChevronRight size={16} className="text-on-surface-variant" />
           </div>
           <div className="flex items-center gap-4">
             <div className="relative w-16 h-16 shrink-0">
@@ -388,12 +428,12 @@ export default function TeacherDashboard() {
               </p>
               <p className="text-xs text-on-surface-variant mt-1">
                 {lang === 'ru' 
-                  ? 'Средний процент посещаемости по всем группам' 
-                  : 'Barcha guruhlar bo\'yicha o\'rtacha davomat foizi'}
+                  ? 'Нажмите, чтобы увидеть статистику по группам' 
+                  : 'Guruhlar bo\'yicha statistikani ko\'rish uchun bosing'}
               </p>
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       <button
@@ -414,6 +454,10 @@ export default function TeacherDashboard() {
           onCreated={handleGroupCreated}
           haptic={haptic}
         />
+      </Modal>
+
+      <Modal isOpen={showAttendance} onClose={() => setShowAttendance(false)} title={lang === 'ru' ? 'Посещаемость' : 'Davomat'}>
+        <AttendanceModal groups={groups} groupAttendance={dash?.groupAttendance} lang={lang} />
       </Modal>
 
       <BottomNav role="teacher" />

@@ -172,24 +172,22 @@ export default function TeacherGroups() {
 
               <h2 className="m3-title-lg mb-4 truncate pr-8">{group.name}</h2>
 
-              <div className="flex items-center gap-3 bg-surface-high rounded-2xl p-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center shrink-0">
-                  <CalendarDays size={18} className="text-primary" />
+              <div className="flex gap-3">
+                {/* Keyingi dars */}
+                <div className="flex-1 flex items-center gap-3 bg-surface-high rounded-2xl p-3">
+                  <div className="w-9 h-9 rounded-xl bg-brand/20 flex items-center justify-center shrink-0">
+                    <CalendarDays size={16} className="text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-on-surface-variant text-[10px] font-medium">{t('teacherGroups.nextLesson')}</p>
+                    <p className="font-semibold text-xs text-on-surface truncate">{getNextLesson(group)}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-on-surface-variant text-xs font-medium">{t('teacherGroups.nextLesson')}</p>
-                  <p className="font-semibold text-sm text-on-surface truncate">{getNextLesson(group)}</p>
+                {/* To'lov % */}
+                <div className="flex items-center gap-2 bg-surface-high rounded-2xl px-4 py-3 shrink-0">
+                  <div className={`w-2.5 h-2.5 rounded-full ${(group.paidPercent ?? 0) === 100 ? 'bg-paid-green' : (group.paidPercent ?? 0) > 0 ? 'bg-primary' : 'bg-error'}`} />
+                  <span className="font-serif font-bold text-lg text-on-surface">{group.paidPercent ?? 0}%</span>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="m3-label">{t('teacherGroups.paymentProgress')}</span>
-                  <span className="font-serif font-bold text-on-surface">
-                    {group.paidPercent ?? 0}%
-                  </span>
-                </div>
-                <ProgressBar value={group.paidPercent ?? 0} />
               </div>
             </button>
           )
