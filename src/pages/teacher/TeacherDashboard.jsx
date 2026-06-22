@@ -222,10 +222,35 @@ export default function TeacherDashboard() {
           return null
         })()}
 
-        <div className="mb-5 grid grid-cols-3 gap-3">
-          <StatCard icon={User} value={dash?.totalStudents} label={t('teacherHome.students')} iconBg="bg-brand/20" />
-          <StatCard icon={Layers} value={dash?.totalGroups} label={t('teacherHome.groups')} iconBg="bg-tertiary/20" />
-          <StatCard icon={CalendarDays} value={dash?.todaySessions?.length ?? 0} label={t('teacherHome.lessons')} iconBg="bg-secondary/20" />
+        <div className="mb-5 grid grid-cols-2 gap-3" style={{ gridTemplateRows: 'auto auto' }}>
+          {/* Talabalar — big card spanning 2 rows */}
+          <div className="m3-card p-5 flex flex-col items-center justify-center text-center row-span-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand/20 mb-3">
+              <User size={22} className="text-primary" />
+            </div>
+            <p className="font-serif text-5xl font-bold text-on-surface leading-none">{dash?.totalStudents ?? '-'}</p>
+            <p className="m3-label mt-2">{t('teacherHome.students')}</p>
+          </div>
+          {/* Guruhlar — small top-right */}
+          <div className="m3-card p-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-tertiary/20 shrink-0">
+              <Layers size={20} className="text-tertiary" />
+            </div>
+            <div>
+              <p className="font-serif text-2xl font-bold text-on-surface leading-none">{dash?.totalGroups ?? '-'}</p>
+              <p className="m3-label mt-0.5">{t('teacherHome.groups')}</p>
+            </div>
+          </div>
+          {/* Bugungi darslar — small bottom-right */}
+          <div className="m3-card p-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/20 shrink-0">
+              <CalendarDays size={20} className="text-secondary" />
+            </div>
+            <div>
+              <p className="font-serif text-2xl font-bold text-on-surface leading-none">{dash?.todaySessions?.length ?? 0}</p>
+              <p className="m3-label mt-0.5">{t('teacherHome.lessons')}</p>
+            </div>
+          </div>
         </div>
 
         <div className="m3-card mb-4 stagger-item">
