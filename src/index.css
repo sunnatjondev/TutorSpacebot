@@ -122,7 +122,7 @@ h1, h2, h3, .font-serif {
     @apply flex items-center justify-center h-12 w-12 rounded-full bg-surface-high text-on-surface transition-all duration-200 active:scale-90 active:bg-surface-highest;
   }
   .m3-fab {
-    @apply fixed bottom-20 right-4 h-14 w-14 flex items-center justify-center rounded-[20px] bg-primary-container text-on-primary-container shadow-m3-elevation-3 transition-all duration-300 active:scale-90 active:rounded-full z-40;
+    @apply fixed bottom-24 right-6 h-16 w-16 flex items-center justify-center rounded-[24px] bg-primary-container text-on-primary-container shadow-m3-elevation-3 transition-all duration-300 active:scale-90 active:rounded-full z-40;
   }
 
   /* Old compat buttons */

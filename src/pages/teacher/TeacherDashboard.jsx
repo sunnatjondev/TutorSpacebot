@@ -236,21 +236,15 @@ export default function TeacherDashboard() {
             <p className="text-xs text-purple-200/80 mb-2 font-medium">{t('teacherAnalytics.paymentProgress')}</p>
             
             {/* Visual Chart Area */}
-            <div className="flex gap-1 h-8 mb-2 items-end">
-              {Array.from({ length: 12 }).map((_, i) => {
-                const threshold = (i / 12) * 100
-                const isFilled = overallPaymentPercent > threshold
-                return (
-                  <div 
-                    key={i} 
-                    className={`flex-1 rounded-t-sm transition-all duration-700 ${isFilled ? 'bg-[#c084fc]' : 'bg-white/10'}`}
-                    style={{ 
-                      height: isFilled ? `${40 + (Math.random() * 60)}%` : '20%',
-                      opacity: isFilled ? 1 : 0.5
-                    }}
-                  />
-                )
-              })}
+            <div className="w-full bg-white/10 rounded-full h-3 mb-3 overflow-hidden">
+              <div 
+                className="h-full rounded-full bg-[#c084fc] transition-all duration-1000 relative" 
+                style={{ width: `${overallPaymentPercent}%` }}
+              >
+                {overallPaymentPercent > 0 && (
+                  <div className="absolute inset-0 bg-white/20 w-full animate-pulse" />
+                )}
+              </div>
             </div>
 
             <div className="flex items-center justify-between">
