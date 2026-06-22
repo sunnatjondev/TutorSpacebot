@@ -417,28 +417,18 @@ export default function GroupDetail() {
 
   const toggleAttendance = async (studentId) => {
     haptic?.light()
+    
+    let activeSessionId = sessionId
+    if (!activeSessionId) {
+      alert(lang === 'ru' ? "Сначала создайте урок для этой даты!" : "Iltimos, avval ushbu sana uchun dars yarating!")
+      return
+    }
+
     const currentVal = !!attendance[studentId]
     const nextVal = !currentVal
 
     // Update state optimistically
     setAttendance((prev) => ({ ...prev, [studentId]: nextVal }))
-
-    let activeSessionId = sessionId
-    if (!activeSessionId) {
-      // Create session on-demand for this date
-      const scheduledAt = new Date(selectedAttendanceDate)
-      scheduledAt.setHours(9, 0, 0, 0)
-      try {
-        const data = await createSessionMutation.mutateAsync({ groupId: id, scheduledAt: scheduledAt.toISOString() })
-        activeSessionId = data.id
-        setSessionId(activeSessionId)
-      } catch {
-        // Revert state
-        setAttendance((prev) => ({ ...prev, [studentId]: currentVal }))
-        alert("Sessiya yaratib bo'lmadi")
-        return
-      }
-    }
 
     try {
       await saveAttendanceMutation.mutateAsync({ sessionId: activeSessionId, studentId, present: nextVal })
@@ -656,44 +646,82 @@ export default function GroupDetail() {
             <div className="py-8 text-center text-on-surface-variant text-xs animate-pulse">
               {t('groupDetail.loadingAttendance')}
             </div>
+          ) : !sessionId ? (
+            <div className="py-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4">
+                <CalendarDays size={28} className="text-primary" />
+              </div>
+              <p className="m3-body-lg mb-6 text-on-surface-variant">
+                {lang === 'ru' ? 'На эту дату урок не создан.' : 'Bu sana uchun dars yaratilmagan.'}
+              </p>
+              <button 
+                className="m3-btn-filled mx-auto"
+                onClick={async () => {
+                  haptic?.medium()
+                  const scheduledAt = new Date(selectedAttendanceDate)
+                  scheduledAt.setHours(9, 0, 0, 0) // default 9am
+                  try {
+                    const data = await createSessionMutation.mutateAsync({ groupId: id, scheduledAt: scheduledAt.toISOString() })
+                    setSessionId(data.id)
+                    haptic?.success()
+                  } catch {
+                    alert(lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi")
+                  }
+                }}
+              >
+                + {lang === 'ru' ? 'Создать урок' : 'Dars yaratish'}
+              </button>
+            </div>
           ) : (
             <div className="space-y-0">
-              {students.map((student, index) => (
-                <div key={student.id}>
-                  <div className="flex items-center gap-3 py-3">
-                    <Avatar name={student.name} size="md" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-on-surface text-sm truncate">{student.name}</p>
-                      <p className="text-on-surface-variant text-[10px] truncate">
-                        {student.username ? `@${student.username}` : '—'}
-                        {student.joined_at && ` • ${lang === 'ru' ? 'Вступил(а)' : "Qo'shilgan"}: ${new Date(student.joined_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}`}
-                      </p>
-                    </div>
-                    {manageStudents && (
-                      <button
-                        onClick={() => handleRemoveStudent(student.id)}
-                        className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-90 transition-transform shrink-0"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                    <button onClick={() => toggleAttendance(student.id)} className="transition-all duration-200 active:scale-90 shrink-0">
-                      {attendance[student.id] ? (
-                        <CheckCircle size={24} className="text-paid-green" />
-                      ) : (
-                        <Circle size={24} className="text-outline" />
-                      )}
-                    </button>
-                  </div>
-                  {index < students.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
-                </div>
-              ))}
+              {(() => {
+                const selectedDateEnd = new Date(selectedAttendanceDate)
+                selectedDateEnd.setHours(23, 59, 59, 999)
+                
+                const visibleStudents = students.filter(student => {
+                  if (!student.joined_at) return true
+                  return new Date(student.joined_at) <= selectedDateEnd
+                })
 
-              {!students.length && (
-                <div className="py-6 text-center text-on-surface-variant text-sm">
-                  {t('groupDetail.noStudents')}
-                </div>
-              )}
+                if (!visibleStudents.length) {
+                  return (
+                    <div className="py-6 text-center text-on-surface-variant text-sm">
+                      {lang === 'ru' ? 'В этот день в группе не было активных студентов' : 'Bu kunda guruhda faol talabalar bo\'lmagan'}
+                    </div>
+                  )
+                }
+
+                return visibleStudents.map((student, index) => (
+                  <div key={student.id}>
+                    <div className="flex items-center gap-3 py-3">
+                      <Avatar name={student.name} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-on-surface text-sm truncate">{student.name}</p>
+                        <p className="text-on-surface-variant text-[10px] truncate">
+                          {student.username ? `@${student.username}` : '—'}
+                          {student.joined_at && ` • ${lang === 'ru' ? 'Вступил(а)' : "Qo'shilgan"}: ${new Date(student.joined_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}`}
+                        </p>
+                      </div>
+                      {manageStudents && (
+                        <button
+                          onClick={() => handleRemoveStudent(student.id)}
+                          className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-90 transition-transform shrink-0"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                      <button onClick={() => toggleAttendance(student.id)} className="transition-all duration-200 active:scale-90 shrink-0">
+                        {attendance[student.id] ? (
+                          <CheckCircle size={24} className="text-paid-green" />
+                        ) : (
+                          <Circle size={24} className="text-outline" />
+                        )}
+                      </button>
+                    </div>
+                    {index < visibleStudents.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
+                  </div>
+                ))
+              })()}
             </div>
           )}
         </div>

@@ -6,7 +6,7 @@ import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { useTeacherDashboard, useTeacherGroups, useCreateGroup, useTeacherPayments } from '../../hooks/api/useTeacher'
+import { useTeacherDashboard, useTeacherGroups, useCreateGroup, useTeacherPayments, useUpdateSessionStatus, useDeleteSession } from '../../hooks/api/useTeacher'
 import { useNavigate } from 'react-router-dom'
 
 function StatCard({ icon: Icon, value, label, iconBg }) {
@@ -132,9 +132,31 @@ export default function TeacherDashboard() {
   const [showAttendance, setShowAttendance] = useState(false)
 
   const telegramId = user?.id
-  const { data: dash } = useTeacherDashboard(telegramId)
+  const { data: dash, refetch: refetchDash } = useTeacherDashboard(telegramId)
   const { data: groups } = useTeacherGroups(telegramId)
   const { data: payments } = useTeacherPayments(telegramId, 'all')
+
+  const updateSessionMutation = useUpdateSessionStatus()
+  const deleteSessionMutation = useDeleteSession()
+
+  const handleOverdueAction = async (sessionId, action) => {
+    haptic?.medium()
+    try {
+      if (action === 'done') {
+        await updateSessionMutation.mutateAsync({ sessionId, status: 'done' })
+      } else if (action === 'delete') {
+        if (confirm(lang === 'ru' ? 'Точно удалить этот урок?' : "Bu darsni aniq o'chirmoqchimisiz?")) {
+          await deleteSessionMutation.mutateAsync(sessionId)
+        } else {
+          return
+        }
+      }
+      haptic?.success()
+      refetchDash()
+    } catch (err) {
+      alert(lang === 'ru' ? 'Ошибка при выполнении действия' : 'Xatolik yuz berdi')
+    }
+  }
 
   const todayDate = new Date()
   const currentMonth = todayDate.getMonth() + 1
@@ -258,6 +280,39 @@ export default function TeacherDashboard() {
           }
           return null
         })()}
+
+        {/* Overdue Sessions Banner */}
+        {dash?.overdueSessions?.length > 0 && (
+          <div className="mb-6 space-y-3">
+            <h3 className="text-error font-bold text-sm px-1">
+              {lang === 'ru' ? 'Просроченные уроки (Не отмечена посещаемость)' : "O'tib ketgan darslar (Davomat belgilanmagan)"}
+            </h3>
+            {dash.overdueSessions.map(session => (
+              <div key={session.id} className="m3-card bg-error-container/10 border border-error/20 flex flex-col gap-3 p-3">
+                <div>
+                  <p className="font-bold text-on-surface text-sm">{session.groups?.name}</p>
+                  <p className="text-xs text-on-surface-variant">
+                    {new Date(session.scheduled_at).toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => handleOverdueAction(session.id, 'done')}
+                    className="flex-1 bg-paid-green/20 text-paid-green font-bold text-xs py-2 rounded-xl active:scale-95 transition-transform"
+                  >
+                    {lang === 'ru' ? 'Завершить' : 'Yakunlash'}
+                  </button>
+                  <button 
+                    onClick={() => handleOverdueAction(session.id, 'delete')}
+                    className="flex-1 bg-error/20 text-error font-bold text-xs py-2 rounded-xl active:scale-95 transition-transform"
+                  >
+                    {lang === 'ru' ? 'Удалить' : "O'chirish"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="mb-5 grid grid-cols-2 gap-3" style={{ gridTemplateRows: 'auto auto' }}>
           {/* Talabalar — big card spanning 2 rows */}
