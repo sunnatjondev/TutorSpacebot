@@ -664,7 +664,10 @@ export default function GroupDetail() {
                     <Avatar name={student.name} size="md" />
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-on-surface text-sm truncate">{student.name}</p>
-                      <p className="text-on-surface-variant text-xs truncate">{student.username ? `@${student.username}` : '—'}</p>
+                      <p className="text-on-surface-variant text-[10px] truncate">
+                        {student.username ? `@${student.username}` : '—'}
+                        {student.joined_at && ` • ${lang === 'ru' ? 'Вступил(а)' : "Qo'shilgan"}: ${new Date(student.joined_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}`}
+                      </p>
                     </div>
                     {manageStudents && (
                       <button

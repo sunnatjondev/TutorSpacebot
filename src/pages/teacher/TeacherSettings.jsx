@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Globe, Trash2 } from 'lucide-react'
+import { Bell, Globe, Trash2, ArrowLeft } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
@@ -82,6 +82,17 @@ export default function TeacherSettings() {
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6 space-y-4">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <button 
+            onClick={() => { haptic?.selection(); navigate(-1) }}
+            className="w-10 h-10 rounded-full bg-surface-high flex items-center justify-center active:scale-90 transition-transform"
+          >
+            <ArrowLeft size={20} className="text-on-surface" />
+          </button>
+          <h1 className="m3-display-md">{t('teacherSettings.title')}</h1>
+        </div>
+
         {/* Profile — Real Telegram data */}
         <div className="flex flex-col items-center gap-3 pb-2">
           <div className="relative">
@@ -161,8 +172,6 @@ export default function TeacherSettings() {
           </button>
         </div>
       </div>
-      
-      <BottomNav role="teacher" />
     </div>
   )
 }

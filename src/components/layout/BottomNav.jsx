@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Wallet,
   Settings,
+  BarChart3,
 } from 'lucide-react'
 import { useI18n } from '../../i18n/index.jsx'
 import { useTelegram } from '../../hooks/useTelegram'
@@ -15,7 +16,7 @@ const teacherPaths = [
   { icon: Users, path: '/teacher/groups', key: 'nav.groups' },
   { icon: CalendarDays, path: '/teacher/schedule', key: 'nav.schedule' },
   { icon: Wallet, path: '/teacher/finance', key: 'nav.finance' },
-  { icon: Settings, path: '/teacher/settings', key: 'nav.settings' },
+  { icon: BarChart3, path: '/teacher/analytics', key: 'nav.analytics' },
 ]
 
 const studentPaths = [

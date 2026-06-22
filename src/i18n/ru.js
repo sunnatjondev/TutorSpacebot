@@ -4,7 +4,8 @@ const ru = {
     "groups": "Группы",
     "schedule": "Расписание",
     "finance": "Финансы",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "analytics": "Аналитика"
   },
   "common": {
     "continue": "Продолжить",
@@ -185,6 +186,13 @@ const ru = {
     "language": "Язык",
     "shareProfile": "Поделиться ссылкой профиля",
     "logout": "Выйти"
+  },
+  "teacherAnalytics": {
+    "earnedThisMonth": "Заработано в этом месяце",
+    "paymentProgress": "Прогресс оплат",
+    "groupsPayment": "Оплаты по группам",
+    "debtors": "Должники",
+    "unpaidTotal": "{amount} не оплачено"
   },
   "studentHome": {
     "greeting": "Привет, {name} 👋",

@@ -148,11 +148,22 @@ export default function TeacherDashboard() {
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6">
-        <div className="mb-6 animate-slide-down">
-          <h1 className="m3-display-md">
-            {t('teacherHome.greeting', { greeting: localizedGreeting, name: firstName })}
-          </h1>
-          <p className="mt-2 m3-body-lg">{t('teacherHome.subtitle')}</p>
+        <div className="mb-6 animate-slide-down flex justify-between items-start">
+          <div>
+            <h1 className="m3-display-md">
+              {t('teacherHome.greeting', { greeting: localizedGreeting, name: firstName })}
+            </h1>
+            <p className="mt-2 m3-body-lg">{t('teacherHome.subtitle')}</p>
+          </div>
+          <button
+            onClick={() => {
+              haptic?.selection()
+              navigate('/teacher/settings')
+            }}
+            className="w-10 h-10 rounded-full bg-surface-high flex items-center justify-center active:scale-90 transition-transform mt-1 shrink-0"
+          >
+            <span className="text-xl">⚙️</span>
+          </button>
         </div>
 
         {/* Subscription Banner */}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
@@ -100,6 +101,7 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
 export default function TeacherFinance() {
   const { user, haptic, openTelegramLink } = useTelegram()
   const { t, lang } = useI18n()
+  const navigate = useNavigate()
   const [activeFilter, setActiveFilter] = useState('all')
   const [markStudent, setMarkStudent] = useState(null)
   const [selectedPayment, setSelectedPayment] = useState(null)
@@ -131,9 +133,20 @@ export default function TeacherFinance() {
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6">
-        <div className="mb-5">
-          <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
-          <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
+        <div className="mb-5 flex justify-between items-start">
+          <div>
+            <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
+            <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
+          </div>
+          <button
+            onClick={() => {
+              haptic?.selection()
+              navigate('/teacher/settings')
+            }}
+            className="w-10 h-10 rounded-full bg-surface-high flex items-center justify-center active:scale-90 transition-transform mt-1 shrink-0"
+          >
+            <span className="text-xl">⚙️</span>
+          </button>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-5">

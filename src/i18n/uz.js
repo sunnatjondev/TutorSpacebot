@@ -4,7 +4,8 @@ const uz = {
     "groups": "Guruhlar",
     "schedule": "Dars jadvali",
     "finance": "Moliya",
-    "settings": "Sozlamalar"
+    "settings": "Sozlamalar",
+    "analytics": "Tahlil"
   },
   "common": {
     "continue": "Davom etish",
@@ -174,17 +175,20 @@ const uz = {
   },
   "teacherSettings": {
     "title": "Sozlamalar",
-    "syncedTelegram": "Telegramdan sinxronlangan",
-    "currentPlan": "Joriy tarif: {plan}",
-    "freeTier": "Bepul",
-    "coTeachers": "Hamkorlik o'qituvchilar",
-    "addTeacher": "O'qituvchi qo'shish",
+    "syncedTelegram": "Telegram bilan sinxronlangan",
     "notifications": "Bildirishnomalar",
     "lessonReminders": "Dars eslatmalari",
-    "paymentAlerts": "To'lov ogohlantirishlari",
-    "language": "Til",
+    "paymentAlerts": "To'lov xabarlari",
+    "language": "Tilni o'zgartirish",
     "shareProfile": "Profil havolasini ulashish",
     "logout": "Chiqish"
+  },
+  "teacherAnalytics": {
+    "earnedThisMonth": "Bu oyda daromadim",
+    "paymentProgress": "To'lovlar jarayoni",
+    "groupsPayment": "Guruhlar to'lovi",
+    "debtors": "Qarzdorlar",
+    "unpaidTotal": "{amount} to'lanmagan"
   },
   "studentHome": {
     "greeting": "Salom, {name}!",
