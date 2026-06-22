@@ -232,24 +232,19 @@ export default function TeacherDashboard() {
             {formatUZS(earnedThisMonth, true)}
           </div>
           
-          <div className="bg-[#3b0764]/40 rounded-2xl p-3 border border-white/5 backdrop-blur-sm">
-            <p className="text-xs text-purple-200/80 mb-2 font-medium">{t('teacherAnalytics.paymentProgress')}</p>
+          <div className="border-t border-white/10 pt-4 mt-1">
+            <p className="text-xs text-purple-200/70 mb-3 font-medium">{t('teacherAnalytics.paymentProgress')}</p>
             
-            {/* Visual Chart Area */}
-            <div className="w-full bg-white/10 rounded-full h-3 mb-3 overflow-hidden">
+            <div className="w-full bg-white/10 rounded-full h-2.5 mb-3 overflow-hidden">
               <div 
-                className="h-full rounded-full bg-[#c084fc] transition-all duration-1000 relative" 
-                style={{ width: `${overallPaymentPercent}%` }}
-              >
-                {overallPaymentPercent > 0 && (
-                  <div className="absolute inset-0 bg-white/20 w-full animate-pulse" />
-                )}
-              </div>
+                className="h-full rounded-full bg-[#c084fc] transition-all duration-1000" 
+                style={{ width: `${Math.max(overallPaymentPercent, 2)}%` }}
+              />
             </div>
 
             <div className="flex items-center justify-between">
               <span className="font-bold text-white text-sm">{overallPaymentPercent}%</span>
-              <span className="text-[10px] font-bold text-purple-200/80">{totalStudentsPaid} / {totalStudentsExpectedToPay}</span>
+              <span className="text-[10px] font-bold text-purple-200/60">{totalStudentsPaid} / {totalStudentsExpectedToPay}</span>
             </div>
           </div>
         </div>
