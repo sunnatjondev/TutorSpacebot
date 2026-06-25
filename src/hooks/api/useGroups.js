@@ -38,10 +38,9 @@ export function useGroupHomework(groupId) {
 export function useAddStudentToGroup() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ groupId, telegramId }) => {
-      // This is now handled via createStudent with the groupId
+    mutationFn: async ({ groupId, telegramId, name }) => {
       const result = await apiCreateStudent({
-        name: 'Talaba',
+        name: name || 'Talaba',
         contact: String(telegramId),
         groupIds: [groupId],
         monthlyRate: 0,
