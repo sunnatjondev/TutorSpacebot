@@ -33,6 +33,14 @@ export default function RouteGuard({ role, children }) {
         return
       }
 
+        // Fast path to avoid API calls on every page transition
+        const savedRole = localStorage.getItem(LS_ROLE_KEY)
+        const savedTgId = localStorage.getItem(LS_TG_ID_KEY)
+        if (savedRole === role && savedTgId === String(user.id)) {
+          setStatus('allowed')
+          return
+        }
+
       try {
         const dbUser = await upsertTelegramUser(user)
         if (cancelled) return
