@@ -22,11 +22,19 @@ async function requestBackend(path, payload = {}) {
     throw new Error('Telegram initData is unavailable — open via Telegram')
   }
 
-  const response = await fetch(`${backendUrl}${path}`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ ...payload, initData }),
-  })
+  let response
+  try {
+    response = await fetch(`${backendUrl}${path}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...payload, initData }),
+    })
+  } catch (error) {
+    if (error.name === 'TypeError') {
+      throw new Error('Tarmoq xatosi yoki server ishlamayapti (Network Error).')
+    }
+    throw error
+  }
 
   const data = await response.json().catch(() => ({}))
   if (!response.ok || data.ok === false) {

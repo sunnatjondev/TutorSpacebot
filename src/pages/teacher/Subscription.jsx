@@ -239,11 +239,17 @@ export default function Subscription() {
 
           <button 
             onClick={() => handlePay('solo')}
-            disabled={loadingPlan !== null}
-            className="w-full mt-8 h-[52px] rounded-2xl bg-gradient-to-r from-[#9333ea] to-[#a855f7] text-white font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 relative z-10"
+            disabled={loadingPlan !== null || (!isExpired && activePlan?.slug === 'solo')}
+            className={`w-full mt-8 h-[52px] rounded-2xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all flex items-center justify-center gap-2 relative z-10 ${
+              !isExpired && activePlan?.slug === 'solo'
+                ? 'bg-white/10 text-white/50 cursor-not-allowed shadow-none border border-white/10'
+                : 'bg-gradient-to-r from-[#9333ea] to-[#a855f7] text-white active:scale-95 disabled:opacity-50'
+            }`}
           >
             {loadingPlan === 'solo' ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
-            {lang === 'ru' ? 'Оплатить' : 'To\'lash'}
+            {!isExpired && activePlan?.slug === 'solo'
+              ? (lang === 'ru' ? 'Активный' : 'Faol')
+              : (lang === 'ru' ? 'Оплатить' : 'To\'lash')}
           </button>
         </div>
 
@@ -267,11 +273,17 @@ export default function Subscription() {
 
           <button 
             onClick={() => handlePay('center')}
-            disabled={loadingPlan !== null}
-            className="w-full mt-8 h-[52px] rounded-2xl bg-gradient-to-r from-[#ea580c] to-[#f97316] text-white font-bold shadow-[0_0_20px_rgba(234,88,12,0.3)] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 relative z-10"
+            disabled={loadingPlan !== null || (!isExpired && activePlan?.slug === 'center')}
+            className={`w-full mt-8 h-[52px] rounded-2xl font-bold shadow-[0_0_20px_rgba(234,88,12,0.3)] transition-all flex items-center justify-center gap-2 relative z-10 ${
+              !isExpired && activePlan?.slug === 'center'
+                ? 'bg-white/10 text-white/50 cursor-not-allowed shadow-none border border-white/10'
+                : 'bg-gradient-to-r from-[#ea580c] to-[#f97316] text-white active:scale-95 disabled:opacity-50'
+            }`}
           >
             {loadingPlan === 'center' ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
-            {lang === 'ru' ? 'Оплатить' : 'To\'lash'}
+            {!isExpired && activePlan?.slug === 'center'
+              ? (lang === 'ru' ? 'Активный' : 'Faol')
+              : (lang === 'ru' ? 'Оплатить' : 'To\'lash')}
           </button>
         </div>
 

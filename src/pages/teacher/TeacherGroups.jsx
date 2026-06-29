@@ -139,9 +139,12 @@ export default function TeacherGroups() {
           {displayGroups.map((group, index) => {
             const isOptimistic = group.isOptimistic
             return (
-              <button
+              <div
                 key={group.id}
-                className={`m3-card w-full text-left stagger-item transition-all duration-200 relative ${
+                role="button"
+                tabIndex={0}
+                aria-label={group.name}
+                className={`m3-card w-full text-left stagger-item transition-all duration-200 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   isOptimistic ? 'opacity-60 pointer-events-none' : 'active:scale-[0.98]'
                 }`}
                 style={{ animationDelay: `${index * 70}ms`, opacity: deletingId === group.id ? 0.5 : undefined }}
@@ -150,11 +153,20 @@ export default function TeacherGroups() {
                   haptic?.light()
                   navigate(`/teacher/groups/${group.id}`)
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    if (isOptimistic) return
+                    haptic?.light()
+                    navigate(`/teacher/groups/${group.id}`)
+                  }
+                }}
               >
                 {!isOptimistic && (
                   <button
                     className="absolute top-4 right-4 w-10 h-10 rounded-full bg-error-container/20 flex items-center justify-center text-error active:scale-90 z-10 transition-transform"
                     onClick={(event) => handleDelete(event, group.id)}
+                    aria-label={t('teacherGroups.deleteGroup')}
                   >
                     <Trash2 size={18} />
                   </button>
@@ -189,7 +201,7 @@ export default function TeacherGroups() {
                   <span className="font-serif font-bold text-lg text-on-surface">{group.paidPercent ?? 0}%</span>
                 </div>
               </div>
-            </button>
+              </div>
           )
         })}
 

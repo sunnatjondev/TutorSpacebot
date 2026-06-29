@@ -18,7 +18,7 @@ export function Modal({ isOpen, onClose, title, children, closeOnBackdropClick =
       />
       {/* Sheet */}
       <div
-        className="relative w-full max-w-[480px] bg-surface-container rounded-t-modal shadow-m3-elevation-3 animate-slide-up"
+        className="relative w-full max-w-[480px] bg-surface-container rounded-t-[32px] shadow-m3-elevation-3 animate-slide-up"
         style={{
           maxHeight: '85dvh',
           display: 'flex',
