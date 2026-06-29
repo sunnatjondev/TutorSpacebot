@@ -134,7 +134,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
   if (!groups.length) {
     return (
       <div className="space-y-4">
-        <div className="rounded-3xl border border-outline-variant bg-level-1 px-4 py-5">
+        <div className="rounded-[24px] border border-outline-variant bg-level-1 px-4 py-5">
           <p className="text-sm font-semibold text-on-surface">{t('teacherSchedule.createGroupFirst')}</p>
           <p className="mt-2 text-sm text-on-surface-variant">{t('teacherSchedule.noGroups')}</p>
         </div>
