@@ -297,7 +297,7 @@ export default function GroupDetail() {
   const { t, lang } = useI18n()
   const { data, loading } = useGroupDetail(id)
   const { data: homeworkRows } = useGroupHomework(id)
-  const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tut0rspacebot'
+  const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tutorspace_app_bot'
 
   const group = data?.group
   const students = data?.students || []
