@@ -41,36 +41,47 @@ export default function StudentGroups() {
 
         <div className="space-y-4">
           {groups.map((group, index) => (
-            <div key={group.id} className="m3-card stagger-item" style={{ animationDelay: `${index * 70}ms` }}>
-              <h2 className="m3-title-lg mb-1 truncate">{group.subject}</h2>
-              <p className="text-on-surface-variant text-sm mb-4 truncate">{group.teacher}</p>
-
-              <div className="rounded-[24px] p-4 mb-4" style={{ background: '#2a2933' }}>
-                <div className="flex items-center gap-3 mb-3">
-                  <Avatar name={group.teacher} size="lg" />
-                  <div className="min-w-0">
-                    <p className="font-bold text-on-surface truncate">{group.teacher}</p>
-                    <span className="chip text-[11px] mt-1 inline-flex max-w-[150px] truncate">{group.teacherSubject}</span>
-                  </div>
+            <div key={group.id} className="m3-card stagger-item p-5 flex flex-col gap-4" style={{ animationDelay: `${index * 70}ms` }}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-bold text-on-surface">{group.subject}</h2>
+                  <p className="text-xs text-on-surface-variant mt-0.5">{group.teacherSubject}</p>
                 </div>
-                <hr className="divider my-2" />
-                <div className="grid grid-cols-2 gap-3 mt-2">
-                  <div className="rounded-[12px] bg-surface-container p-3">
-                    <p className="text-on-surface-variant text-xs mb-1">{t('studentGroups.students')}</p>
-                    <p className="flex items-center gap-1.5 font-bold text-on-surface text-sm">
-                      <Users size={14} className="text-primary" /> {group.studentsCount}
-                    </p>
-                  </div>
-                  <div className="rounded-[12px] bg-surface-container p-3">
-                    <p className="text-on-surface-variant text-xs mb-1">{t('studentGroups.nextLesson')}</p>
-                    <p className="flex items-center gap-1.5 font-bold text-on-surface text-sm">
-                      <CalendarDays size={14} className="text-primary shrink-0" />
-                      <span className="truncate">{group.nextLesson}</span>
-                    </p>
-                  </div>
+                {group.telegramLink && (
+                  <a
+                    href={group.telegramLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="chip chip-active text-xs py-1.5 px-3 flex items-center gap-1.5 active:scale-95 transition-transform"
+                  >
+                    Telegram
+                  </a>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 bg-surface-low border border-outline-variant/10 rounded-2xl p-3">
+                <Avatar name={group.teacher} size="md" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-on-surface truncate">{group.teacher}</p>
+                  <p className="text-[11px] text-on-surface-variant mt-0.5">{t('studentGroups.teacher') || 'O\'qituvchi'}</p>
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-surface-low border border-outline-variant/10 p-3">
+                  <p className="text-on-surface-variant text-[11px] mb-1">{t('studentGroups.students')}</p>
+                  <p className="flex items-center gap-1.5 font-bold text-on-surface text-sm">
+                    <Users size={14} className="text-primary" /> {group.studentsCount}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-surface-low border border-outline-variant/10 p-3">
+                  <p className="text-on-surface-variant text-[11px] mb-1">{t('studentGroups.nextLesson')}</p>
+                  <p className="flex items-center gap-1.5 font-bold text-on-surface text-sm">
+                    <CalendarDays size={14} className="text-primary shrink-0" />
+                    <span className="truncate">{group.nextLesson}</span>
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
 

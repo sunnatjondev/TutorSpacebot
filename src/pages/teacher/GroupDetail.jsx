@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users } from 'lucide-react'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -9,7 +10,7 @@ import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { fetchGroupDayAttendance, fetchGroupMonthlyStats } from '../../lib/backend'
 import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework, useDeleteGroupHomework } from '../../hooks/api/useGroups'
-import { useDeleteGroup, useCreateSession } from '../../hooks/api/useTeacher'
+import { useDeleteGroup, useCreateSession, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -329,6 +330,17 @@ export default function GroupDetail() {
   const [updatingRate, setUpdatingRate] = useState(false)
   const [newRateValue, setNewRateValue] = useState('')
 
+  // Create Session states
+  const [showCreateSessionModal, setShowCreateSessionModal] = useState(false)
+  const [sessionTime, setSessionTime] = useState('09:00')
+  const [sessionDuration, setSessionDuration] = useState(90)
+  const [creatingSession, setCreatingSession] = useState(false)
+
+  // Mark Payment Paid states
+  const [markingPaymentStudent, setMarkingPaymentStudent] = useState(null)
+  const [paymentMethod, setPaymentMethod] = useState('cash')
+  const [markingPayment, setMarkingPayment] = useState(false)
+
   // Statistics state
   const [monthlyStats, setMonthlyStats] = useState({ unpaidCount: 0, absentCount: 0, averageAttendance: 0, totalClasses: 0 })
 
@@ -407,6 +419,7 @@ export default function GroupDetail() {
     loadMonthlyStats()
   }, [id, studentIdsKey, attendance]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const queryClient = useQueryClient()
   const createSessionMutation = useCreateSession()
   const saveAttendanceMutation = useSaveAttendance()
   const updateStudentRateMutation = useUpdateStudentRate()
@@ -414,6 +427,48 @@ export default function GroupDetail() {
   const removeStudentMutation = useRemoveStudentFromGroup()
   const deleteGroupMutation = useDeleteGroup()
   const deleteHomeworkMutation = useDeleteGroupHomework()
+  const markPaymentPaidMutation = useMarkPaymentPaid()
+
+  const handleConfirmCreateSession = async () => {
+    setCreatingSession(true)
+    haptic?.medium()
+    const scheduledAt = new Date(selectedAttendanceDate)
+    const [hours, minutes] = sessionTime.split(':').map(Number)
+    scheduledAt.setHours(hours || 9, minutes || 0, 0, 0)
+    try {
+      const data = await createSessionMutation.mutateAsync({
+        groupId: id,
+        scheduledAt: scheduledAt.toISOString(),
+        durationMin: Number(sessionDuration) || 90
+      })
+      setSessionId(data.id)
+      haptic?.success()
+      setShowCreateSessionModal(false)
+    } catch {
+      alert(lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi")
+    } finally {
+      setCreatingSession(false)
+    }
+  }
+
+  const handleConfirmMarkPaid = async () => {
+    if (!markingPaymentStudent?.payment_id) return
+    setMarkingPayment(true)
+    haptic?.medium()
+    try {
+      await markPaymentPaidMutation.mutateAsync({
+        paymentId: markingPaymentStudent.payment_id,
+        method: paymentMethod
+      })
+      haptic?.success()
+      queryClient.invalidateQueries({ queryKey: ['group-detail', id] })
+      setMarkingPaymentStudent(null)
+    } catch {
+      alert("To'lovni tasdiqlashda xatolik")
+    } finally {
+      setMarkingPayment(false)
+    }
+  }
 
   const toggleAttendance = async (studentId) => {
     haptic?.light()
@@ -656,17 +711,9 @@ export default function GroupDetail() {
               </p>
               <button 
                 className="m3-btn-filled mx-auto"
-                onClick={async () => {
+                onClick={() => {
                   haptic?.medium()
-                  const scheduledAt = new Date(selectedAttendanceDate)
-                  scheduledAt.setHours(9, 0, 0, 0) // default 9am
-                  try {
-                    const data = await createSessionMutation.mutateAsync({ groupId: id, scheduledAt: scheduledAt.toISOString() })
-                    setSessionId(data.id)
-                    haptic?.success()
-                  } catch {
-                    alert(lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi")
-                  }
+                  setShowCreateSessionModal(true)
                 }}
               >
                 + {lang === 'ru' ? 'Создать урок' : 'Dars yaratish'}
@@ -740,18 +787,42 @@ export default function GroupDetail() {
           <div className="space-y-0">
             {students.map((student, index) => (
               <div key={student.id}>
-                <div
-                  className="flex items-center gap-3 py-3 cursor-pointer active:opacity-75 transition-opacity"
-                  onClick={() => handleEditRateClick(student)}
-                >
+                <div className="flex items-center gap-3 py-3">
                   <Avatar name={student.name} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-on-surface text-sm font-semibold truncate">{student.name}</p>
-                    <p className="text-on-surface-variant text-xs">{formatUZS(student.amount)}</p>
+                  <div 
+                    className="flex-1 min-w-0 cursor-pointer hover:opacity-80 flex items-center gap-2 group"
+                    onClick={() => handleEditRateClick(student)}
+                  >
+                    <div>
+                      <p className="text-on-surface text-sm font-semibold truncate">{student.name}</p>
+                      <p className="text-on-surface-variant text-xs flex items-center gap-1.5">
+                        {formatUZS(student.amount)} 
+                        <Pencil size={11} className="text-on-surface-variant/50 group-hover:text-primary transition-colors" />
+                      </p>
+                    </div>
                   </div>
-                  {student.status === 'paid' && <span className="badge-paid">✓ {t('common.paid')}</span>}
-                  {student.status === 'unpaid' && <span className="badge-unpaid">{t('common.unpaid')}</span>}
-                  {student.status === 'partial' && <span className="badge-partial">{t('common.partial')}</span>}
+                  
+                  {student.status === 'paid' ? (
+                    <span className="badge-paid select-none">✓ {t('common.paid')}</span>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (student.payment_id) {
+                          setMarkingPaymentStudent(student)
+                          setPaymentMethod('cash')
+                          haptic?.light()
+                        } else {
+                          alert(lang === 'ru' ? "Сначала создайте платеж в Финансах" : "Avval moliya bo'limida to'lov yarating")
+                        }
+                      }}
+                      className={`active:scale-95 transition-transform ${
+                        student.status === 'unpaid' ? 'badge-unpaid cursor-pointer' : 'badge-partial cursor-pointer'
+                      }`}
+                    >
+                      {student.status === 'unpaid' ? t('common.unpaid') : t('common.partial')}
+                    </button>
+                  )}
                 </div>
                 {index < students.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
               </div>
@@ -956,6 +1027,95 @@ export default function GroupDetail() {
           setSelectedDayIndex(day === 0 ? 6 : day - 1)
         }}
       />
+
+      {/* Create Session Modal */}
+      <Modal isOpen={showCreateSessionModal} onClose={() => setShowCreateSessionModal(false)} title={lang === 'ru' ? 'Создать урок' : 'Dars yaratish'} closeOnBackdropClick={false}>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">
+              {lang === 'ru' ? 'Время начала урока' : 'Dars boshlanish vaqti'}
+            </label>
+            <input
+              type="time"
+              value={sessionTime}
+              onChange={(e) => setSessionTime(e.target.value)}
+              className="m3-input"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">
+              {lang === 'ru' ? 'Длительность (минут)' : 'Davomiyligi (daqiqa)'}
+            </label>
+            <input
+              type="number"
+              value={sessionDuration}
+              onChange={(e) => setSessionDuration(e.target.value)}
+              className="m3-input"
+              placeholder="90"
+            />
+          </div>
+          <button
+            className="m3-btn-filled"
+            onClick={handleConfirmCreateSession}
+            disabled={creatingSession}
+          >
+            {creatingSession ? t('groupDetail.saving') : (lang === 'ru' ? 'Создать' : 'Yaratish')}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Mark Payment Paid Modal */}
+      <Modal isOpen={!!markingPaymentStudent} onClose={() => setMarkingPaymentStudent(null)} title={lang === 'ru' ? 'Подтверждение оплаты' : 'To\'lovni tasdiqlash'} closeOnBackdropClick={false}>
+        {markingPaymentStudent && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 bg-surface-container rounded-2xl p-4">
+              <Avatar name={markingPaymentStudent.name} size="md" />
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-on-surface truncate">{markingPaymentStudent.name}</p>
+                <p className="text-on-surface-variant text-sm truncate">👥 {group?.name}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-lg font-extrabold text-debt-red">{formatUZS(markingPaymentStudent.amount)}</p>
+                <p className="text-xs text-debt-red font-bold">{t('common.unpaid').toUpperCase()}</p>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-on-surface-variant mb-2 block">
+                {lang === 'ru' ? 'Способ оплаты' : 'To\'lov usuli'}
+              </label>
+              <div className="flex gap-2">
+                {[
+                  { key: 'cash', label: lang === 'ru' ? 'Наличные' : 'Naqd' },
+                  { key: 'card', label: lang === 'ru' ? 'Карта' : 'Karta' },
+                  { key: 'transfer', label: lang === 'ru' ? 'Перевод' : 'O\'tkazma' }
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      setPaymentMethod(item.key)
+                      haptic?.selection()
+                    }}
+                    className={`flex-1 h-11 rounded-full border font-semibold text-sm transition-all duration-200 ${
+                      paymentMethod === item.key ? 'bg-brand border-brand text-white' : 'bg-transparent border-outline-variant text-on-surface'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={handleConfirmMarkPaid}
+              disabled={markingPayment}
+              className="m3-btn-filled mt-2"
+            >
+              {markingPayment ? t('groupDetail.saving') : (lang === 'ru' ? 'Подтвердить' : 'Tasdiqlash')}
+            </button>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }
