@@ -3,9 +3,7 @@ import { Navigate } from 'react-router-dom'
 import { upsertTelegramUser } from '../hooks/api/auth'
 import { useTelegram } from '../hooks/useTelegram'
 import { isBackendConfigured } from '../lib/backend'
-
-const LS_ROLE_KEY = 'ts_user_role'
-const LS_TG_ID_KEY = 'ts_tg_id'
+import { LS_ROLE_KEY, LS_TG_ID_KEY } from '../lib/constants'
 
 function RouteLoading() {
   return (

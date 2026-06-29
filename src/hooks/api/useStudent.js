@@ -83,6 +83,6 @@ export function useMarkHomeworkDone() {
   })
 }
 
-export async function joinGroupByToken(telegramId, inviteToken) {
+export async function joinGroupByToken(inviteToken) {
   return joinTrustedInvite(inviteToken)
 }

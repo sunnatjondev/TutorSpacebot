@@ -4,6 +4,7 @@ import { useTelegram } from './hooks/useTelegram'
 import { upsertTelegramUser } from './hooks/api/auth'
 import { joinGroupByToken } from './hooks/api/useStudent'
 import { isBackendConfigured } from './lib/backend'
+import { LS_ROLE_KEY, LS_TG_ID_KEY } from './lib/constants'
 import RouteGuard from './components/RouteGuard'
 
 const RoleSelection = lazy(() => import('./pages/RoleSelection'))
@@ -21,8 +22,7 @@ const StudentSchedule = lazy(() => import('./pages/student/StudentSchedule'))
 const StudentFinance = lazy(() => import('./pages/student/StudentFinance'))
 const StudentSettings = lazy(() => import('./pages/student/StudentSettings'))
 
-const LS_ROLE_KEY = 'ts_user_role'
-const LS_TG_ID_KEY = 'ts_tg_id'
+
 
 function LoadingScreen() {
   return (
@@ -58,7 +58,7 @@ function AuthGate() {
           let dbUser = await upsertTelegramUser(user)
 
           if (inviteToken) {
-            const joinRes = await joinGroupByToken(user.id, inviteToken, user)
+            const joinRes = await joinGroupByToken(inviteToken)
             if (joinRes.success) {
               dbUser = { ...dbUser, role: joinRes.role }
               if (tg?.showAlert) {
