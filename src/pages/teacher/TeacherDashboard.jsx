@@ -6,7 +6,7 @@ import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { useTeacherDashboard, useTeacherGroups, useCreateGroup, useTeacherPayments, useUpdateSessionStatus, useDeleteSession } from '../../hooks/api/useTeacher'
+import { useTeacherDashboard, useTeacherGroups, useCreateGroup, useTeacherPayments, useUpdateSession, useDeleteSession } from '../../hooks/api/useTeacher'
 import { useNavigate } from 'react-router-dom'
 
 function StatCard({ icon: Icon, value, label, iconBg }) {
@@ -136,7 +136,7 @@ export default function TeacherDashboard() {
   const { data: groups } = useTeacherGroups(telegramId)
   const { data: payments } = useTeacherPayments(telegramId, 'all')
 
-  const updateSessionMutation = useUpdateSessionStatus()
+  const updateSessionMutation = useUpdateSession()
   const deleteSessionMutation = useDeleteSession()
 
   const handleOverdueAction = async (sessionId, action) => {
@@ -313,6 +313,36 @@ export default function TeacherDashboard() {
             ))}
           </div>
         )}
+
+        {/* Analytics & Gamification Section for Teacher */}
+        <div className="mb-5 bg-gradient-to-br from-brand/90 to-primary/90 rounded-[24px] p-5 text-white shadow-m3-elevation-2 relative overflow-hidden stagger-item">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <TrendingUp size={80} />
+          </div>
+          <div className="relative z-10">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-sm font-bold opacity-90">{lang === 'ru' ? 'Аналитика за' : 'Tahlillar'} {currentMonthName}</h2>
+              <div className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm">
+                {overallPaymentPercent}% {lang === 'ru' ? 'Оплат' : 'To\'lovlar'}
+              </div>
+            </div>
+            
+            <div className="mb-1 text-xs opacity-80">{lang === 'ru' ? 'Доход за месяц' : 'Oylik daromad'}</div>
+            <div className="text-3xl font-extrabold mb-4">{formatUZS(earnedThisMonth)}</div>
+            
+            <div className="flex items-center gap-3 bg-black/20 p-3 rounded-xl backdrop-blur-md">
+              <div className="flex-1">
+                <div className="text-[10px] opacity-70 mb-0.5">{lang === 'ru' ? 'Ожидается' : 'Kutilayotgan'}</div>
+                <div className="text-sm font-bold">{formatUZS(debtThisMonth)}</div>
+              </div>
+              <div className="w-px h-8 bg-white/20 mx-2" />
+              <div className="flex-1">
+                <div className="text-[10px] opacity-70 mb-0.5">{lang === 'ru' ? 'Должники' : 'Qarzdorlar'}</div>
+                <div className="text-sm font-bold">{unpaidThisMonth.length} {lang === 'ru' ? 'студ.' : 'talaba'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="mb-5 grid grid-cols-2 gap-3" style={{ gridTemplateRows: 'auto auto' }}>
           {/* Talabalar — big card spanning 2 rows */}

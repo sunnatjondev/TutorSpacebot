@@ -134,8 +134,8 @@ export function createSession({ groupId, scheduledAt, durationMin }) {
   return requestBackend('/api/sessions/create', { groupId, scheduledAt, durationMin })
 }
 
-export function updateSessionStatus({ sessionId, status }) {
-  return requestBackend('/api/sessions/update', { sessionId, status })
+export function updateSessionStatus({ sessionId, status, notes }) {
+  return requestBackend('/api/sessions/update', { sessionId, status, notes })
 }
 
 export function deleteSession(sessionId) {

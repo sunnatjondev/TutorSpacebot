@@ -446,3 +446,26 @@ for all using (true) with check (true);
 
 create policy bot_notification_events_service_role on public.bot_notification_events
 for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
+
+
+-- 5. Gamification
+CREATE TABLE IF NOT EXISTS public.student_badges (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    student_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    badge_type TEXT NOT NULL,
+    awarded_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    UNIQUE(student_id, badge_type)
+);
+
+ALTER TABLE public.student_badges ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Students can view their own badges" ON public.student_badges FOR SELECT USING (auth.uid() = student_id);
+
+CREATE POLICY "Teachers can view their students badges" ON public.student_badges FOR SELECT USING (EXISTS (SELECT 1 FROM group_members gm JOIN groups g ON gm.group_id = g.id WHERE gm.student_id = student_badges.student_id AND g.teacher_id = auth.uid()));
+
+CREATE POLICY "Service role can insert badges" ON public.student_badges FOR INSERT WITH CHECK (true);
+
+
+-- 6. Schedule templates
+ALTER TABLE public.groups ADD COLUMN IF NOT EXISTS schedule_template JSONB DEFAULT '[]'::jsonb;

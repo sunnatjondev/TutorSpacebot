@@ -146,6 +146,25 @@ export default function StudentDashboard() {
           </div>
         </div>
 
+        {/* Gamification Badges */}
+        {dash?.badges && dash.badges.length > 0 && (
+          <div className="m3-card stagger-item">
+            <h3 className="m3-title-md !font-sans !text-base mb-3">{t('studentHome.myBadges', 'Mening yutuqlarim')}</h3>
+            <div className="flex flex-wrap gap-3">
+              {dash.badges.map((b) => (
+                <div key={b.badge_type} className="flex flex-col items-center justify-center p-3 rounded-2xl bg-surface-high border border-outline-variant/15 w-24 text-center">
+                  <div className="text-3xl mb-1">
+                    {b.badge_type === 'streak_5' ? '🏆' : b.badge_type === 'hw_master_3' ? '🎓' : '🏅'}
+                  </div>
+                  <span className="text-[10px] font-bold text-on-surface-variant leading-tight">
+                    {b.badge_type === 'streak_5' ? (t('badges.streak5', 'Ideal davomat')) : b.badge_type === 'hw_master_3' ? (t('badges.hwMaster', 'Vazifa ustasi')) : b.badge_type}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div
           className="m3-card stagger-item"
           style={{ background: 'linear-gradient(135deg, #1f1f28, #2a1a1a)', border: '1px solid rgba(248,113,113,0.25)' }}

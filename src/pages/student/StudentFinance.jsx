@@ -50,7 +50,21 @@ export default function StudentFinance() {
             <div className="flex items-baseline gap-3 mb-4">
               <p className="text-3xl font-extrabold text-debt-red">{formatUZS(totalUnpaid)}</p>
             </div>
-            <button onClick={() => haptic?.light()} className="m3-btn-tonal h-11 text-sm">
+            <button
+              onClick={() => {
+                haptic?.light()
+                const unpaidPayment = displayPayments.find((p) => p.status === 'unpaid' || p.status === 'pending' || p.status === 'partial')
+                const teacher = unpaidPayment?.teacher
+                if (teacher) {
+                  if (teacher.username) {
+                    window.Telegram?.WebApp?.openTelegramLink(`https://t.me/${teacher.username}`)
+                  } else if (teacher.telegram_id) {
+                    window.Telegram?.WebApp?.openTelegramLink(`https://t.me/user?id=${teacher.telegram_id}`)
+                  }
+                }
+              }}
+              className="m3-btn-tonal h-11 text-sm"
+            >
               <MessageCircle size={16} /> {t('studentFinance.contactTeacher')}
             </button>
           </div>

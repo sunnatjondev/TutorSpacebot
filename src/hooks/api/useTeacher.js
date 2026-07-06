@@ -107,11 +107,11 @@ export function useCreateSession() {
   })
 }
 
-export function useUpdateSessionStatus() {
+export function useUpdateSession() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ sessionId, status }) => {
-      const { session } = await apiUpdateSessionStatus({ sessionId, status })
+    mutationFn: async ({ sessionId, status, notes }) => {
+      const { session } = await apiUpdateSessionStatus({ sessionId, status, notes })
       return session
     },
     onSuccess: () => {

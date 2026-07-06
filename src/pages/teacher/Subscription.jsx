@@ -227,7 +227,7 @@ export default function Subscription() {
           </div>
           <h3 className="text-2xl font-black text-white relative z-10">Solo</h3>
           <div className="mt-2 flex items-baseline gap-1 relative z-10">
-            <span className="text-3xl font-extrabold text-[#c084fc]">{formatUZS(100000)}</span>
+            <span className="text-3xl font-extrabold text-[#c084fc]">{formatUZS(150000)}</span>
             <span className="text-sm font-semibold text-[#c084fc]/70">/ {lang === 'ru' ? 'мес' : 'oy'}</span>
           </div>
           
@@ -261,7 +261,7 @@ export default function Subscription() {
           </div>
           <h3 className="text-2xl font-black text-white relative z-10">Center</h3>
           <div className="mt-2 flex items-baseline gap-1 relative z-10">
-            <span className="text-3xl font-extrabold text-[#fdba74]">{formatUZS(300000)}</span>
+            <span className="text-3xl font-extrabold text-[#fdba74]">{formatUZS(400000)}</span>
             <span className="text-sm font-semibold text-[#fdba74]/70">/ {lang === 'ru' ? 'мес' : 'oy'}</span>
           </div>
           

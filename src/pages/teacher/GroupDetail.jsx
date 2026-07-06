@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, Download } from 'lucide-react'
+import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
@@ -9,7 +10,7 @@ import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { fetchGroupDayAttendance, fetchGroupMonthlyStats } from '../../lib/backend'
-import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework, useDeleteGroupHomework } from '../../hooks/api/useGroups'
+import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useUpdateSession, useSaveAttendance, useCreateHomework, useGroupHomework, useDeleteGroupHomework } from '../../hooks/api/useGroups'
 import { useDeleteGroup, useCreateSession, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
@@ -32,7 +33,7 @@ function getLocalDateKey(date) {
   return `${year}-${month}-${day}`
 }
 
-function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDeleteGroup, manageStudents, t }) {
+function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDeleteGroup, onExportCSV, manageStudents, t }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('groupDetail.groupManagement')}>
       <div className="divide-y divide-outline-variant/20 bg-surface-high rounded-2xl overflow-hidden border border-outline-variant/15">
@@ -79,6 +80,20 @@ function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDelete
             <p className="text-xs text-red-500/70 mt-0.5">{t('groupDetail.deleteGroupConfirm')}</p>
           </div>
         </button>
+
+        {/* Export CSV */}
+        <button
+          onClick={() => { onExportCSV(); onClose(); }}
+          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-green-500/5 active:bg-green-500/10 transition-colors text-left"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+            <Download size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-green-600">CSV Export</p>
+            <p className="text-xs text-green-600/70 mt-0.5">Talabalar va to'lovlar</p>
+          </div>
+        </button>
       </div>
     </Modal>
   )
@@ -87,6 +102,31 @@ function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDelete
 function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
   const [name, setName] = useState(group?.name || '')
   const [subject, setSubject] = useState(group?.subject || '')
+  const [telegramGroupLink, setTelegramGroupLink] = useState(group?.telegram_group_link || '')
+  const [color, setColor] = useState(group?.color || 'purple')
+
+  const [billingDay, setBillingDay] = useState(group?.billing_day || 1)
+  const [pricePerMonth, setPricePerMonth] = useState(group?.price_per_month || 0)
+  const [scheduleTemplate, setScheduleTemplate] = useState(group?.schedule_template || [])
+
+  const colors = [
+    { value: 'purple', bg: 'bg-purple-500', ring: 'ring-purple-500' },
+    { value: 'blue', bg: 'bg-blue-500', ring: 'ring-blue-500' },
+    { value: 'green', bg: 'bg-green-500', ring: 'ring-green-500' },
+    { value: 'orange', bg: 'bg-orange-500', ring: 'ring-orange-500' },
+    { value: 'rose', bg: 'bg-rose-500', ring: 'ring-rose-500' },
+    { value: 'teal', bg: 'bg-teal-500', ring: 'ring-teal-500' },
+  ]
+
+  const weekDays = [
+    { id: 1, label: 'Du' },
+    { id: 2, label: 'Se' },
+    { id: 3, label: 'Ch' },
+    { id: 4, label: 'Pa' },
+    { id: 5, label: 'Ju' },
+    { id: 6, label: 'Sh' },
+    { id: 0, label: 'Ya' },
+  ]
 
   useEffect(() => {
     if (!isOpen) return
@@ -94,10 +134,15 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
     const frameId = window.requestAnimationFrame(() => {
       setName(group?.name || '')
       setSubject(group?.subject || '')
+      setTelegramGroupLink(group?.telegram_group_link || '')
+      setColor(group?.color || 'purple')
+      setBillingDay(group?.billing_day || 1)
+      setPricePerMonth(group?.price_per_month || 0)
+      setScheduleTemplate(group?.schedule_template || [])
     })
 
     return () => window.cancelAnimationFrame(frameId)
-  }, [group?.name, group?.subject, isOpen])
+  }, [group?.name, group?.subject, group?.telegram_group_link, group?.color, group?.billing_day, group?.price_per_month, group?.schedule_template, isOpen])
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('groupDetail.editGroup')} closeOnBackdropClick={false}>
@@ -120,10 +165,93 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
             placeholder={t('groupDetail.subjectPlaceholder')}
           />
         </div>
+        <div>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">To'lov kuni (Har oyning ... kuni)</label>
+          <input
+            className="m3-input"
+            type="number"
+            min="1"
+            max="31"
+            value={billingDay}
+            onChange={(event) => setBillingDay(parseInt(event.target.value) || 1)}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Oylik to'lov summasi (UZS)</label>
+          <input
+            className="m3-input"
+            type="number"
+            value={pricePerMonth}
+            onChange={(event) => setPricePerMonth(parseInt(event.target.value) || 0)}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Telegram guruh manzili (ixtiyoriy)</label>
+          <input
+            className="m3-input"
+            value={telegramGroupLink}
+            onChange={(event) => setTelegramGroupLink(event.target.value)}
+            placeholder="https://t.me/+"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Guruh rangi</label>
+          <div className="flex gap-3 mt-2">
+            {colors.map((c) => (
+              <button
+                key={c.value}
+                onClick={() => setColor(c.value)}
+                className={`w-8 h-8 rounded-full ${c.bg} transition-all ${color === c.value ? \`ring-4 ring-offset-2 ${c.ring} dark:ring-offset-[#1a1b1e]\` : 'opacity-70 hover:opacity-100 scale-95'}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Haftalik dars jadvali</label>
+          <div className="space-y-3">
+            {weekDays.map(wd => {
+              const checked = scheduleTemplate.some(st => st.dayOfWeek === wd.id)
+              const time = scheduleTemplate.find(st => st.dayOfWeek === wd.id)?.time || '15:00'
+              return (
+                <div key={wd.id} className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 flex-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setScheduleTemplate([...scheduleTemplate, { dayOfWeek: wd.id, time: '15:00' }])
+                        } else {
+                          setScheduleTemplate(scheduleTemplate.filter(st => st.dayOfWeek !== wd.id))
+                        }
+                      }}
+                      className="w-5 h-5 rounded border-outline/30 text-primary focus:ring-primary/20"
+                    />
+                    <span className="text-sm text-on-surface">{wd.label}</span>
+                  </label>
+                  {checked && (
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={(e) => {
+                        setScheduleTemplate(scheduleTemplate.map(st => 
+                          st.dayOfWeek === wd.id ? { ...st, time: e.target.value } : st
+                        ))
+                      }}
+                      className="m3-input py-1 px-2 text-sm w-28"
+                    />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
         <button
-          className="m3-btn-filled"
+          className="m3-btn-filled mt-2"
           disabled={!name.trim() || !subject.trim() || saving}
-          onClick={() => onSave({ name, subject })}
+          onClick={() => onSave({ name, subject, telegram_group_link: telegramGroupLink || null, color, billing_day: billingDay, price_per_month: pricePerMonth, schedule_template: scheduleTemplate })}
         >
           {saving ? t('groupDetail.saving') : t('groupDetail.saveChanges')}
         </button>
@@ -335,6 +463,8 @@ export default function GroupDetail() {
   const [sessionTime, setSessionTime] = useState('09:00')
   const [sessionDuration, setSessionDuration] = useState(90)
   const [creatingSession, setCreatingSession] = useState(false)
+  const [sessionNotes, setSessionNotes] = useState('')
+  const [savingNotes, setSavingNotes] = useState(false)
 
   // Mark Payment Paid states
   const [markingPaymentStudent, setMarkingPaymentStudent] = useState(null)
@@ -369,6 +499,7 @@ export default function GroupDetail() {
         const session = sessions?.[0]
         if (session) {
           setSessionId(session.id)
+          setSessionNotes(session.notes || '')
           const attMap = {}
           students.forEach((s) => {
             const attRow = session.attendance?.find((a) => a.student_id === s.id)
@@ -377,6 +508,7 @@ export default function GroupDetail() {
           setAttendance(attMap)
         } else {
           setSessionId(null)
+          setSessionNotes('')
           // Default all to false if no session exists yet
           const attMap = {}
           students.forEach((s) => {
@@ -428,6 +560,23 @@ export default function GroupDetail() {
   const deleteGroupMutation = useDeleteGroup()
   const deleteHomeworkMutation = useDeleteGroupHomework()
   const markPaymentPaidMutation = useMarkPaymentPaid()
+  const updateSessionMutation = useUpdateSession()
+
+  const handleSaveNotes = async () => {
+    if (!sessionId) return
+    setSavingNotes(true)
+    try {
+      await updateSessionMutation.mutateAsync({
+        sessionId,
+        notes: sessionNotes
+      })
+      haptic?.success()
+    } catch {
+      alert(lang === 'ru' ? 'Ошибка при сохранении заметок' : "Qaydlarni saqlashda xatolik yuz berdi")
+    } finally {
+      setSavingNotes(false)
+    }
+  }
 
   const handleConfirmCreateSession = async () => {
     setCreatingSession(true)
@@ -771,6 +920,28 @@ export default function GroupDetail() {
               })()}
             </div>
           )}
+          
+          {/* Session Notes */}
+          {!loadingAttendance && sessionId && (
+            <div className="mt-4 pt-4 border-t border-outline-variant/20">
+              <label className="text-xs font-semibold text-on-surface-variant mb-2 block">
+                {lang === 'ru' ? 'Заметки к уроку (темы, замечания)' : 'Dars qaydlari (mavzular, izohlar)'}
+              </label>
+              <textarea
+                className="m3-input w-full resize-none h-20 text-sm"
+                value={sessionNotes}
+                onChange={(e) => setSessionNotes(e.target.value)}
+                placeholder={lang === 'ru' ? 'Что проходили на уроке...' : 'Darsda nima o\'tildi...'}
+              />
+              <button
+                className="mt-2 text-xs font-bold text-brand hover:text-primary transition-colors disabled:opacity-50"
+                onClick={handleSaveNotes}
+                disabled={savingNotes}
+              >
+                {savingNotes ? (lang === 'ru' ? 'Сохранение...' : 'Saqlanmoqda...') : (lang === 'ru' ? 'Сохранить заметки' : 'Qaydlarni saqlash')}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Payments m3-card */}
@@ -919,6 +1090,18 @@ export default function GroupDetail() {
         onDeleteGroup={() => {
           setShowActions(false)
           handleDeleteGroup()
+        }}
+        onExportCSV={() => {
+          const rows = students.map(s => ({
+            'ID': s.id,
+            'Name': s.name,
+            'Username': s.username || '',
+            'Phone': s.phone_number || '',
+            'Status': s.status,
+            'Amount': s.amount
+          }))
+          downloadCSV(`Group_${group?.name}_Students`, rows)
+          haptic?.success()
         }}
       />
 

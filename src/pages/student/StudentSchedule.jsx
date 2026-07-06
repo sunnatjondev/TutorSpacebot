@@ -4,7 +4,7 @@ import { BottomNav } from '../../components/layout/BottomNav'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useStudentSchedule } from '../../hooks/api/useStudent'
+import { useStudentSchedule, useStudentHomework } from '../../hooks/api/useStudent'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -46,14 +46,22 @@ export default function StudentSchedule() {
   const days = getDayDates(baseDate)
   const weekStartKey = days[0].getTime()
   const { data: sessions } = useStudentSchedule(user?.id, weekStartKey)
+  const { data: homeworks } = useStudentHomework(user?.id)
 
   const selectedDate = days[selectedDay]
   const selectedDayKey = selectedDate?.toDateString()
+
+  const pendingHomeworks = (homeworks || []).filter(h => h.status === 'pending' && h.homework?.due_at)
 
   const daySessions = (sessions || [])
     .filter((session) => new Date(session.scheduled_at).toDateString() === selectedDayKey)
     .map((session) => {
       const attended = session.attendance?.some((item) => item.present)
+      
+      const hwDue = pendingHomeworks.some(h => {
+        const dueDate = new Date(h.homework.due_at).toDateString()
+        return dueDate === selectedDayKey && h.homework.group?.subject === session.group?.subject
+      })
 
       return {
         id: session.id,
@@ -64,7 +72,7 @@ export default function StudentSchedule() {
         time: new Date(session.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
         duration: session.duration_min ? `${session.duration_min} min` : '-',
         status: attended ? 'attended' : (session.status || 'upcoming'),
-        hwDue: false,
+        hwDue,
       }
     })
 
