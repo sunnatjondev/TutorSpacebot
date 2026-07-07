@@ -210,51 +210,56 @@ export default function TeacherFinance() {
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6 pb-28">
-        <div className="mb-5 flex justify-between items-end">
-          <div>
-            <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
-            <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
-          </div>
-          <select 
-            value={monthFilter} 
-            onChange={(e) => { setMonthFilter(e.target.value); haptic?.selection() }}
-            className="bg-surface-high text-on-surface text-xs font-bold px-3 py-2 rounded-xl border border-outline-variant outline-none focus:border-brand"
-          >
-            <option value="current">{lang === 'ru' ? 'Этот месяц' : 'Shu oy'}</option>
-            <option value="prev">{lang === 'ru' ? 'Прошлый месяц' : 'O\'tgan oy'}</option>
-            <option value="all">{lang === 'ru' ? 'Все время' : 'Barcha vaqt'}</option>
-          </select>
+        <div className="mb-5">
+          <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
+          <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
         </div>
 
+        {/* Month filter chips */}
+        <div className="flex gap-2 mb-4">
+          {[
+            { key: 'current', label: lang === 'ru' ? 'Этот месяц' : 'Shu oy' },
+            { key: 'prev', label: lang === 'ru' ? 'Прошлый' : 'O\'tgan oy' },
+            { key: 'all', label: lang === 'ru' ? 'Все' : 'Barchasi' }
+          ].map((item) => (
+            <button
+              key={item.key}
+              onClick={() => { setMonthFilter(item.key); haptic?.selection() }}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                monthFilter === item.key
+                  ? 'bg-on-surface text-surface'
+                  : 'bg-surface-high text-on-surface-variant'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Summary cards — clean, minimal */}
         <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="bg-gradient-to-br from-paid-green/90 to-paid-green/70 text-white rounded-[24px] p-4 flex flex-col justify-between h-28 shadow-glow-sm shadow-paid-green/10">
-            <div>
-              <p className="text-[10px] uppercase font-bold opacity-80">{lang === 'ru' ? 'Получено' : 'Keltirilgan'}</p>
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold">{formatUZS(totalEarned, true)}</p>
-            </div>
+          <div className="m3-card p-4 flex flex-col justify-between h-24">
+            <p className="text-[10px] uppercase font-semibold text-on-surface-variant tracking-wider">{lang === 'ru' ? 'Получено' : 'Keltirilgan'}</p>
+            <p className="text-xl font-bold text-paid-green">{formatUZS(totalEarned, true)}</p>
           </div>
-          <div className="bg-gradient-to-br from-debt-red/90 to-debt-red/70 text-white rounded-[24px] p-4 flex flex-col justify-between h-28 shadow-glow-sm shadow-debt-red/10">
-            <div>
-              <p className="text-[10px] uppercase font-bold opacity-80">{lang === 'ru' ? 'Долги' : 'Qarzdorlik'}</p>
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold">{formatUZS(totalUnpaid, true)}</p>
-            </div>
+          <div className="m3-card p-4 flex flex-col justify-between h-24">
+            <p className="text-[10px] uppercase font-semibold text-on-surface-variant tracking-wider">{lang === 'ru' ? 'Долги' : 'Qarzdorlik'}</p>
+            <p className="text-xl font-bold text-debt-red">{formatUZS(totalUnpaid, true)}</p>
           </div>
         </div>
 
+        {/* Remind debtors */}
         {totalUnpaid > 0 && (
           <button
             onClick={handleMassRemind}
             disabled={reminding}
-            className="w-full h-12 mb-5 rounded-2xl bg-brand text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-50"
+            className="w-full h-11 mb-5 rounded-2xl bg-surface-high text-on-surface font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-50 border border-outline-variant/30"
           >
             🔔 {reminding ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') : (lang === 'ru' ? 'Напомнить должникам' : 'Qarzdorlarga eslatish')}
           </button>
         )}
 
+        {/* Payment status filter */}
         <div className="chip-row mb-4">
           {filters.map((filter) => (
             <button
@@ -265,7 +270,7 @@ export default function TeacherFinance() {
               }}
               className={`chip whitespace-nowrap transition-all duration-200 ${
                 activeFilter === filter.key
-                  ? 'bg-brand text-on-primary font-bold shadow-glow-sm scale-105'
+                  ? 'bg-on-surface text-surface font-bold'
                   : 'bg-surface-high text-on-surface-variant'
               }`}
             >

@@ -314,23 +314,23 @@ export default function TeacherDashboard() {
           </div>
         )}
 
-        {/* Analytics & Gamification Section for Teacher */}
-        <div className="mb-5 bg-gradient-to-br from-brand/90 to-primary/90 rounded-[24px] p-5 text-white shadow-m3-elevation-2 relative overflow-hidden stagger-item">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
+        {/* Analytics Section — clean, minimal */}
+        <div className="mb-5 m3-card p-5 relative overflow-hidden stagger-item">
+          <div className="absolute top-0 right-0 p-4 opacity-[0.04]">
             <TrendingUp size={80} />
           </div>
           <div className="relative z-10">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-sm font-bold opacity-90">{lang === 'ru' ? 'Аналитика за' : 'Tahlillar'} {currentMonthName}</h2>
-              <div className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm">
+              <h2 className="text-sm font-semibold text-on-surface-variant">{lang === 'ru' ? 'Аналитика за' : 'Tahlillar'} {currentMonthName}</h2>
+              <div className="bg-brand/10 text-primary px-3 py-1 rounded-full text-xs font-bold">
                 {overallPaymentPercent}% {lang === 'ru' ? 'Оплат' : 'To\'lovlar'}
               </div>
             </div>
             
             <div className="flex items-center justify-between mb-4 mt-2">
               <div>
-                <div className="mb-1 text-xs opacity-85">{lang === 'ru' ? 'Доход за месяц' : 'Oylik daromad'}</div>
-                <div className="text-3xl font-extrabold">{formatUZS(earnedThisMonth)}</div>
+                <div className="mb-1 text-xs text-on-surface-variant">{lang === 'ru' ? 'Доход за месяц' : 'Oylik daromad'}</div>
+                <div className="text-3xl font-extrabold text-on-surface">{formatUZS(earnedThisMonth)}</div>
               </div>
               
               {/* Sparkline Chart */}
@@ -368,64 +368,59 @@ export default function TeacherDashboard() {
                     <svg width={sparklineWidth} height={sparklineHeight} className="overflow-visible">
                       <defs>
                         <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="white" stopOpacity="0.4" />
-                          <stop offset="100%" stopColor="white" stopOpacity="0.0" />
+                          <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity="0.3" />
+                          <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity="0.0" />
                         </linearGradient>
                       </defs>
                       <polygon points={fillPoints} fill="url(#sparkline-grad)" />
-                      <polyline points={points} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <polyline points={points} fill="none" stroke="var(--md-sys-color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.7" />
                     </svg>
-                    <span className="text-[9px] opacity-75 font-semibold uppercase tracking-wider">{lang === 'ru' ? 'За 7 дней' : '7 kunlik trend'}</span>
+                    <span className="text-[9px] text-on-surface-variant font-medium uppercase tracking-wider">{lang === 'ru' ? 'За 7 дней' : '7 kunlik trend'}</span>
                   </div>
                 )
               })()}
             </div>
             
-            <div className="flex items-center gap-3 bg-black/20 p-3 rounded-xl backdrop-blur-md">
+            <div className="flex items-center gap-3 bg-surface-high p-3 rounded-xl">
               <div className="flex-1">
-                <div className="text-[10px] opacity-70 mb-0.5">{lang === 'ru' ? 'Ожидается' : 'Kutilayotgan'}</div>
-                <div className="text-sm font-bold">{formatUZS(debtThisMonth)}</div>
+                <div className="text-[10px] text-on-surface-variant mb-0.5">{lang === 'ru' ? 'Ожидается' : 'Kutilayotgan'}</div>
+                <div className="text-sm font-bold text-on-surface">{formatUZS(debtThisMonth)}</div>
               </div>
-              <div className="w-px h-8 bg-white/20 mx-2" />
+              <div className="w-px h-8 bg-outline-variant/30 mx-2" />
               <div className="flex-1">
-                <div className="text-[10px] opacity-70 mb-0.5">{lang === 'ru' ? 'Должники' : 'Qarzdorlar'}</div>
-                <div className="text-sm font-bold">{unpaidThisMonth.length} {lang === 'ru' ? 'студ.' : 'talaba'}</div>
+                <div className="text-[10px] text-on-surface-variant mb-0.5">{lang === 'ru' ? 'Должники' : 'Qarzdorlar'}</div>
+                <div className="text-sm font-bold text-on-surface">{unpaidThisMonth.length} {lang === 'ru' ? 'студ.' : 'talaba'}</div>
               </div>
             </div>
           </div>
         </div>
 
         <div className="mb-5 grid grid-cols-2 gap-3" style={{ gridTemplateRows: 'auto auto' }}>
-          {/* Talabalar — big card spanning 2 rows */}
-          <div className="m3-card p-5 flex flex-col items-center justify-center text-center row-span-2 relative overflow-hidden transition-all duration-200 active:scale-98">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand/20 mb-3">
-              <User size={22} className="text-primary" />
+          {/* Talabalar */}
+          <div className="m3-card p-5 flex flex-col items-center justify-center text-center row-span-2 transition-all duration-200 active:scale-[0.98]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand/10 mb-3">
+              <User size={20} className="text-primary" />
             </div>
-            <p className="font-serif text-5xl font-bold text-on-surface leading-none">{dash?.totalStudents ?? '-'}</p>
+            <p className="text-4xl font-bold text-on-surface leading-none">{dash?.totalStudents ?? '—'}</p>
             <p className="m3-label mt-2">{t('teacherHome.students')}</p>
-            {dash?.totalStudents > 0 && (
-              <span className="text-[9px] text-paid-green font-bold bg-paid-green/10 px-2 py-0.5 rounded-full mt-2 shrink-0">
-                {lang === 'ru' ? 'Активные' : 'Faol'}
-              </span>
-            )}
           </div>
-          {/* Guruhlar — small top-right */}
-          <div className="m3-card p-4 flex items-center gap-3 transition-all duration-200 active:scale-98">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-tertiary/20 shrink-0">
-              <Layers size={20} className="text-tertiary" />
+          {/* Guruhlar */}
+          <div className="m3-card p-4 flex items-center gap-3 transition-all duration-200 active:scale-[0.98]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-tertiary/10 shrink-0">
+              <Layers size={18} className="text-tertiary" />
             </div>
             <div>
-              <p className="font-serif text-2xl font-bold text-on-surface leading-none">{dash?.totalGroups ?? '-'}</p>
+              <p className="text-2xl font-bold text-on-surface leading-none">{dash?.totalGroups ?? '—'}</p>
               <p className="m3-label mt-0.5">{t('teacherHome.groups')}</p>
             </div>
           </div>
-          {/* Bugungi darslar — small bottom-right */}
-          <div className="m3-card p-4 flex items-center gap-3 transition-all duration-200 active:scale-98">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/20 shrink-0">
-              <CalendarDays size={20} className="text-secondary" />
+          {/* Bugungi darslar */}
+          <div className="m3-card p-4 flex items-center gap-3 transition-all duration-200 active:scale-[0.98]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/10 shrink-0">
+              <CalendarDays size={18} className="text-secondary" />
             </div>
             <div>
-              <p className="font-serif text-2xl font-bold text-on-surface leading-none">{dash?.todaySessions?.length ?? 0}</p>
+              <p className="text-2xl font-bold text-on-surface leading-none">{dash?.todaySessions?.length ?? 0}</p>
               <p className="m3-label mt-0.5">{t('teacherHome.lessons')}</p>
             </div>
           </div>
