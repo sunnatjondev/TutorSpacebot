@@ -10,8 +10,8 @@ import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { fetchGroupDayAttendance, fetchGroupMonthlyStats } from '../../lib/backend'
-import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useUpdateSession, useSaveAttendance, useCreateHomework, useGroupHomework, useDeleteGroupHomework } from '../../hooks/api/useGroups'
-import { useDeleteGroup, useCreateSession, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
+import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework, useDeleteGroupHomework } from '../../hooks/api/useGroups'
+import { useDeleteGroup, useCreateSession, useUpdateSession, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
