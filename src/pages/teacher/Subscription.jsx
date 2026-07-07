@@ -56,7 +56,7 @@ export default function Subscription() {
   const isExpired = subscription?.status === 'expired'
   const isTrial = subscription?.status === 'trial'
   
-  const expiresAt = subscription?.expiresAt ? new Date(subscription.expiresAt) : null
+  const expiresAt = subscription?.expires_at ? new Date(subscription.expires_at) : null
   const daysLeft = expiresAt ? Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24)) : 0
 
   // Infer plan if backend didn't join the plan object
