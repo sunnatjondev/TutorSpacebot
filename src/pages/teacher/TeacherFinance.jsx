@@ -8,6 +8,7 @@ import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 import { useTeacherPayments, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
+import { remindDebtors, remindStudent } from '../../lib/backend'
 
 function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
   const [method, setMethod] = useState('cash')
@@ -98,8 +99,6 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
   )
 }
 
-import { remindDebtors, remindStudent } from '../../lib/backend'
-
 export default function TeacherFinance() {
   const { user, haptic, openTelegramLink } = useTelegram()
   const { t, lang } = useI18n()
@@ -156,6 +155,8 @@ export default function TeacherFinance() {
     } finally {
       setReminding(false)
     }
+  }
+
   const handleSingleRemind = async (payment) => {
     haptic?.medium?.()
     const student = payment.student
