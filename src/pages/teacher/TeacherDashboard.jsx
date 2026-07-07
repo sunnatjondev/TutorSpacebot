@@ -230,7 +230,7 @@ export default function TeacherDashboard() {
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest">
-      <div className="page-wrapper px-4 pt-6">
+      <div className="page-wrapper px-4 pt-6 pb-28">
         <div className="mb-6 animate-slide-down flex justify-between items-start">
           <div>
             <h1 className="m3-display-md">
@@ -327,8 +327,59 @@ export default function TeacherDashboard() {
               </div>
             </div>
             
-            <div className="mb-1 text-xs opacity-80">{lang === 'ru' ? 'Доход за месяц' : 'Oylik daromad'}</div>
-            <div className="text-3xl font-extrabold mb-4">{formatUZS(earnedThisMonth)}</div>
+            <div className="flex items-center justify-between mb-4 mt-2">
+              <div>
+                <div className="mb-1 text-xs opacity-85">{lang === 'ru' ? 'Доход за месяц' : 'Oylik daromad'}</div>
+                <div className="text-3xl font-extrabold">{formatUZS(earnedThisMonth)}</div>
+              </div>
+              
+              {/* Sparkline Chart */}
+              {(() => {
+                const sparklineData = Array.from({ length: 7 }).map((_, idx) => {
+                  const d = new Date()
+                  d.setDate(d.getDate() - (6 - idx))
+                  const start = new Date(d)
+                  start.setHours(0, 0, 0, 0)
+                  const end = new Date(d)
+                  end.setHours(23, 59, 59, 999)
+
+                  return (payments || [])
+                    .filter(p => {
+                      if (p.status !== 'paid') return false
+                      const pDate = new Date(p.created_at)
+                      return pDate >= start && pDate <= end
+                    })
+                    .reduce((sum, p) => sum + (p.amount || 0), 0)
+                })
+
+                const maxVal = Math.max(...sparklineData, 1000)
+                const sparklineWidth = 120
+                const sparklineHeight = 36
+                const points = sparklineData.map((val, idx) => {
+                  const x = (idx * sparklineWidth) / 6
+                  const y = sparklineHeight - (val / maxVal) * (sparklineHeight - 6) - 3
+                  return `${x},${y}`
+                }).join(' ')
+
+                const fillPoints = `0,${sparklineHeight} ${points} ${sparklineWidth},${sparklineHeight}`
+
+                return (
+                  <div className="flex flex-col items-end gap-1">
+                    <svg width={sparklineWidth} height={sparklineHeight} className="overflow-visible">
+                      <defs>
+                        <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="white" stopOpacity="0.4" />
+                          <stop offset="100%" stopColor="white" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <polygon points={fillPoints} fill="url(#sparkline-grad)" />
+                      <polyline points={points} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="text-[9px] opacity-75 font-semibold uppercase tracking-wider">{lang === 'ru' ? 'За 7 дней' : '7 kunlik trend'}</span>
+                  </div>
+                )
+              })()}
+            </div>
             
             <div className="flex items-center gap-3 bg-black/20 p-3 rounded-xl backdrop-blur-md">
               <div className="flex-1">
@@ -346,15 +397,20 @@ export default function TeacherDashboard() {
 
         <div className="mb-5 grid grid-cols-2 gap-3" style={{ gridTemplateRows: 'auto auto' }}>
           {/* Talabalar — big card spanning 2 rows */}
-          <div className="m3-card p-5 flex flex-col items-center justify-center text-center row-span-2">
+          <div className="m3-card p-5 flex flex-col items-center justify-center text-center row-span-2 relative overflow-hidden transition-all duration-200 active:scale-98">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand/20 mb-3">
               <User size={22} className="text-primary" />
             </div>
             <p className="font-serif text-5xl font-bold text-on-surface leading-none">{dash?.totalStudents ?? '-'}</p>
             <p className="m3-label mt-2">{t('teacherHome.students')}</p>
+            {dash?.totalStudents > 0 && (
+              <span className="text-[9px] text-paid-green font-bold bg-paid-green/10 px-2 py-0.5 rounded-full mt-2 shrink-0">
+                {lang === 'ru' ? 'Активные' : 'Faol'}
+              </span>
+            )}
           </div>
           {/* Guruhlar — small top-right */}
-          <div className="m3-card p-4 flex items-center gap-3">
+          <div className="m3-card p-4 flex items-center gap-3 transition-all duration-200 active:scale-98">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-tertiary/20 shrink-0">
               <Layers size={20} className="text-tertiary" />
             </div>
@@ -364,7 +420,7 @@ export default function TeacherDashboard() {
             </div>
           </div>
           {/* Bugungi darslar — small bottom-right */}
-          <div className="m3-card p-4 flex items-center gap-3">
+          <div className="m3-card p-4 flex items-center gap-3 transition-all duration-200 active:scale-98">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/20 shrink-0">
               <CalendarDays size={20} className="text-secondary" />
             </div>
@@ -446,6 +502,38 @@ export default function TeacherDashboard() {
             </div>
           ) : (
             <p className="py-4 text-center text-sm text-on-surface-variant">Bugun darslar yo'q</p>
+          )}
+        </div>
+
+        {/* Upcoming Homeworks Section */}
+        <div className="m3-card mb-4 stagger-item">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="m3-label">{lang === 'ru' ? 'Ближайшие домашние задания' : 'Yaqindagi vazifalar'}</span>
+            <BookOpen size={16} className="text-primary" />
+          </div>
+          {dash?.upcomingHomeworks?.length > 0 ? (
+            <div className="space-y-0">
+              {dash.upcomingHomeworks.map((hw, index) => (
+                <div key={hw.id}>
+                  <div className="flex items-center justify-between py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-on-surface">{hw.title}</p>
+                      <p className="text-xs text-on-surface-variant truncate">👥 {hw.group?.name}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[10px] text-error font-bold bg-error/15 px-2.5 py-1 rounded-full whitespace-nowrap">
+                        ⌛ {new Date(hw.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}
+                      </p>
+                    </div>
+                  </div>
+                  {index < dash.upcomingHomeworks.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="py-4 text-center text-sm text-on-surface-variant">
+              {lang === 'ru' ? 'Нет запланированных заданий' : 'Muddati bor vazifalar yo\'q'}
+            </p>
           )}
         </div>
 

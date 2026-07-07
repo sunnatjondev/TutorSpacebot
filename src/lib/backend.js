@@ -198,6 +198,14 @@ export function deleteUserAccount() {
   return requestBackend('/api/user/delete')
 }
 
+export function remindDebtors() {
+  return requestBackend('/api/teacher/remind-debtors')
+}
+
+export function remindStudent(paymentId) {
+  return requestBackend('/api/teacher/remind-student', { paymentId })
+}
+
 // ─── Billing API ──────────────────────────────────────────
 
 export function fetchBillingStatus() {

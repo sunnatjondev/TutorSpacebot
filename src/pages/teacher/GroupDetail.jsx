@@ -619,6 +619,44 @@ export default function GroupDetail() {
     }
   }
 
+  const displayStudentName = (name) => {
+    if (!name || name.trim() === '' || name.trim() === '—' || name.trim() === '-') {
+      return t('common.noName')
+    }
+    return name
+  }
+
+  const handleMarkAllPresent = async () => {
+    haptic?.medium()
+    let activeSessionId = sessionId
+    if (!activeSessionId) {
+      alert(lang === 'ru' ? "Сначала создайте урок для этой даты!" : "Iltimos, avval ushbu sana uchun dars yarating!")
+      return
+    }
+
+    const unMarkedStudents = students.filter(s => !attendance[s.id])
+    if (!unMarkedStudents.length) return
+
+    // Set all to true optimistically
+    const prevAttendance = { ...attendance }
+    const updated = { ...attendance }
+    unMarkedStudents.forEach(s => { updated[s.id] = true })
+    setAttendance(updated)
+
+    try {
+      await Promise.all(
+        unMarkedStudents.map(s =>
+          saveAttendanceMutation.mutateAsync({ sessionId: activeSessionId, studentId: s.id, present: true })
+        )
+      )
+      haptic?.success()
+    } catch (err) {
+      setAttendance(prevAttendance)
+      console.error('[Attendance] save all error:', err)
+      alert("Yo'qlamalarni saqlab bo'lmadi")
+    }
+  }
+
   const toggleAttendance = async (studentId) => {
     haptic?.light()
     
@@ -887,36 +925,53 @@ export default function GroupDetail() {
                   )
                 }
 
-                return visibleStudents.map((student, index) => (
-                  <div key={student.id}>
-                    <div className="flex items-center gap-3 py-3">
-                      <Avatar name={student.name} size="md" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-on-surface text-sm truncate">{student.name}</p>
-                        <p className="text-on-surface-variant text-[10px] truncate">
-                          {student.username ? `@${student.username}` : '—'}
-                          {student.joined_at && ` • ${lang === 'ru' ? 'Вступил(а)' : "Qo'shilgan"}: ${new Date(student.joined_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}`}
-                        </p>
-                      </div>
-                      {manageStudents && (
+                const showMarkAllBtn = visibleStudents.some(s => !attendance[s.id])
+
+                return (
+                  <div className="space-y-3">
+                    {showMarkAllBtn && (
+                      <div className="flex justify-end pr-1">
                         <button
-                          onClick={() => handleRemoveStudent(student.id)}
-                          className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-90 transition-transform shrink-0"
+                          onClick={handleMarkAllPresent}
+                          className="text-[11px] font-bold text-primary bg-primary/10 hover:bg-primary/15 active:scale-95 px-3 py-1.5 rounded-full transition-all flex items-center gap-1"
                         >
-                          <Trash2 size={16} />
+                          ✓ {lang === 'ru' ? 'Отметить всех присутствующими' : 'Hammani bor deb belgilash'}
                         </button>
-                      )}
-                      <button onClick={() => toggleAttendance(student.id)} className="transition-all duration-200 active:scale-90 shrink-0">
-                        {attendance[student.id] ? (
-                          <CheckCircle size={24} className="text-paid-green" />
-                        ) : (
-                          <Circle size={24} className="text-outline" />
-                        )}
-                      </button>
-                    </div>
-                    {index < visibleStudents.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
+                      </div>
+                    )}
+
+                    {visibleStudents.map((student, index) => (
+                      <div key={student.id}>
+                        <div className="flex items-center gap-3 py-3">
+                          <Avatar name={displayStudentName(student.name)} size="md" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-on-surface text-sm truncate">{displayStudentName(student.name)}</p>
+                            <p className="text-on-surface-variant text-[10px] truncate">
+                              {student.username ? `@${student.username}` : '—'}
+                              {student.joined_at && ` • ${lang === 'ru' ? 'Вступил(а)' : "Qo'shilgan"}: ${new Date(student.joined_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}`}
+                            </p>
+                          </div>
+                          {manageStudents && (
+                            <button
+                              onClick={() => handleRemoveStudent(student.id)}
+                              className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-90 transition-transform shrink-0"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                          <button onClick={() => toggleAttendance(student.id)} className="transition-all duration-200 active:scale-90 shrink-0">
+                            {attendance[student.id] ? (
+                              <CheckCircle size={24} className="text-paid-green" />
+                            ) : (
+                              <Circle size={24} className="text-outline" />
+                            )}
+                          </button>
+                        </div>
+                        {index < visibleStudents.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
+                      </div>
+                    ))}
                   </div>
-                ))
+                )
               })()}
             </div>
           )}
@@ -959,13 +1014,13 @@ export default function GroupDetail() {
             {students.map((student, index) => (
               <div key={student.id}>
                 <div className="flex items-center gap-3 py-3">
-                  <Avatar name={student.name} size="sm" />
+                  <Avatar name={displayStudentName(student.name)} size="sm" />
                   <div 
                     className="flex-1 min-w-0 cursor-pointer hover:opacity-80 flex items-center gap-2 group"
                     onClick={() => handleEditRateClick(student)}
                   >
                     <div>
-                      <p className="text-on-surface text-sm font-semibold truncate">{student.name}</p>
+                      <p className="text-on-surface text-sm font-semibold truncate">{displayStudentName(student.name)}</p>
                       <p className="text-on-surface-variant text-xs flex items-center gap-1.5">
                         {formatUZS(student.amount)} 
                         <Pencil size={11} className="text-on-surface-variant/50 group-hover:text-primary transition-colors" />
@@ -1252,9 +1307,9 @@ export default function GroupDetail() {
         {markingPaymentStudent && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 bg-surface-container rounded-2xl p-4">
-              <Avatar name={markingPaymentStudent.name} size="md" />
+              <Avatar name={displayStudentName(markingPaymentStudent.name)} size="md" />
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-on-surface truncate">{markingPaymentStudent.name}</p>
+                <p className="font-bold text-on-surface truncate">{displayStudentName(markingPaymentStudent.name)}</p>
                 <p className="text-on-surface-variant text-sm truncate">👥 {group?.name}</p>
               </div>
               <div className="text-right shrink-0">

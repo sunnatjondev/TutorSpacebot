@@ -39,7 +39,8 @@ const uz = {
     "loading": "Yuklanmoqda...",
     "done": "Tugadi",
     "send": "Yuborish",
-    "sending": "Yuborilmoqda..."
+    "sending": "Yuborilmoqda...",
+    "noName": "Ism yo'q"
   },
   "role": {
     "greeting": "Salom, {name}!",

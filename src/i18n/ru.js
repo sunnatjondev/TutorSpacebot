@@ -39,7 +39,8 @@ const ru = {
     "loading": "Загрузка...",
     "done": "Завершено",
     "send": "Отправить",
-    "sending": "Отправка..."
+    "sending": "Отправка...",
+    "noName": "Без имени"
   },
   "role": {
     "greeting": "Привет, {name}!",

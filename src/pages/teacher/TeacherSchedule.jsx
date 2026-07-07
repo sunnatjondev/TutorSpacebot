@@ -423,11 +423,21 @@ export default function TeacherSchedule() {
               const time = formatTime(lesson.scheduled_at)
               const name = lesson.group?.name || '-'
               const subject = lesson.group?.subject || '-'
-              const studentCount = lesson.attendance?.[0]?.count ?? 0
+              const studentCount = lesson.group?.group_members?.[0]?.count ?? 0
               const duration = lesson.duration_min ? `${lesson.duration_min} ${t('teacherSchedule.minutes')}` : ''
               const isDone = lesson.status === 'done'
               const isInProgress = lesson.status === 'ongoing'
               const isProcessing = processingSessionId === lesson.id
+
+              const colorsMap = {
+                purple: '#a855f7',
+                blue: '#3b82f6',
+                green: '#22c55e',
+                orange: '#f97316',
+                rose: '#f43f5e',
+                teal: '#14b8a6',
+              }
+              const groupColor = colorsMap[lesson.group?.color] || '#a855f7'
 
               return (
                 <div key={lesson.id} className="stagger-item flex gap-3" style={{ animationDelay: `${index * 80}ms` }}>
@@ -442,13 +452,14 @@ export default function TeacherSchedule() {
                           ? 'card-in-progress border-paid-green/30 bg-surface-container'
                           : 'border-brand/30 bg-surface-container'
                     }`}
-                    style={
-                      isDone
-                        ? {}
+                    style={{
+                      borderLeft: `5px solid ${groupColor}`,
+                      boxShadow: isDone
+                        ? undefined
                         : isInProgress
-                          ? { boxShadow: '0 0 0 1px rgba(74,222,128,0.18)' }
-                          : { boxShadow: '0 0 0 1px rgba(108,99,255,0.2)' }
-                    }
+                          ? '0 0 0 1px rgba(74,222,128,0.18)'
+                          : '0 0 0 1px rgba(108,99,255,0.2)'
+                    }}
                   >
                     <div className="mb-2 flex items-start justify-between">
                       <span

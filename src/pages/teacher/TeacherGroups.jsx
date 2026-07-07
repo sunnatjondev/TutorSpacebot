@@ -172,7 +172,7 @@ export default function TeacherGroups() {
                   </button>
                 )}
 
-              <div className="flex items-center gap-2 mb-3 pr-10">
+              <div className="flex flex-wrap gap-2 mb-3 pr-10">
                 <span className="chip chip-active h-7 inline-flex items-center text-xs font-semibold px-3 max-w-[120px] truncate">
                   {group.subject}
                 </span>
@@ -180,26 +180,31 @@ export default function TeacherGroups() {
                   <Users size={12} className="text-on-surface-variant/80 align-middle" />
                   <span>{getStudentCount(group)} {t('teacherGroups.students')}</span>
                 </span>
+                <span className="chip h-7 inline-flex items-center gap-1 text-xs font-semibold px-3 shrink-0">
+                  <span>📊 {group.attendancePercent ?? 0}% {lang === 'ru' ? 'Посещ.' : 'Davomat'}</span>
+                </span>
               </div>
 
               <h2 className="m3-title-lg mb-4 truncate pr-8">{group.name}</h2>
 
-              <div className="flex gap-3">
-                {/* Keyingi dars */}
-                <div className="flex-1 flex items-center gap-3 bg-surface-high rounded-2xl p-3">
-                  <div className="w-9 h-9 rounded-xl bg-brand/20 flex items-center justify-center shrink-0">
-                    <CalendarDays size={16} className="text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-on-surface-variant text-[10px] font-medium">{t('teacherGroups.nextLesson')}</p>
-                    <p className="font-semibold text-xs text-on-surface truncate">{getNextLesson(group)}</p>
-                  </div>
+              {/* Next Lesson Full Width */}
+              <div className="flex items-center gap-3 bg-surface-high rounded-2xl p-4 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
+                  <CalendarDays size={18} className="text-primary" />
                 </div>
-                {/* To'lov % */}
-                <div className="flex items-center gap-2 bg-surface-high rounded-2xl px-4 py-3 shrink-0">
-                  <div className={`w-2.5 h-2.5 rounded-full ${(group.paidPercent ?? 0) === 100 ? 'bg-paid-green' : (group.paidPercent ?? 0) > 0 ? 'bg-primary' : 'bg-error'}`} />
-                  <span className="font-serif font-bold text-lg text-on-surface">{group.paidPercent ?? 0}%</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-on-surface-variant text-[9px] font-bold uppercase tracking-wider">{t('teacherGroups.nextLesson')}</p>
+                  <p className="font-bold text-sm text-on-surface truncate mt-0.5">{getNextLesson(group)}</p>
                 </div>
+              </div>
+
+              {/* Payment Progress Bar */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-[11px] font-bold text-on-surface-variant">
+                  <span>{lang === 'ru' ? 'Оплата за месяц' : 'Oylik to\'lov ko\'rsatkichi'}</span>
+                  <span>{group.paidPercent ?? 0}%</span>
+                </div>
+                <ProgressBar progress={group.paidPercent ?? 0} />
               </div>
               </div>
           )

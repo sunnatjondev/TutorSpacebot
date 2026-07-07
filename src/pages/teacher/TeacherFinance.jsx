@@ -98,17 +98,39 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
   )
 }
 
+import { remindDebtors, remindStudent } from '../../lib/backend'
+
 export default function TeacherFinance() {
   const { user, haptic, openTelegramLink } = useTelegram()
   const { t, lang } = useI18n()
   const navigate = useNavigate()
   const [activeFilter, setActiveFilter] = useState('all')
+  const [monthFilter, setMonthFilter] = useState('current')
   const [markStudent, setMarkStudent] = useState(null)
   const [selectedPayment, setSelectedPayment] = useState(null)
+  const [reminding, setReminding] = useState(false)
+  const [remindResult, setRemindResult] = useState(null)
+  const [sendingReminder, setSendingReminder] = useState(false)
 
   const telegramId = user?.id
   const { data: payments, refetch } = useTeacherPayments(telegramId, activeFilter)
-  const displayPayments = payments || []
+
+  const now = new Date()
+  const currentMonth = now.getMonth() + 1
+  const currentYear = now.getFullYear()
+  const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1
+  const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear
+
+  // Client-side filter by month
+  const displayPayments = (payments || []).filter((payment) => {
+    if (monthFilter === 'current') {
+      return payment.period_month === currentMonth && payment.period_year === currentYear
+    }
+    if (monthFilter === 'prev') {
+      return payment.period_month === prevMonth && payment.period_year === prevYear
+    }
+    return true // 'all'
+  })
 
   const filters = [
     { key: 'all', label: t('teacherFinance.filterAll') },
@@ -123,6 +145,60 @@ export default function TeacherFinance() {
     .filter((payment) => payment.status === 'unpaid')
     .reduce((sum, payment) => sum + (payment.amount || 0), 0)
 
+  const handleMassRemind = async () => {
+    haptic?.heavy?.()
+    setReminding(true)
+    try {
+      const res = await remindDebtors()
+      setRemindResult(res)
+    } catch (e) {
+      alert(lang === 'ru' ? 'Ошибка при отправке напоминаний' : 'Eslatma yuborishda xatolik yuz berdi')
+    } finally {
+      setReminding(false)
+    }
+  const handleSingleRemind = async (payment) => {
+    haptic?.medium?.()
+    const student = payment.student
+    if (!student) return
+
+    setSendingReminder(true)
+    try {
+      const res = await remindStudent(payment.id)
+      if (res.sent) {
+        window.Telegram?.WebApp?.showAlert?.(
+          lang === 'ru' ? 'Напоминание успешно отправлено через бот!' : 'Eslatma bot orqali muvaffaqiyatli yuborildi!'
+        )
+        setSelectedPayment(null)
+      } else {
+        const studentName = `${student.first_name || ''} ${student.last_name || ''}`.trim() || 'Talaba'
+        if (student.username) {
+          window.Telegram?.WebApp?.showConfirm?.(
+            lang === 'ru' 
+              ? `У студента не зарегистрирован чат с ботом. Открыть личный чат с @${student.username.replace(/^@/, '')}?`
+              : `Talaba bot bilan suhbatni boshlamagan. @${student.username.replace(/^@/, '')} bilan shaxsiy chatni ochishni xohlaysizmi?`,
+            (ok) => {
+              if (ok) openTelegramLink(`https://t.me/${student.username.replace(/^@/, '')}`)
+            }
+          )
+        } else {
+          navigator.clipboard.writeText(res.text).then(() => {
+            window.Telegram?.WebApp?.showAlert?.(
+              lang === 'ru'
+                ? `Бот не может написать студенту (нет активного чата), и у него нет юзернейма. Текст напоминания скопирован в буфер обмена:\n\n"${res.text}"`
+                : `Bot talabaga yoza olmaydi (faol chat yo'q) va talabada username ham yo'q. Eslatma matni buferga nusxalandi:\n\n"${res.text}"`
+            )
+          }).catch(() => {
+            window.Telegram?.WebApp?.showAlert?.(`Eslatma:\n\n"${res.text}"`)
+          })
+        }
+      }
+    } catch (e) {
+      alert(lang === 'ru' ? 'Ошибка при отправке' : 'Yuborishda xatolik yuz berdi')
+    } finally {
+      setSendingReminder(false)
+    }
+  }
+
   const getName = (payment) =>
     payment.student
       ? `${payment.student.first_name} ${payment.student.last_name || ''}`.trim()
@@ -132,39 +208,51 @@ export default function TeacherFinance() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
-      <div className="page-wrapper px-4 pt-6">
-        <div className="mb-5">
-          <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
-          <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
+      <div className="page-wrapper px-4 pt-6 pb-28">
+        <div className="mb-5 flex justify-between items-end">
+          <div>
+            <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
+            <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
+          </div>
+          <select 
+            value={monthFilter} 
+            onChange={(e) => { setMonthFilter(e.target.value); haptic?.selection() }}
+            className="bg-surface-high text-on-surface text-xs font-bold px-3 py-2 rounded-xl border border-outline-variant outline-none focus:border-brand"
+          >
+            <option value="current">{lang === 'ru' ? 'Этот месяц' : 'Shu oy'}</option>
+            <option value="prev">{lang === 'ru' ? 'Прошлый месяц' : 'O\'tgan oy'}</option>
+            <option value="all">{lang === 'ru' ? 'Все время' : 'Barcha vaqt'}</option>
+          </select>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="m3-card flex flex-col justify-between p-4 h-32">
+          <div className="bg-gradient-to-br from-paid-green/90 to-paid-green/70 text-white rounded-[24px] p-4 flex flex-col justify-between h-28 shadow-glow-sm shadow-paid-green/10">
             <div>
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <p className="text-on-surface-variant text-xs font-semibold uppercase tracking-wider line-clamp-2">{t('teacherFinance.earned')}</p>
-                <div className="w-8 h-8 rounded-xl bg-surface-high flex items-center justify-center shrink-0">
-                  <TrendingUp size={14} className="text-paid-green" />
-                </div>
-              </div>
+              <p className="text-[10px] uppercase font-bold opacity-80">{lang === 'ru' ? 'Получено' : 'Keltirilgan'}</p>
             </div>
-            <p className="text-xl font-extrabold text-paid-green">{formatUZS(totalEarned, true)}</p>
+            <div>
+              <p className="text-2xl font-extrabold">{formatUZS(totalEarned, true)}</p>
+            </div>
           </div>
-          <div className="m3-card flex flex-col justify-between p-4 h-32">
+          <div className="bg-gradient-to-br from-debt-red/90 to-debt-red/70 text-white rounded-[24px] p-4 flex flex-col justify-between h-28 shadow-glow-sm shadow-debt-red/10">
             <div>
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <p className="text-on-surface-variant text-xs font-semibold uppercase tracking-wider line-clamp-2">{t('teacherFinance.outstanding')}</p>
-                <div className="w-8 h-8 rounded-xl bg-surface-high flex items-center justify-center shrink-0">
-                  <Clock size={14} className="text-partial-orange" />
-                </div>
-              </div>
+              <p className="text-[10px] uppercase font-bold opacity-80">{lang === 'ru' ? 'Долги' : 'Qarzdorlik'}</p>
             </div>
             <div>
-              <p className="text-xl font-extrabold text-debt-red">{formatUZS(totalUnpaid, true)}</p>
-              <p className="text-on-surface-variant text-[10px] mt-0.5">{t('teacherFinance.pendingLabel')}</p>
+              <p className="text-2xl font-extrabold">{formatUZS(totalUnpaid, true)}</p>
             </div>
           </div>
         </div>
+
+        {totalUnpaid > 0 && (
+          <button
+            onClick={handleMassRemind}
+            disabled={reminding}
+            className="w-full h-12 mb-5 rounded-2xl bg-brand text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-50"
+          >
+            🔔 {reminding ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') : (lang === 'ru' ? 'Напомнить должникам' : 'Qarzdorlarga eslatish')}
+          </button>
+        )}
 
         <div className="chip-row mb-4">
           {filters.map((filter) => (
@@ -288,27 +376,11 @@ export default function TeacherFinance() {
             {selectedPayment.status !== 'paid' && (
               <div className="flex gap-2">
                 <button
-                  onClick={() => {
-                    haptic?.medium()
-                    const student = selectedPayment.student
-                    if (student) {
-                      const name = `${student.first_name || ''} ${student.last_name || ''}`.trim()
-                      const amountStr = formatUZS(selectedPayment.amount)
-                      const text = `Assalomu alaykum, ${name}. Sizda TutorSpace bot orqali ${amountStr} miqdorida to'lov kutilmoqda. Iltimos, imkon qadar tezroq amalga oshiring.`
-                      if (student.username) {
-                        openTelegramLink(`https://t.me/${student.username.replace(/^@/, '')}`)
-                      } else {
-                        navigator.clipboard.writeText(text).then(() => {
-                          window.Telegram?.WebApp?.showAlert?.(`Talaba username'ga ega emas. Eslatma xabari buferga nusxalandi! Siz uni boshqa kanallar orqali yuborishingiz mumkin:\n\n"${text}"`)
-                        }).catch(() => {
-                          window.Telegram?.WebApp?.showAlert?.(`Eslatma xabari:\n\n"${text}"`)
-                        })
-                      }
-                    }
-                  }}
+                  onClick={() => handleSingleRemind(selectedPayment)}
+                  disabled={sendingReminder}
                   className="m3-btn-filled flex-1 gap-1"
                 >
-                  🔔 {t('common.remind')}
+                  🔔 {sendingReminder ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') : t('common.remind')}
                 </button>
               </div>
             )}
@@ -324,6 +396,51 @@ export default function TeacherFinance() {
           t={t}
           haptic={haptic}
         />
+      </Modal>
+
+      <Modal isOpen={!!remindResult} onClose={() => setRemindResult(null)} title={lang === 'ru' ? 'Результат напоминания' : 'Eslatmalar natijasi'}>
+        {remindResult && (
+          <div className="space-y-4">
+            <div className="bg-surface-container rounded-2xl p-4 text-center">
+              <p className="text-xs font-semibold text-on-surface-variant mb-1">
+                {lang === 'ru' ? 'Отправлено автоматически через бот' : 'Bot orqali avtomatik yuborildi'}
+              </p>
+              <p className="text-3xl font-extrabold text-paid-green">{remindResult.sentCount}</p>
+            </div>
+            
+            {remindResult.failedStudents?.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-xs font-bold text-error px-1">
+                  {lang === 'ru' ? 'Не удалось отправить напрямую (скопируйте текст):' : 'To\'g\'ridan-to\'g\'ri yuborib bo\'lmadi (nusxalash):'}
+                </p>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {remindResult.failedStudents.map(student => (
+                    <div key={student.id} className="bg-surface-high p-3 rounded-xl flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-sm text-on-surface truncate">{student.name}</p>
+                        <p className="text-xs text-on-surface-variant font-serif">{formatUZS(student.amount)}</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          haptic?.selection()
+                          navigator.clipboard.writeText(student.text)
+                          alert(lang === 'ru' ? 'Текст скопирован!' : 'Xabar matni nusxalandi!')
+                        }}
+                        className="bg-brand/20 text-primary font-bold text-xs px-3 py-1.5 rounded-lg active:scale-95 transition-transform whitespace-nowrap"
+                      >
+                        {lang === 'ru' ? 'Копировать' : 'Nusxalash'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <button className="m3-btn-filled w-full mt-4" onClick={() => setRemindResult(null)}>
+              {t('common.close')}
+            </button>
+          </div>
+        )}
       </Modal>
 
       <BottomNav role="teacher" />
