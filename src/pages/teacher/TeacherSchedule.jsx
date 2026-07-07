@@ -6,7 +6,7 @@ import { Modal } from '../../components/ui/Modal'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useCreateSession, useDeleteSession, useTeacherGroups, useTeacherSchedule, useUpdateSessionStatus } from '../../hooks/api/useTeacher'
+import { useCreateSession, useDeleteSession, useTeacherGroups, useTeacherSchedule, useUpdateSession } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -320,7 +320,7 @@ export default function TeacherSchedule() {
     return t('common.upcoming')
   }
 
-  const updateSessionStatusMutation = useUpdateSessionStatus()
+  const updateSessionMutation = useUpdateSession()
   const deleteSessionMutation = useDeleteSession()
 
   const handleStartLesson = async (sessionId) => {
@@ -328,7 +328,7 @@ export default function TeacherSchedule() {
     haptic?.medium()
 
     try {
-      await updateSessionStatusMutation.mutateAsync({ sessionId, status: 'ongoing' })
+      await updateSessionMutation.mutateAsync({ sessionId, status: 'ongoing' })
       haptic?.success?.()
       refetch()
     } catch {
@@ -343,7 +343,7 @@ export default function TeacherSchedule() {
     haptic?.medium()
 
     try {
-      await updateSessionStatusMutation.mutateAsync({ sessionId, status: 'done' })
+      await updateSessionMutation.mutateAsync({ sessionId, status: 'done' })
       haptic?.success?.()
       refetch()
     } catch {
