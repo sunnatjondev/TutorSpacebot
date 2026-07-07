@@ -89,37 +89,140 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
   )
 }
 
-function AttendanceModal({ groups, groupAttendance, lang }) {
-  const tTitle = lang === 'ru' ? 'Посещаемость по группам' : 'Guruhlar davomati'
-  const tNoData = lang === 'ru' ? 'Нет данных за этот месяц' : 'Bu oy uchun maʼlumot yoʻq'
+function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, attendanceYear, onChangeMonth, haptic }) {
+  const [expandedGroupId, setExpandedGroupId] = useState(null)
   
-  if (!groupAttendance || groupAttendance.length === 0) {
-    return <p className="text-center text-on-surface-variant py-4">{tNoData}</p>
+  const monthNamesUz = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr']
+  const monthNamesRu = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+  const monthName = lang === 'ru' ? monthNamesRu[attendanceMonth - 1] : monthNamesUz[attendanceMonth - 1]
+
+  const handlePrevMonth = () => {
+    haptic?.light?.()
+    if (attendanceMonth === 1) {
+      onChangeMonth(12, attendanceYear - 1)
+    } else {
+      onChangeMonth(attendanceMonth - 1, attendanceYear)
+    }
   }
 
+  const handleNextMonth = () => {
+    haptic?.light?.()
+    if (attendanceMonth === 12) {
+      onChangeMonth(1, attendanceYear + 1)
+    } else {
+      onChangeMonth(attendanceMonth + 1, attendanceYear)
+    }
+  }
+
+  const tTitle = lang === 'ru' ? 'Посещаемость по группам' : 'Guruhlar davomati'
+  const tNoData = lang === 'ru' ? 'Нет данных за этот месяц' : 'Bu oy uchun maʼlumot yoʻq'
+
   return (
-    <div className="space-y-3">
-      {groupAttendance.map(ga => {
-        const group = groups?.find(g => g.id === ga.groupId)
-        if (!group) return null
-        return (
-          <div key={ga.groupId} className="flex items-center justify-between bg-surface-high p-3 rounded-xl">
-            <div className="flex items-center gap-3 min-w-0">
-              <Avatar name={group.name} size="md" color={group.color} />
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-on-surface truncate">{group.name}</p>
-                <p className="text-[10px] text-on-surface-variant truncate font-medium mt-0.5">
-                  {group.subject} • {ga.present} / {ga.total} {lang === 'ru' ? 'студ.' : 'talaba'}
-                </p>
+    <div className="space-y-4">
+      {/* Month Navigator Toggles */}
+      <div className="flex items-center justify-between bg-surface-high p-3 rounded-2xl border border-outline-variant/30">
+        <button
+          onClick={handlePrevMonth}
+          className="p-1 rounded-lg hover:bg-surface-highest text-on-surface"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <span className="font-bold text-sm text-on-surface">
+          {monthName} {attendanceYear}
+        </span>
+        <button
+          onClick={handleNextMonth}
+          className="p-1 rounded-lg hover:bg-surface-highest text-on-surface"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {!groupAttendance || groupAttendance.length === 0 ? (
+        <p className="text-center text-on-surface-variant py-8">{tNoData}</p>
+      ) : (
+        <div className="space-y-3">
+          {groupAttendance.map(ga => {
+            const group = groups?.find(g => g.id === ga.groupId)
+            if (!group) return null
+            const isExpanded = expandedGroupId === ga.groupId
+
+            return (
+              <div 
+                key={ga.groupId} 
+                className="bg-surface-high rounded-2xl border border-outline-variant/20 overflow-hidden transition-all duration-200"
+              >
+                {/* Header Row */}
+                <button
+                  onClick={() => {
+                    haptic?.light?.()
+                    setExpandedGroupId(isExpanded ? null : ga.groupId)
+                  }}
+                  className="w-full flex items-center justify-between p-3.5 hover:bg-surface-highest/40 text-left transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar name={group.name} size="md" color={group.color} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-on-surface truncate">{group.name}</p>
+                      <p className="text-[10px] text-on-surface-variant truncate font-medium mt-0.5">
+                        {group.subject} • {ga.present} / {ga.total} {lang === 'ru' ? 'посещ.' : 'kelgan'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="font-serif font-bold text-base text-on-surface">{ga.percent}%</span>
+                    <svg 
+                      className={`w-4 h-4 text-on-surface-variant transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Expanded Students Details Accordion */}
+                {isExpanded && (
+                  <div className="border-t border-outline-variant/10 bg-surface/30 px-3 py-2 space-y-2">
+                    {!ga.students || ga.students.length === 0 ? (
+                      <p className="text-xs text-on-surface-variant/70 text-center py-2">
+                        {lang === 'ru' ? 'Нет записанных учеников' : 'Yozilgan talabalar yo\'q'}
+                      </p>
+                    ) : (
+                      ga.students.map(s => {
+                        const absentCount = s.totalCount - s.presentCount
+                        return (
+                          <div key={s.studentId} className="flex items-center justify-between py-1.5 px-1 border-b border-outline-variant/5 last:border-b-0">
+                            <span className="text-xs font-semibold text-on-surface truncate pr-2">{s.name}</span>
+                            <div className="flex items-center gap-2.5 shrink-0">
+                              <span className="text-[10px] text-on-surface-variant font-medium">
+                                {s.presentCount}/{s.totalCount}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="inline-flex items-center text-[9px] font-bold text-paid-green bg-paid-green/10 px-1.5 py-0.5 rounded">
+                                  🟢 {s.presentCount}
+                                </span>
+                                <span className={`inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded ${absentCount > 0 ? 'text-debt-red bg-debt-red/10' : 'text-on-surface-variant/40 bg-surface-high/50'}`}>
+                                  🔴 {absentCount}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <div className={`w-2.5 h-2.5 rounded-full ${ga.percent >= 80 ? 'bg-paid-green' : ga.percent >= 50 ? 'bg-primary' : 'bg-error'}`} />
-              <span className="font-serif font-bold text-lg text-on-surface">{ga.percent}%</span>
-            </div>
-          </div>
-        )
-      })}
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -130,9 +233,12 @@ export default function TeacherDashboard() {
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
   const [showAttendance, setShowAttendance] = useState(false)
+  const todayDate = new Date()
+  const [attendanceMonth, setAttendanceMonth] = useState(() => todayDate.getMonth() + 1)
+  const [attendanceYear, setAttendanceYear] = useState(() => todayDate.getFullYear())
 
   const telegramId = user?.id
-  const { data: dash, refetch: refetchDash } = useTeacherDashboard(telegramId)
+  const { data: dash, refetch: refetchDash } = useTeacherDashboard(telegramId, attendanceMonth, attendanceYear)
   const { data: groups } = useTeacherGroups(telegramId)
   const { data: payments } = useTeacherPayments(telegramId, 'all')
 
@@ -158,10 +264,9 @@ export default function TeacherDashboard() {
     }
   }
 
-  const todayDate = new Date()
-  const currentMonth = todayDate.getMonth() + 1
-  const currentYear = todayDate.getFullYear()
-  const currentMonthName = todayDate.toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'long' })
+  const currentMonth = attendanceMonth
+  const currentYear = attendanceYear
+  const currentMonthName = new Date(currentYear, currentMonth - 1, 1).toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'long' })
   
   // 1. Calculate Monthly Revenue (Paid payments this month)
   const thisMonthPayments = payments?.filter(p => p.period_month === currentMonth && p.period_year === currentYear) || []
@@ -632,7 +737,18 @@ export default function TeacherDashboard() {
       </Modal>
 
       <Modal isOpen={showAttendance} onClose={() => setShowAttendance(false)} title={lang === 'ru' ? 'Посещаемость' : 'Davomat'}>
-        <AttendanceModal groups={groups} groupAttendance={dash?.groupAttendance} lang={lang} />
+        <AttendanceModal 
+          groups={groups} 
+          groupAttendance={dash?.groupAttendance} 
+          lang={lang}
+          attendanceMonth={attendanceMonth}
+          attendanceYear={attendanceYear}
+          onChangeMonth={(month, year) => {
+            setAttendanceMonth(month)
+            setAttendanceYear(year)
+          }}
+          haptic={haptic}
+        />
       </Modal>
 
       <BottomNav role="teacher" />

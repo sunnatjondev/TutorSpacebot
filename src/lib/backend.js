@@ -64,8 +64,8 @@ export async function joinTrustedInvite(inviteToken) {
 
 // ─── Teacher API ───────────────────────────────────────────
 
-export function fetchTeacherDashboard() {
-  return requestBackend('/api/teacher/dashboard')
+export function fetchTeacherDashboard(month, year) {
+  return requestBackend('/api/teacher/dashboard', { month, year })
 }
 
 export function fetchTeacherGroups() {

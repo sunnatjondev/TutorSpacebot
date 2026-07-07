@@ -15,18 +15,10 @@ import {
   createBillingOrder,
 } from '../../lib/backend'
 
-export function useTeacherDashboard(telegramId) {
+export function useTeacherDashboard(telegramId, month, year) {
   return useQuery({
-    queryKey: ['teacher-dashboard', telegramId],
-    queryFn: async () => {
-      const data = await fetchTeacherDashboard()
-      return {
-        totalGroups: data.totalGroups,
-        totalStudents: data.totalStudents,
-        todaySessions: data.todaySessions,
-        unpaid: data.unpaid,
-      }
-    },
+    queryKey: ['teacher-dashboard', telegramId, month, year],
+    queryFn: () => fetchTeacherDashboard(month, year),
     enabled: !!telegramId,
   })
 }
