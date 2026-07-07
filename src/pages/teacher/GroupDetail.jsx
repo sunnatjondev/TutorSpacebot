@@ -201,7 +201,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
               <button
                 key={c.value}
                 onClick={() => setColor(c.value)}
-                className={`w-8 h-8 rounded-full ${c.bg} transition-all ${color === c.value ? \`ring-4 ring-offset-2 ${c.ring} dark:ring-offset-[#1a1b1e]\` : 'opacity-70 hover:opacity-100 scale-95'}`}
+                className={`w-8 h-8 rounded-full ${c.bg} transition-all ${color === c.value ? `ring-4 ring-offset-2 ${c.ring} dark:ring-offset-[#1a1b1e]` : 'opacity-70 hover:opacity-100 scale-95'}`}
               />
             ))}
           </div>
