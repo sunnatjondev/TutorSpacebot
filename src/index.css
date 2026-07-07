@@ -108,16 +108,16 @@ h1, h2, h3, .font-serif {
 
   /* Buttons */
   .m3-btn-filled {
-    @apply flex items-center justify-center gap-2 rounded-full bg-primary text-on-primary px-6 py-4 font-bold tracking-wide transition-all duration-200 active:scale-95 shadow-m3-elevation-1;
+    @apply flex items-center justify-center gap-2 rounded-2xl bg-primary text-on-primary px-6 py-4 font-bold tracking-wide transition-all duration-200 active:scale-95 shadow-m3-elevation-1;
   }
   .m3-btn-tonal {
-    @apply flex items-center justify-center gap-2 rounded-full bg-secondary-container text-on-secondary-container px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95;
+    @apply flex items-center justify-center gap-2 rounded-2xl bg-secondary-container text-on-secondary-container px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95;
   }
   .m3-btn-outline {
-    @apply flex items-center justify-center gap-2 rounded-full border border-outline text-primary px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary/10;
+    @apply flex items-center justify-center gap-2 rounded-2xl border border-outline text-primary px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary/10;
   }
   .m3-btn-text {
-    @apply flex items-center justify-center gap-2 rounded-full text-primary px-4 py-3 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary/10;
+    @apply flex items-center justify-center gap-2 rounded-2xl text-primary px-4 py-3 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary/10;
   }
   .m3-btn-icon {
     @apply flex items-center justify-center h-12 w-12 rounded-full bg-surface-high text-on-surface transition-all duration-200 active:scale-90 active:bg-surface-highest;
@@ -137,16 +137,16 @@ h1, h2, h3, .font-serif {
     @apply m3-btn-outline;
   }
   .btn-danger {
-    @apply flex items-center justify-center gap-2 rounded-full bg-error-container text-on-error-container px-6 py-4 font-bold transition-all active:scale-95;
+    @apply flex items-center justify-center gap-2 rounded-2xl bg-error-container text-on-error-container px-6 py-4 font-bold transition-all active:scale-95;
   }
   .m3-btn-text {
-    @apply text-primary font-bold px-4 py-3 rounded-full hover:bg-primary/10 transition-colors active:scale-95;
+    @apply text-primary font-bold px-4 py-3 rounded-2xl hover:bg-primary/10 transition-colors active:scale-95;
   }
   .m3-btn-sm-filled {
-    @apply bg-primary text-on-primary rounded-full px-4 py-2 font-bold text-sm shadow-m3-elevation-1 transition-all active:scale-[0.98] disabled:opacity-50;
+    @apply bg-primary text-on-primary rounded-xl px-4 py-2 font-bold text-sm shadow-m3-elevation-1 transition-all active:scale-[0.98] disabled:opacity-50;
   }
   .m3-btn-sm-tonal {
-    @apply bg-secondary-container text-on-secondary-container rounded-full px-4 py-2 font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50;
+    @apply bg-secondary-container text-on-secondary-container rounded-xl px-4 py-2 font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50;
   }
 
   /* Inputs */

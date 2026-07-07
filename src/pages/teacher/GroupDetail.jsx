@@ -460,11 +460,14 @@ export default function GroupDetail() {
 
   // Create Session states
   const [showCreateSessionModal, setShowCreateSessionModal] = useState(false)
-  const [sessionTime, setSessionTime] = useState('09:00')
   const [sessionDuration, setSessionDuration] = useState(90)
   const [creatingSession, setCreatingSession] = useState(false)
   const [sessionNotes, setSessionNotes] = useState('')
   const [savingNotes, setSavingNotes] = useState(false)
+  const [lessonDate, setLessonDate] = useState(() => new Date())
+  const [lessonHour, setLessonHour] = useState('09')
+  const [lessonMinute, setLessonMinute] = useState('00')
+  const [showLessonCalendar, setShowLessonCalendar] = useState(false)
 
   // Mark Payment Paid states
   const [markingPaymentStudent, setMarkingPaymentStudent] = useState(null)
@@ -481,6 +484,15 @@ export default function GroupDetail() {
   const [selectedTask, setSelectedTask] = useState(null)
 
   useTelegramBackButton(() => navigate(-1))
+
+  // Initialize create session states when modal opens
+  useEffect(() => {
+    if (showCreateSessionModal) {
+      setLessonDate(new Date(selectedAttendanceDate || new Date()))
+      setLessonHour('09')
+      setLessonMinute('00')
+    }
+  }, [showCreateSessionModal, selectedAttendanceDate])
 
   // Fetch Attendance for the Selected Date
   useEffect(() => {
@@ -581,9 +593,8 @@ export default function GroupDetail() {
   const handleConfirmCreateSession = async () => {
     setCreatingSession(true)
     haptic?.medium()
-    const scheduledAt = new Date(selectedAttendanceDate)
-    const [hours, minutes] = sessionTime.split(':').map(Number)
-    scheduledAt.setHours(hours || 9, minutes || 0, 0, 0)
+    const scheduledAt = new Date(lessonDate)
+    scheduledAt.setHours(Number(lessonHour) || 9, Number(lessonMinute) || 0, 0, 0)
     try {
       const data = await createSessionMutation.mutateAsync({
         groupId: id,
@@ -592,6 +603,9 @@ export default function GroupDetail() {
       })
       setSessionId(data.id)
       haptic?.success()
+      setAttendanceBaseDate(scheduledAt)
+      const day = scheduledAt.getDay()
+      setSelectedDayIndex(day === 0 ? 6 : day - 1)
       setShowCreateSessionModal(false)
     } catch {
       alert(lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi")
@@ -1270,16 +1284,60 @@ export default function GroupDetail() {
       <Modal isOpen={showCreateSessionModal} onClose={() => setShowCreateSessionModal(false)} title={lang === 'ru' ? 'Создать урок' : 'Dars yaratish'} closeOnBackdropClick={false}>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-semibold text-on-surface-variant mb-2 block">
-              {lang === 'ru' ? 'Время начала урока' : 'Dars boshlanish vaqti'}
+            <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
+              {lang === 'ru' ? 'Дата урока' : 'Dars sanasi'}
             </label>
-            <input
-              type="time"
-              value={sessionTime}
-              onChange={(e) => setSessionTime(e.target.value)}
-              className="m3-input"
-            />
+            <button
+              type="button"
+              onClick={() => {
+                haptic?.light()
+                setShowLessonCalendar(true)
+              }}
+              className="m3-input w-full text-left flex items-center justify-between"
+            >
+              <span className="text-on-surface">
+                {(() => {
+                  const d = lessonDate
+                  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`
+                })()}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </button>
           </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
+              {lang === 'ru' ? 'Время начала' : 'Boshlanish vaqti'}
+            </label>
+            <div className="flex items-center gap-2 bg-surface-container rounded-2xl px-4 py-3.5 border border-outline-variant/30">
+              <input
+                type="number"
+                min="0"
+                max="23"
+                value={lessonHour}
+                onChange={(event) => {
+                  const val = parseInt(event.target.value, 10);
+                  setLessonHour(isNaN(val) ? '00' : String(val % 100).padStart(2, '0'));
+                }}
+                className="w-10 text-center bg-transparent text-on-surface text-base font-bold outline-none"
+              />
+              <span className="text-on-surface font-bold">:</span>
+              <input
+                type="number"
+                min="0"
+                max="59"
+                value={lessonMinute}
+                onChange={(event) => {
+                  const val = parseInt(event.target.value, 10);
+                  setLessonMinute(isNaN(val) ? '00' : String(val % 100).padStart(2, '0'));
+                }}
+                className="w-10 text-center bg-transparent text-on-surface text-base font-bold outline-none"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="text-sm font-semibold text-on-surface-variant mb-2 block">
               {lang === 'ru' ? 'Длительность (минут)' : 'Davomiyligi (daqiqa)'}
@@ -1293,7 +1351,7 @@ export default function GroupDetail() {
             />
           </div>
           <button
-            className="m3-btn-filled"
+            className="m3-btn-filled w-full"
             onClick={handleConfirmCreateSession}
             disabled={creatingSession}
           >
@@ -1301,6 +1359,18 @@ export default function GroupDetail() {
           </button>
         </div>
       </Modal>
+
+      <CustomDatePickerModal
+        isOpen={showLessonCalendar}
+        onClose={() => setShowLessonCalendar(false)}
+        selectedDate={lessonDate}
+        onSelectDate={(date) => {
+          setLessonDate(date)
+          setShowLessonCalendar(false)
+        }}
+        haptic={haptic}
+        t={t}
+      />
 
       {/* Mark Payment Paid Modal */}
       <Modal isOpen={!!markingPaymentStudent} onClose={() => setMarkingPaymentStudent(null)} title={lang === 'ru' ? 'Подтверждение оплаты' : 'To\'lovni tasdiqlash'} closeOnBackdropClick={false}>
