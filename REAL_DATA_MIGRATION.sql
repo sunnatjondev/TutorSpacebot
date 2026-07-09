@@ -497,6 +497,10 @@ CREATE TABLE IF NOT EXISTS public.student_badges (
 
 ALTER TABLE public.student_badges ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Students can view their own badges" ON public.student_badges;
+DROP POLICY IF EXISTS "Teachers can view their students badges" ON public.student_badges;
+DROP POLICY IF EXISTS "Service role can insert badges" ON public.student_badges;
+
 CREATE POLICY "Students can view their own badges" ON public.student_badges FOR SELECT USING (auth.uid() = student_id);
 
 CREATE POLICY "Teachers can view their students badges" ON public.student_badges FOR SELECT USING (EXISTS (SELECT 1 FROM group_members gm JOIN groups g ON gm.group_id = g.id WHERE gm.student_id = student_badges.student_id AND g.teacher_id = auth.uid()));

@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS public.student_badges (
 ALTER TABLE public.student_badges ENABLE ROW LEVEL SECURITY;
 
 -- 2. Policies for student_badges
+DROP POLICY IF EXISTS "Students can view their own badges" ON public.student_badges;
+DROP POLICY IF EXISTS "Teachers can view their students badges" ON public.student_badges;
+DROP POLICY IF EXISTS "Service role can insert badges" ON public.student_badges;
+
 -- Students can see their own badges
 CREATE POLICY "Students can view their own badges"
     ON public.student_badges FOR SELECT
