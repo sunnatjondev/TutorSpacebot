@@ -119,13 +119,13 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
   ]
 
   const weekDays = [
-    { id: 1, label: 'Du' },
-    { id: 2, label: 'Se' },
-    { id: 3, label: 'Ch' },
-    { id: 4, label: 'Pa' },
-    { id: 5, label: 'Ju' },
-    { id: 6, label: 'Sh' },
-    { id: 0, label: 'Ya' },
+    { id: 1, short: 'Du', full: 'Dushanba' },
+    { id: 2, short: 'Se', full: 'Seshanba' },
+    { id: 3, short: 'Ch', full: 'Chorshanba' },
+    { id: 4, short: 'Pa', full: 'Payshanba' },
+    { id: 5, short: 'Ju', full: 'Juma' },
+    { id: 6, short: 'Sh', full: 'Shanba' },
+    { id: 0, short: 'Ya', full: 'Yakshanba' },
   ]
 
   useEffect(() => {
@@ -144,49 +144,76 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
     return () => window.cancelAnimationFrame(frameId)
   }, [group?.name, group?.subject, group?.telegram_group_link, group?.color, group?.billing_day, group?.price_per_month, group?.schedule_template, isOpen])
 
+  const toggleDay = (dayId) => {
+    const exists = scheduleTemplate.some(st => st.dayOfWeek === dayId)
+    if (exists) {
+      setScheduleTemplate(scheduleTemplate.filter(st => st.dayOfWeek !== dayId))
+    } else {
+      setScheduleTemplate([...scheduleTemplate, { dayOfWeek: dayId, time: '15:00' }])
+    }
+  }
+
+  const updateDayTime = (dayId, field, value) => {
+    setScheduleTemplate(scheduleTemplate.map(st =>
+      st.dayOfWeek === dayId ? { ...st, [field]: value } : st
+    ))
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('groupDetail.editGroup')} closeOnBackdropClick={false}>
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('groupDetail.groupName')}</label>
-          <input
-            className="m3-input"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder={t('groupDetail.groupNamePlaceholder')}
-          />
+      <div className="space-y-5">
+        {/* ── Basic Info Section ── */}
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block uppercase tracking-wider">{t('groupDetail.groupName')}</label>
+            <input
+              className="m3-input"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder={t('groupDetail.groupNamePlaceholder')}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block uppercase tracking-wider">{t('groupDetail.subject')}</label>
+            <input
+              className="m3-input"
+              value={subject}
+              onChange={(event) => setSubject(event.target.value)}
+              placeholder={t('groupDetail.subjectPlaceholder')}
+            />
+          </div>
         </div>
-        <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">{t('groupDetail.subject')}</label>
-          <input
-            className="m3-input"
-            value={subject}
-            onChange={(event) => setSubject(event.target.value)}
-            placeholder={t('groupDetail.subjectPlaceholder')}
-          />
+
+        {/* ── Payment Section ── */}
+        <div className="bg-surface-high rounded-2xl p-4 space-y-3 border border-outline-variant/15">
+          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">💳 To'lov sozlamalari</p>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="text-xs text-on-surface-variant mb-1 block font-medium">Oylik summa (UZS)</label>
+              <input
+                className="m3-input !py-3"
+                type="number"
+                value={pricePerMonth}
+                onChange={(event) => setPricePerMonth(parseInt(event.target.value) || 0)}
+              />
+            </div>
+            <div className="w-24">
+              <label className="text-xs text-on-surface-variant mb-1 block font-medium">Kuni</label>
+              <input
+                className="m3-input !py-3 text-center"
+                type="number"
+                min="1"
+                max="31"
+                value={billingDay}
+                onChange={(event) => setBillingDay(parseInt(event.target.value) || 1)}
+              />
+            </div>
+          </div>
         </div>
+
+        {/* ── Telegram Link ── */}
         <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">To'lov kuni (Har oyning ... kuni)</label>
-          <input
-            className="m3-input"
-            type="number"
-            min="1"
-            max="31"
-            value={billingDay}
-            onChange={(event) => setBillingDay(parseInt(event.target.value) || 1)}
-          />
-        </div>
-        <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Oylik to'lov summasi (UZS)</label>
-          <input
-            className="m3-input"
-            type="number"
-            value={pricePerMonth}
-            onChange={(event) => setPricePerMonth(parseInt(event.target.value) || 0)}
-          />
-        </div>
-        <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Telegram guruh manzili (ixtiyoriy)</label>
+          <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block uppercase tracking-wider">Telegram guruh (ixtiyoriy)</label>
           <input
             className="m3-input"
             value={telegramGroupLink}
@@ -194,62 +221,95 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
             placeholder="https://t.me/+"
           />
         </div>
+
+        {/* ── Color Picker ── */}
         <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Guruh rangi</label>
-          <div className="flex gap-3 mt-2">
+          <label className="text-xs font-semibold text-on-surface-variant mb-2 block uppercase tracking-wider">Guruh rangi</label>
+          <div className="flex gap-3">
             {colors.map((c) => (
               <button
                 key={c.value}
                 onClick={() => setColor(c.value)}
-                className={`w-8 h-8 rounded-full ${c.bg} transition-all ${color === c.value ? `ring-4 ring-offset-2 ${c.ring} dark:ring-offset-[#1a1b1e]` : 'opacity-70 hover:opacity-100 scale-95'}`}
+                className={`w-9 h-9 rounded-full ${c.bg} transition-all duration-200 ${color === c.value ? `ring-[3px] ring-offset-2 ${c.ring} dark:ring-offset-[#1a1b1e] scale-110` : 'opacity-60 hover:opacity-90 scale-90'}`}
               />
             ))}
           </div>
         </div>
 
+        {/* ── Schedule Section ── */}
         <div>
-          <label className="text-sm font-semibold text-on-surface-variant mb-2 block">Haftalik dars jadvali</label>
-          <div className="space-y-3">
+          <label className="text-xs font-semibold text-on-surface-variant mb-3 block uppercase tracking-wider">📅 Haftalik dars jadvali</label>
+          
+          {/* Day Toggle Pills */}
+          <div className="flex flex-wrap gap-2 mb-3">
             {weekDays.map(wd => {
-              const checked = scheduleTemplate.some(st => st.dayOfWeek === wd.id)
-              const time = scheduleTemplate.find(st => st.dayOfWeek === wd.id)?.time || '15:00'
+              const isActive = scheduleTemplate.some(st => st.dayOfWeek === wd.id)
               return (
-                <div key={wd.id} className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 flex-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setScheduleTemplate([...scheduleTemplate, { dayOfWeek: wd.id, time: '15:00' }])
-                        } else {
-                          setScheduleTemplate(scheduleTemplate.filter(st => st.dayOfWeek !== wd.id))
-                        }
-                      }}
-                      className="w-5 h-5 rounded border-outline/30 text-primary focus:ring-primary/20"
-                    />
-                    <span className="text-sm text-on-surface">{wd.label}</span>
-                  </label>
-                  {checked && (
-                    <input
-                      type="time"
-                      value={time}
-                      onChange={(e) => {
-                        setScheduleTemplate(scheduleTemplate.map(st => 
-                          st.dayOfWeek === wd.id ? { ...st, time: e.target.value } : st
-                        ))
-                      }}
-                      className="m3-input py-1 px-2 text-sm w-28"
-                    />
-                  )}
-                </div>
+                <button
+                  key={wd.id}
+                  onClick={() => toggleDay(wd.id)}
+                  className={`h-10 px-4 rounded-xl text-sm font-bold transition-all duration-200 border ${
+                    isActive
+                      ? 'bg-primary text-on-primary border-primary shadow-sm'
+                      : 'bg-surface-high text-on-surface-variant border-outline-variant/30 hover:border-primary/40'
+                  }`}
+                >
+                  {wd.short}
+                </button>
               )
             })}
           </div>
+
+          {/* Selected Days with Time Inputs */}
+          {scheduleTemplate.length > 0 && (
+            <div className="space-y-2 mt-2">
+              {weekDays
+                .filter(wd => scheduleTemplate.some(st => st.dayOfWeek === wd.id))
+                .map(wd => {
+                  const entry = scheduleTemplate.find(st => st.dayOfWeek === wd.id)
+                  const [h, m] = (entry?.time || '15:00').split(':')
+                  return (
+                    <div key={wd.id} className="flex items-center gap-3 bg-surface-high/60 rounded-xl px-3 py-2.5 border border-outline-variant/10">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <CheckCircle size={16} className="text-primary shrink-0" />
+                        <span className="text-sm font-semibold text-on-surface">{wd.full}</span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-surface-container rounded-lg px-2.5 py-1.5 border border-outline-variant/20 shrink-0">
+                        <input
+                          type="number"
+                          min="0"
+                          max="23"
+                          value={h}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10)
+                            const hh = isNaN(val) ? '00' : String(Math.min(23, Math.max(0, val))).padStart(2, '0')
+                            updateDayTime(wd.id, 'time', `${hh}:${m}`)
+                          }}
+                          className="w-8 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
+                        />
+                        <span className="text-on-surface-variant font-bold text-sm">:</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="59"
+                          value={m}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10)
+                            const mm = isNaN(val) ? '00' : String(Math.min(59, Math.max(0, val))).padStart(2, '0')
+                            updateDayTime(wd.id, 'time', `${h}:${mm}`)
+                          }}
+                          className="w-8 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+          )}
         </div>
 
         <button
-          className="m3-btn-filled mt-2"
+          className="m3-btn-filled w-full mt-2"
           disabled={!name.trim() || !subject.trim() || saving}
           onClick={() => onSave({ name, subject, telegram_group_link: telegramGroupLink || null, color, billing_day: billingDay, price_per_month: pricePerMonth, schedule_template: scheduleTemplate })}
         >
