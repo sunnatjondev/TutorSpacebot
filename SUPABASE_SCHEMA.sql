@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS payments (
   teacher_id  UUID REFERENCES users(id) ON DELETE CASCADE,
   group_id    UUID REFERENCES groups(id) ON DELETE SET NULL,
   amount      BIGINT NOT NULL,               -- in UZS
-  status      TEXT DEFAULT 'unpaid' CHECK (status IN ('unpaid', 'partial', 'paid', 'pending')),
+  status      TEXT DEFAULT 'unpaid' CHECK (status IN ('unpaid', 'partial', 'paid')),
   method      TEXT CHECK (method IN ('cash', 'card', 'transfer')),
   period_year INT,
   period_month INT,

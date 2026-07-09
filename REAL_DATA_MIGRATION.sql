@@ -407,7 +407,7 @@ end $$;
 
 alter table public.payments
   add constraint payments_status_check
-  check (status in ('unpaid', 'partial', 'paid', 'pending'));
+  check (status in ('unpaid', 'partial', 'paid'));
 
 create index if not exists idx_users_telegram_id on public.users(telegram_id);
 create index if not exists idx_groups_teacher_id on public.groups(teacher_id);
