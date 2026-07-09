@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, CheckCircle, CreditCard, AlertTriangle, Infinity } from 'lucide-react'
+import { ArrowLeft, CheckCircle, CreditCard, AlertTriangle, Infinity as InfinityIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useBillingStatus, useCreateBillingOrder } from '../../hooks/api/useTeacher'
@@ -35,7 +35,7 @@ export default function Subscription() {
       } else {
         alert(successMsg)
       }
-    } catch (error) {
+    } catch {
       tg?.showAlert(lang === 'ru' ? 'Ошибка при создании заявки' : "So'rov yaratishda xatolik")
     } finally {
       setLoadingPlan(null)
@@ -191,13 +191,13 @@ export default function Subscription() {
             <div className="flex items-center justify-between">
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Группы' : 'Guruhlar'}</span>
               <span className="font-bold text-on-surface">
-                {subscription.limits.maxGroups || <Infinity size={18} className="inline"/>}
+                {subscription.limits.maxGroups || <InfinityIcon size={18} className="inline"/>}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Студенты' : 'Talabalar'}</span>
               <span className="font-bold text-on-surface">
-                {subscription.limits.maxStudents || <Infinity size={18} className="inline"/>}
+                {subscription.limits.maxStudents || <InfinityIcon size={18} className="inline"/>}
               </span>
             </div>
           </div>

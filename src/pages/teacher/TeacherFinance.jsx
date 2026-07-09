@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -102,7 +101,6 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
 export default function TeacherFinance() {
   const { user, haptic, openTelegramLink } = useTelegram()
   const { t, lang } = useI18n()
-  const navigate = useNavigate()
   const [activeFilter, setActiveFilter] = useState('all')
   const [monthFilter, setMonthFilter] = useState('current')
   const [markStudent, setMarkStudent] = useState(null)
@@ -150,7 +148,7 @@ export default function TeacherFinance() {
     try {
       const res = await remindDebtors()
       setRemindResult(res)
-    } catch (e) {
+    } catch {
       alert(lang === 'ru' ? 'Ошибка при отправке напоминаний' : 'Eslatma yuborishda xatolik yuz berdi')
     } finally {
       setReminding(false)
@@ -171,7 +169,6 @@ export default function TeacherFinance() {
         )
         setSelectedPayment(null)
       } else {
-        const studentName = `${student.first_name || ''} ${student.last_name || ''}`.trim() || 'Talaba'
         if (student.username) {
           window.Telegram?.WebApp?.showConfirm?.(
             lang === 'ru' 
@@ -193,7 +190,7 @@ export default function TeacherFinance() {
           })
         }
       }
-    } catch (e) {
+    } catch {
       alert(lang === 'ru' ? 'Ошибка при отправке' : 'Yuborishda xatolik yuz berdi')
     } finally {
       setSendingReminder(false)

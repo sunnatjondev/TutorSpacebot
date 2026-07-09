@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, AlertCircle, BookOpen, ChevronRight } from 'lucide-react'
+import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -9,17 +9,6 @@ import { formatUZS } from '../../utils/currency'
 import { useTeacherDashboard, useTeacherGroups, useCreateGroup, useTeacherPayments, useUpdateSession, useDeleteSession } from '../../hooks/api/useTeacher'
 import { useNavigate } from 'react-router-dom'
 
-function StatCard({ icon: Icon, value, label, iconBg }) {
-  return (
-    <div className="m3-card flex-1 p-4 flex flex-col items-center justify-center text-center gap-2">
-      <div className={`flex h-12 w-12 items-center justify-center rounded-[18px] ${iconBg}`}>
-        <Icon size={24} className="text-on-surface" />
-      </div>
-      <p className="font-serif text-3xl font-bold text-on-surface">{value ?? '-'}</p>
-      <p className="m3-label text-center">{label}</p>
-    </div>
-  )
-}
 
 function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
   const [name, setName] = useState('')
@@ -114,7 +103,6 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
     }
   }
 
-  const tTitle = lang === 'ru' ? 'Посещаемость по группам' : 'Guruhlar davomati'
   const tNoData = lang === 'ru' ? 'Нет данных за этот месяц' : 'Bu oy uchun maʼlumot yoʻq'
 
   return (
@@ -259,7 +247,7 @@ export default function TeacherDashboard() {
       }
       haptic?.success()
       refetchDash()
-    } catch (err) {
+    } catch {
       alert(lang === 'ru' ? 'Ошибка при выполнении действия' : 'Xatolik yuz berdi')
     }
   }

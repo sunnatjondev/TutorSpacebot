@@ -35,9 +35,11 @@ CREATE TABLE IF NOT EXISTS groups (
   name                TEXT NOT NULL,
   subject             TEXT NOT NULL,
   invite_token        TEXT NOT NULL UNIQUE,
+  color               TEXT DEFAULT 'purple',
   price_per_month     BIGINT DEFAULT 0,       -- in UZS (tiyin)
   billing_day         INT DEFAULT 1 CHECK (billing_day BETWEEN 1 AND 31),
   telegram_group_link TEXT,
+  schedule_template   JSONB DEFAULT '[]'::jsonb,
   created_at          TIMESTAMPTZ DEFAULT NOW()
 );
 

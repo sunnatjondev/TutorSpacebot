@@ -95,8 +95,7 @@ export function useUpdateGroup() {
     mutationFn: async ({ groupId, updates }) => {
       const { group } = await apiUpdateGroup({
         groupId,
-        name: updates?.name,
-        subject: updates?.subject,
+        ...updates,
       })
       return group
     },

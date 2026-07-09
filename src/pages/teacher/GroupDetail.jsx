@@ -545,14 +545,12 @@ export default function GroupDetail() {
 
   useTelegramBackButton(() => navigate(-1))
 
-  // Initialize create session states when modal opens
-  useEffect(() => {
-    if (showCreateSessionModal) {
-      setLessonDate(new Date(selectedAttendanceDate || new Date()))
-      setLessonHour('09')
-      setLessonMinute('00')
-    }
-  }, [showCreateSessionModal, selectedAttendanceDate])
+  const openCreateSessionModal = () => {
+    setLessonDate(new Date(selectedAttendanceDate || new Date()))
+    setLessonHour('09')
+    setLessonMinute('00')
+    setShowCreateSessionModal(true)
+  }
 
   // Fetch Attendance for the Selected Date
   useEffect(() => {
@@ -974,7 +972,7 @@ export default function GroupDetail() {
                 className="m3-btn-filled mx-auto"
                 onClick={() => {
                   haptic?.medium()
-                  setShowCreateSessionModal(true)
+                  openCreateSessionModal()
                 }}
               >
                 + {lang === 'ru' ? 'Создать урок' : 'Dars yaratish'}

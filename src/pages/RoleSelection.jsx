@@ -5,7 +5,6 @@ import { useTelegram } from '../hooks/useTelegram'
 import { useI18n } from '../i18n/index.jsx'
 import { saveUserRole } from '../hooks/api/auth'
 import { LS_ROLE_KEY, LS_TG_ID_KEY } from '../lib/constants'
-const ADMIN_TELEGRAM_ID = Number(import.meta.env.VITE_ADMIN_TELEGRAM_ID) || 0
 
 export default function RoleSelection() {
   const navigate = useNavigate()

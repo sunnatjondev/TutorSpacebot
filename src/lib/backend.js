@@ -31,7 +31,7 @@ async function requestBackend(path, payload = {}) {
     })
   } catch (error) {
     if (error.name === 'TypeError') {
-      throw new Error('Tarmoq xatosi yoki server ishlamayapti (Network Error).')
+      throw new Error('Tarmoq xatosi yoki server ishlamayapti (Network Error).', { cause: error })
     }
     throw error
   }
@@ -59,7 +59,7 @@ export async function saveTrustedRole(role) {
 }
 
 export async function joinTrustedInvite(inviteToken) {
-  return requestBackend('/api/invites/join', { inviteToken })
+  return requestBackend('/api/auth/invite/join', { inviteToken })
 }
 
 // ─── Teacher API ───────────────────────────────────────────
@@ -90,8 +90,17 @@ export function deleteGroup(groupId) {
   return requestBackend('/api/groups/delete', { groupId })
 }
 
-export function updateGroup({ groupId, name, subject }) {
-  return requestBackend('/api/groups/update', { groupId, name, subject })
+export function updateGroup({ groupId, name, subject, telegram_group_link, color, billing_day, price_per_month, schedule_template }) {
+  return requestBackend('/api/groups/update', {
+    groupId,
+    name,
+    subject,
+    telegram_group_link,
+    color,
+    billing_day,
+    price_per_month,
+    schedule_template,
+  })
 }
 
 export function fetchGroupDetail(groupId) {

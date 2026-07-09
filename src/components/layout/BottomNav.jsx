@@ -6,7 +6,6 @@ import {
   CalendarDays,
   Wallet,
   Settings,
-  BarChart3,
 } from 'lucide-react'
 import { useI18n } from '../../i18n/index.jsx'
 import { useTelegram } from '../../hooks/useTelegram'
