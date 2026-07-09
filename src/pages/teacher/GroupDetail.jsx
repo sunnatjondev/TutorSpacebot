@@ -185,7 +185,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         </div>
 
         {/* ── Payment Section ── */}
-        <div className="bg-surface-high rounded-2xl p-4 space-y-3 border border-outline-variant/15">
+        <div className="bg-surface-container/35 rounded-2xl p-4 space-y-3 border border-outline-variant/15">
           <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">💳 To'lov sozlamalari</p>
           <div className="flex gap-3">
             <div className="flex-1">

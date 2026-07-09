@@ -12,16 +12,7 @@ import {
 export function useStudentDashboard(telegramId) {
   return useQuery({
     queryKey: ['student-dashboard', telegramId],
-    queryFn: async () => {
-      const data = await fetchStudentDashboard()
-      return {
-        homeworkCount: data.homeworkCount,
-        homeworkOverdue: data.homeworkOverdue,
-        balance: data.balance,
-        attendance: data.attendance,
-        nextLesson: data.nextLesson,
-      }
-    },
+    queryFn: () => fetchStudentDashboard(),
     enabled: !!telegramId,
   })
 }
