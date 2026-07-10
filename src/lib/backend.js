@@ -31,7 +31,7 @@ async function requestBackend(path, payload = {}) {
     })
   } catch (error) {
     if (error.name === 'TypeError') {
-      throw new Error('Tarmoq xatosi yoki server ishlamayapti (Network Error).', { cause: error })
+      throw new Error(`Tarmoq xatosi yoki server ishlamayapti (Network Error). Backend: ${backendUrl}`, { cause: error })
     }
     throw error
   }
