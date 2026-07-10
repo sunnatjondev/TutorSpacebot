@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStudentDashboard, useStudentHomework, useMarkHomeworkDone } from '../../hooks/api/useStudent'
 export default function StudentDashboard() {
   const { user, haptic } = useTelegram()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const telegramId = user?.id
   const firstName = user?.first_name || 'Talaba'
 
