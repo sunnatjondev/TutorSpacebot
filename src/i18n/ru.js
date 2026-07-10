@@ -211,7 +211,8 @@ const ru = {
     "noTasks": "Заданий пока нет",
     "markDone": "Отметить как выполнено",
     "markNotDone": "Отменить выполнение",
-    "noDescription": "Описание отсутствует"
+    "noDescription": "Описание отсутствует",
+    "myBadges": "Мои достижения"
   },
   "studentGroups": {
     "title": "Мои группы",

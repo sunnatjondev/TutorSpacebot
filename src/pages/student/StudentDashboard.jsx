@@ -148,8 +148,11 @@ export default function StudentDashboard() {
 
         {/* Gamification Badges */}
         <div className="m3-card stagger-item">
-          <h3 className="m3-title-md !font-sans !text-base mb-3">🏅 {t('studentHome.myBadges', 'Mening yutuqlarim')}</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <h3 className="m3-title-md !font-sans !text-base mb-3 flex items-center gap-2">
+            <span>🏅</span>
+            <span>{t('studentHome.myBadges')}</span>
+          </h3>
+          <div className="space-y-3">
             {(() => {
               const hasStreak = dash?.badges?.some(b => b.badge_type === 'streak_5')
               const hasHwMaster = dash?.badges?.some(b => b.badge_type === 'hw_master_3')
@@ -157,37 +160,67 @@ export default function StudentDashboard() {
               return (
                 <>
                   {/* Badge 1: Perfect Attendance */}
-                  <div className={`relative flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all duration-300 ${
+                  <div className={`flex items-center gap-4 p-3.5 rounded-2xl border transition-all duration-300 ${
                     hasStreak 
-                      ? 'bg-brand/10 border-brand/35 text-on-surface' 
-                      : 'bg-surface-high/40 border-outline-variant/10 opacity-50'
+                      ? 'bg-brand/10 border-brand/25 text-on-surface' 
+                      : 'bg-surface-high/30 border-outline-variant/10 opacity-60'
                   }`}>
-                    <div className="text-4xl mb-2 filter drop-shadow">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 ${
+                      hasStreak ? 'bg-brand/15' : 'bg-surface-highest'
+                    }`}>
                       {hasStreak ? '🏆' : '🔒'}
                     </div>
-                    <p className="text-xs font-bold text-on-surface text-center mb-1">
-                      {lang === 'ru' ? 'Идеальная посещаемость' : 'Ideal davomat'}
-                    </p>
-                    <span className="text-[9px] text-on-surface-variant text-center leading-normal">
-                      {lang === 'ru' ? '5 уроков подряд без пропусков' : '5 ta darsga ketma-ket qatnashish'}
-                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-on-surface">
+                        {lang === 'ru' ? 'Идеальная посещаемость' : 'Ideal davomat'}
+                      </p>
+                      <p className="text-xs text-on-surface-variant mt-0.5">
+                        {lang === 'ru' ? '5 занятий подряд без пропусков' : '5 ta darsga ketma-ket qatnashish'}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      {hasStreak ? (
+                        <span className="text-[10px] font-bold text-paid-green bg-paid-green/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          {lang === 'ru' ? 'Получено' : 'Erishildi'}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-on-surface-variant bg-surface-highest px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          {lang === 'ru' ? 'В процессе' : 'Jarayonda'}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Badge 2: Homework Master */}
-                  <div className={`relative flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all duration-300 ${
+                  <div className={`flex items-center gap-4 p-3.5 rounded-2xl border transition-all duration-300 ${
                     hasHwMaster 
-                      ? 'bg-brand/10 border-brand/35 text-on-surface' 
-                      : 'bg-surface-high/40 border-outline-variant/10 opacity-50'
+                      ? 'bg-brand/10 border-brand/25 text-on-surface' 
+                      : 'bg-surface-high/30 border-outline-variant/10 opacity-60'
                   }`}>
-                    <div className="text-4xl mb-2 filter drop-shadow">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 ${
+                      hasHwMaster ? 'bg-brand/15' : 'bg-surface-highest'
+                    }`}>
                       {hasHwMaster ? '🎓' : '🔒'}
                     </div>
-                    <p className="text-xs font-bold text-on-surface text-center mb-1">
-                      {lang === 'ru' ? 'Мастер ДЗ' : 'Vazifa ustasi'}
-                    </p>
-                    <span className="text-[9px] text-on-surface-variant text-center leading-normal">
-                      {lang === 'ru' ? 'Выполнить 3 домашних задания' : '3 ta uy vazifasini bajarish'}
-                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-on-surface">
+                        {lang === 'ru' ? 'Мастер ДЗ' : 'Vazifa ustasi'}
+                      </p>
+                      <p className="text-xs text-on-surface-variant mt-0.5">
+                        {lang === 'ru' ? 'Выполнить 3 домашних задания' : '3 ta uy vazifasini bajarish'}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      {hasHwMaster ? (
+                        <span className="text-[10px] font-bold text-paid-green bg-paid-green/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          {lang === 'ru' ? 'Получено' : 'Erishildi'}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-on-surface-variant bg-surface-highest px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          {lang === 'ru' ? 'В процессе' : 'Jarayonda'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </>
               )

@@ -207,7 +207,8 @@ const uz = {
     "noTasks": "Hozircha topshiriqlar yo'q",
     "markDone": "Bajarildi deb belgilash",
     "markNotDone": "Bekor qilish",
-    "noDescription": "Tavsif yo'q"
+    "noDescription": "Tavsif yo'q",
+    "myBadges": "Mening yutuqlarim"
   },
   "studentGroups": {
     "title": "Mening guruhlarim",
