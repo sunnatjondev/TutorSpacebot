@@ -147,23 +147,53 @@ export default function StudentDashboard() {
         </div>
 
         {/* Gamification Badges */}
-        {dash?.badges && dash.badges.length > 0 && (
-          <div className="m3-card stagger-item">
-            <h3 className="m3-title-md !font-sans !text-base mb-3">{t('studentHome.myBadges', 'Mening yutuqlarim')}</h3>
-            <div className="flex flex-wrap gap-3">
-              {dash.badges.map((b) => (
-                <div key={b.badge_type} className="flex flex-col items-center justify-center p-3 rounded-2xl bg-surface-high border border-outline-variant/15 w-24 text-center">
-                  <div className="text-3xl mb-1">
-                    {b.badge_type === 'streak_5' ? '🏆' : b.badge_type === 'hw_master_3' ? '🎓' : '🏅'}
+        <div className="m3-card stagger-item">
+          <h3 className="m3-title-md !font-sans !text-base mb-3">🏅 {t('studentHome.myBadges', 'Mening yutuqlarim')}</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {(() => {
+              const hasStreak = dash?.badges?.some(b => b.badge_type === 'streak_5')
+              const hasHwMaster = dash?.badges?.some(b => b.badge_type === 'hw_master_3')
+
+              return (
+                <>
+                  {/* Badge 1: Perfect Attendance */}
+                  <div className={`relative flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all duration-300 ${
+                    hasStreak 
+                      ? 'bg-brand/10 border-brand/35 text-on-surface' 
+                      : 'bg-surface-high/40 border-outline-variant/10 opacity-50'
+                  }`}>
+                    <div className="text-4xl mb-2 filter drop-shadow">
+                      {hasStreak ? '🏆' : '🔒'}
+                    </div>
+                    <p className="text-xs font-bold text-on-surface text-center mb-1">
+                      {lang === 'ru' ? 'Идеальная посещаемость' : 'Ideal davomat'}
+                    </p>
+                    <span className="text-[9px] text-on-surface-variant text-center leading-normal">
+                      {lang === 'ru' ? '5 уроков подряд без пропусков' : '5 ta darsga ketma-ket qatnashish'}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold text-on-surface-variant leading-tight">
-                    {b.badge_type === 'streak_5' ? (t('badges.streak5', 'Ideal davomat')) : b.badge_type === 'hw_master_3' ? (t('badges.hwMaster', 'Vazifa ustasi')) : b.badge_type}
-                  </span>
-                </div>
-              ))}
-            </div>
+
+                  {/* Badge 2: Homework Master */}
+                  <div className={`relative flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all duration-300 ${
+                    hasHwMaster 
+                      ? 'bg-brand/10 border-brand/35 text-on-surface' 
+                      : 'bg-surface-high/40 border-outline-variant/10 opacity-50'
+                  }`}>
+                    <div className="text-4xl mb-2 filter drop-shadow">
+                      {hasHwMaster ? '🎓' : '🔒'}
+                    </div>
+                    <p className="text-xs font-bold text-on-surface text-center mb-1">
+                      {lang === 'ru' ? 'Мастер ДЗ' : 'Vazifa ustasi'}
+                    </p>
+                    <span className="text-[9px] text-on-surface-variant text-center leading-normal">
+                      {lang === 'ru' ? 'Выполнить 3 домашних задания' : '3 ta uy vazifasini bajarish'}
+                    </span>
+                  </div>
+                </>
+              )
+            })()}
           </div>
-        )}
+        </div>
 
         <div
           className="m3-card stagger-item"
