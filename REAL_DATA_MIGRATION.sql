@@ -510,3 +510,97 @@ CREATE POLICY "Service role can insert badges" ON public.student_badges FOR INSE
 
 -- 6. Schedule templates
 ALTER TABLE public.groups ADD COLUMN IF NOT EXISTS schedule_template JSONB DEFAULT '[]'::jsonb;
+-- 7. SaaS subscription and billing tables
+create table if not exists public.subscription_plans (
+  id uuid primary key default uuid_generate_v4(),
+  slug text unique not null,
+  name_uz text not null,
+  name_ru text not null,
+  price_uzs integer not null default 0,
+  max_groups integer,
+  max_students integer,
+  trial_days integer default 0,
+  is_active boolean default true,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.subscriptions (
+  id uuid primary key default uuid_generate_v4(),
+  teacher_id uuid not null references public.users(id) on delete cascade,
+  plan_id uuid not null references public.subscription_plans(id),
+  status text not null default 'trial',
+  starts_at timestamptz not null default now(),
+  expires_at timestamptz not null,
+  auto_renew boolean default false,
+  created_at timestamptz default now(),
+  unique (teacher_id)
+);
+
+create table if not exists public.billing_transactions (
+  id uuid primary key default uuid_generate_v4(),
+  teacher_id uuid not null references public.users(id) on delete cascade,
+  subscription_id uuid references public.subscriptions(id) on delete cascade,
+  click_trans_id bigint unique,
+  click_paydoc_id bigint,
+  amount integer not null,
+  status text not null default 'pending',
+  merchant_prepare_id text,
+  error_note text,
+  created_at timestamptz default now(),
+  completed_at timestamptz
+);
+
+alter table public.users add column if not exists subscription_plan text default 'none';
+
+insert into public.subscription_plans (slug, name_uz, name_ru, price_uzs, max_groups, max_students, trial_days)
+values
+  ('trial', 'Sinov', 'Probniy', 0, 3, 30, 14),
+  ('solo', 'Solo', 'Solo', 150000, 3, 30, 0),
+  ('center', 'Center', 'Center', 400000, null, null, 0)
+on conflict (slug) do update set
+  name_uz = excluded.name_uz,
+  name_ru = excluded.name_ru,
+  price_uzs = excluded.price_uzs,
+  max_groups = excluded.max_groups,
+  max_students = excluded.max_students,
+  trial_days = excluded.trial_days,
+  is_active = true;
+
+alter table public.subscription_plans enable row level security;
+alter table public.subscriptions enable row level security;
+alter table public.billing_transactions enable row level security;
+
+drop policy if exists subscription_plans_read_active on public.subscription_plans;
+create policy subscription_plans_read_active on public.subscription_plans
+  for select to authenticated using (is_active = true);
+
+drop policy if exists subscriptions_teacher_read on public.subscriptions;
+create policy subscriptions_teacher_read on public.subscriptions
+  for select to authenticated using (
+    teacher_id = (
+      select id from public.users
+      where telegram_id = (auth.jwt() ->> 'telegram_id')::bigint
+      limit 1
+    )
+  );
+
+drop policy if exists billing_transactions_teacher_read on public.billing_transactions;
+create policy billing_transactions_teacher_read on public.billing_transactions
+  for select to authenticated using (
+    teacher_id = (
+      select id from public.users
+      where telegram_id = (auth.jwt() ->> 'telegram_id')::bigint
+      limit 1
+    )
+  );
+
+drop policy if exists billing_transactions_teacher_insert_pending on public.billing_transactions;
+create policy billing_transactions_teacher_insert_pending on public.billing_transactions
+  for insert to authenticated with check (
+    teacher_id = (
+      select id from public.users
+      where telegram_id = (auth.jwt() ->> 'telegram_id')::bigint
+      limit 1
+    )
+    and status = 'pending'
+  );

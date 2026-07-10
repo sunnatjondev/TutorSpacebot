@@ -34,7 +34,7 @@ export default function RoleSelection() {
       } catch (error) {
         console.warn('[Auth] Supabase role save:', error)
         haptic?.error()
-        const message = "Rolni saqlab bo'lmadi. Iltimos, qayta urinib ko'ring."
+        const message = error?.message || "Rolni saqlab bo'lmadi. Iltimos, qayta urinib ko'ring."
         if (tg?.showAlert) {
           tg.showAlert(message)
         } else {
