@@ -457,32 +457,44 @@ drop policy if exists allow_all_homework on public.homework;
 drop policy if exists allow_all_homework_submissions on public.homework_submissions;
 drop policy if exists bot_notification_events_service_role on public.bot_notification_events;
 
-create policy allow_all_users on public.users
-for all using (true) with check (true);
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'users' and policyname = 'allow_all_users') then
+    create policy allow_all_users on public.users for all using (true) with check (true);
+  end if;
 
-create policy allow_all_groups on public.groups
-for all using (true) with check (true);
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'groups' and policyname = 'allow_all_groups') then
+    create policy allow_all_groups on public.groups for all using (true) with check (true);
+  end if;
 
-create policy allow_all_group_members on public.group_members
-for all using (true) with check (true);
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'group_members' and policyname = 'allow_all_group_members') then
+    create policy allow_all_group_members on public.group_members for all using (true) with check (true);
+  end if;
 
-create policy allow_all_sessions on public.sessions
-for all using (true) with check (true);
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'sessions' and policyname = 'allow_all_sessions') then
+    create policy allow_all_sessions on public.sessions for all using (true) with check (true);
+  end if;
 
-create policy allow_all_attendance on public.attendance
-for all using (true) with check (true);
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'attendance' and policyname = 'allow_all_attendance') then
+    create policy allow_all_attendance on public.attendance for all using (true) with check (true);
+  end if;
 
-create policy allow_all_payments on public.payments
-for all using (true) with check (true);
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'payments' and policyname = 'allow_all_payments') then
+    create policy allow_all_payments on public.payments for all using (true) with check (true);
+  end if;
 
-create policy allow_all_homework on public.homework
-for all using (true) with check (true);
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'homework' and policyname = 'allow_all_homework') then
+    create policy allow_all_homework on public.homework for all using (true) with check (true);
+  end if;
 
-create policy allow_all_homework_submissions on public.homework_submissions
-for all using (true) with check (true);
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'homework_submissions' and policyname = 'allow_all_homework_submissions') then
+    create policy allow_all_homework_submissions on public.homework_submissions for all using (true) with check (true);
+  end if;
 
-create policy bot_notification_events_service_role on public.bot_notification_events
-for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'bot_notification_events' and policyname = 'bot_notification_events_service_role') then
+    create policy bot_notification_events_service_role on public.bot_notification_events for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
+  end if;
+end $$;
 
 
 -- 5. Gamification
