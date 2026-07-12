@@ -635,10 +635,22 @@ export default function GroupDetail() {
   const handleSaveNotes = async () => {
     if (!sessionId) return
     setSavingNotes(true)
+    
+    // Calculate weekStart (Monday of the week for selectedAttendanceDate)
+    let weekStartKey = null
+    if (selectedAttendanceDate) {
+      const day = selectedAttendanceDate.getDay()
+      const monday = new Date(selectedAttendanceDate)
+      monday.setDate(selectedAttendanceDate.getDate() - ((day === 0 ? 7 : day) - 1))
+      weekStartKey = monday.getTime()
+    }
+    
     try {
       await updateSessionMutation.mutateAsync({
         sessionId,
-        notes: sessionNotes
+        notes: sessionNotes,
+        telegramId: user?.id,
+        weekStart: weekStartKey
       })
       haptic?.success()
     } catch {
@@ -653,11 +665,20 @@ export default function GroupDetail() {
     haptic?.medium()
     const scheduledAt = new Date(lessonDate)
     scheduledAt.setHours(Number(lessonHour) || 9, Number(lessonMinute) || 0, 0, 0)
+    
+    // Calculate weekStart (Monday of the week)
+    const day = scheduledAt.getDay()
+    const monday = new Date(scheduledAt)
+    monday.setDate(scheduledAt.getDate() - ((day === 0 ? 7 : day) - 1))
+    const weekStartKey = monday.getTime()
+    
     try {
       const data = await createSessionMutation.mutateAsync({
         groupId: id,
         scheduledAt: scheduledAt.toISOString(),
-        durationMin: Number(sessionDuration) || 90
+        durationMin: Number(sessionDuration) || 90,
+        telegramId: user?.id,
+        weekStart: weekStartKey
       })
       setSessionId(data.id)
       haptic?.success()

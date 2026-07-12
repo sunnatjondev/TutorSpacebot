@@ -86,12 +86,16 @@ export function useDeleteGroup() {
 export function useCreateSession() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ groupId, scheduledAt, durationMin = 90 }) => {
+    mutationFn: async ({ groupId, scheduledAt, durationMin = 90, telegramId, weekStart }) => {
       const { session } = await apiCreateSession({ groupId, scheduledAt, durationMin })
-      return session
+      return { session, telegramId, weekStart }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teacher-schedule'] })
+    onSuccess: (data) => {
+      const { telegramId, weekStart } = data
+      if (telegramId) {
+        queryClient.invalidateQueries({ queryKey: ['teacher-schedule', telegramId, weekStart] })
+        queryClient.invalidateQueries({ queryKey: ['teacher-schedule', telegramId] })
+      }
       queryClient.invalidateQueries({ queryKey: ['student-schedule'] })
       queryClient.invalidateQueries({ queryKey: ['teacher-groups'] })
       queryClient.invalidateQueries({ queryKey: ['student-groups'] })
@@ -102,12 +106,16 @@ export function useCreateSession() {
 export function useUpdateSession() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ sessionId, status, notes }) => {
+    mutationFn: async ({ sessionId, status, notes, telegramId, weekStart }) => {
       const { session } = await apiUpdateSessionStatus({ sessionId, status, notes })
-      return session
+      return { session, telegramId, weekStart }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teacher-schedule'] })
+    onSuccess: (data) => {
+      const { telegramId, weekStart } = data
+      if (telegramId) {
+        queryClient.invalidateQueries({ queryKey: ['teacher-schedule', telegramId, weekStart] })
+        queryClient.invalidateQueries({ queryKey: ['teacher-schedule', telegramId] })
+      }
       queryClient.invalidateQueries({ queryKey: ['student-schedule'] })
       queryClient.invalidateQueries({ queryKey: ['teacher-groups'] })
       queryClient.invalidateQueries({ queryKey: ['student-groups'] })
@@ -119,11 +127,16 @@ export function useUpdateSession() {
 export function useDeleteSession() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (sessionId) => {
+    mutationFn: async ({ sessionId, telegramId, weekStart }) => {
       await apiDeleteSession(sessionId)
+      return { telegramId, weekStart }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teacher-schedule'] })
+    onSuccess: (data) => {
+      const { telegramId, weekStart } = data
+      if (telegramId) {
+        queryClient.invalidateQueries({ queryKey: ['teacher-schedule', telegramId, weekStart] })
+        queryClient.invalidateQueries({ queryKey: ['teacher-schedule', telegramId] })
+      }
       queryClient.invalidateQueries({ queryKey: ['student-schedule'] })
       queryClient.invalidateQueries({ queryKey: ['teacher-groups'] })
       queryClient.invalidateQueries({ queryKey: ['student-groups'] })

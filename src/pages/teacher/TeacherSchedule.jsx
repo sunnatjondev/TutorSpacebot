@@ -111,6 +111,8 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
           groupId: selectedGroupId,
           scheduledAt: date.toISOString(),
           durationMin: duration,
+          telegramId: user?.id,
+          weekStart: weekStartKey,
         })
       } catch {
         allSuccess = false
@@ -328,7 +330,12 @@ export default function TeacherSchedule() {
     haptic?.medium()
 
     try {
-      await updateSessionMutation.mutateAsync({ sessionId, status: 'ongoing' })
+      await updateSessionMutation.mutateAsync({ 
+        sessionId, 
+        status: 'ongoing',
+        telegramId: user?.id,
+        weekStart: weekStartKey
+      })
       haptic?.success?.()
       refetch()
     } catch {
@@ -343,7 +350,12 @@ export default function TeacherSchedule() {
     haptic?.medium()
 
     try {
-      await updateSessionMutation.mutateAsync({ sessionId, status: 'done' })
+      await updateSessionMutation.mutateAsync({ 
+        sessionId, 
+        status: 'done',
+        telegramId: user?.id,
+        weekStart: weekStartKey
+      })
       haptic?.success?.()
       refetch()
     } catch {
@@ -359,7 +371,11 @@ export default function TeacherSchedule() {
 
     setProcessingSessionId(sessionId)
     try {
-      await deleteSessionMutation.mutateAsync(sessionId)
+      await deleteSessionMutation.mutateAsync({ 
+        sessionId,
+        telegramId: user?.id,
+        weekStart: weekStartKey
+      })
       haptic?.success?.()
       refetch()
     } catch {
