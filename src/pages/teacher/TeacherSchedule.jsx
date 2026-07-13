@@ -114,8 +114,9 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t 
           telegramId: user?.id,
           weekStart: weekStartKey,
         })
-      } catch {
+      } catch (err) {
         allSuccess = false
+        setError(err.message || t('teacherSchedule.createError'))
       }
     }
 

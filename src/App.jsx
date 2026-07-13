@@ -130,12 +130,16 @@ function ScrollToTop() {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    document.querySelectorAll('.page-wrapper').forEach((el) => {
-      el.scrollTop = 0
-    })
-    document.querySelectorAll('.overflow-y-auto').forEach((el) => {
-      el.scrollTop = 0
-    })
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0)
+      document.querySelectorAll('.page-wrapper').forEach((el) => {
+        el.scrollTop = 0
+      })
+      document.querySelectorAll('.overflow-y-auto').forEach((el) => {
+        el.scrollTop = 0
+      })
+    }, 100)
+    return () => clearTimeout(timer)
   }, [pathname])
 
   return null

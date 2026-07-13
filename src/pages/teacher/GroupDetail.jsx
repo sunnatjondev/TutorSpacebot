@@ -686,8 +686,8 @@ export default function GroupDetail() {
       const day = scheduledAt.getDay()
       setSelectedDayIndex(day === 0 ? 6 : day - 1)
       setShowCreateSessionModal(false)
-    } catch {
-      alert(lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi")
+    } catch (err) {
+      alert(err.message || (lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi"))
     } finally {
       setCreatingSession(false)
     }
