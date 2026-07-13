@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useTelegram } from './hooks/useTelegram'
 import { upsertTelegramUser } from './hooks/api/auth'
 import { joinGroupByToken } from './hooks/api/useStudent'
@@ -125,9 +125,26 @@ function AuthGate() {
   return <RoleSelection />
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    document.querySelectorAll('.page-wrapper').forEach((el) => {
+      el.scrollTop = 0
+    })
+    document.querySelectorAll('.overflow-y-auto').forEach((el) => {
+      el.scrollTop = 0
+    })
+  }, [pathname])
+
+  return null
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
           <Route path="/" element={<AuthGate />} />
