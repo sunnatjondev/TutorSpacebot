@@ -680,7 +680,7 @@ export default function GroupDetail() {
         telegramId: user?.id,
         weekStart: weekStartKey
       })
-      setSessionId(data.id)
+      setSessionId(data.session.id)
       haptic?.success()
       setAttendanceBaseDate(scheduledAt)
       const day = scheduledAt.getDay()
