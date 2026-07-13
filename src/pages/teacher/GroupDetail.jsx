@@ -482,7 +482,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
 export default function GroupDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { haptic } = useTelegram()
+  const { user, haptic } = useTelegram()
   const { t, lang } = useI18n()
   const { data, loading } = useGroupDetail(id)
   const { data: homeworkRows } = useGroupHomework(id)

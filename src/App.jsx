@@ -146,6 +146,12 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+  }, [])
+
   return (
     <BrowserRouter>
       <ScrollToTop />
