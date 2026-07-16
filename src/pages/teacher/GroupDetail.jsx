@@ -239,7 +239,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         {/* ── Schedule Section ── */}
         <div>
           <label className="text-xs font-semibold text-on-surface-variant mb-3 block uppercase tracking-wider">📅 Haftalik dars jadvali</label>
-          
+
           {/* Day Toggle Pills */}
           <div className="flex flex-wrap gap-2 mb-3">
             {weekDays.map(wd => {
@@ -551,12 +551,16 @@ export default function GroupDetail() {
       const inviteUrl = `https://t.me/${botUsername}?start=parent_${token}`
       await navigator.clipboard.writeText(inviteUrl)
       haptic?.success?.()
-      const message = 'One-time parent link copied. Valid for 24 hours.'
+      const message = lang === 'ru'
+        ? '\u0421\u0441\u044b\u043b\u043a\u0430 \u0434\u043b\u044f \u0440\u043e\u0434\u0438\u0442\u0435\u043b\u044f \u0441\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u0430. \u041e\u043d\u0430 \u0434\u0435\u0439\u0441\u0442\u0432\u0443\u0435\u0442 24 \u0447\u0430\u0441\u0430.'
+        : "Ota-ona uchun havola nusxalandi. U 24 soat amal qiladi."
       if (window.Telegram?.WebApp?.showAlert) window.Telegram.WebApp.showAlert(message)
       else alert(message)
     } catch (error) {
       haptic?.error?.()
-      const message = error?.message || 'Unable to create the parent link.'
+      const message = error?.message || (lang === 'ru'
+        ? '\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0441\u0441\u044b\u043b\u043a\u0443 \u0434\u043b\u044f \u0440\u043e\u0434\u0438\u0442\u0435\u043b\u044f.'
+        : "Ota-ona uchun havolani yaratib bolmadi.")
       if (window.Telegram?.WebApp?.showAlert) window.Telegram.WebApp.showAlert(message)
       else alert(message)
     }
@@ -651,7 +655,7 @@ export default function GroupDetail() {
   const handleSaveNotes = async () => {
     if (!sessionId) return
     setSavingNotes(true)
-    
+
     // Calculate weekStart (Monday of the week for selectedAttendanceDate)
     let weekStartKey = null
     if (selectedAttendanceDate) {
@@ -660,7 +664,7 @@ export default function GroupDetail() {
       monday.setDate(selectedAttendanceDate.getDate() - ((day === 0 ? 7 : day) - 1))
       weekStartKey = monday.getTime()
     }
-    
+
     try {
       await updateSessionMutation.mutateAsync({
         sessionId,
@@ -681,13 +685,13 @@ export default function GroupDetail() {
     haptic?.medium()
     const scheduledAt = new Date(lessonDate)
     scheduledAt.setHours(Number(lessonHour) || 9, Number(lessonMinute) || 0, 0, 0)
-    
+
     // Calculate weekStart (Monday of the week)
     const day = scheduledAt.getDay()
     const monday = new Date(scheduledAt)
     monday.setDate(scheduledAt.getDate() - ((day === 0 ? 7 : day) - 1))
     const weekStartKey = monday.getTime()
-    
+
     try {
       const data = await createSessionMutation.mutateAsync({
         groupId: id,
@@ -768,7 +772,7 @@ export default function GroupDetail() {
 
   const toggleAttendance = async (studentId) => {
     haptic?.light()
-    
+
     let activeSessionId = sessionId
     if (!activeSessionId) {
       alert(lang === 'ru' ? "Сначала создайте урок для этой даты!" : "Iltimos, avval ushbu sana uchun dars yarating!")
@@ -1005,7 +1009,7 @@ export default function GroupDetail() {
               <p className="m3-body-lg mb-6 text-on-surface-variant">
                 {lang === 'ru' ? 'На эту дату урок не создан.' : 'Bu sana uchun dars yaratilmagan.'}
               </p>
-              <button 
+              <button
                 className="m3-btn-filled mx-auto"
                 onClick={() => {
                   haptic?.medium()
@@ -1020,7 +1024,7 @@ export default function GroupDetail() {
               {(() => {
                 const selectedDateEnd = new Date(selectedAttendanceDate)
                 selectedDateEnd.setHours(23, 59, 59, 999)
-                
+
                 const visibleStudents = students.filter(student => {
                   if (!student.joined_at) return true
                   return new Date(student.joined_at) <= selectedDateEnd
@@ -1091,7 +1095,7 @@ export default function GroupDetail() {
               })()}
             </div>
           )}
-          
+
           {/* Session Notes */}
           {!loadingAttendance && sessionId && (
             <div className="mt-4 pt-4 border-t border-outline-variant/20">
@@ -1131,19 +1135,19 @@ export default function GroupDetail() {
               <div key={student.id}>
                 <div className="flex items-center gap-3 py-3">
                   <Avatar name={displayStudentName(student.name)} size="sm" />
-                  <div 
+                  <div
                     className="flex-1 min-w-0 cursor-pointer hover:opacity-80 flex items-center gap-2 group"
                     onClick={() => handleEditRateClick(student)}
                   >
                     <div>
                       <p className="text-on-surface text-sm font-semibold truncate">{displayStudentName(student.name)}</p>
                       <p className="text-on-surface-variant text-xs flex items-center gap-1.5">
-                        {formatUZS(student.amount)} 
+                        {formatUZS(student.amount)}
                         <Pencil size={11} className="text-on-surface-variant/50 group-hover:text-primary transition-colors" />
                       </p>
                     </div>
                   </div>
-                  
+
                   {student.status === 'paid' ? (
                     <span className="badge-paid select-none">✓ {t('common.paid')}</span>
                   ) : (
@@ -1204,8 +1208,8 @@ export default function GroupDetail() {
                   ? new Date(item.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                   : '—'
                 return (
-                  <div 
-                    key={item.id} 
+                  <div
+                    key={item.id}
                     className="py-2 border-b border-outline-variant/40 last:border-0 cursor-pointer active:scale-[0.98] transition-transform"
                     onClick={() => {
                       haptic?.selection()
@@ -1331,7 +1335,7 @@ export default function GroupDetail() {
                 <p className="italic text-on-surface-variant">{t('studentHome.noDescription') || 'Описание отсутствует'}</p>
               )}
             </div>
-            
+
             <div className="rounded-xl border border-outline-variant/30 p-4 flex items-center justify-between bg-surface-high/50">
               <span className="text-sm font-semibold text-on-surface">{t('homework.completed') || 'Bajarildi'}</span>
               <div className="flex items-center gap-2">
