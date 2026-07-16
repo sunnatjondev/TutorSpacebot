@@ -7,7 +7,7 @@ import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { upsertTelegramUser, updateNotificationPreferences } from '../../hooks/api/auth'
-import { deleteUserAccount } from '../../lib/backend'
+import { createParentInvite, deleteUserAccount } from '../../lib/backend'
 
 function NotificationToggle({ value, onChange }) {
   return (
@@ -76,6 +76,22 @@ export default function StudentSettings() {
   }
 
 
+  const handleCopyParentInvite = async () => {
+    try {
+      const { token } = await createParentInvite()
+      const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tutorspace_app_bot'
+      await navigator.clipboard.writeText(`https://t.me/${botUsername}?start=parent_${token}`)
+      haptic?.success?.()
+      const message = 'One-time parent link copied. Valid for 24 hours.'
+      if (tg?.showAlert) tg.showAlert(message)
+      else alert(message)
+    } catch (error) {
+      haptic?.error?.()
+      const message = error?.message || 'Unable to create the parent link.'
+      if (tg?.showAlert) tg.showAlert(message)
+      else alert(message)
+    }
+  }
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'Talaba'
   const langLabels = { uz: 'UZ', ru: 'RU' }
 
@@ -126,17 +142,7 @@ export default function StudentSettings() {
                 : 'Ota-onangizga ushbu havolani yuboring. Ular darslaringiz, davomatingiz va to\'lovlaringizni kuzatib borishlari mumkin bo\'ladi.'}
             </p>
             <button
-              onClick={() => {
-                const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tutorspace_app_bot'
-                const inviteUrl = `https://t.me/${botUsername}?start=parent_${dbUser.id}`
-                navigator.clipboard.writeText(inviteUrl)
-                haptic?.success?.()
-                if (tg?.showAlert) {
-                  tg.showAlert(lang === 'ru' ? 'Ссылка скопирована!' : 'Havola nusxalandi!')
-                } else {
-                  alert(lang === 'ru' ? 'Ссылка скопирована!' : 'Havola nusxalandi!')
-                }
-              }}
+              onClick={handleCopyParentInvite}
               className="w-full h-11 rounded-full bg-brand/10 hover:bg-brand/15 active:scale-95 text-primary text-sm font-bold flex items-center justify-center gap-2 transition-all"
             >
               <span>{lang === 'ru' ? 'Скопировать ссылку для родителей' : 'Ota-ona uchun havolani nusxalash'}</span>

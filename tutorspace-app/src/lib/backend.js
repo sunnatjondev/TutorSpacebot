@@ -187,6 +187,10 @@ export function fetchParentChildren() {
   return requestBackend('/api/parent/children')
 }
 
+export function createParentInvite(studentId) {
+  return requestBackend('/api/parent/invites/create', studentId ? { studentId } : {})
+}
+
 
 export function markHomeworkDone({ submissionId, done }) {
   return requestBackend('/api/student/homework/done', { submissionId, done })

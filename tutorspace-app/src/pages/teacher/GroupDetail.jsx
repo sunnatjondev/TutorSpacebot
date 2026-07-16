@@ -9,7 +9,7 @@ import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { fetchGroupDayAttendance, fetchGroupMonthlyStats } from '../../lib/backend'
+import { createParentInvite, fetchGroupDayAttendance, fetchGroupMonthlyStats } from '../../lib/backend'
 import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework, useDeleteGroupHomework } from '../../hooks/api/useGroups'
 import { useDeleteGroup, useCreateSession, useUpdateSession, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
 
@@ -545,6 +545,22 @@ export default function GroupDetail() {
 
   useTelegramBackButton(() => navigate(-1))
 
+  const handleCopyParentInvite = async (studentId) => {
+    try {
+      const { token } = await createParentInvite(studentId)
+      const inviteUrl = `https://t.me/${botUsername}?start=parent_${token}`
+      await navigator.clipboard.writeText(inviteUrl)
+      haptic?.success?.()
+      const message = 'One-time parent link copied. Valid for 24 hours.'
+      if (window.Telegram?.WebApp?.showAlert) window.Telegram.WebApp.showAlert(message)
+      else alert(message)
+    } catch (error) {
+      haptic?.error?.()
+      const message = error?.message || 'Unable to create the parent link.'
+      if (window.Telegram?.WebApp?.showAlert) window.Telegram.WebApp.showAlert(message)
+      else alert(message)
+    }
+  }
   const openCreateSessionModal = () => {
     setLessonDate(new Date(selectedAttendanceDate || new Date()))
     setLessonHour('09')
@@ -1053,16 +1069,7 @@ export default function GroupDetail() {
                             </button>
                           )}
                           <button
-                            onClick={() => {
-                              const inviteUrl = `https://t.me/${botUsername}?start=parent_${student.id}`
-                              navigator.clipboard.writeText(inviteUrl)
-                              haptic?.success?.()
-                              if (window.Telegram?.WebApp?.showAlert) {
-                                window.Telegram.WebApp.showAlert(lang === 'ru' ? 'Ссылка для родителей скопирована!' : 'Ota-ona uchun taklif havolasi nusxalandi!')
-                              } else {
-                                alert(lang === 'ru' ? 'Ссылка для родителей скопирована!' : 'Ota-ona uchun taklif havolasi nusxalandi!')
-                              }
-                            }}
+                            onClick={() => handleCopyParentInvite(student.id)}
                             className="w-9 h-9 rounded-full bg-surface-high flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform shrink-0"
                             title={lang === 'ru' ? 'Ссылка для родителей' : 'Ota-ona taklif havolasi'}
                           >

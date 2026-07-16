@@ -517,7 +517,7 @@ CREATE POLICY "Students can view their own badges" ON public.student_badges FOR 
 
 CREATE POLICY "Teachers can view their students badges" ON public.student_badges FOR SELECT USING (EXISTS (SELECT 1 FROM group_members gm JOIN groups g ON gm.group_id = g.id WHERE gm.student_id = student_badges.student_id AND g.teacher_id = auth.uid()));
 
-CREATE POLICY "Service role can insert badges" ON public.student_badges FOR INSERT WITH CHECK (true);
+CREATE POLICY "Service role can insert badges" ON public.student_badges FOR INSERT WITH CHECK (auth.role() = 'service_role');
 
 
 -- 6. Schedule templates
