@@ -49,7 +49,10 @@ const ru = {
     "teacher": "Преподаватель",
     "teacherDesc": "Управление группами и студентами",
     "student": "Студент",
-    "studentDesc": "Отслеживание занятий и оплат"
+    "studentDesc": "Отслеживание занятий и оплат",
+    "welcomeTitle": "Добро пожаловать в TutorSpace!",
+    "welcomeSubtitle": "CRM для репетиторов и учебных центров. Группы, посещаемость, домашние задания и платежи — всё в одном месте.",
+    "getStarted": "Начать работу"
   },
   "teacherHome": {
     "greeting": "{greeting}, {name} 👋",

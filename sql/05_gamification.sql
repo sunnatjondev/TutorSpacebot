@@ -36,4 +36,4 @@ CREATE POLICY "Teachers can view their students badges"
 -- Allow service role to insert (for crons)
 CREATE POLICY "Service role can insert badges"
     ON public.student_badges FOR INSERT
-    WITH CHECK (true);
+    WITH CHECK (auth.role() = 'service_role');

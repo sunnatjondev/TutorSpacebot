@@ -149,15 +149,15 @@ ALTER TABLE homework ENABLE ROW LEVEL SECURITY;
 ALTER TABLE homework_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bot_notification_events ENABLE ROW LEVEL SECURITY;
 
--- For now, allow all operations (you can restrict later when auth is set up):
-CREATE POLICY "Allow all for anon" ON users FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all for anon" ON groups FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all for anon" ON group_members FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all for anon" ON sessions FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all for anon" ON attendance FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all for anon" ON payments FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all for anon" ON homework FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all for anon" ON homework_submissions FOR ALL USING (true) WITH CHECK (true);
+-- All application data is accessed through the verified backend service.
+CREATE POLICY "Service role manages users" ON users FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Service role manages groups" ON groups FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Service role manages group members" ON group_members FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Service role manages sessions" ON sessions FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Service role manages attendance" ON attendance FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Service role manages payments" ON payments FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Service role manages homework" ON homework FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Service role manages homework submissions" ON homework_submissions FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
 CREATE POLICY "Service role manages notification events" ON bot_notification_events
   FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
 

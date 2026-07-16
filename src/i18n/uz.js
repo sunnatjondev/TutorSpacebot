@@ -49,7 +49,10 @@ const uz = {
     "teacher": "O'qituvchi",
     "teacherDesc": "Guruhlar va talabalarni boshqarish",
     "student": "Talaba",
-    "studentDesc": "Darslar va to'lovlarni kuzatish"
+    "studentDesc": "Darslar va to'lovlarni kuzatish",
+    "welcomeTitle": "TutorSpace'ga xush kelibsiz!",
+    "welcomeSubtitle": "Repetitorlar va o'quv markazlari uchun CRM. Guruhlar, davomat, uy vazifalari va to'lovlar — hammasi bir joyda.",
+    "getStarted": "Boshlash"
   },
   "teacherHome": {
     "greeting": "{greeting}, {name}!",

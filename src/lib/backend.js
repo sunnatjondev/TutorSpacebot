@@ -163,25 +163,34 @@ export function createPayment({ studentId, groupId, teacherId, amount, month }) 
 
 // ─── Student-side API ─────────────────────────────────────
 
-export function fetchStudentDashboard() {
-  return requestBackend('/api/student/dashboard')
+export function fetchStudentDashboard(studentId) {
+  return requestBackend('/api/student/dashboard', { studentId })
 }
 
-export function fetchStudentGroups() {
-  return requestBackend('/api/student/groups')
+export function fetchStudentGroups(studentId) {
+  return requestBackend('/api/student/groups', { studentId })
 }
 
-export function fetchStudentPayments() {
-  return requestBackend('/api/student/payments')
+export function fetchStudentPayments(studentId) {
+  return requestBackend('/api/student/payments', { studentId })
 }
 
-export function fetchStudentSchedule(weekStart) {
-  return requestBackend('/api/student/schedule', { weekStart })
+export function fetchStudentSchedule(weekStart, studentId) {
+  return requestBackend('/api/student/schedule', { weekStart, studentId })
 }
 
-export function fetchStudentHomework() {
-  return requestBackend('/api/student/homework')
+export function fetchStudentHomework(studentId) {
+  return requestBackend('/api/student/homework', { studentId })
 }
+
+export function fetchParentChildren() {
+  return requestBackend('/api/parent/children')
+}
+
+export function createParentInvite(studentId) {
+  return requestBackend('/api/parent/invites/create', studentId ? { studentId } : {})
+}
+
 
 export function markHomeworkDone({ submissionId, done }) {
   return requestBackend('/api/student/homework/done', { submissionId, done })

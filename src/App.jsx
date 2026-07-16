@@ -21,6 +21,9 @@ const StudentGroups = lazy(() => import('./pages/student/StudentGroups'))
 const StudentSchedule = lazy(() => import('./pages/student/StudentSchedule'))
 const StudentFinance = lazy(() => import('./pages/student/StudentFinance'))
 const StudentSettings = lazy(() => import('./pages/student/StudentSettings'))
+const ParentDashboard = lazy(() => import('./pages/parent/ParentDashboard'))
+const ParentSettings = lazy(() => import('./pages/parent/ParentSettings'))
+
 
 
 
@@ -79,7 +82,12 @@ function AuthGate() {
           if (dbUser?.role) {
             localStorage.setItem(LS_ROLE_KEY, dbUser.role)
             localStorage.setItem(LS_TG_ID_KEY, currentTgId)
-            navigate(dbUser.role === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
+            
+            let targetPath = '/student/home'
+            if (dbUser.role === 'teacher') targetPath = '/teacher/home'
+            else if (dbUser.role === 'parent') targetPath = '/parent/home'
+
+            navigate(targetPath, { replace: true })
             setChecking(false)
             return
           }
@@ -89,7 +97,11 @@ function AuthGate() {
       }
 
       if (savedRole && savedTgId && currentTgId && savedTgId === currentTgId) {
-        navigate(savedRole === 'teacher' ? '/teacher/home' : '/student/home', { replace: true })
+        let targetPath = '/student/home'
+        if (savedRole === 'teacher') targetPath = '/teacher/home'
+        else if (savedRole === 'parent') targetPath = '/parent/home'
+
+        navigate(targetPath, { replace: true })
         setChecking(false)
         return
       }
@@ -173,6 +185,9 @@ export default function App() {
           <Route path="/student/schedule" element={<RouteGuard role="student"><StudentSchedule /></RouteGuard>} />
           <Route path="/student/finance" element={<RouteGuard role="student"><StudentFinance /></RouteGuard>} />
           <Route path="/student/settings" element={<RouteGuard role="student"><StudentSettings /></RouteGuard>} />
+
+          <Route path="/parent/home" element={<RouteGuard role="parent"><ParentDashboard /></RouteGuard>} />
+          <Route path="/parent/settings" element={<RouteGuard role="parent"><ParentSettings /></RouteGuard>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

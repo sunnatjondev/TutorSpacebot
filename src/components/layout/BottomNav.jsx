@@ -26,12 +26,18 @@ const studentPaths = [
   { icon: Settings, path: '/student/settings', key: 'nav.settings' },
 ]
 
+const parentPaths = [
+  { icon: LayoutDashboard, path: '/parent/home', key: 'nav.home' },
+  { icon: Settings, path: '/parent/settings', key: 'nav.settings' },
+]
+
 export function BottomNav({ role = 'teacher' }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useI18n()
   const { haptic, tg } = useTelegram()
-  const tabs = role === 'teacher' ? teacherPaths : studentPaths
+  const tabs = role === 'teacher' ? teacherPaths : (role === 'parent' ? parentPaths : studentPaths)
+
 
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false)
 
