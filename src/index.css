@@ -3,6 +3,8 @@
 @tailwind utilities;
 
 :root {
+  --tg-content-safe-area-top: env(safe-area-inset-top, 0px);
+  --tg-safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --primary: #D0BCFF;
   --on-primary: #381E72;
   --surface: #141218;
@@ -288,3 +290,17 @@ h1, h2, h3, .font-serif {
   @apply absolute top-[4px] left-[4px] h-5 w-5 rounded-full transition-transform duration-200 ease-in-out shadow-m3-elevation-1;
 }
 .chip-row { scrollbar-width: none; } .chip-row::-webkit-scrollbar { display: none; }
+
+/* Telegram overlays the top bar on some Android clients. Keep app content,
+   navigation, and floating buttons inside Telegram's safe content area. */
+#root {
+  padding-top: var(--tg-content-safe-area-top);
+}
+
+.m3-bottom-nav {
+  bottom: var(--tg-safe-area-bottom);
+}
+
+.m3-fab {
+  bottom: calc(6rem + var(--tg-safe-area-bottom));
+}
