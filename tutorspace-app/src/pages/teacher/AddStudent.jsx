@@ -1,0 +1,216 @@
+import { useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { ArrowLeft, GraduationCap, Smartphone, UserRound, UserRoundPlus } from 'lucide-react'
+import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
+import { useI18n } from '../../i18n/index.jsx'
+import { useTeacherGroups } from '../../hooks/api/useTeacher'
+import { useCreateStudent } from '../../hooks/api/useGroups'
+
+export default function AddStudent() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { user, haptic } = useTelegram()
+  const { t } = useI18n()
+  const { data: groups } = useTeacherGroups(user?.id)
+  const createStudentMutation = useCreateStudent()
+
+  const initialGroupId = location.state?.groupId || null
+  const availableGroups = groups || []
+
+  useTelegramBackButton(() => navigate(-1))
+
+  const [selectedGroupIds, setSelectedGroupIds] = useState(initialGroupId ? [initialGroupId] : [])
+  const [billingDay, setBillingDay] = useState(1)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+  const [form, setForm] = useState({ name: '', contact: '', subject: '', rate: '', notes: '' })
+
+  const canSubmit = useMemo(() => form.name.trim() && selectedGroupIds.length > 0, [form.name, selectedGroupIds])
+
+  const toggleGroup = (groupId) => {
+    haptic?.selection()
+    setSelectedGroupIds((prev) =>
+      prev.includes(groupId) ? prev.filter((value) => value !== groupId) : [...prev, groupId]
+    )
+  }
+
+  const handleSubmit = async () => {
+    if (!canSubmit || saving) return
+
+    setSaving(true)
+    setError(null)
+    haptic?.medium()
+
+    try {
+      const data = await createStudentMutation.mutateAsync({
+        teacherTelegramId: user?.id,
+        name: form.name,
+        contact: form.contact,
+        groupIds: selectedGroupIds,
+        monthlyRate: form.rate,
+        billingDay,
+        subject: form.subject,
+        notes: form.notes,
+      })
+
+      haptic?.success?.()
+
+      const targetGroupId = initialGroupId || data?.primaryGroupId
+      if (targetGroupId) {
+        navigate(`/teacher/groups/${targetGroupId}`, { replace: true })
+        return
+      }
+
+      navigate('/teacher/groups', { replace: true })
+    } catch (err) {
+      let displayError = err.message || "Talabani saqlab bo'lmadi."
+      if (err.message === 'plan_limit_reached') {
+        displayError = "Ta'rif rejangizdagi talabalar limitiga yetdingiz! Iltimos, obunangizni yangilang."
+      } else if (err.message === 'subscription_expired') {
+        displayError = "Obuna muddati tugagan! Yangi talaba qo'shish uchun obunangizni uzaytiring."
+      }
+      setError(displayError)
+      haptic?.error?.()
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen bg-surface-lowest">
+      <header className="flex items-center gap-3 px-4 h-14 border-b border-outline-variant/40 sticky top-0 z-30 bg-surface-lowest/80 backdrop-blur-xl">
+        <button
+          onClick={() => {
+            haptic?.light()
+            navigate(-1)
+          }}
+          className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center active:scale-90 transition-transform"
+        >
+          <ArrowLeft size={18} className="text-on-surface" />
+        </button>
+        <h1 className="m3-label-large text-lg flex-1">{t('addStudent.title')}</h1>
+      </header>
+
+      <div className="flex-1 overflow-y-auto px-4 pt-6 pb-8 space-y-5">
+        <div className="space-y-3">
+          <div className="relative">
+            <UserRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+            <input
+              className="m3-input pl-10"
+              placeholder={t('addStudent.fullName')}
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+            />
+          </div>
+          <div className="relative">
+            <Smartphone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+            <input
+              className="m3-input pl-10"
+              placeholder={t('addStudent.contact')}
+              value={form.contact}
+              onChange={(event) => setForm((prev) => ({ ...prev, contact: event.target.value }))}
+            />
+          </div>
+          <div className="relative">
+            <GraduationCap size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+            <input
+              className="m3-input pl-10"
+              placeholder={t('addStudent.subject')}
+              value={form.subject}
+              onChange={(event) => setForm((prev) => ({ ...prev, subject: event.target.value }))}
+            />
+          </div>
+        </div>
+
+        {error && (
+          <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
+        <div>
+          <p className="font-semibold text-on-surface mb-3">{t('addStudent.assignGroup')}</p>
+          <div className="chip-row flex-wrap gap-2">
+            {availableGroups.map((group) => {
+              const isSelected = selectedGroupIds.includes(group.id)
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => toggleGroup(group.id)}
+                  className={`chip whitespace-nowrap transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-brand text-on-primary font-bold shadow-glow-sm scale-105'
+                      : 'bg-surface-high text-on-surface-variant'
+                  }`}
+                >
+                  {group.name}
+                </button>
+              )
+            })}
+          </div>
+          {!availableGroups.length && (
+            <p className="text-on-surface-variant text-xs mt-2">{t('addStudent.createGroupFirst')}</p>
+          )}
+        </div>
+
+        <div>
+          <p className="font-semibold text-on-surface mb-2">{t('addStudent.monthlyRate')}</p>
+          <div className="relative">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
+            <input
+              type="number"
+              className="m3-input pr-14"
+              placeholder="200 000"
+              value={form.rate}
+              onChange={(event) => setForm((prev) => ({ ...prev, rate: event.target.value }))}
+            />
+          </div>
+        </div>
+
+        <div>
+          <p className="font-semibold text-on-surface mb-3">{t('addStudent.billingDay')}</p>
+          <div className="bg-surface-container rounded-[24px] grid grid-cols-7 gap-1 p-4 shadow-m3-elevation-1">
+            {Array.from({ length: 31 }, (_, index) => index + 1).map((day) => (
+              <button
+                key={day}
+                onClick={() => {
+                  setBillingDay(day)
+                  haptic?.selection()
+                }}
+                className={`h-9 w-full rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  billingDay === day
+                    ? 'bg-brand text-white'
+                    : 'text-on-surface-variant hover:bg-surface-high active:scale-90'
+                }`}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="font-semibold text-on-surface mb-2">{t('addStudent.notes')}</p>
+          <textarea
+            className="w-full rounded-[24px] bg-surface-container border border-outline-variant px-4 py-3 text-on-surface text-sm placeholder-on-surface-variant outline-none focus:border-brand resize-none"
+            placeholder={t('addStudent.notesPlaceholder')}
+            rows={3}
+            value={form.notes}
+            onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
+          />
+        </div>
+      </div>
+
+      <div className="px-4 pb-6 pt-2 border-t border-outline-variant/40">
+        <button
+          className="m3-btn-filled gap-2"
+          onClick={handleSubmit}
+          disabled={!canSubmit || saving}
+        >
+          <UserRoundPlus size={18} />
+          {saving ? t('common.loading') : t('addStudent.submit')}
+        </button>
+      </div>
+    </div>
+  )
+}

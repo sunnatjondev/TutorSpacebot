@@ -1,0 +1,20 @@
+{
+  "name": "tutorspace-bot",
+  "version": "1.0.0",
+  "description": "TutorSpace Telegram Bot server",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
+    "dotenv": "^16.0.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "ws": "^8.20.1"
+  }
+}
