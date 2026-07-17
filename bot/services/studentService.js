@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import { supabase, requireServiceSupabase, getUserRowByTelegramId, upsertTrustedTelegramUser, requireUserRow, requireGroupOwner, requireSessionOwner } from '../db.js'
 import { signSupabaseAppJwt, verifyTelegramInitData } from '../auth.js'
 import { getUrlOrigin, escapeHtml, escapeMarkdown, escapeMarkdownV2, buildTelegramUserPayload, getCurrentPeriod, generateInviteToken, buildStudentName } from '../helpers.js'
@@ -23,6 +24,46 @@ async function resolveTargetStudent(currentUser, requestedStudentId = null) {
   return currentUser.id
 }
 
+export async function handleParentInviteCreate(telegramUser, body) {
+  requireServiceSupabase()
+  const user = await requireUserRow(telegramUser)
+  const studentId = body?.studentId || user.id
+
+  if (user.role === 'parent') throw new Error('Parents cannot create parent invitations')
+
+  if (studentId !== user.id) {
+    if (user.role !== 'teacher') throw new Error('Unauthorized to invite a parent for this student')
+    const { data: memberships, error: membershipsError } = await supabase
+      .from('group_members')
+      .select('group:groups(teacher_id)')
+      .eq('student_id', studentId)
+    if (membershipsError) throw membershipsError
+    const ownsStudent = (memberships || []).some((membership) => membership.group?.teacher_id === user.id)
+    if (!ownsStudent) throw new Error('Unauthorized to invite a parent for this student')
+  } else if (user.role !== 'student') {
+    throw new Error('Only students can create their own parent invitation')
+  }
+
+  const { data: student, error: studentError } = await supabase
+    .from('users')
+    .select('id, role')
+    .eq('id', studentId)
+    .maybeSingle()
+  if (studentError) throw studentError
+  if (!student || student.role !== 'student') throw new Error('Student not found')
+
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  const token = randomBytes(32).toString('base64url')
+  const { error } = await supabase.from('parent_invites').insert({
+    token,
+    student_id: studentId,
+    created_by: user.id,
+    expires_at: expiresAt,
+  })
+  if (error) throw error
+
+  return { ok: true, token, expiresAt }
+}
 export async function handleParentChildren(telegramUser) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)

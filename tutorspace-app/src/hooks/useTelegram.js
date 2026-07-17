@@ -23,8 +23,18 @@ export function useTelegram() {
     let cancelled = false
 
     if (tg) {
+      const updateViewportInsets = () => {
+        const inset = tg.contentSafeAreaInset || tg.safeAreaInset || {}
+        document.documentElement.style.setProperty('--tg-content-safe-area-top', `${inset.top || 0}px`)
+        document.documentElement.style.setProperty('--tg-safe-area-bottom', `${inset.bottom || 0}px`)
+      }
+
       tg.ready()
       tg.expand()
+      tg.disableVerticalSwipes?.()
+      updateViewportInsets()
+      tg.onEvent?.('contentSafeAreaChanged', updateViewportInsets)
+      tg.onEvent?.('safeAreaChanged', updateViewportInsets)
       tg.enableClosingConfirmation?.()
       const tgUser = tg.initDataUnsafe?.user
       window.requestAnimationFrame(() => {
@@ -32,7 +42,11 @@ export function useTelegram() {
         if (tgUser) setUser(tgUser)
         setReady(true)
       })
-      return () => { cancelled = true }
+      return () => {
+        cancelled = true
+        tg.offEvent?.('contentSafeAreaChanged', updateViewportInsets)
+        tg.offEvent?.('safeAreaChanged', updateViewportInsets)
+      }
     }
 
     window.requestAnimationFrame(() => {

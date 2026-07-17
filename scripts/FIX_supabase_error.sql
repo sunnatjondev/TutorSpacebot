@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow all for anon" ON sessions;
-CREATE POLICY "Allow all for anon" ON sessions FOR ALL USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Service role manages sessions" ON sessions;
+CREATE POLICY "Service role manages sessions" ON sessions FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
 
 -- ================================================================
 -- Verify everything looks good

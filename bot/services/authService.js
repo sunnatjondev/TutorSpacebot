@@ -50,7 +50,7 @@ export async function ensureTrialSubscription(teacherId) {
 }
 
 export async function handleAuthRole(telegramUser, body) {
-  const requestedRole = body.role === 'teacher' ? 'teacher' : 'student'
+  const requestedRole = ['teacher', 'student', 'parent'].includes(body.role) ? body.role : 'student'
   const userRow = await upsertTrustedTelegramUser(telegramUser, { role: requestedRole })
 
   if (requestedRole === 'teacher') {

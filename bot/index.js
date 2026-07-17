@@ -176,52 +176,70 @@ bot.onText(/\/start/, async (msg) => {
   }
 
   if (startParam && startParam.startsWith('parent_') && supabase) {
-    const studentId = startParam.replace('parent_', '')
+    const token = startParam.replace('parent_', '')
 
     try {
-      const { data: student } = await supabase
-        .from('users')
-        .select('id, first_name, last_name')
-        .eq('id', studentId)
+      if (!/^[A-Za-z0-9_-]{32,128}$/.test(token)) {
+        throw new Error('Invalid parent invitation')
+      }
+
+      const now = new Date().toISOString()
+      const { data: invite, error: inviteError } = await supabase
+        .from('parent_invites')
+        .select('token, student_id, student:users!parent_invites_student_id_fkey(id, first_name, last_name, telegram_id)')
+        .eq('token', token)
+        .is('claimed_at', null)
+        .gt('expires_at', now)
         .maybeSingle()
 
-      if (!student) {
-        await bot.sendMessage(chat.id, t(lang, 'student_not_found'))
-        return
+      if (inviteError) throw inviteError
+      if (!invite?.student) throw new Error('Parent invitation is invalid or expired')
+      if (Number(invite.student.telegram_id) === Number(user.id)) {
+        const error = new Error('A student cannot claim their own parent invitation')
+        error.userMessageKey = 'parent_invite_same_account'
+        throw error
       }
 
       if (!userRow) {
-        const { data: newUser } = await supabase
+        const { data: newUser, error: createError } = await supabase
           .from('users')
           .upsert({ ...buildTelegramUserPayload(user), role: 'parent' }, { onConflict: 'telegram_id' })
           .select()
           .single()
+        if (createError) throw createError
         userRow = newUser
       } else if (!userRow.role) {
-        const { data: updatedUser } = await supabase
+        const { data: updatedUser, error: updateError } = await supabase
           .from('users')
           .update({ role: 'parent' })
           .eq('id', userRow.id)
           .select()
           .single()
+        if (updateError) throw updateError
         userRow = updatedUser
+      } else if (userRow.role !== 'parent') {
+        const error = new Error('This Telegram account already has another role')
+        error.userMessageKey = 'parent_invite_role_conflict'
+        throw error
       }
 
-      const { data: existingRelation } = await supabase
-        .from('parent_relations')
-        .select('id')
-        .eq('parent_id', userRow.id)
-        .eq('student_id', student.id)
+      const { data: claimedInvite, error: claimError } = await supabase
+        .from('parent_invites')
+        .update({ claimed_at: now, claimed_by: userRow.id })
+        .eq('token', token)
+        .is('claimed_at', null)
+        .gt('expires_at', now)
+        .select('student_id')
         .maybeSingle()
+      if (claimError) throw claimError
+      if (!claimedInvite) throw new Error('Parent invitation is invalid or already used')
 
-      if (!existingRelation) {
-        await supabase.from('parent_relations').insert({
-          parent_id: userRow.id,
-          student_id: student.id
-        })
-      }
+      const { error: relationError } = await supabase
+        .from('parent_relations')
+        .upsert({ parent_id: userRow.id, student_id: claimedInvite.student_id }, { onConflict: 'parent_id,student_id' })
+      if (relationError) throw relationError
 
-      const studentName = `${student.first_name} ${student.last_name || ''}`.trim()
+      const studentName = `${invite.student.first_name} ${invite.student.last_name || ''}`.trim()
       await bot.sendMessage(chat.id, t(lang, 'parent_welcome', studentName), {
         parse_mode: 'HTML',
         reply_markup: {
@@ -230,7 +248,8 @@ bot.onText(/\/start/, async (msg) => {
       })
       return
     } catch (err) {
-      await bot.sendMessage(chat.id, t(lang, 'error_occurred'))
+      console.error('Parent invitation error:', err.message)
+      await bot.sendMessage(chat.id, t(lang, err.userMessageKey || 'error_occurred'))
       return
     }
   }

@@ -37,6 +37,9 @@ async function requestBackend(path, payload = {}) {
   }
 
   const data = await response.json().catch(() => ({}))
+  if (response.status === 404) {
+    throw new Error('Backend yangilanmagan. TutorSpacebackend ni deploy qiling va qayta urinib ko'ring.')
+  }
   if (!response.ok || data.ok === false) {
     throw new Error(data.error || `Backend request failed (${response.status})`)
   }

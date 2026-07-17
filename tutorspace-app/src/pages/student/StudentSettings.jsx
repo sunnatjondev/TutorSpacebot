@@ -58,10 +58,10 @@ export default function StudentSettings() {
 
   const handleDeleteAccount = async () => {
     haptic?.heavy?.()
-    const confirmText = lang === 'ru' 
+    const confirmText = lang === 'ru'
       ? 'Вы уверены, что хотите НАВСЕГДА удалить свой аккаунт? Все ваши группы, студенты, уроки и платежи будут стерты безвозвратно.'
       : 'Hisobingizni BUTUNLAY o\'chirib tashlamoqchimisiz? Barcha guruhlaringiz, talabalaringiz, darslaringiz va to\'lovlaringiz qayta tiklanmaydigan qilib o\'chiriladi.'
-      
+
     if (window.confirm(confirmText)) {
       try {
         await deleteUserAccount()
@@ -82,12 +82,16 @@ export default function StudentSettings() {
       const botUsername = import.meta.env.VITE_BOT_USERNAME || 'tutorspace_app_bot'
       await navigator.clipboard.writeText(`https://t.me/${botUsername}?start=parent_${token}`)
       haptic?.success?.()
-      const message = 'One-time parent link copied. Valid for 24 hours.'
+      const message = lang === 'ru'
+        ? '\u0421\u0441\u044b\u043b\u043a\u0430 \u0434\u043b\u044f \u0440\u043e\u0434\u0438\u0442\u0435\u043b\u044f \u0441\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u0430. \u041e\u043d\u0430 \u0434\u0435\u0439\u0441\u0442\u0432\u0443\u0435\u0442 24 \u0447\u0430\u0441\u0430.'
+        : "Ota-ona uchun havola nusxalandi. U 24 soat amal qiladi."
       if (tg?.showAlert) tg.showAlert(message)
       else alert(message)
     } catch (error) {
       haptic?.error?.()
-      const message = error?.message || 'Unable to create the parent link.'
+      const message = error?.message || (lang === 'ru'
+        ? '\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0441\u0441\u044b\u043b\u043a\u0443 \u0434\u043b\u044f \u0440\u043e\u0434\u0438\u0442\u0435\u043b\u044f.'
+        : "Ota-ona uchun havolani yaratib bolmadi.")
       if (tg?.showAlert) tg.showAlert(message)
       else alert(message)
     }
@@ -137,7 +141,7 @@ export default function StudentSettings() {
               <span>👨‍👩‍👦</span> {lang === 'ru' ? 'Связь с родителями' : 'Ota-onani ulash'}
             </p>
             <p className="text-xs text-on-surface-variant leading-relaxed">
-              {lang === 'ru' 
+              {lang === 'ru'
                 ? 'Скопируйте эту ссылку и отправьте её родителям, чтобы они могли отслеживать ваши занятия, посещаемость и оплату.'
                 : 'Ota-onangizga ushbu havolani yuboring. Ular darslaringiz, davomatingiz va to\'lovlaringizni kuzatib borishlari mumkin bo\'ladi.'}
             </p>
@@ -171,7 +175,7 @@ export default function StudentSettings() {
         </div>
 
         <div className="pt-2">
-          <button 
+          <button
             className="w-full h-14 rounded-2xl border border-red-500/30 bg-red-500/5 flex items-center justify-center gap-2 text-red-400 font-semibold text-base active:scale-95 transition-transform"
             onClick={handleDeleteAccount}
           >

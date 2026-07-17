@@ -14,7 +14,7 @@ import * as userService from './services/userService.js'
 // Validation schemas per route
 const validationSchemas = {
   '/api/auth/session': {},
-  '/api/auth/role': { role: { required: true, type: 'string', enum: ['teacher', 'student'] } },
+  '/api/auth/role': { role: { required: true, type: 'string', enum: ['teacher', 'student', 'parent'] } },
   '/api/auth/invite/join': { inviteToken: { required: true, type: 'string' } },
 
   '/api/teacher/dashboard': { month: { type: 'number' }, year: { type: 'number' } },
@@ -54,6 +54,7 @@ const validationSchemas = {
   '/api/student/homework/done': { submissionId: { required: true, type: 'uuid' }, done: { required: true, type: 'boolean' } },
 
   '/api/parent/children': {},
+  '/api/parent/invites/create': { studentId: { type: 'uuid' } },
 
   '/api/billing/create-order': { planId: { required: true, type: 'string', enum: ['solo', 'center'] } },
   '/api/billing/status': {},
@@ -104,6 +105,7 @@ const apiRoutes = {
   '/api/student/homework/done': studentService.handleStudentHomeworkDone,
 
   '/api/parent/children': studentService.handleParentChildren,
+  '/api/parent/invites/create': studentService.handleParentInviteCreate,
 
 
   '/api/billing/create-order': billingService.handleBillingCreateOrder,

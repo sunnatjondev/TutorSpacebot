@@ -6,7 +6,7 @@
 -- with these claims:
 --   telegram_id: Telegram numeric user id
 --   role: authenticated
---   app_role: teacher | student
+--   app_role: teacher | student | parent
 --
 -- Do not run this while the app still uses only the public anon key and
 -- window.Telegram.WebApp.initDataUnsafe directly, otherwise client data access

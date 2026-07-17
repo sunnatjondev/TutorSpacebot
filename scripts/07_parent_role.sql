@@ -1,12 +1,31 @@
 -- ================================================================
 -- TutorSpace: Add Parent Role & Relations
--- Run this in Supabase Dashboard → SQL Editor → New Query
+-- Run this in Supabase Dashboard ? SQL Editor ? New Query
 -- ================================================================
 
--- 1. Add 'parent' to users role check constraint
-ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_role_check;
-ALTER TABLE public.users ADD CONSTRAINT users_role_check CHECK (role IN ('teacher', 'student', 'parent'));
+-- 1. Add 'parent' to the real column type before using it. Existing projects
+-- may use a PostgreSQL enum (for example public.user_role), where changing a
+-- CHECK constraint alone does not add the enum value.
+DO $$
+DECLARE
+  role_type regtype;
+BEGIN
+  SELECT a.atttypid::regtype INTO role_type
+  FROM pg_attribute a
+  JOIN pg_class c ON c.oid = a.attrelid
+  JOIN pg_namespace n ON n.oid = c.relnamespace
+  WHERE n.nspname = 'public' AND c.relname = 'users' AND a.attname = 'role'
+    AND a.attnum > 0 AND NOT a.attisdropped;
+  IF role_type IS NOT NULL
+    AND EXISTS (SELECT 1 FROM pg_type WHERE oid = role_type AND typtype = 'e')
+    AND NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumtypid = role_type AND enumlabel = 'parent') THEN
+    EXECUTE format('ALTER TYPE %s ADD VALUE %L', role_type, 'parent');
+  END IF;
+END $$;
 
+-- Keep TEXT-based installations compatible too.
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_role_check;
+ALTER TABLE public.users ADD CONSTRAINT users_role_check CHECK (role IS NULL OR role::text IN ('teacher', 'student', 'parent'));
 -- 2. Create parent_relations table (many-to-many between parent and student)
 CREATE TABLE IF NOT EXISTS public.parent_relations (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -16,8 +35,21 @@ CREATE TABLE IF NOT EXISTS public.parent_relations (
   UNIQUE(parent_id, student_id)
 );
 
+-- Private, random, single-use parent invites. UUID-based links can be forwarded
+-- indefinitely; these expire after one day and can be redeemed only once.
+CREATE TABLE IF NOT EXISTS public.parent_invites (
+  token TEXT PRIMARY KEY,
+  student_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_by UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL,
+  claimed_at TIMESTAMPTZ,
+  claimed_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
+  CHECK (expires_at > created_at)
+);
 -- 3. Enable RLS on parent_relations
 ALTER TABLE public.parent_relations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.parent_invites ENABLE ROW LEVEL SECURITY;
 
 -- 4. Helper function: check if current user is parent of target student
 CREATE OR REPLACE FUNCTION public.is_parent_of(target_student_id uuid)
@@ -56,6 +88,10 @@ FOR SELECT USING (
 -- Service role manages relations (for bot registration)
 DROP POLICY IF EXISTS parent_relations_service ON public.parent_relations;
 CREATE POLICY parent_relations_service ON public.parent_relations
+FOR ALL USING (auth.role() = 'service_role')
+WITH CHECK (auth.role() = 'service_role');
+DROP POLICY IF EXISTS parent_invites_service ON public.parent_invites;
+CREATE POLICY parent_invites_service ON public.parent_invites
 FOR ALL USING (auth.role() = 'service_role')
 WITH CHECK (auth.role() = 'service_role');
 
@@ -219,3 +255,4 @@ FOR SELECT USING (
 -- 15. Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_parent_relations_parent ON public.parent_relations(parent_id);
 CREATE INDEX IF NOT EXISTS idx_parent_relations_student ON public.parent_relations(student_id);
+CREATE INDEX IF NOT EXISTS idx_parent_invites_active ON public.parent_invites(student_id, expires_at) WHERE claimed_at IS NULL;
