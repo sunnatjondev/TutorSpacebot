@@ -25,7 +25,7 @@ export function useStudentDashboard(telegramId, studentId) {
   return useQuery({
     queryKey: ['student-dashboard', telegramId, studentId],
     queryFn: () => fetchStudentDashboard(studentId),
-    enabled: !!telegramId,
+    enabled: !!telegramId && !!studentId,
   })
 }
 
@@ -36,7 +36,7 @@ export function useStudentGroups(telegramId, studentId) {
       const { groups } = await fetchStudentGroups(studentId)
       return groups
     },
-    enabled: !!telegramId,
+    enabled: !!telegramId && !!studentId,
   })
 }
 
@@ -47,7 +47,7 @@ export function useStudentHomework(telegramId, studentId) {
       const { homework } = await fetchStudentHomework(studentId)
       return homework
     },
-    enabled: !!telegramId,
+    enabled: !!telegramId && !!studentId,
   })
 }
 
@@ -58,7 +58,7 @@ export function useStudentPayments(telegramId, studentId) {
       const { payments } = await fetchStudentPayments(studentId)
       return payments
     },
-    enabled: !!telegramId,
+    enabled: !!telegramId && !!studentId,
   })
 }
 
@@ -69,7 +69,7 @@ export function useStudentSchedule(telegramId, weekStart, studentId) {
       const { sessions } = await fetchStudentSchedule(weekStart, studentId)
       return sessions
     },
-    enabled: !!telegramId,
+    enabled: !!telegramId && !!studentId,
   })
 }
 

@@ -202,7 +202,7 @@ export function startCronJobs(bot, supabase) {
         try {
           const { data: parents } = await supabase
             .from('parent_relations')
-            .select('parent:users(telegram_id, language)')
+            .select('parent:users!parent_relations_parent_id_fkey(telegram_id, language)')
             .eq('student_id', student.id)
 
           if (parents && parents.length > 0) {

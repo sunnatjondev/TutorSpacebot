@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { BookOpen, Wallet, CheckCircle, Circle, CalendarDays, User, ChevronRight } from 'lucide-react'
+import { AlertCircle, BookOpen, Wallet, CheckCircle, CalendarDays } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
@@ -12,7 +12,7 @@ export default function ParentDashboard() {
   const { t, lang } = useI18n()
 
   // 1. Fetch connected children
-  const { data: children, isLoading: loadingChildren } = useParentChildren(user?.id)
+  const { data: children, isLoading: loadingChildren, isError: childrenError, error: childrenLoadError } = useParentChildren(user?.id)
 
   const [selectedChildId, setSelectedChildId] = useState(null)
 
@@ -66,6 +66,26 @@ export default function ParentDashboard() {
     )
   }
 
+  if (childrenError) {
+    return (
+      <div className="flex min-h-screen flex-col bg-surface-lowest">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-error-container/30 flex items-center justify-center text-error">
+            <AlertCircle size={30} />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-xl font-extrabold text-on-surface">
+              {lang === 'ru' ? 'Ne udalos zagruzit svyaz' : 'Ulanishni yuklab bo\'lmadi'}
+            </h1>
+            <p className="text-on-surface-variant text-sm max-w-xs leading-relaxed">
+              {childrenLoadError?.message || (lang === 'ru' ? 'Otkroyte prilozhenie zanovo ili poprobuyte pozhe.' : 'Ilovani qayta oching yoki keyinroq urinib ko\'ring.')}
+            </p>
+          </div>
+        </div>
+        <BottomNav role="parent" />
+      </div>
+    )
+  }
   // If parent has no linked children yet
   if (!children || children.length === 0) {
     return (
