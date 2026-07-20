@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import { I18nProvider } from './i18n/index.jsx'
+import { ThemeProvider } from './hooks/useTheme.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 
@@ -45,7 +46,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <I18nProvider>
-          <App />
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
         </I18nProvider>
       </QueryClientProvider>
     </ErrorBoundary>

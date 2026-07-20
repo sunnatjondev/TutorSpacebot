@@ -5,12 +5,88 @@
 :root {
   --tg-content-safe-area-top: env(safe-area-inset-top, 0px);
   --tg-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  
+  /* Soft Light Theme (Day) */
+  --primary: #4F378B;
+  --on-primary: #FFFFFF;
+  --primary-container: #EADDFF;
+  --on-primary-container: #21005D;
+  --secondary: #625B71;
+  --on-secondary: #FFFFFF;
+  --secondary-container: #E8DEF8;
+  --on-secondary-container: #1D192B;
+  --tertiary: #006D36;
+  --on-tertiary: #FFFFFF;
+  --tertiary-container: #91F0A1;
+  --on-tertiary-container: #00210C;
+  --error: #BA1A1A;
+  --on-error: #FFFFFF;
+  --error-container: #FFDAD6;
+  --on-error-container: #410002;
+  
+  --background: #F4F5F7;
+  --on-background: #1D1B20;
+  --surface: #F4F5F7;
+  --on-surface: #1D1B20;
+  --surface-variant: #E7E0EC;
+  --on-surface-variant: #49454F;
+  --outline: #79747E;
+  --outline-variant: #CAC4D0;
+  
+  --surface-lowest: #FFFFFF;
+  --surface-low: #F7F2FA;
+  --surface-container: #E9EAEF;
+  --surface-high: #E2E2E5;
+  --surface-highest: #DCDDE0;
+  
+  --paid-green: #006D36;
+  --paid-green-bg: rgba(0, 109, 54, 0.15);
+  --debt-red: #BA1A1A;
+  --debt-red-bg: rgba(186, 26, 26, 0.15);
+  --partial-orange: #8B5000;
+  --partial-orange-bg: rgba(139, 80, 0, 0.15);
+}
+
+.dark {
+  /* Original Dark Theme (Night) */
   --primary: #D0BCFF;
   --on-primary: #381E72;
+  --primary-container: #4F378B;
+  --on-primary-container: #EADDFF;
+  --secondary: #CCC2DC;
+  --on-secondary: #332D41;
+  --secondary-container: #4A4458;
+  --on-secondary-container: #E8DEF8;
+  --tertiary: #91F0A1;
+  --on-tertiary: #003916;
+  --tertiary-container: #005324;
+  --on-tertiary-container: #ADF0B6;
+  --error: #FFB4AB;
+  --on-error: #690005;
+  --error-container: #93000A;
+  --on-error-container: #FFDAD6;
+  
+  --background: #141218;
+  --on-background: #E6E0E9;
   --surface: #141218;
-  --surface-container: #211F26;
   --on-surface: #E6E0E9;
+  --surface-variant: #49454F;
+  --on-surface-variant: #CAC4D0;
   --outline: #938F99;
+  --outline-variant: #49454F;
+  
+  --surface-lowest: #0F0D13;
+  --surface-low: #1D1B20;
+  --surface-container: #211F26;
+  --surface-high: #2B2930;
+  --surface-highest: #36343B;
+  
+  --paid-green: #91F0A1;
+  --paid-green-bg: rgba(145, 240, 161, 0.15);
+  --debt-red: #FFB4AB;
+  --debt-red-bg: rgba(255, 180, 171, 0.15);
+  --partial-orange: #FFB870;
+  --partial-orange-bg: rgba(255, 184, 112, 0.15);
 }
 
 * {
@@ -91,10 +167,10 @@ h1, h2, h3, .font-serif {
 
   /* Cards */
   .m3-card {
-    @apply bg-surface-container rounded-card p-5 border border-outline-variant/30 shadow-m3-elevation-1 transition-all duration-300;
+    @apply bg-surface-container rounded-card p-5 border border-outline-variant border-opacity-30 shadow-m3-elevation-1 transition-all duration-300;
   }
   .m3-card-interactive {
-    @apply m3-card cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
+    @apply bg-surface-container rounded-card p-5 border border-outline-variant border-opacity-30 shadow-m3-elevation-1 transition-all duration-300 cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
   }
   .m3-card-primary {
     @apply bg-primary-container text-on-primary-container rounded-card p-5 shadow-m3-elevation-2;
@@ -102,10 +178,10 @@ h1, h2, h3, .font-serif {
 
   /* Old compat classes */
   .card {
-    @apply m3-card;
+    @apply bg-surface-container rounded-card p-5 border border-outline-variant border-opacity-30 shadow-m3-elevation-1 transition-all duration-300;
   }
   .card-interactive {
-    @apply m3-card-interactive;
+    @apply bg-surface-container rounded-card p-5 border border-outline-variant border-opacity-30 shadow-m3-elevation-1 transition-all duration-300 cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
   }
 
   /* Buttons */
@@ -116,10 +192,10 @@ h1, h2, h3, .font-serif {
     @apply flex items-center justify-center gap-2 rounded-2xl bg-secondary-container text-on-secondary-container px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95;
   }
   .m3-btn-outline {
-    @apply flex items-center justify-center gap-2 rounded-2xl border border-outline text-primary px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary/10;
+    @apply flex items-center justify-center gap-2 rounded-2xl border border-outline text-primary px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary active:bg-opacity-10;
   }
   .m3-btn-text {
-    @apply flex items-center justify-center gap-2 rounded-2xl text-primary px-4 py-3 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary/10;
+    @apply flex items-center justify-center gap-2 rounded-2xl text-primary px-4 py-3 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary active:bg-opacity-10;
   }
   .m3-btn-icon {
     @apply flex items-center justify-center h-12 w-12 rounded-full bg-surface-high text-on-surface transition-all duration-200 active:scale-90 active:bg-surface-highest;
@@ -130,19 +206,16 @@ h1, h2, h3, .font-serif {
 
   /* Old compat buttons */
   .btn-primary {
-    @apply m3-btn-filled;
+    @apply flex items-center justify-center gap-2 rounded-2xl bg-primary text-on-primary px-6 py-4 font-bold tracking-wide transition-all duration-200 active:scale-95 shadow-m3-elevation-1;
   }
   .btn-secondary {
-    @apply m3-btn-tonal;
+    @apply flex items-center justify-center gap-2 rounded-2xl bg-secondary-container text-on-secondary-container px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95;
   }
   .btn-outline {
-    @apply m3-btn-outline;
+    @apply flex items-center justify-center gap-2 rounded-2xl border border-outline text-primary px-6 py-4 font-semibold tracking-wide transition-all duration-200 active:scale-95 active:bg-primary active:bg-opacity-10;
   }
   .btn-danger {
     @apply flex items-center justify-center gap-2 rounded-2xl bg-error-container text-on-error-container px-6 py-4 font-bold transition-all active:scale-95;
-  }
-  .m3-btn-text {
-    @apply text-primary font-bold px-4 py-3 rounded-2xl hover:bg-primary/10 transition-colors active:scale-95;
   }
   .m3-btn-sm-filled {
     @apply bg-primary text-on-primary rounded-xl px-4 py-2 font-bold text-sm shadow-m3-elevation-1 transition-all active:scale-[0.98] disabled:opacity-50;
@@ -153,17 +226,17 @@ h1, h2, h3, .font-serif {
 
   /* Inputs */
   .m3-input {
-    @apply w-full rounded-2xl bg-surface-high px-5 py-4 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all border border-transparent focus:border-primary/30;
+    @apply w-full rounded-2xl bg-surface-high px-5 py-4 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all border border-transparent focus:border-primary focus:border-opacity-30;
   }
   .m3-select {
-    @apply w-full rounded-2xl bg-surface-high px-5 py-4 text-on-surface border border-transparent focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none transition-all;
+    @apply w-full rounded-2xl bg-surface-high px-5 py-4 text-on-surface border border-transparent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 appearance-none transition-all;
   }
 
   .input-field {
-    @apply m3-input;
+    @apply w-full rounded-2xl bg-surface-high px-5 py-4 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all border border-transparent focus:border-primary focus:border-opacity-30;
   }
   .select-field {
-    @apply m3-select;
+    @apply w-full rounded-2xl bg-surface-high px-5 py-4 text-on-surface border border-transparent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 appearance-none transition-all;
   }
 
   /* Layout */
@@ -179,7 +252,7 @@ h1, h2, h3, .font-serif {
 
   /* Bottom Nav */
   .m3-bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto pb-safe pt-2 px-2 bg-surface-lowest/90 backdrop-blur-xl border-t border-outline-variant/30 z-50 flex items-center justify-between;
+    @apply fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto pb-safe pt-2 px-2 bg-surface-lowest bg-opacity-90 backdrop-blur-xl border-t border-outline-variant border-opacity-30 z-50 flex items-center justify-between;
   }
   .m3-nav-item {
     @apply flex flex-col items-center justify-center gap-1 flex-1 py-2 relative transition-all duration-300;
@@ -221,7 +294,7 @@ h1, h2, h3, .font-serif {
     @apply px-3 py-1 text-[10px] font-bold rounded-full bg-error-container text-on-error-container tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }
   .badge-partial {
-    @apply px-3 py-1 text-[10px] font-bold rounded-full bg-partial-orange/20 text-partial-orange tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
+    @apply px-3 py-1 text-[10px] font-bold rounded-full bg-partial-orange bg-opacity-20 text-partial-orange tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }
 }
 
@@ -248,7 +321,7 @@ h1, h2, h3, .font-serif {
   left: 7px;
   width: 6px;
   height: 12px;
-  border: solid #381E72;
+  border: solid var(--on-primary);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
@@ -268,7 +341,7 @@ h1, h2, h3, .font-serif {
   @apply flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 ;
 }
 .chip {
-  @apply px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer border border-outline-variant/30;
+  @apply px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer border border-outline-variant border-opacity-30;
 }
 .chip-active {
   @apply bg-primary text-on-primary border-primary;

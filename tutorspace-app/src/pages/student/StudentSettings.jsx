@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Globe, Trash2 } from 'lucide-react'
+import { Bell, Globe, Trash2, Moon, Sun } from 'lucide-react'
+import { useTheme } from '../../hooks/useTheme.jsx'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
@@ -24,6 +25,7 @@ function NotificationToggle({ value, onChange }) {
 export default function StudentSettings() {
   const { user, haptic, tg } = useTelegram()
   const { t, lang, setLanguage, languages } = useI18n()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -131,6 +133,32 @@ export default function StudentSettings() {
           <div className="flex items-center justify-between">
             <p className="text-on-surface text-sm">{t('teacherSettings.paymentAlerts')}</p>
             <NotificationToggle value={paymentAlerts} onChange={handleTogglePaymentAlerts} />
+          </div>
+        </div>
+
+        {/* Appearance (Theme) */}
+        <div className="m3-card">
+          <p className="font-bold text-on-surface mb-3 flex items-center gap-2">
+            {theme === 'dark' ? <Moon size={16} className="text-primary" /> : <Sun size={16} className="text-primary" />} 
+            {lang === 'ru' ? 'Тема (Внешний вид)' : 'Mavzu (Tashqi ko\'rinish)'}
+          </p>
+          <div className="flex gap-2">
+            <button onClick={() => { if (theme !== 'light') { toggleTheme(); haptic?.selection() } }}
+              className={`chip flex-1 flex justify-center items-center gap-2 transition-all duration-200 ${
+                theme === 'light'
+                  ? 'bg-brand text-on-primary font-bold shadow-glow-sm scale-105'
+                  : 'bg-surface-high text-on-surface-variant'
+              }`}>
+              <Sun size={14} /> {lang === 'ru' ? 'Светлая' : 'Yorug\''}
+            </button>
+            <button onClick={() => { if (theme !== 'dark') { toggleTheme(); haptic?.selection() } }}
+              className={`chip flex-1 flex justify-center items-center gap-2 transition-all duration-200 ${
+                theme === 'dark'
+                  ? 'bg-brand text-on-primary font-bold shadow-glow-sm scale-105'
+                  : 'bg-surface-high text-on-surface-variant'
+              }`}>
+              <Moon size={14} /> {lang === 'ru' ? 'Тёмная' : 'Qorong\'u'}
+            </button>
           </div>
         </div>
 
