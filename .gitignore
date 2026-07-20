@@ -4,5 +4,6 @@
 bot.env
 *.local
 node_modules/
+.pnpm-store/
 dist/
 dist-ssr/

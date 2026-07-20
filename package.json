@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix tutorspace-app ci && npm --prefix tutorspace-app run build"
+  }
+}
