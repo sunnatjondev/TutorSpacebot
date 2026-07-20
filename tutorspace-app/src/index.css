@@ -73,7 +73,7 @@
   --surface-variant: #49454F;
   --on-surface-variant: #CAC4D0;
   --outline: #938F99;
-  --outline-variant: #49454F;
+  --outline-variant: #36343B;
   
   --surface-lowest: #0F0D13;
   --surface-low: #1D1B20;
@@ -167,10 +167,12 @@ h1, h2, h3, .font-serif {
 
   /* Cards */
   .m3-card {
-    @apply bg-surface-container rounded-card p-5 border border-outline-variant border-opacity-30 shadow-m3-elevation-1 transition-all duration-300;
+    @apply bg-surface-container rounded-card p-5 shadow-m3-elevation-1 transition-all duration-300;
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
   }
   .m3-card-interactive {
-    @apply bg-surface-container rounded-card p-5 border border-outline-variant border-opacity-30 shadow-m3-elevation-1 transition-all duration-300 cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
+    @apply bg-surface-container rounded-card p-5 shadow-m3-elevation-1 transition-all duration-300 cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
   }
   .m3-card-primary {
     @apply bg-primary-container text-on-primary-container rounded-card p-5 shadow-m3-elevation-2;
@@ -178,10 +180,12 @@ h1, h2, h3, .font-serif {
 
   /* Old compat classes */
   .card {
-    @apply bg-surface-container rounded-card p-5 border border-outline-variant border-opacity-30 shadow-m3-elevation-1 transition-all duration-300;
+    @apply bg-surface-container rounded-card p-5 shadow-m3-elevation-1 transition-all duration-300;
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
   }
   .card-interactive {
-    @apply bg-surface-container rounded-card p-5 border border-outline-variant border-opacity-30 shadow-m3-elevation-1 transition-all duration-300 cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
+    @apply bg-surface-container rounded-card p-5 shadow-m3-elevation-1 transition-all duration-300 cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
   }
 
   /* Buttons */
@@ -341,7 +345,8 @@ h1, h2, h3, .font-serif {
   @apply flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 ;
 }
 .chip {
-  @apply px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer border border-outline-variant border-opacity-30;
+  @apply px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer;
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
 }
 .chip-active {
   @apply bg-primary text-on-primary border-primary;

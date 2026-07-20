@@ -20,7 +20,7 @@ function getDayDates(baseDate = new Date()) {
   })
 }
 
-function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t }) {
+function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t, weekStartKey }) {
   const navigate = useNavigate()
   const [selectedGroupId, setSelectedGroupId] = useState(groups[0]?.id || '')
   const [lessonDate, setLessonDate] = useState(() => new Date(initialDate || new Date()))
@@ -583,6 +583,7 @@ export default function TeacherSchedule() {
           onCreated={refetch}
           haptic={haptic}
           t={t}
+          weekStartKey={weekStartKey}
         />
       </Modal>
 

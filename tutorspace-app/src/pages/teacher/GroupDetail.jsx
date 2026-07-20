@@ -36,7 +36,7 @@ function getLocalDateKey(date) {
 function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDeleteGroup, onExportCSV, manageStudents, t }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('groupDetail.groupManagement')}>
-      <div className="divide-y divide-outline-variant/20 bg-surface-high rounded-2xl overflow-hidden border border-outline-variant/15">
+      <div className="divide-y divide-outline-variant bg-surface-high rounded-2xl overflow-hidden border border-outline-variant">
         {/* Edit Group */}
         <button
           onClick={() => { onEdit(); onClose(); }}
@@ -185,7 +185,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         </div>
 
         {/* ── Payment Section ── */}
-        <div className="bg-surface-container/35 rounded-2xl p-4 space-y-3 border border-outline-variant/15">
+        <div className="bg-surface-container/35 rounded-2xl p-4 space-y-3 border border-outline-variant">
           <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">💳 To'lov sozlamalari</p>
           <div className="flex gap-3">
             <div className="flex-1">
@@ -230,7 +230,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
               <button
                 key={c.value}
                 onClick={() => setColor(c.value)}
-                className={`w-9 h-9 rounded-full ${c.bg} transition-all duration-200 ${color === c.value ? `ring-[3px] ring-offset-2 ${c.ring} dark:ring-offset-[#1a1b1e] scale-110` : 'opacity-60 hover:opacity-90 scale-90'}`}
+                className={`w-9 h-9 rounded-full ${c.bg} transition-all duration-200 ${color === c.value ? `ring-[3px] ring-offset-2 ${c.ring} ring-offset-[var(--surface-container)] scale-110` : 'opacity-60 hover:opacity-90 scale-90'}`}
               />
             ))}
           </div>
