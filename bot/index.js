@@ -68,13 +68,19 @@ startApiServer()
 
 async function getUserRow(telegramId) {
   if (!supabase) return null
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, role, first_name, language')
-    .eq('telegram_id', telegramId)
-    .maybeSingle()
-  if (error) throw error
-  return data
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, role, first_name, language')
+      .eq('telegram_id', telegramId)
+      .limit(1)
+      .maybeSingle()
+    if (error) throw error
+    return data
+  } catch (err) {
+    console.error('getUserRow error:', err)
+    return null
+  }
 }
 
 function sendStatsUnavailable(chatId, lang = 'uz') {
