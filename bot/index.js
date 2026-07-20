@@ -186,7 +186,7 @@ bot.onText(/\/start/, async (msg) => {
       const now = new Date().toISOString()
       const { data: invite, error: inviteError } = await supabase
         .from('parent_invites')
-        .select('token, student_id, student:users!parent_invites_student_id_fkey(id, first_name, last_name, telegram_id)')
+        .select('token, student_id, student:users!student_id(id, first_name, last_name, telegram_id)')
         .eq('token', token)
         .is('claimed_at', null)
         .gt('expires_at', now)

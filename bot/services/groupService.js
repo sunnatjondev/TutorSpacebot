@@ -245,7 +245,7 @@ export async function handleAttendanceSave(telegramUser, body) {
         // Find connected parents
         const { data: parents } = await supabase
           .from('parent_relations')
-          .select('parent:users!parent_relations_parent_id_fkey(telegram_id, language)')
+          .select('parent:users!parent_id(telegram_id, language)')
           .eq('student_id', body.studentId)
 
         const bot = getBot()

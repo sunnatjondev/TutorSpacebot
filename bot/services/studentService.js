@@ -75,7 +75,7 @@ export async function handleParentChildren(telegramUser) {
   const { data: relations, error } = await supabase
     .from('parent_relations')
     .select(`
-      student:users!parent_relations_student_id_fkey(id, first_name, last_name, telegram_id, username, photo_url)
+      student:users!student_id(id, first_name, last_name, telegram_id, username, photo_url)
     `)
     .eq('parent_id', user.id)
 
