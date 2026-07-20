@@ -37,6 +37,7 @@ export async function handleGroupCreate(telegramUser, body) {
 export async function handleGroupDelete(telegramUser, body) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)
+  await requireGroupOwner(user.id, body.groupId)
 
   const { error } = await supabase.from('groups').delete().eq('id', body.groupId).eq('teacher_id', user.id)
   if (error) throw error

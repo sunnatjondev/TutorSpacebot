@@ -1,3 +1,5 @@
+import { config } from '../config.js'
+
 export async function runGenerateSessions(supabase) {
   try {
     const today = new Date()
@@ -51,7 +53,7 @@ export async function runGenerateSessions(supabase) {
             await supabase.from('sessions').insert({
               group_id: group.id,
               scheduled_at: targetDateIso,
-              duration_min: 90,
+              duration_min: config.DEFAULT_SESSION_DURATION_MIN,
               status: 'upcoming'
             })
           }

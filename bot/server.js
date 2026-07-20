@@ -125,7 +125,7 @@ function getCorsOrigin(originHeader) {
   if (originHeader && allowedOrigins.includes(originHeader)) {
     return originHeader
   }
-  return '*'
+  return allowedOrigins[0] || '*'
 }
 
 function sendJson(res, statusCode, data, origin = '*') {
@@ -139,9 +139,16 @@ function sendJson(res, statusCode, data, origin = '*') {
 }
 
 function readBody(req) {
+  const MAX_BODY_SIZE = 1_000_000 // 1 MB
   return new Promise((resolve, reject) => {
     let raw = ''
-    req.on('data', chunk => raw += chunk)
+    req.on('data', chunk => {
+      raw += chunk
+      if (raw.length > MAX_BODY_SIZE) {
+        req.destroy()
+        reject(new Error('Request body too large'))
+      }
+    })
     req.on('end', () => {
       try {
         resolve(raw ? JSON.parse(raw) : {})

@@ -15,6 +15,9 @@ export function startCronJobs(bot, supabase) {
   const memoryClaims = new Set()
   let warnedAboutNotificationTable = false
 
+  // Clean up notification dedupe cache every 24 hours to prevent memory leaks
+  setInterval(() => { memoryClaims.clear() }, 24 * 60 * 60000)
+
   function escapeHtml(value) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')

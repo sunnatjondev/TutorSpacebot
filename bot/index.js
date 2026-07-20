@@ -82,9 +82,9 @@ function sendStatsUnavailable(chatId, lang = 'uz') {
 }
 
 async function sendAppButton(chatId, firstName, lang = 'uz') {
-  const name = escapeMarkdownV2(firstName || 'User')
+  const name = escapeHtml(firstName || 'User')
   return bot.sendMessage(chatId, t(lang, 'welcome_app', name), {
-    parse_mode: 'MarkdownV2',
+    parse_mode: 'HTML',
     reply_markup: {
       inline_keyboard: [[{ text: t(lang, 'open_app'), web_app: { url: WEBAPP_URL } }]],
     },
@@ -344,7 +344,7 @@ bot.on('callback_query', async (query) => {
           }
         })
       }
-    } catch (e) {}
+    } catch (e) { console.error('Payment callback error:', e) }
     return
   }
 
@@ -377,7 +377,7 @@ bot.on('callback_query', async (query) => {
       await bot.answerCallbackQuery(query.id, { text: 'To\'lov tasdiqlandi!' })
       await bot.editMessageText(message.text + '\n\n✅ TASDIQLANDI', { chat_id: message.chat.id, message_id: message.message_id })
       await bot.sendMessage(tx.teacher.telegram_id, t(tx.teacher.language || 'uz', 'admin_approved'), { parse_mode: 'Markdown' })
-    } catch (e) {}
+    } catch (e) { console.error('Payment callback error:', e) }
     return
   }
 
@@ -393,7 +393,7 @@ bot.on('callback_query', async (query) => {
       await bot.answerCallbackQuery(query.id, { text: 'To\'lov bekor qilindi' })
       await bot.editMessageText(message.text + '\n\n❌ BEKOR QILINDI', { chat_id: message.chat.id, message_id: message.message_id })
       await bot.sendMessage(tx.teacher.telegram_id, t(tx.teacher.language || 'uz', 'admin_rejected'), { parse_mode: 'Markdown' })
-    } catch (e) {}
+    } catch (e) { console.error('Payment callback error:', e) }
     return
   }
 
@@ -432,6 +432,7 @@ bot.on('web_app_data', async (msg) => {
 })
 
 bot.on('pre_checkout_query', async (query) => {
+  if (!supabase) return bot.answerPreCheckoutQuery(query.id, false, { error_message: 'Service unavailable' })
   try {
     const txId = query.invoice_payload
     const { data: tx } = await supabase.from('billing_transactions').select('id, status').eq('id', txId).single()

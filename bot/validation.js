@@ -27,7 +27,7 @@ export function validate(body, rules) {
       }
     }
   } catch (error) {
-    console.error('Validation failed for body:', body, 'Error:', error.message)
+    console.error('Validation error:', error.message)
     throw error
   }
 }
