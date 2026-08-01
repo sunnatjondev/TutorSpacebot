@@ -10,6 +10,7 @@ import * as billingService from './services/billingService.js'
 import * as studentService from './services/studentService.js'
 import * as teacherService from './services/teacherService.js'
 import * as userService from './services/userService.js'
+import * as exportService from './services/exportService.js'
 
 // Validation schemas per route
 const validationSchemas = {
@@ -23,6 +24,8 @@ const validationSchemas = {
   '/api/teacher/schedule': { weekStart: { type: 'number' } },
   '/api/teacher/remind-debtors': {},
   '/api/teacher/remind-student': { paymentId: { required: true, type: 'uuid' } },
+  '/api/teacher/analytics': {},
+  '/api/teacher/export': { type: { type: 'string', enum: ['payments', 'students'] } },
 
   '/api/groups/create': { name: { required: true, type: 'string' }, subject: { type: 'string' } },
   '/api/groups/delete': { groupId: { required: true, type: 'uuid' } },
@@ -58,6 +61,7 @@ const validationSchemas = {
 
   '/api/billing/create-order': { planId: { required: true, type: 'string', enum: ['solo', 'center'] } },
   '/api/billing/status': {},
+  '/api/billing/auto-renew': { autoRenew: { required: true, type: 'boolean' } },
 
   '/api/user/settings': { lesson_reminders_enabled: { type: 'boolean' }, payment_alerts_enabled: { type: 'boolean' } },
   '/api/user/delete': {},
@@ -74,6 +78,8 @@ const apiRoutes = {
   '/api/teacher/schedule': teacherService.handleTeacherSchedule,
   '/api/teacher/remind-debtors': teacherService.handleTeacherRemindDebtors,
   '/api/teacher/remind-student': teacherService.handleTeacherRemindStudent,
+  '/api/teacher/analytics': teacherService.handleTeacherAnalytics,
+  '/api/teacher/export': exportService.handleTeacherExport,
 
   '/api/groups/create': groupService.handleGroupCreate,
   '/api/groups/delete': groupService.handleGroupDelete,
@@ -110,6 +116,7 @@ const apiRoutes = {
 
   '/api/billing/create-order': billingService.handleBillingCreateOrder,
   '/api/billing/status': billingService.handleBillingStatus,
+  '/api/billing/auto-renew': billingService.handleToggleAutoRenew,
 
   '/api/user/settings': userService.handleUserSettings,
   '/api/user/delete': userService.handleUserDelete,

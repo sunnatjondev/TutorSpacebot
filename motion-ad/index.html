@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TutorSpace Motion Canvas - OBS Reels Recording (1080x1920)</title>
+  
+  <!-- Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- GSAP 3 & CustomEase -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/md3-tokens.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <div class="stage-wrapper">
+    <!-- 1080x1920 Reels Viewport Canvas -->
+    <div class="reels-canvas" id="reelsCanvas">
+      
+      <!-- Decorative Glow Blobs -->
+      <div class="bg-glow-blob blob-1"></div>
+      <div class="bg-glow-blob blob-2"></div>
+
+      <!-- SCENE 1: Muammo #1 (0.0s - 3.0s) -->
+      <div class="scene" id="scene1">
+        <div class="m3-card elevated card-s1">
+          <div class="m3-chip error">🔴 MUAMMO #1</div>
+          <div class="graphic-icon-wrap error-glow">
+            <i data-lucide="clipboard-x"></i>
+          </div>
+          <h1 class="headline-large">Hali ham davomatni qolda tekshiryapsizmi ?</h1>
+        </div>
+      </div>
+
+      <!-- SCENE 2: Muammo #2 (3.0s - 5.5s) -->
+      <div class="scene" id="scene2">
+        <div class="m3-card elevated card-s2">
+          <div class="m3-chip error">🔴 MUAMMO #2</div>
+          <div class="graphic-icon-wrap error-glow">
+            <i data-lucide="file-spreadsheet"></i>
+          </div>
+          <h1 class="headline-large">Yoki tolovlarni Exel jadvallarida hisoblayapsizmi ?</h1>
+        </div>
+      </div>
+
+      <!-- SCENE 3: Perfect Solution (5.5s - 8.0s) -->
+      <div class="scene" id="scene3">
+        <div class="m3-card elevated card-s3">
+          <div class="m3-chip success">✨ MUKAMMAL YECHIM</div>
+          <div class="graphic-icon-wrap success-glow">
+            <i data-lucide="sparkles"></i>
+          </div>
+          <h1 class="headline-large">Bizda siz uchun mukammal yechim bor!</h1>
+        </div>
+      </div>
+
+      <!-- SCENE 4: TutorSpace Demo (8.0s - 11.0s) -->
+      <div class="scene" id="scene4">
+        <div class="m3-card elevated card-s4">
+          <div class="brand-logo-area">
+            <div class="brand-icon">
+              <i data-lucide="graduation-cap"></i>
+            </div>
+            <div class="brand-title">TutorSpace</div>
+          </div>
+          <div class="m3-chip primary">⚡ BEPUL DEMO</div>
+          <h1 class="headline-large">TutorSpace platformasini bepul sinab koring!</h1>
+          <p class="headline-sub">O'qituvchilar, talabalar va ota-onalar uchun yagona aqlli tizim</p>
+        </div>
+      </div>
+
+      <!-- SCENE 5: System Capabilities - Live Product Demo Showcase (11.0s - 19.0s) -->
+      <div class="scene" id="scene5">
+        <div class="m3-card card-s5" style="background: transparent; box-shadow: none; border: none; padding: 0; align-items: flex-start;">
+          <div class="m3-chip primary">🚀 TIZIM IMKONIYATLARI</div>
+          <h1 class="headline-medium" style="margin-bottom: 20px;">Tizimimiz nimalarga qodir ?</h1>
+          
+          <div class="features-product-grid">
+            
+            <!-- Feature Product Card 1: One-Click Student Add -->
+            <div class="product-feature-card feat-1">
+              <div class="card-head">
+                <div class="feature-icon-badge">
+                  <i data-lucide="user-plus"></i>
+                </div>
+                <div class="card-head-text">
+                  <div class="title">Oquvchilarni bir klikda qoshish</div>
+                  <div class="subtitle">Telegram bot orqali bazaga lahzalik kiritish</div>
+                </div>
+              </div>
+              <div class="product-mini-preview">
+                <div class="mini-student-row">
+                  <div class="mini-avatar">JA</div>
+                  <div class="mini-user-info">
+                    <span class="u-name">Jasur Aliyev</span>
+                    <span class="u-group">IELTS Group • Telegram @jasur_a</span>
+                  </div>
+                  <div class="mini-status-chip success">
+                    <i data-lucide="check-circle-2"></i> Qoshildi
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feature Product Card 2: Auto Attendance & Reminders -->
+            <div class="product-feature-card feat-2">
+              <div class="card-head">
+                <div class="feature-icon-badge">
+                  <i data-lucide="calendar-check"></i>
+                </div>
+                <div class="card-head-text">
+                  <div class="title">Avtomatik davomat va eslatma</div>
+                  <div class="subtitle">Ota-onalarga bot orqali avto xabarnoma</div>
+                </div>
+              </div>
+              <div class="product-mini-preview">
+                <div class="mini-att-grid">
+                  <div class="att-item present">
+                    <span class="att-name">Sardor Karimov</span>
+                    <span class="att-status-tag">✅ Keldi (14:02)</span>
+                  </div>
+                  <div class="att-item notified">
+                    <span class="att-name">Malika Toshmatova</span>
+                    <span class="att-status-tag">🔔 Telegram SMS yuborildi</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feature Product Card 3: Payments & Debt Control -->
+            <div class="product-feature-card feat-3">
+              <div class="card-head">
+                <div class="feature-icon-badge">
+                  <i data-lucide="wallet"></i>
+                </div>
+                <div class="card-head-text">
+                  <div class="title">Tolovlar va qarzdorlik nazorati</div>
+                  <div class="subtitle">Oylik tushumlar va balans avto-hisobi</div>
+                </div>
+              </div>
+              <div class="product-mini-preview">
+                <div class="mini-finance-bar">
+                  <div class="fin-box income">
+                    <span class="fin-label">Oylik Tushum</span>
+                    <span class="fin-val">+4,800,000 UZS</span>
+                  </div>
+                  <div class="fin-box clean">
+                    <span class="fin-label">Qarzdorlik Balansi</span>
+                    <span class="fin-val text-success">0 UZS (100% Tolangan)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feature Product Card 4: Convenient Schedule -->
+            <div class="product-feature-card feat-4">
+              <div class="card-head">
+                <div class="feature-icon-badge">
+                  <i data-lucide="clock"></i>
+                </div>
+                <div class="card-head-text">
+                  <div class="title">Qulay dars jadvali</div>
+                  <div class="subtitle">Barcha guruhlar jadvali bitta ekranda</div>
+                </div>
+              </div>
+              <div class="product-mini-preview">
+                <div class="mini-sched-row">
+                  <div class="sched-time">14:00</div>
+                  <div class="sched-info">
+                    <span class="sched-subject">English Upper-Int</span>
+                    <span class="sched-room">Xona #3 • 12 ta talaba</span>
+                  </div>
+                  <div class="sched-live-pill">🔴 Hozir darsda</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 6: Call To Action (19.0s - 23.0s) -->
+      <div class="scene" id="scene6">
+        <div class="m3-card elevated card-s6">
+          <div class="cta-plus-container">
+            <div class="pulse-ring"></div>
+            <i data-lucide="plus"></i>
+          </div>
+          <h1 class="headline-large">Batafsil ma'lumot uchun izohlarda + qoldiring</h1>
+          <div class="comment-badge">
+            <i data-lucide="message-square-plus"></i>
+            <span>«+» IZOH QOLDIRING</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- OBS Recording Control Bar -->
+  <div class="obs-control-bar" id="controlBar">
+    <button class="btn-restart" id="btnRestart">
+      <i data-lucide="rotate-ccw" style="width: 18px; height: 18px;"></i>
+      Restart (Space / R)
+    </button>
+    <div class="timecode-display" id="timecode">00.0s / 23.0s</div>
+    <div class="hotkey-hint">[H] UI ni yashirish</div>
+  </div>
+
+  <!-- Motion Engine Script -->
+  <script src="js/motion.js"></script>
+</body>
+</html>

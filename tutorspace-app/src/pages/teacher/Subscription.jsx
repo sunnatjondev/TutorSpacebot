@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ArrowLeft, CheckCircle, CreditCard, AlertTriangle, Infinity as InfinityIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
-import { useBillingStatus, useCreateBillingOrder } from '../../hooks/api/useTeacher'
+import { useBillingStatus, useCreateBillingOrder, useToggleAutoRenew } from '../../hooks/api/useTeacher'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
 
@@ -15,6 +15,7 @@ export default function Subscription() {
 
   const { data: subscription, isLoading } = useBillingStatus(user?.id)
   const createOrder = useCreateBillingOrder()
+  const toggleAutoRenewMutation = useToggleAutoRenew()
   
   const [loadingPlan, setLoadingPlan] = useState(null)
 
@@ -203,7 +204,34 @@ export default function Subscription() {
           </div>
         )}
 
-        {/* Change/Cancel Info - Reverted to clean style */}
+        {/* Auto Renew Toggle */}
+        <div className="bg-surface-variant/20 rounded-[20px] p-4 border border-outline-variant/20">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="text-sm font-bold text-on-surface mb-1">
+              {lang === 'ru' ? 'Автопродление' : "Avtomatik uzaytirish"}
+            </h4>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                className="sr-only peer" 
+                checked={subscription?.auto_renew || false} 
+                disabled={toggleAutoRenewMutation.isPending || isExpired}
+                onChange={(e) => {
+                  haptic?.selection()
+                  toggleAutoRenewMutation.mutate({ autoRenew: e.target.checked })
+                }} 
+              />
+              <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand disabled:opacity-50"></div>
+            </label>
+          </div>
+          <p className="text-xs text-on-surface-variant leading-relaxed">
+            {lang === 'ru' 
+              ? 'Если автопродление включено, за 1 день до конца срока подписки мы автоматически отправим вам счёт на оплату для быстрого продления в 1 клик.' 
+              : "Agar avtomatik uzaytirish yoqilgan bo'lsa, obuna tugashidan 1 kun oldin biz sizga 1 marta bosish orqali uzaytirish uchun hisob-faktura yuboramiz."}
+          </p>
+        </div>
+
+        {/* Change/Cancel Info */}
         <div className="bg-surface-variant/20 rounded-[20px] p-4 border border-outline-variant/20">
           <h4 className="text-sm font-bold text-on-surface mb-1">
             {lang === 'ru' ? 'Смена и отмена тарифа' : "Ta'rifni o'zgartirish va bekor qilish"}

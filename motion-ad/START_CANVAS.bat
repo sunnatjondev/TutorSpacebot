@@ -1,0 +1,3 @@
+@echo off
+echo Starting TutorSpace MD3 Motion Canvas (1080x1920 OBS Reels)...
+start "" "%~dp0index.html"

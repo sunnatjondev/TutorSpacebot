@@ -404,4 +404,160 @@ export async function handleTeacherRemindStudent(telegramUser, body) {
   return { ok: true, sent, text: text.replace(/\*/g, '') }
 }
 
+export async function handleTeacherAnalytics(telegramUser) {
+  requireServiceSupabase()
+  const user = await requireUserRow(telegramUser)
+  const subscription = await checkTeacherSubscription(user.id)
+  const isCenter = subscription?.plan?.slug === 'center'
 
+  // Determine date range (last 6 months)
+  const now = new Date()
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1)
+
+  // 1. Revenue dynamics
+  const { data: payments, error: pErr } = await supabase
+    .from('payments')
+    .select('amount, status, period_month, period_year, student_id, student:users!payments_student_id_fkey(first_name, last_name)')
+    .eq('teacher_id', user.id)
+    .gte('created_at', sixMonthsAgo.toISOString())
+
+  if (pErr) throw pErr
+
+  // 2. Student dynamics (group members created_at)
+  const { data: groups, error: gErr } = await supabase
+    .from('groups')
+    .select('id')
+    .eq('teacher_id', user.id)
+
+  if (gErr) throw gErr
+  
+  const groupIds = (groups || []).map(g => g.id)
+
+  const { data: members, error: mErr } = groupIds.length ? await supabase
+    .from('group_members')
+    .select('created_at')
+    .in('group_id', groupIds)
+    .gte('created_at', sixMonthsAgo.toISOString())
+    : { data: [] }
+
+  if (mErr && groupIds.length) throw mErr
+
+  // 3. Attendance by day
+  const { data: sessions, error: sErr } = groupIds.length ? await supabase
+    .from('sessions')
+    .select('scheduled_at, attendance(present)')
+    .in('group_id', groupIds)
+    .gte('scheduled_at', sixMonthsAgo.toISOString())
+    .neq('status', 'cancelled')
+    : { data: [] }
+    
+  if (sErr && groupIds.length) throw sErr
+
+  // Aggregate Data
+
+  // Revenue (group by year-month)
+  const revenueData = {}
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    revenueData[key] = { month: String(d.getMonth() + 1).padStart(2, '0'), year: d.getFullYear(), earned: 0, expected: 0 }
+  }
+
+  const topDebtorsMap = {}
+
+  (payments || []).forEach(p => {
+    const key = `${p.period_year}-${String(p.period_month).padStart(2, '0')}`
+    if (revenueData[key]) {
+      revenueData[key].expected += (p.amount || 0)
+      if (p.status === 'paid') {
+        revenueData[key].earned += (p.amount || 0)
+      }
+    }
+    
+    if (p.status === 'unpaid' || p.status === 'partial') {
+      const sId = p.student_id
+      if (!topDebtorsMap[sId]) {
+        topDebtorsMap[sId] = {
+          studentId: sId,
+          name: p.student ? `${p.student.first_name || ''} ${p.student.last_name || ''}`.trim() : 'Unknown',
+          debt: 0,
+          months: 0
+        }
+      }
+      topDebtorsMap[sId].debt += (p.amount || 0)
+      if (p.status === 'unpaid') {
+        topDebtorsMap[sId].months += 1
+      }
+    }
+  })
+
+  const topDebtors = Object.values(topDebtorsMap).sort((a, b) => b.debt - a.debt).slice(0, 10)
+
+  // Students (group by year-month)
+  const studentData = {}
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    studentData[key] = { month: String(d.getMonth() + 1).padStart(2, '0'), year: d.getFullYear(), newStudents: 0 }
+  }
+
+  (members || []).forEach(m => {
+    if (!m.created_at) return
+    const d = new Date(m.created_at)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    if (studentData[key]) {
+      studentData[key].newStudents += 1
+    }
+  })
+
+  // Attendance by day (0 = Sunday, 1 = Monday, etc.)
+  const attendanceByDay = {
+    1: { total: 0, present: 0 },
+    2: { total: 0, present: 0 },
+    3: { total: 0, present: 0 },
+    4: { total: 0, present: 0 },
+    5: { total: 0, present: 0 },
+    6: { total: 0, present: 0 },
+    0: { total: 0, present: 0 },
+  }
+
+  (sessions || []).forEach(s => {
+    if (!s.scheduled_at) return
+    const d = new Date(s.scheduled_at)
+    const day = d.getDay()
+    const records = s.attendance || []
+    attendanceByDay[day].total += records.length
+    attendanceByDay[day].present += records.filter(r => r.present).length
+  })
+
+  const sortedRevenue = Object.values(revenueData).sort((a,b) => {
+    if(a.year !== b.year) return a.year - b.year
+    return Number(a.month) - Number(b.month)
+  })
+  
+  const sortedStudents = Object.values(studentData).sort((a,b) => {
+    if(a.year !== b.year) return a.year - b.year
+    return Number(a.month) - Number(b.month)
+  })
+
+  // If not center, restrict data
+  if (!isCenter) {
+    return {
+      ok: true,
+      isCenter: false,
+      revenueData: sortedRevenue.slice(-1), // Only current month
+      studentData: [],
+      attendanceByDay: {},
+      topDebtors: topDebtors.slice(0, 3) // Only top 3
+    }
+  }
+
+  return {
+    ok: true,
+    isCenter: true,
+    revenueData: sortedRevenue,
+    studentData: sortedStudents,
+    attendanceByDay,
+    topDebtors
+  }
+}

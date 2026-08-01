@@ -4,6 +4,7 @@ import { getUrlOrigin, escapeHtml, escapeMarkdown, escapeMarkdownV2, buildTelegr
 import { validate } from '../validation.js'
 export async function handleAuthSession(telegramUser) {
   const userRow = await upsertTrustedTelegramUser(telegramUser)
+  if (userRow.role === 'teacher') await processReferral(telegramUser, userRow)
   const session = signSupabaseAppJwt(userRow)
   return { ok: true, user: userRow, session }
 }
@@ -55,6 +56,7 @@ export async function handleAuthRole(telegramUser, body) {
 
   if (requestedRole === 'teacher') {
     await ensureTrialSubscription(userRow.id)
+    await processReferral(telegramUser, userRow)
   }
 
   const session = signSupabaseAppJwt(userRow)

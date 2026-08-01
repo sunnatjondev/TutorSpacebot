@@ -4,7 +4,6 @@ import dotenv from 'dotenv'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ws from 'ws'
-import { startCronJobs } from './cron.js'
 import { setBot } from './bot.js'
 import { requireServiceSupabase } from './db.js'
 
@@ -47,7 +46,6 @@ console.log(`TutorSpace Bot ${BOT_USERNAME} is running`)
 console.log('Mini App URL:', WEBAPP_URL)
 console.log('Supabase:', hasSupabase ? SUPABASE_URL : 'disabled')
 
-startCronJobs(bot, supabase)
 setBot(bot)
 
 import { config } from './config.js'
@@ -309,6 +307,22 @@ bot.onText(/\/stats/, async (msg) => {
   const pct = total > 0 ? Math.round((present / total) * 100) : 0
 
   return bot.sendMessage(msg.chat.id, t(lang, 'stats_student', escapeMarkdown(user.first_name), pct, total), { parse_mode: 'Markdown' })
+})
+
+bot.onText(/\/myref/, async (msg) => {
+  const user = await getUserRow(msg.from.id)
+  const lang = user?.language || 'uz'
+  
+  if (user?.role !== 'teacher') {
+    return bot.sendMessage(msg.chat.id, lang === 'ru' ? 'Эта команда доступна только учителям.' : 'Bu buyruq faqat o\'qituvchilar uchun mavjud.')
+  }
+
+  const link = `https://t.me/${BOT_USERNAME.replace('@', '')}/app?startapp=ref_${msg.from.id}`
+  const text = lang === 'ru'
+    ? `🔗 *Ваша реферальная ссылка:*\n\n\`${link}\`\n\nПриглашайте коллег и получайте +7 дней к подписке!`
+    : `🔗 *Sizning referal havolangiz:*\n\n\`${link}\`\n\nHamkasblarni taklif qiling va obunangizga +7 kun qo'shib oling!`;
+    
+  return bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' })
 })
 
 bot.onText(/\/setlang/, async (msg) => {

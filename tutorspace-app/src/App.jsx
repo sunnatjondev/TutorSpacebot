@@ -14,6 +14,7 @@ const GroupDetail = lazy(() => import('./pages/teacher/GroupDetail'))
 const TeacherSchedule = lazy(() => import('./pages/teacher/TeacherSchedule'))
 const TeacherFinance = lazy(() => import('./pages/teacher/TeacherFinance'))
 const TeacherSettings = lazy(() => import('./pages/teacher/TeacherSettings'))
+const TeacherAnalytics = lazy(() => import('./pages/teacher/TeacherAnalytics'))
 const Subscription = lazy(() => import('./pages/teacher/Subscription'))
 const AddStudent = lazy(() => import('./pages/teacher/AddStudent'))
 const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'))
@@ -176,6 +177,7 @@ export default function App() {
           <Route path="/teacher/groups/:id" element={<RouteGuard role="teacher"><GroupDetail /></RouteGuard>} />
           <Route path="/teacher/schedule" element={<RouteGuard role="teacher"><TeacherSchedule /></RouteGuard>} />
           <Route path="/teacher/finance" element={<RouteGuard role="teacher"><TeacherFinance /></RouteGuard>} />
+          <Route path="/teacher/analytics" element={<RouteGuard role="teacher"><TeacherAnalytics /></RouteGuard>} />
           <Route path="/teacher/settings" element={<RouteGuard role="teacher"><TeacherSettings /></RouteGuard>} />
           <Route path="/teacher/subscription" element={<RouteGuard role="teacher"><Subscription /></RouteGuard>} />
           <Route path="/teacher/add-student" element={<RouteGuard role="teacher"><AddStudent /></RouteGuard>} />

@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle, Download } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { useTeacherPayments, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
+import { useTeacherPayments, useMarkPaymentPaid, useExportData } from '../../hooks/api/useTeacher'
 import { remindDebtors, remindStudent } from '../../lib/backend'
 
 function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
@@ -111,6 +111,37 @@ export default function TeacherFinance() {
 
   const telegramId = user?.id
   const { data: payments, refetch } = useTeacherPayments(telegramId, activeFilter)
+  const exportData = useExportData()
+
+  const handleExport = async () => {
+    haptic?.heavy?.()
+    try {
+      const res = await exportData.mutateAsync({ type: 'payments' })
+      if (res?.data) {
+        // Decode Base64 back to string
+        const csvText = decodeURIComponent(escape(atob(res.data)))
+        const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvText], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', res.filename || 'export.csv')
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        haptic?.success?.()
+      }
+    } catch (err) {
+      if (err.message && err.message.includes('Center')) {
+        window.Telegram?.WebApp?.showPopup?.({
+          title: lang === 'ru' ? 'Требуется тариф Center' : 'Center ta\'rifi kerak',
+          message: lang === 'ru' ? 'Экспорт данных доступен только на платном тарифе.' : 'Ma\'lumotlarni eksport qilish faqat pullik ta\'rifda mavjud.',
+          buttons: [{ type: 'ok' }]
+        })
+      } else {
+        alert(lang === 'ru' ? 'Ошибка экспорта' : 'Eksport xatosi')
+      }
+    }
+  }
 
   const now = new Date()
   const currentMonth = now.getMonth() + 1
@@ -207,9 +238,19 @@ export default function TeacherFinance() {
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6 pb-28">
-        <div className="mb-5">
-          <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
-          <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
+        <div className="mb-5 flex justify-between items-start">
+          <div>
+            <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
+            <p className="text-on-surface-variant text-sm">{t('teacherFinance.subtitle')}</p>
+          </div>
+          <button 
+            onClick={handleExport}
+            disabled={exportData.isPending}
+            className="bg-brand/10 text-brand px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-transform"
+          >
+            <Download size={16} /> 
+            {exportData.isPending ? (lang === 'ru' ? 'Экспорт...' : 'Eksport...') : (lang === 'ru' ? 'В Excel' : 'Excel ga')}
+          </button>
         </div>
 
         {/* Month filter chips */}
@@ -243,6 +284,33 @@ export default function TeacherFinance() {
             <p className="text-[10px] uppercase font-semibold text-on-surface-variant tracking-wider">{lang === 'ru' ? 'Долги' : 'Qarzdorlik'}</p>
             <p className="text-xl font-bold text-debt-red">{formatUZS(totalUnpaid, true)}</p>
           </div>
+        </div>
+
+        {/* Referral card */}
+        <div className="m3-card p-4 mb-5 bg-brand/5 border border-brand/20">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-bold text-brand">{lang === 'ru' ? 'Реферальная программа' : 'Referal dasturi'}</h3>
+            <span className="bg-brand text-white text-[10px] px-2 py-1 rounded-lg font-bold">+7 {lang === 'ru' ? 'дней' : 'kun'}</span>
+          </div>
+          <p className="text-xs text-on-surface-variant mb-3">
+            {lang === 'ru' 
+              ? 'Приглашайте коллег и получайте +7 дней к подписке за каждого нового учителя!' 
+              : "Hamkasblaringizni taklif qiling va har bir yangi o'qituvchi uchun obunangizga +7 kun qo'shib oling!"}
+          </p>
+          <button
+            onClick={() => {
+              haptic?.selection()
+              navigator.clipboard.writeText(`https://t.me/tut0rspacebot/app?startapp=ref_${telegramId}`)
+              window.Telegram?.WebApp?.showAlert?.(
+                lang === 'ru' 
+                  ? 'Реферальная ссылка скопирована!' 
+                  : 'Referal havola nusxalandi!'
+              )
+            }}
+            className="w-full h-10 rounded-xl bg-brand text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+          >
+            📋 {lang === 'ru' ? 'Копировать ссылку' : 'Hovolani nusxalash'}
+          </button>
         </div>
 
         {/* Remind debtors */}

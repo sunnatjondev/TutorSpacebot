@@ -110,3 +110,20 @@ export async function handleBillingStatus(telegramUser) {
   
   return { ok: true, subscription }
 }
+
+export async function handleToggleAutoRenew(telegramUser, body) {
+  requireServiceSupabase()
+  const teacher = await requireUserRow(telegramUser)
+  
+  if (teacher.role !== 'teacher') throw new Error('Unauthorized')
+  
+  const { data: sub } = await supabase.from('subscriptions').select('id').eq('teacher_id', teacher.id).maybeSingle()
+  if (!sub) throw new Error('Subscription not found')
+  
+  const { error } = await supabase.from('subscriptions').update({ auto_renew: !!body.autoRenew }).eq('id', sub.id)
+  
+  if (error) throw error
+  
+  return { ok: true }
+}
+

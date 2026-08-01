@@ -3,6 +3,7 @@ import { runHwDeadlineReminder } from './crons/hwDeadlineReminder.js'
 import { runPostLessonNotification } from './crons/postLessonNotification.js'
 import { runAwardBadges } from './crons/awardBadges.js'
 import { runGenerateSessions } from './crons/generateSessions.js'
+import { runSubscriptionReminder } from './crons/subscriptionReminder.js'
 import { t } from './i18n.js'
 export function startCronJobs(bot, supabase) {
   if (!supabase) {
@@ -249,54 +250,7 @@ export function startCronJobs(bot, supabase) {
   // 3. SUBSCRIPTION EXPIRATION ALERTS (Runs every hour)
   // ==========================================
   startSafeInterval('Subscription alert cron', async () => {
-    try {
-      const now = new Date()
-      const warningWindow = new Date()
-      warningWindow.setDate(now.getDate() + 3) // 3 days from now
-
-      // 1. Check for expired subscriptions
-      const { data: expiredSubs, error: expError } = await supabase
-        .from('subscriptions')
-        .select('id, teacher_id, teacher:users(telegram_id, language)')
-        .in('status', ['active', 'trial'])
-        .lt('expires_at', now.toISOString())
-
-      if (!expError && expiredSubs) {
-        for (const sub of expiredSubs) {
-          await supabase.from('subscriptions').update({ status: 'expired' }).eq('id', sub.id)
-          if (sub.teacher?.telegram_id) {
-            const lang = sub.teacher.language || 'uz'
-            const text = t(lang, 'sub_expired')
-            await bot.sendMessage(sub.teacher.telegram_id, text, { parse_mode: 'HTML' })
-          }
-        }
-      }
-
-      // 2. Warn for subscriptions expiring in exactly 3 days
-      const { data: warningSubs, error: warnError } = await supabase
-        .from('subscriptions')
-        .select('id, expires_at, teacher_id, teacher:users(telegram_id, language)')
-        .in('status', ['active', 'trial'])
-        .gt('expires_at', now.toISOString())
-        .lt('expires_at', warningWindow.toISOString())
-
-      if (!warnError && warningSubs) {
-        for (const sub of warningSubs) {
-          if (sub.teacher?.telegram_id) {
-            const claimed = await claimNotification('sub_warning', sub.id, sub.teacher.telegram_id)
-            if (claimed) {
-              const lang = sub.teacher.language || 'uz'
-              const dateStr = new Date(sub.expires_at).toLocaleDateString('uz-UZ')
-              const text = t(lang, 'sub_warning', dateStr)
-              await bot.sendMessage(sub.teacher.telegram_id, text, { parse_mode: 'HTML' })
-            }
-          }
-        }
-      }
-
-    } catch (err) {
-      console.error('Subscription cron error:', err.message)
-    }
+    await runSubscriptionReminder(bot, supabase, claimNotification)
   }, 60 * 60000) // Check every hour
 
   // ==========================================

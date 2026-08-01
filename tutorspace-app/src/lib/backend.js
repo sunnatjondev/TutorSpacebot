@@ -83,6 +83,14 @@ export function fetchTeacherSchedule(weekStart) {
   return requestBackend('/api/teacher/schedule', { weekStart })
 }
 
+export function fetchTeacherAnalytics() {
+  return requestBackend('/api/teacher/analytics', {})
+}
+
+export function fetchTeacherExport(type = 'payments') {
+  return requestBackend('/api/teacher/export', { type })
+}
+
 // ─── Group Management ─────────────────────────────────────
 
 export function createGroup({ name, subject }) {
@@ -235,4 +243,8 @@ export function fetchBillingStatus() {
 
 export function createBillingOrder({ planId }) {
   return requestBackend('/api/billing/create-order', { planId })
+}
+
+export function toggleAutoRenew(autoRenew) {
+  return requestBackend('/api/billing/auto-renew', { autoRenew })
 }

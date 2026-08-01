@@ -4,6 +4,7 @@ import {
   fetchTeacherGroups,
   fetchTeacherPayments,
   fetchTeacherSchedule,
+  fetchTeacherAnalytics,
   createGroup as apiCreateGroup,
   deleteGroup as apiDeleteGroup,
   createSession as apiCreateSession,
@@ -13,12 +14,22 @@ import {
   createPayment as apiCreatePayment,
   fetchBillingStatus,
   createBillingOrder,
+  toggleAutoRenew,
+  fetchTeacherExport,
 } from '../../lib/backend'
 
 export function useTeacherDashboard(telegramId, month, year) {
   return useQuery({
     queryKey: ['teacher-dashboard', telegramId, month, year],
     queryFn: () => fetchTeacherDashboard(month, year),
+    enabled: !!telegramId,
+  })
+}
+
+export function useTeacherAnalytics(telegramId) {
+  return useQuery({
+    queryKey: ['teacher-analytics', telegramId],
+    queryFn: () => fetchTeacherAnalytics(),
     enabled: !!telegramId,
   })
 }
@@ -192,5 +203,25 @@ export function useBillingStatus(telegramId) {
 export function useCreateBillingOrder() {
   return useMutation({
     mutationFn: (payload) => createBillingOrder(payload),
+  })
+}
+
+export function useToggleAutoRenew() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ autoRenew }) => toggleAutoRenew(autoRenew),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['billing-status'] })
+    }
+  })
+}
+
+export function useExportData() {
+  return useMutation({
+    mutationFn: async ({ type }) => {
+      const result = await fetchTeacherExport(type)
+      if (!result.ok) throw new Error(result.message || 'Export failed')
+      return result
+    }
   })
 }

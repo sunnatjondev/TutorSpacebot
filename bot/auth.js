@@ -68,5 +68,10 @@ export function verifyTelegramInitData(initData) {
   const telegramUser = JSON.parse(params.get('user') || 'null')
   if (!telegramUser?.id) throw new Error('Telegram user is missing')
 
+  const startParam = params.get('start_param')
+  if (startParam) {
+    telegramUser.start_param = startParam
+  }
+
   return telegramUser
 }

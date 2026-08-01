@@ -616,3 +616,32 @@ create policy billing_transactions_teacher_insert_pending on public.billing_tran
     )
     and status = 'pending'
   );
+
+
+-- 8. Referrals table
+create table if not exists public.referrals (
+  id uuid primary key default uuid_generate_v4(),
+  referrer_id uuid not null references public.users(id) on delete cascade,
+  referred_id uuid not null references public.users(id) on delete cascade,
+  bonus_days integer not null default 7,
+  status text not null default 'pending',
+  created_at timestamptz default now(),
+  unique (referred_id)
+);
+
+alter table public.referrals enable row level security;
+
+create policy referrals_referrer_read on public.referrals
+  for select to authenticated using (
+    referrer_id = (
+      select id from public.users
+      where telegram_id = (auth.jwt() ->> 'telegram_id')::bigint
+      limit 1
+    )
+  );
+
+
+
+-- 9. Auto Renew support
+alter table public.subscriptions add column if not exists auto_renew boolean default false;
+
