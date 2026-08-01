@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import ws from 'ws'
 import { setBot } from './bot.js'
 import { requireServiceSupabase } from './db.js'
+import { startCronJobs } from './cron.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -46,6 +47,7 @@ console.log(`TutorSpace Bot ${BOT_USERNAME} is running`)
 console.log('Mini App URL:', WEBAPP_URL)
 console.log('Supabase:', hasSupabase ? SUPABASE_URL : 'disabled')
 
+startCronJobs(bot, supabase)
 setBot(bot)
 
 import { config } from './config.js'
