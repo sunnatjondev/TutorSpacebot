@@ -435,9 +435,9 @@ export async function handleTeacherAnalytics(telegramUser) {
 
   const { data: members, error: mErr } = groupIds.length ? await supabase
     .from('group_members')
-    .select('created_at')
+    .select('joined_at')
     .in('group_id', groupIds)
-    .gte('created_at', sixMonthsAgo.toISOString())
+    .gte('joined_at', sixMonthsAgo.toISOString())
     : { data: [] }
 
   if (mErr && groupIds.length) throw mErr
@@ -502,8 +502,9 @@ export async function handleTeacherAnalytics(telegramUser) {
   }
 
   (members || []).forEach(m => {
-    if (!m.created_at) return
-    const d = new Date(m.created_at)
+    const dateStr = m.joined_at || m.created_at
+    if (!dateStr) return
+    const d = new Date(dateStr)
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
     if (studentData[key]) {
       studentData[key].newStudents += 1
