@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight } from 'lucide-react'
+import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, BarChart3 } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -485,6 +485,15 @@ export default function TeacherDashboard() {
                 <div className="text-sm font-bold text-on-surface">{unpaidThisMonth.length} {lang === 'ru' ? 'студ.' : 'talaba'}</div>
               </div>
             </div>
+            
+            <button 
+              onClick={() => { haptic?.light(); navigate('/teacher/analytics') }}
+              className="mt-4 w-full flex items-center justify-center gap-2 bg-brand/10 text-primary py-2.5 rounded-xl text-sm font-semibold active:scale-[0.98] transition-transform"
+            >
+              <BarChart3 size={16} />
+              {lang === 'ru' ? 'Подробная аналитика' : 'Batafsil analitika'}
+              <ChevronRight size={16} />
+            </button>
           </div>
         </div>
 

@@ -11,7 +11,7 @@ export default function TeacherAnalytics() {
   const { lang } = useI18n()
   const navigate = useNavigate()
   
-  useTelegramBackButton(() => navigate('/teacher/dashboard'))
+  useTelegramBackButton(() => navigate('/teacher/home'))
 
   const { data: analytics, isLoading } = useTeacherAnalytics(user?.id)
 
@@ -31,9 +31,9 @@ export default function TeacherAnalytics() {
     )
   }
 
-  const { isCenter, revenueData, studentData, attendanceByDay, topDebtors } = analytics
+  const { isCenter, revenueData = [], studentData = [], attendanceByDay = {}, topDebtors = [] } = analytics
 
-  const maxRevenue = Math.max(...revenueData.map(d => Math.max(d.earned, d.expected)), 1)
+  const maxRevenue = Math.max(...(revenueData || []).map(d => Math.max(d.earned, d.expected)), 1)
   const maxStudents = Math.max(...(studentData || []).map(d => d.newStudents), 1)
   
   const daysOfWeek = lang === 'ru' 
