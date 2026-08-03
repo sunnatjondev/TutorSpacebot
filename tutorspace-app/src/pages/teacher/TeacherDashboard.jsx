@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, BarChart3 } from 'lucide-react'
+import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, BarChart3, Settings } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -335,49 +335,63 @@ export default function TeacherDashboard() {
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6 pb-36">
-        <div className="mb-6 animate-slide-down flex justify-between items-start">
+        {/* Compact 1-line Header */}
+        <div className="mb-4 animate-slide-down flex justify-between items-center py-2">
           <div>
-            <h1 className="m3-display-md">
-              {t('teacherHome.greeting', { greeting: localizedGreeting, name: firstName })}
+            <h1 className="text-xl font-bold text-on-surface">
+              {lang === 'ru' ? `Привет, ${firstName} 👋` : `Salom, ${firstName} 👋`}
             </h1>
-            <p className="mt-2 m3-body-lg">{t('teacherHome.subtitle')}</p>
           </div>
+          <button 
+            onClick={() => { haptic?.light(); navigate('/teacher/settings') }}
+            className="w-9 h-9 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-surface-high active:scale-95 transition-all"
+          >
+            <Settings size={18} />
+          </button>
         </div>
 
-        {/* Subscription Banner */}
+        {/* Subscription Banner with Dynamic Urgency & Full-width Button */}
         {dash?.subscription && dash.subscription.status === 'expired' && (
-          <div className="mb-6 m3-card bg-red-500/10 border-2 border-red-500/30 flex items-center justify-between">
-            <div className="flex-1">
-              <h3 className="text-red-500 font-bold text-lg mb-1">{lang === 'ru' ? 'Подписка истекла' : 'Obunangiz tugagan'}</h3>
-              <p className="text-on-surface-variant text-sm pr-2">
+          <div className="mb-5 m3-card bg-red-500/10 border-2 border-red-500/30 flex flex-col gap-3 p-4">
+            <div>
+              <h3 className="text-red-500 font-bold text-sm mb-1">{lang === 'ru' ? '🔴 Подписка истекла' : '🔴 Obunangiz tugagan'}</h3>
+              <p className="text-on-surface-variant text-xs">
                 {lang === 'ru' ? 'Оплатите подписку, чтобы продолжить работу со студентами.' : 'Talabalar bilan ishlashni davom ettirish uchun obunangizni uzaytiring.'}
               </p>
             </div>
             <button 
               onClick={() => { haptic?.selection(); navigate('/teacher/subscription') }}
-              className="bg-red-500 text-white px-4 py-2 rounded-xl font-bold whitespace-nowrap active:scale-95 transition-transform shadow-glow-sm shadow-red-500/20"
+              className="w-full py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-xs whitespace-nowrap active:scale-98 transition-transform shadow-sm"
             >
-              {lang === 'ru' ? 'Оплатить' : 'To\'lash'}
+              {lang === 'ru' ? 'Оплатить подписку сейчас →' : 'Hozir obunani to\'lash →'}
             </button>
           </div>
         )}
+
         {dash?.subscription && (dash.subscription.status === 'trial' || dash.subscription.status === 'active') && (() => {
           const expiresAt = new Date(dash.subscription.expiresAt)
           const daysLeft = Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24))
           if (daysLeft <= 3 && daysLeft > 0) {
+            const isCritical = daysLeft <= 1
+            const bgBorderClass = isCritical ? 'bg-red-500/10 border-2 border-red-500/30' : 'bg-orange-500/10 border-2 border-orange-500/30'
+            const textClass = isCritical ? 'text-red-500' : 'text-orange-500'
+            const btnBgClass = isCritical ? 'bg-red-500' : 'bg-orange-500'
+
             return (
-              <div className="mb-6 m3-card bg-orange-500/10 border-2 border-orange-500/30 flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-orange-500 font-bold text-base mb-1">{lang === 'ru' ? `Подписка истекает через ${daysLeft} дн.` : `Obunangiz ${daysLeft} kundan so'ng tugaydi`}</h3>
-                  <p className="text-on-surface-variant text-xs pr-2">
-                    {lang === 'ru' ? 'Оплатите сейчас, чтобы не потерять доступ.' : 'Kirishni yo\'qotmaslik uchun hozir to\'lang.'}
+              <div className={`mb-5 m3-card p-4 ${bgBorderClass} flex flex-col gap-3`}>
+                <div>
+                  <h3 className={`${textClass} font-bold text-sm mb-1`}>
+                    {lang === 'ru' ? `🔴 Подписка истекает через ${daysLeft} дн.` : `🔴 Obunangiz ${daysLeft} kundan so'ng tugaydi`}
+                  </h3>
+                  <p className="text-on-surface-variant text-xs">
+                    {lang === 'ru' ? 'Оплатите сейчас, чтобы не потерять доступ к данным.' : 'Kirishni yo\'qotmaslik uchun hozir to\'lang.'}
                   </p>
                 </div>
                 <button 
                   onClick={() => { haptic?.selection(); navigate('/teacher/subscription') }}
-                  className="bg-orange-500 text-white px-3 py-1.5 rounded-xl font-bold text-sm whitespace-nowrap active:scale-95 transition-transform"
+                  className={`w-full py-2.5 ${btnBgClass} text-white rounded-xl font-bold text-xs whitespace-nowrap active:scale-98 transition-transform shadow-sm`}
                 >
-                  {lang === 'ru' ? 'Продлить' : 'Uzaytirish'}
+                  {lang === 'ru' ? 'Продлить подписку сейчас →' : 'Hozir obunani uzaytirish →'}
                 </button>
               </div>
             )
@@ -387,7 +401,7 @@ export default function TeacherDashboard() {
 
         {/* Overdue Sessions Banner */}
         {dash?.overdueSessions?.length > 0 && (
-          <div className="mb-6 space-y-3">
+          <div className="mb-5 space-y-3">
             <h3 className="text-error font-bold text-sm px-1">
               {lang === 'ru' ? 'Просроченные уроки (Не отмечена посещаемость)' : "O'tib ketgan darslar (Davomat belgilanmagan)"}
             </h3>
@@ -418,95 +432,99 @@ export default function TeacherDashboard() {
           </div>
         )}
 
-        {/* Analytics Section — clean, minimal */}
-        <div className="mb-5 m3-card p-5 relative overflow-hidden stagger-item">
-          <div className="absolute top-0 right-0 p-4 opacity-[0.04]">
-            <TrendingUp size={80} />
+        {/* Analytics & Income Card (Entire Card is Tap Zone) */}
+        <button 
+          onClick={() => { haptic?.light(); navigate('/teacher/analytics') }}
+          className="mb-5 m3-card p-5 w-full text-left stagger-item active:scale-[0.98] transition-transform hover:shadow-md border border-outline-variant/30 relative"
+        >
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-on-surface-variant">
+                {lang === 'ru' ? `Доход за ${currentMonthName}` : `${currentMonthName} daromadi`}
+              </span>
+              <span className="bg-brand/10 text-primary px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                {overallPaymentPercent}% {lang === 'ru' ? 'оплат' : 'to\'lov'}
+              </span>
+            </div>
+            <ChevronRight size={18} className="text-on-surface-variant" />
           </div>
-          <div className="relative z-10">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-sm font-semibold text-on-surface-variant">{lang === 'ru' ? 'Аналитика за' : 'Tahlillar'} {currentMonthName}</h2>
-              <div className="bg-brand/10 text-primary px-3 py-1 rounded-full text-xs font-bold">
-                {overallPaymentPercent}% {lang === 'ru' ? 'Оплат' : 'To\'lovlar'}
+          
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="text-3xl font-extrabold text-on-surface">
+                {formatUZS(earnedThisMonth)}
               </div>
+              {earnedThisMonth === 0 && (
+                <div className="text-xs text-on-surface-variant/70 mt-1">
+                  {lang === 'ru' ? 'Ещё нет платежей в этом месяце' : 'Bu oyda hali to\'lovlar yo\'q'}
+                </div>
+              )}
             </div>
             
-            <div className="flex items-center justify-between mb-4 mt-2">
-              <div>
-                <div className="mb-1 text-xs text-on-surface-variant">{lang === 'ru' ? 'Доход за месяц' : 'Oylik daromad'}</div>
-                <div className="text-3xl font-extrabold text-on-surface">{formatUZS(earnedThisMonth)}</div>
-              </div>
-              
-              {/* Sparkline Chart */}
-              {(() => {
-                const sparklineData = Array.from({ length: 7 }).map((_, idx) => {
-                  const d = new Date()
-                  d.setDate(d.getDate() - (6 - idx))
-                  const start = new Date(d)
-                  start.setHours(0, 0, 0, 0)
-                  const end = new Date(d)
-                  end.setHours(23, 59, 59, 999)
+            {/* Sparkline Chart */}
+            {(() => {
+              const sparklineData = Array.from({ length: 7 }).map((_, idx) => {
+                const d = new Date()
+                d.setDate(d.getDate() - (6 - idx))
+                const start = new Date(d)
+                start.setHours(0, 0, 0, 0)
+                const end = new Date(d)
+                end.setHours(23, 59, 59, 999)
 
-                  return (payments || [])
-                    .filter(p => {
-                      if (p.status !== 'paid') return false
-                      const pDate = new Date(p.created_at)
-                      return pDate >= start && pDate <= end
-                    })
-                    .reduce((sum, p) => sum + (p.amount || 0), 0)
-                })
+                return (payments || [])
+                  .filter(p => {
+                    if (p.status !== 'paid') return false
+                    const pDate = new Date(p.created_at)
+                    return pDate >= start && pDate <= end
+                  })
+                  .reduce((sum, p) => sum + (p.amount || 0), 0)
+              })
 
-                const maxVal = Math.max(...sparklineData, 1000)
-                const sparklineWidth = 120
-                const sparklineHeight = 36
-                const points = sparklineData.map((val, idx) => {
-                  const x = (idx * sparklineWidth) / 6
-                  const y = sparklineHeight - (val / maxVal) * (sparklineHeight - 6) - 3
-                  return `${x},${y}`
-                }).join(' ')
+              const maxVal = Math.max(...sparklineData, 1000)
+              const sparklineWidth = 100
+              const sparklineHeight = 32
+              const points = sparklineData.map((val, idx) => {
+                const x = (idx * sparklineWidth) / 6
+                const y = sparklineHeight - (val / maxVal) * (sparklineHeight - 6) - 3
+                return `${x},${y}`
+              }).join(' ')
 
-                const fillPoints = `0,${sparklineHeight} ${points} ${sparklineWidth},${sparklineHeight}`
+              const fillPoints = `0,${sparklineHeight} ${points} ${sparklineWidth},${sparklineHeight}`
 
-                return (
-                  <div className="flex flex-col items-end gap-1">
-                    <svg width={sparklineWidth} height={sparklineHeight} className="overflow-visible">
-                      <defs>
-                        <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity="0.3" />
-                          <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <polygon points={fillPoints} fill="url(#sparkline-grad)" />
-                      <polyline points={points} fill="none" stroke="var(--md-sys-color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.7" />
-                    </svg>
-                    <span className="text-[9px] text-on-surface-variant font-medium uppercase tracking-wider">{lang === 'ru' ? 'За 7 дней' : '7 kunlik trend'}</span>
-                  </div>
-                )
-              })()}
-            </div>
-            
-            <div className="flex items-center gap-3 bg-surface-high p-3 rounded-xl">
-              <div className="flex-1">
-                <div className="text-[10px] text-on-surface-variant mb-0.5">{lang === 'ru' ? 'Ожидается' : 'Kutilayotgan'}</div>
-                <div className="text-sm font-bold text-on-surface">{formatUZS(debtThisMonth)}</div>
-              </div>
-              <div className="w-px h-8 bg-outline-variant/30 mx-2" />
-              <div className="flex-1">
-                <div className="text-[10px] text-on-surface-variant mb-0.5">{lang === 'ru' ? 'Должники' : 'Qarzdorlar'}</div>
-                <div className="text-sm font-bold text-on-surface">{unpaidThisMonth.length} {lang === 'ru' ? 'студ.' : 'talaba'}</div>
-              </div>
-            </div>
-            
-            <button 
-              onClick={() => { haptic?.light(); navigate('/teacher/analytics') }}
-              className="mt-4 w-full flex items-center justify-center gap-2 bg-brand/10 text-primary py-2.5 rounded-xl text-sm font-semibold active:scale-[0.98] transition-transform"
-            >
-              <BarChart3 size={16} />
-              {lang === 'ru' ? 'Подробная аналитика' : 'Batafsil analitika'}
-              <ChevronRight size={16} />
-            </button>
+              return (
+                <div className="flex flex-col items-end gap-1">
+                  <svg width={sparklineWidth} height={sparklineHeight} className="overflow-visible">
+                    <defs>
+                      <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    <polygon points={fillPoints} fill="url(#sparkline-grad)" />
+                    <polyline points={points} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.8" />
+                  </svg>
+                  <span className="text-[9px] text-on-surface-variant font-medium uppercase tracking-wider">{lang === 'ru' ? 'За 7 дней' : '7 kunlik'}</span>
+                </div>
+              )
+            })()}
           </div>
-        </div>
+          
+          <div className="flex items-center gap-3 bg-surface-high p-3 rounded-xl">
+            <div className="flex-1">
+              <div className="text-[10px] text-on-surface-variant mb-0.5">{lang === 'ru' ? 'Ожидается' : 'Kutilmoqda'}</div>
+              <div className={`text-sm font-bold ${debtThisMonth > 0 ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+                {formatUZS(debtThisMonth)}
+              </div>
+            </div>
+            <div className="w-px h-8 bg-outline-variant/30 mx-1" />
+            <div className="flex-1">
+              <div className="text-[10px] text-on-surface-variant mb-0.5">{lang === 'ru' ? 'Должники' : 'Qarzdorlar'}</div>
+              <div className={`text-sm font-bold ${unpaidThisMonth.length > 0 ? 'text-debt-red' : 'text-on-surface-variant'}`}>
+                {unpaidThisMonth.length} {lang === 'ru' ? 'студ.' : 'talaba'}
+              </div>
+            </div>
+          </div>
+        </button>
 
         <div className="mb-5 grid grid-cols-2 gap-3" style={{ gridTemplateRows: 'auto auto' }}>
           {/* Talabalar */}
