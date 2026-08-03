@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom'
 
 
 function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
+  const { lang } = useI18n()
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
   const [loading, setLoading] = useState(false)
@@ -32,11 +33,15 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
       onClose()
     } catch (err) {
       console.error('[createGroup] error:', err)
-      let displayError = err.message || "Xatolik yuz berdi. Qayta urinib ko'ring."
+      let displayError = err.message || (lang === 'ru' ? 'Произошла ошибка. Попробуйте еще раз.' : "Xatolik yuz berdi. Qayta urinib ko'ring.")
       if (err.message === 'plan_limit_reached') {
-        displayError = "Ta'rif rejangizdagi guruhlar limitiga yetdingiz! Cheklovni olib tashlash uchun obunangizni yangilang."
+        displayError = lang === 'ru' 
+          ? 'Вы достигли лимита групп в вашем тарифе! Обновите подписку.' 
+          : "Ta'rif rejangizdagi guruhlar limitiga yetdingiz! Obunangizni yangilang."
       } else if (err.message === 'subscription_expired') {
-        displayError = "Obuna muddati tugagan! Guruh yaratish uchun obunangizni uzaytiring."
+        displayError = lang === 'ru' 
+          ? 'Срок подписки истек! Продлите подписку для создания группы.' 
+          : "Obuna muddati tugagan! Guruh yaratish uchun obunangizni uzaytiring."
       }
       setError(displayError)
       haptic?.warning?.()
@@ -48,20 +53,24 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">Guruh nomi</label>
+        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
+          {lang === 'ru' ? 'Название группы' : 'Guruh nomi'}
+        </label>
         <input
           className="m3-input"
-          placeholder="Masalan: Fizika 101"
+          placeholder={lang === 'ru' ? 'Например: Физика 101' : 'Masalan: Fizika 101'}
           value={name}
           onChange={(event) => setName(event.target.value)}
           autoFocus
         />
       </div>
       <div>
-        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">Fan</label>
+        <label className="mb-2 block text-sm font-semibold text-on-surface-variant">
+          {lang === 'ru' ? 'Предмет' : 'Fan'}
+        </label>
         <input
           className="m3-input"
-          placeholder="Masalan: Matematika"
+          placeholder={lang === 'ru' ? 'Например: Математика' : 'Masalan: Matematika'}
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
         />
@@ -72,7 +81,9 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
         </div>
       )}
       <button className="m3-btn-filled w-full" onClick={handleCreate} disabled={loading}>
-        {loading ? 'Yaratilmoqda...' : 'Yaratish'}
+        {loading 
+          ? (lang === 'ru' ? 'Создание...' : 'Yaratilmoqda...') 
+          : (lang === 'ru' ? 'Создать' : 'Yaratish')}
       </button>
     </div>
   )
@@ -275,7 +286,7 @@ export default function TeacherDashboard() {
     ? Math.round((totalStudentsPaid / totalStudentsExpectedToPay) * 100) 
     : 0
 
-  const today = new Date().toLocaleDateString('uz-UZ', { month: 'long', day: 'numeric' })
+  const today = new Date().toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { month: 'long', day: 'numeric' })
   const firstName = user?.first_name || "O'qituvchi"
   const recentGroups = (groups || []).slice(0, 3)
   const localizedGreeting = lang === 'ru' ? greetingRu : greeting
@@ -323,7 +334,7 @@ export default function TeacherDashboard() {
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest">
-      <div className="page-wrapper px-4 pt-6 pb-28">
+      <div className="page-wrapper px-4 pt-6 pb-36">
         <div className="mb-6 animate-slide-down flex justify-between items-start">
           <div>
             <h1 className="m3-display-md">
@@ -557,7 +568,7 @@ export default function TeacherDashboard() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-on-surface">{group.name}</p>
                       <p className="truncate text-xs text-on-surface-variant">
-                        {group.subject} - {group.group_members?.[0]?.count ?? 0} {t('teacherGroups.students')}
+                        {group.subject} • {group.group_members?.[0]?.count ?? 0} {lang === 'ru' ? 'студ.' : 'ta o\'quvchi'}
                       </p>
                     </div>
                     <span className="badge-paid shrink-0">{group.paidPercent ?? 0}%</span>
@@ -585,7 +596,7 @@ export default function TeacherDashboard() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-on-surface">{session.group?.name}</p>
                       <p className="text-xs text-on-surface-variant">
-                        {new Date(session.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })} - {session.group?.subject}
+                        {new Date(session.scheduled_at).toLocaleTimeString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { hour: '2-digit', minute: '2-digit' })} - {session.group?.subject}
                       </p>
                     </div>
                     <span className={`${getSessionBadgeClass(session.status)} whitespace-nowrap`}>
@@ -598,7 +609,9 @@ export default function TeacherDashboard() {
               ))}
             </div>
           ) : (
-            <p className="py-4 text-center text-sm text-on-surface-variant">Bugun darslar yo'q</p>
+            <p className="py-4 text-center text-sm text-on-surface-variant">
+              {lang === 'ru' ? 'Сегодня нет уроков' : "Bugun darslar yo'q"}
+            </p>
           )}
         </div>
 
@@ -723,7 +736,7 @@ export default function TeacherDashboard() {
         <Plus size={28} />
       </button>
 
-      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Yangi guruh yaratish">
+      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title={lang === 'ru' ? 'Создать новую группу' : 'Yangi guruh yaratish'}>
         <CreateGroupModal
           telegramId={telegramId}
           user={user}
