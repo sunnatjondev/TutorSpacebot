@@ -46,7 +46,6 @@ export default function TeacherAnalytics() {
 
   const { isCenter, revenueData = [], studentData = [], attendanceByDay = {}, topDebtors = [] } = analytics
 
-  const maxRevenue = Math.max(...(revenueData || []).map(d => Math.max(d.earned, d.expected)), 1)
   const monthNamesRu = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
   const monthNamesUz = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek']
   const getMonthLabel = (mStr) => {
