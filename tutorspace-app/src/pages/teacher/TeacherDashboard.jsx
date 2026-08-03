@@ -336,18 +336,10 @@ export default function TeacherDashboard() {
     <div className="flex min-h-screen flex-col bg-surface-lowest">
       <div className="page-wrapper px-4 pt-6 pb-36">
         {/* Compact 1-line Header */}
-        <div className="mb-4 animate-slide-down flex justify-between items-center py-2">
-          <div>
-            <h1 className="text-xl font-bold text-on-surface">
-              {lang === 'ru' ? `Привет, ${firstName} 👋` : `Salom, ${firstName} 👋`}
-            </h1>
-          </div>
-          <button 
-            onClick={() => { haptic?.light(); navigate('/teacher/settings') }}
-            className="w-9 h-9 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-surface-high active:scale-95 transition-all"
-          >
-            <Settings size={18} />
-          </button>
+        <div className="mb-4 animate-slide-down py-2">
+          <h1 className="text-xl font-bold text-on-surface">
+            {lang === 'ru' ? `Привет, ${firstName} 👋` : `Salom, ${firstName} 👋`}
+          </h1>
         </div>
 
         {/* Subscription Banner with Dynamic Urgency & Full-width Button */}
