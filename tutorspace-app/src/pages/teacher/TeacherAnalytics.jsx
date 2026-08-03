@@ -260,7 +260,3 @@ export default function TeacherAnalytics() {
     </div>
   )
 }
-      </div>
-    </div>
-  )
-}
