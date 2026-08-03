@@ -291,6 +291,9 @@ h1, h2, h3, .font-serif {
   .badge-paid {
     @apply px-3 py-1 text-[10px] font-bold rounded-full bg-tertiary-container text-on-tertiary-container tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }
+  .badge-upcoming {
+    @apply px-3 py-1 text-[10px] font-bold rounded-full bg-primary-container text-on-primary-container tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
+  }
   .badge-debt {
     @apply px-3 py-1 text-[10px] font-bold rounded-full bg-error-container text-on-error-container tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }

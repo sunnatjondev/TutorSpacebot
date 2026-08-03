@@ -293,7 +293,7 @@ export default function TeacherDashboard() {
   const getSessionBadgeClass = (status) => {
     if (status === 'done') return 'badge-paid'
     if (status === 'ongoing') return 'badge-partial'
-    return 'badge-debt'
+    return 'badge-upcoming'
   }
 
   const getSessionStatusLabel = (status) => {
@@ -539,9 +539,10 @@ export default function TeacherDashboard() {
           </div>
         </div>
 
+        {/* Recent Groups */}
         <div className="m3-card mb-4 stagger-item">
           <div className="mb-3 flex items-center justify-between">
-            <span className="m3-label">{t('teacherHome.recentGroups')}</span>
+            <span className="text-sm font-bold text-on-surface">{t('teacherHome.recentGroups')}</span>
             <button
               onClick={() => {
                 haptic?.light()
@@ -578,13 +579,17 @@ export default function TeacherDashboard() {
               ))}
             </div>
           ) : (
-            <p className="py-4 text-center text-sm text-on-surface-variant">{t('teacherHome.noGroupsYet')}</p>
+            <div className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2">
+              <Layers size={28} className="opacity-40" />
+              <p className="text-sm font-medium">{lang === 'ru' ? 'Пока нет активных групп' : "Hali guruhlar yaratilmadi"}</p>
+            </div>
           )}
         </div>
 
+        {/* Today's Schedule */}
         <div className="m3-card mb-4 stagger-item">
           <div className="mb-3 flex items-center justify-between">
-            <span className="m3-label">{t('teacherHome.today')}</span>
+            <span className="text-sm font-bold text-on-surface">{t('teacherHome.today')}</span>
             <span className="text-sm font-semibold text-primary">{today}</span>
           </div>
           {dash?.todaySessions?.length > 0 ? (
@@ -609,16 +614,19 @@ export default function TeacherDashboard() {
               ))}
             </div>
           ) : (
-            <p className="py-4 text-center text-sm text-on-surface-variant">
-              {lang === 'ru' ? 'Сегодня нет уроков' : "Bugun darslar yo'q"}
-            </p>
+            <div className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2">
+              <CalendarDays size={28} className="opacity-40 text-brand" />
+              <p className="text-sm font-medium">
+                {lang === 'ru' ? 'На сегодня занятий не запланировано 🎉' : "Bugun darslar yo'q 🎉"}
+              </p>
+            </div>
           )}
         </div>
 
         {/* Upcoming Homeworks Section */}
         <div className="m3-card mb-4 stagger-item">
           <div className="mb-3 flex items-center justify-between">
-            <span className="m3-label">{lang === 'ru' ? 'Ближайшие домашние задания' : 'Yaqindagi vazifalar'}</span>
+            <span className="text-sm font-bold text-on-surface">{lang === 'ru' ? 'Ближайшие домашние задания' : 'Yaqindagi vazifalar'}</span>
             <BookOpen size={16} className="text-primary" />
           </div>
           {dash?.upcomingHomeworks?.length > 0 ? (
@@ -641,9 +649,12 @@ export default function TeacherDashboard() {
               ))}
             </div>
           ) : (
-            <p className="py-4 text-center text-sm text-on-surface-variant">
-              {lang === 'ru' ? 'Нет запланированных заданий' : 'Muddati bor vazifalar yo\'q'}
-            </p>
+            <div className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2">
+              <BookOpen size={28} className="opacity-40" />
+              <p className="text-sm font-medium">
+                {lang === 'ru' ? 'Нет домашних заданий со сроком сдачи' : 'Muddati bor vazifalar yo\'q'}
+              </p>
+            </div>
           )}
         </div>
 
@@ -653,7 +664,7 @@ export default function TeacherDashboard() {
             style={{ borderLeft: '4px solid var(--error)' }}
           >
             <div className="mb-3 flex items-center justify-between">
-              <span className="m3-label text-error">{t('teacherHome.unpaidWeek')}</span>
+              <span className="text-sm font-bold text-error">{t('teacherHome.unpaidWeek')}</span>
               <span className="font-serif m3-title-lg">
                 {formatUZS(dash.unpaid.reduce((sum, payment) => sum + (payment.amount || 0), 0))}
               </span>
@@ -679,51 +690,63 @@ export default function TeacherDashboard() {
         )}
 
         {/* Attendance Stats */}
-        <button 
-          className="m3-card mb-20 stagger-item w-full text-left active:scale-[0.98] transition-transform"
-          onClick={() => { haptic?.light(); setShowAttendance(true) }}
-        >
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <BookOpen size={18} className="text-paid-green" />
-              <span className="m3-label">{t('teacherAnalytics.attendance') || 'DAVOMAT'}</span>
-            </div>
-            <ChevronRight size={16} className="text-on-surface-variant" />
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative w-16 h-16 shrink-0">
-              <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none" stroke="currentColor" strokeWidth="3" className="text-surface-highest"
-                />
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none" stroke="currentColor" strokeWidth="3" className="text-paid-green"
-                  strokeDasharray={`${dash?.attendancePercent || 0}, 100`}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-on-surface">
-                {dash?.attendancePercent || 0}%
-              </span>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-on-surface capitalize">
-                {lang === 'ru' ? `Посещаемость: ${currentMonthName}` : `${currentMonthName} oyi davomati`}
-              </p>
-              <p className="text-xs text-on-surface-variant mt-1">
-                {dash?.attendanceTotalRecords > 0 
-                  ? (lang === 'ru' 
-                      ? `${dash?.attendancePresent} из ${dash?.attendanceTotalRecords} студ. посетили` 
-                      : `${dash?.attendanceTotalRecords} talabadan ${dash?.attendancePresent} tasi kelgan`)
-                  : (lang === 'ru'
-                      ? 'Нажмите для статистики по группам'
-                      : 'Guruhlar statistikasi uchun bosing')}
-              </p>
-            </div>
-          </div>
-        </button>
+        {(() => {
+          const attPct = dash?.attendancePercent || 0
+          let attRingColor = "text-outline-variant/30"
+          if (attPct > 0) {
+            if (attPct >= 80) attRingColor = "text-paid-green"
+            else if (attPct >= 50) attRingColor = "text-partial-orange"
+            else attRingColor = "text-debt-red"
+          }
+
+          return (
+            <button 
+              className="m3-card mb-20 stagger-item w-full text-left active:scale-[0.98] transition-transform"
+              onClick={() => { haptic?.light(); setShowAttendance(true) }}
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BookOpen size={18} className="text-paid-green" />
+                  <span className="text-sm font-bold text-on-surface">{t('teacherAnalytics.attendance') || 'Посещаемость'}</span>
+                </div>
+                <ChevronRight size={16} className="text-on-surface-variant" />
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="relative w-16 h-16 shrink-0">
+                  <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none" stroke="currentColor" strokeWidth="3" className="text-surface-highest"
+                    />
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none" stroke="currentColor" strokeWidth="3" className={attRingColor}
+                      strokeDasharray={`${attPct}, 100`}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-on-surface">
+                    {attPct}%
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-on-surface capitalize">
+                    {lang === 'ru' ? `Посещаемость: ${currentMonthName}` : `${currentMonthName} oyi davomati`}
+                  </p>
+                  <p className="text-xs text-on-surface-variant mt-1">
+                    {dash?.attendanceTotalRecords > 0 
+                      ? (lang === 'ru' 
+                          ? `${dash?.attendancePresent} из ${dash?.attendanceTotalRecords} студ. посетили` 
+                          : `${dash?.attendanceTotalRecords} talabadan ${dash?.attendancePresent} tasi kelgan`)
+                      : (lang === 'ru'
+                          ? 'Пока нет данных о посещаемости. Проведите первый урок'
+                          : 'Hali davomat ma\'lumotlari yo\'q. Birinchi darsni o\'tkazing')}
+                  </p>
+                </div>
+              </div>
+            </button>
+          )
+        })()}
       </div>
 
       <button

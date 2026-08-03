@@ -60,10 +60,10 @@ const uz = {
     "students": "Talabalar",
     "groups": "Guruhlar",
     "lessons": "Darslar",
-    "today": "BUGUN",
-    "unpaidWeek": "BU HAFTA TO'LANMAGAN",
+    "today": "Bugun",
+    "unpaidWeek": "Bu hafta to'lanmagan",
     "fabTooltip": "Yangi qo'shish",
-    "recentGroups": "SO'NGGI GURUHLAR",
+    "recentGroups": "So'nggi guruhlar",
     "allGroups": "Barchasi",
     "noGroupsYet": "Hali guruhlar yo'q"
   },
