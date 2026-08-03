@@ -13,7 +13,7 @@ export default function TeacherAnalytics() {
   
   useTelegramBackButton(() => navigate('/teacher/home'))
 
-  const { data: analytics, isLoading } = useTeacherAnalytics(user?.id)
+  const { data: analytics, isLoading, error, refetch } = useTeacherAnalytics(user?.id)
 
   if (isLoading) {
     return (
@@ -25,8 +25,21 @@ export default function TeacherAnalytics() {
 
   if (!analytics?.ok) {
     return (
-      <div className="p-4 text-center text-error">
-        {lang === 'ru' ? 'Ошибка загрузки аналитики' : "Analitikani yuklashda xatolik"}
+      <div className="p-6 text-center space-y-3">
+        <p className="text-error font-semibold">
+          {lang === 'ru' ? 'Ошибка загрузки аналитики' : "Analitikani yuklashda xatolik"}
+        </p>
+        {error?.message && (
+          <p className="text-xs text-on-surface-variant bg-surface-container p-3 rounded-xl break-all">
+            {error.message}
+          </p>
+        )}
+        <button 
+          onClick={() => refetch()} 
+          className="bg-brand text-on-brand px-5 py-2 rounded-full text-sm font-medium"
+        >
+          {lang === 'ru' ? 'Повторить' : 'Qayta urinish'}
+        </button>
       </div>
     )
   }

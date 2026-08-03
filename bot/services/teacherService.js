@@ -407,51 +407,77 @@ export async function handleTeacherRemindStudent(telegramUser, body) {
 export async function handleTeacherAnalytics(telegramUser) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)
-  const subscription = await checkTeacherSubscription(user.id)
-  const isCenter = subscription?.plan?.slug === 'center'
+
+  let isCenter = false
+  try {
+    const subscription = await checkTeacherSubscription(user.id)
+    isCenter = subscription?.plan?.slug === 'center'
+  } catch (e) {
+    console.error('[analytics] checkTeacherSubscription error:', e.message)
+  }
 
   // Determine date range (last 6 months)
   const now = new Date()
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1)
 
   // 1. Revenue dynamics
-  const { data: payments, error: pErr } = await supabase
-    .from('payments')
-    .select('amount, status, period_month, period_year, student_id, student:users!payments_student_id_fkey(first_name, last_name)')
-    .eq('teacher_id', user.id)
-    .gte('created_at', sixMonthsAgo.toISOString())
+  let payments = []
+  try {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('amount, status, period_month, period_year, student_id, student:users!payments_student_id_fkey(first_name, last_name)')
+      .eq('teacher_id', user.id)
+      .gte('created_at', sixMonthsAgo.toISOString())
+    if (error) throw error
+    payments = data || []
+  } catch (e) {
+    console.error('[analytics] payments query error:', e.message)
+  }
 
-  if (pErr) throw pErr
+  // 2. Student dynamics (group members joined_at)
+  let groupIds = []
+  try {
+    const { data, error } = await supabase
+      .from('groups')
+      .select('id')
+      .eq('teacher_id', user.id)
+    if (error) throw error
+    groupIds = (data || []).map(g => g.id)
+  } catch (e) {
+    console.error('[analytics] groups query error:', e.message)
+  }
 
-  // 2. Student dynamics (group members created_at)
-  const { data: groups, error: gErr } = await supabase
-    .from('groups')
-    .select('id')
-    .eq('teacher_id', user.id)
-
-  if (gErr) throw gErr
-  
-  const groupIds = (groups || []).map(g => g.id)
-
-  const { data: members, error: mErr } = groupIds.length ? await supabase
-    .from('group_members')
-    .select('joined_at')
-    .in('group_id', groupIds)
-    .gte('joined_at', sixMonthsAgo.toISOString())
-    : { data: [] }
-
-  if (mErr && groupIds.length) throw mErr
+  let members = []
+  if (groupIds.length) {
+    try {
+      const { data, error } = await supabase
+        .from('group_members')
+        .select('joined_at')
+        .in('group_id', groupIds)
+        .gte('joined_at', sixMonthsAgo.toISOString())
+      if (error) throw error
+      members = data || []
+    } catch (e) {
+      console.error('[analytics] group_members query error:', e.message)
+    }
+  }
 
   // 3. Attendance by day
-  const { data: sessions, error: sErr } = groupIds.length ? await supabase
-    .from('sessions')
-    .select('scheduled_at, attendance(present)')
-    .in('group_id', groupIds)
-    .gte('scheduled_at', sixMonthsAgo.toISOString())
-    .neq('status', 'cancelled')
-    : { data: [] }
-    
-  if (sErr && groupIds.length) throw sErr
+  let sessions = []
+  if (groupIds.length) {
+    try {
+      const { data, error } = await supabase
+        .from('sessions')
+        .select('scheduled_at, attendance(present)')
+        .in('group_id', groupIds)
+        .gte('scheduled_at', sixMonthsAgo.toISOString())
+        .neq('status', 'cancelled')
+      if (error) throw error
+      sessions = data || []
+    } catch (e) {
+      console.error('[analytics] sessions query error:', e.message)
+    }
+  }
 
   // Aggregate Data
 
@@ -465,7 +491,7 @@ export async function handleTeacherAnalytics(telegramUser) {
 
   const topDebtorsMap = {}
 
-  (payments || []).forEach(p => {
+  payments.forEach(p => {
     const key = `${p.period_year}-${String(p.period_month).padStart(2, '0')}`
     if (revenueData[key]) {
       revenueData[key].expected += (p.amount || 0)
@@ -501,7 +527,7 @@ export async function handleTeacherAnalytics(telegramUser) {
     studentData[key] = { month: String(d.getMonth() + 1).padStart(2, '0'), year: d.getFullYear(), newStudents: 0 }
   }
 
-  (members || []).forEach(m => {
+  members.forEach(m => {
     const dateStr = m.joined_at || m.created_at
     if (!dateStr) return
     const d = new Date(dateStr)
@@ -522,7 +548,7 @@ export async function handleTeacherAnalytics(telegramUser) {
     0: { total: 0, present: 0 },
   }
 
-  (sessions || []).forEach(s => {
+  sessions.forEach(s => {
     if (!s.scheduled_at) return
     const d = new Date(s.scheduled_at)
     const day = d.getDay()
