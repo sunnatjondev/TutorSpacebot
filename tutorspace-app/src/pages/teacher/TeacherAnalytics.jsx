@@ -47,6 +47,15 @@ export default function TeacherAnalytics() {
   const { isCenter, revenueData = [], studentData = [], attendanceByDay = {}, topDebtors = [] } = analytics
 
   const maxRevenue = Math.max(...(revenueData || []).map(d => Math.max(d.earned, d.expected)), 1)
+  const monthNamesRu = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
+  const monthNamesUz = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek']
+  const getMonthLabel = (mStr) => {
+    const idx = parseInt(mStr, 10) - 1
+    if (idx < 0 || idx > 11) return mStr
+    return lang === 'ru' ? monthNamesRu[idx] : monthNamesUz[idx]
+  }
+
+  const maxRevenue = Math.max(...(revenueData || []).map(d => Math.max(d.earned, d.expected)), 1)
   const maxStudents = Math.max(...(studentData || []).map(d => d.newStudents), 1)
   
   const daysOfWeek = lang === 'ru' 
@@ -69,8 +78,8 @@ export default function TeacherAnalytics() {
 
       <div className="p-4 space-y-6">
         
-        {/* Revenue Dynamics */}
-        <div className="bg-surface-container-low p-4 rounded-[24px] shadow-sm border border-outline-variant/30">
+        {/* Revenue Dynamics (Full 6 months for all plans) */}
+        <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/30">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-brand" />
             <h2 className="text-lg font-bold text-on-surface">
@@ -78,43 +87,85 @@ export default function TeacherAnalytics() {
             </h2>
           </div>
           
-          <div className="h-48 flex items-end justify-between gap-2 mt-6">
-            {revenueData.map((d, i) => {
-              const earnedHeight = Math.max((d.earned / maxRevenue) * 100, 2)
-              const expectedHeight = Math.max((d.expected / maxRevenue) * 100, 2)
+          <div className="h-48 flex items-end justify-between gap-3 mt-6">
+            {(revenueData || []).map((d, i) => {
+              const earnedHeight = Math.max((d.earned / maxRevenue) * 100, 4)
+              const expectedHeight = Math.max((d.expected / maxRevenue) * 100, 4)
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
                   <div className="w-full relative h-full flex items-end justify-center">
                     {/* Expected (Background Bar) */}
                     <div 
-                      className="absolute bottom-0 w-full max-w-[20px] bg-surface-variant rounded-t-sm"
+                      className="absolute bottom-0 w-full max-w-[24px] bg-surface-variant rounded-t-md transition-all duration-300"
                       style={{ height: `${expectedHeight}%` }}
                     />
                     {/* Earned (Foreground Bar) */}
                     <div 
-                      className="absolute bottom-0 w-full max-w-[20px] bg-brand rounded-t-sm"
+                      className="absolute bottom-0 w-full max-w-[24px] bg-brand rounded-t-md transition-all duration-300"
                       style={{ height: `${earnedHeight}%` }}
                     />
                   </div>
-                  <span className="text-[10px] text-on-surface-variant">
-                    {d.month}
+                  <span className="text-[11px] font-medium text-on-surface-variant">
+                    {getMonthLabel(d.month)}
                   </span>
                 </div>
               )
             })}
           </div>
-          <div className="flex justify-center gap-4 mt-4 text-xs">
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-brand rounded-[2px]" />
+          <div className="flex justify-center gap-6 mt-4 text-xs font-medium">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-brand rounded-[3px]" />
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Оплачено' : 'To\'langan'}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-surface-variant rounded-[2px]" />
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-surface-variant rounded-[3px]" />
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Ожидается' : 'Kutilmoqda'}</span>
             </div>
           </div>
         </div>
 
+        {/* Top Debtors (Available for all plans) */}
+        <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/30">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertTriangle className="w-5 h-5 text-error" />
+            <h2 className="text-lg font-bold text-on-surface">
+              {lang === 'ru' ? 'Топ должников' : "Top qarzdorlar"}
+            </h2>
+          </div>
+
+          {!topDebtors || topDebtors.length === 0 ? (
+            <div className="text-center py-6 text-on-surface-variant text-sm font-medium">
+              {lang === 'ru' ? 'Нет должников 🎉' : "Qarzdorlar yo'q 🎉"}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {topDebtors.map((d, i) => (
+                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded.16px bg-surface-variant/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-error/10 text-error flex items-center justify-center text-xs font-bold shrink-0">
+                      {i + 1}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-on-surface truncate max-w-[140px]">
+                        {d.name}
+                      </p>
+                      <p className="text-xs text-error/80 font-medium">
+                        {d.months} {lang === 'ru' ? 'мес. долга' : "oy qarzdor"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-error">
+                      -{formatUZS(d.debt)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Center Plan Features (Locked for Solo) */}
         {!isCenter ? (
           <div className="bg-surface-variant/30 p-6 rounded-[24px] border border-outline-variant/30 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface-container z-0" />
@@ -125,15 +176,15 @@ export default function TeacherAnalytics() {
               </h3>
               <p className="text-sm text-on-surface-variant mb-4">
                 {lang === 'ru' 
-                  ? 'Прирост учеников, тепловая карта посещаемости и списки должников за 6 месяцев.' 
-                  : '6 oylik o\'quvchilar o\'sishi, davomat xaritasi va qarzdorlar ro\'yxati.'}
+                  ? 'Прирост учеников и тепловая карта посещаемости за 6 месяцев.' 
+                  : '6 oylik o\'quvchilar o\'sishi va davomat xaritasi.'}
               </p>
               <button 
                 onClick={() => {
                   haptic?.selection()
                   navigate('/teacher/settings')
                 }}
-                className="bg-brand text-on-brand px-6 py-2 rounded-full font-medium"
+                className="bg-brand text-on-brand px-6 py-2.5 rounded-full font-medium active:scale-95 transition-transform"
               >
                 {lang === 'ru' ? 'Улучшить тариф' : "Ta'rifni yangilash"}
               </button>
@@ -142,7 +193,7 @@ export default function TeacherAnalytics() {
         ) : (
           <>
             {/* Student Dynamics */}
-            <div className="bg-surface-container-low p-4 rounded-[24px] shadow-sm border border-outline-variant/30">
+            <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/30">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="w-5 h-5 text-secondary" />
                 <h2 className="text-lg font-bold text-on-surface">
@@ -151,14 +202,14 @@ export default function TeacherAnalytics() {
               </div>
               
               <div className="h-32 flex items-end justify-between gap-2 mt-4">
-                {studentData.map((d, i) => {
+                {(studentData || []).map((d, i) => {
                   const height = Math.max((d.newStudents / maxStudents) * 100, 5)
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-2">
                       <div className="w-full max-w-[24px] bg-secondary/80 rounded-t-md flex items-end justify-center pb-1 text-[10px] font-bold text-white transition-all" style={{ height: `${height}%` }}>
                         {d.newStudents > 0 ? d.newStudents : ''}
                       </div>
-                      <span className="text-[10px] text-on-surface-variant">{d.month}</span>
+                      <span className="text-[10px] text-on-surface-variant">{getMonthLabel(d.month)}</span>
                     </div>
                   )
                 })}
@@ -166,7 +217,7 @@ export default function TeacherAnalytics() {
             </div>
 
             {/* Attendance Heatmap */}
-            <div className="bg-surface-container-low p-4 rounded-[24px] shadow-sm border border-outline-variant/30">
+            <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/30">
               <div className="flex items-center gap-2 mb-4">
                 <CalendarDays className="w-5 h-5 text-[#8b5cf6]" />
                 <h2 className="text-lg font-bold text-on-surface">
@@ -176,10 +227,9 @@ export default function TeacherAnalytics() {
               
               <div className="grid grid-cols-7 gap-2">
                 {[1,2,3,4,5,6,0].map(day => {
-                  const stats = attendanceByDay[day]
+                  const stats = (attendanceByDay || {})[day]
                   const percent = stats?.total > 0 ? (stats.present / stats.total) * 100 : 0
                   
-                  // Heatmap colors based on attendance percentage
                   let bgClass = "bg-surface-variant/30"
                   let textClass = "text-on-surface-variant"
                   if (stats?.total > 0) {
@@ -204,49 +254,12 @@ export default function TeacherAnalytics() {
                 })}
               </div>
             </div>
-
-            {/* Top Debtors */}
-            <div className="bg-surface-container-low p-4 rounded-[24px] shadow-sm border border-outline-variant/30">
-              <div className="flex items-center gap-2 mb-4">
-                <AlertTriangle className="w-5 h-5 text-error" />
-                <h2 className="text-lg font-bold text-on-surface">
-                  {lang === 'ru' ? 'Топ должников' : "Top qarzdorlar"}
-                </h2>
-              </div>
-
-              {topDebtors.length === 0 ? (
-                <div className="text-center py-6 text-on-surface-variant text-sm">
-                  {lang === 'ru' ? 'Нет должников 🎉' : "Qarzdorlar yo'q 🎉"}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {topDebtors.map((d, i) => (
-                    <div key={d.studentId} className="flex items-center justify-between p-3 rounded-[16px] bg-surface-variant/20">
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 rounded-full bg-error/10 text-error flex items-center justify-center text-xs font-bold">
-                          {i + 1}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-on-surface truncate max-w-[120px]">
-                            {d.name}
-                          </p>
-                          <p className="text-xs text-error/80">
-                            {d.months} {lang === 'ru' ? 'мес. долга' : "oy qarzdor"}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-error">
-                          -{formatUZS(d.debt)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </>
         )}
+      </div>
+    </div>
+  )
+}
       </div>
     </div>
   )

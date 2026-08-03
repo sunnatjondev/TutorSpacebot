@@ -572,10 +572,10 @@ export async function handleTeacherAnalytics(telegramUser) {
     return {
       ok: true,
       isCenter: false,
-      revenueData: sortedRevenue.slice(-1), // Only current month
+      revenueData: sortedRevenue,
       studentData: [],
       attendanceByDay: {},
-      topDebtors: topDebtors.slice(0, 3) // Only top 3
+      topDebtors
     }
   }
 
