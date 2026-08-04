@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, BarChart3, Settings } from 'lucide-react'
+import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, BarChart3, Settings, Trash2 } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -397,36 +397,41 @@ export default function TeacherDashboard() {
           return null
         })()}
 
-        {/* Overdue Sessions Banner */}
+        {/* Overdue Sessions Banner (Amber Warning Theme) */}
         {dash?.overdueSessions?.length > 0 && (
-          <div className="mb-5 space-y-3">
-            <h3 className="text-error font-bold text-sm px-1">
+          <div className="mb-5 m3-card bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl">
+            <h3 className="text-amber-500 font-bold text-sm mb-3 flex items-center gap-2">
+              <span>⚠️</span>
               {lang === 'ru' ? 'Просроченные уроки (Не отмечена посещаемость)' : "O'tib ketgan darslar (Davomat belgilanmagan)"}
             </h3>
-            {dash.overdueSessions.map(session => (
-              <div key={session.id} className="m3-card bg-error-container/10 border border-error/20 flex flex-col gap-3 p-3">
-                <div>
-                  <p className="font-bold text-on-surface text-sm">{session.groups?.name}</p>
-                  <p className="text-xs text-on-surface-variant">
-                    {new Date(session.scheduled_at).toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
-                  </p>
+            <div className="space-y-2.5">
+              {dash.overdueSessions.map((session) => (
+                <div key={session.id} className="bg-surface-lowest border border-outline-variant/30 rounded-xl p-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-on-surface text-sm truncate">{session.groups?.name}</p>
+                    <p className="text-xs text-on-surface-variant truncate">
+                      {new Date(session.scheduled_at).toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button 
+                      onClick={() => handleOverdueAction(session.id, 'done')}
+                      className="bg-paid-green hover:bg-emerald-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-transform flex items-center gap-1 shadow-sm"
+                    >
+                      <CheckCircle2 size={14} />
+                      {lang === 'ru' ? 'Завершить' : 'Yakunlash'}
+                    </button>
+                    <button 
+                      onClick={() => handleOverdueAction(session.id, 'delete')}
+                      className="p-2 text-on-surface-variant/60 hover:text-error active:scale-90 transition-transform rounded-lg"
+                      title={lang === 'ru' ? 'Удалить урок' : "Darsni o'chirish"}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => handleOverdueAction(session.id, 'done')}
-                    className="flex-1 bg-paid-green/20 text-paid-green font-bold text-xs py-2 rounded-xl active:scale-95 transition-transform"
-                  >
-                    {lang === 'ru' ? 'Завершить' : 'Yakunlash'}
-                  </button>
-                  <button 
-                    onClick={() => handleOverdueAction(session.id, 'delete')}
-                    className="flex-1 bg-error/20 text-error font-bold text-xs py-2 rounded-xl active:scale-95 transition-transform"
-                  >
-                    {lang === 'ru' ? 'Удалить' : "O'chirish"}
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
