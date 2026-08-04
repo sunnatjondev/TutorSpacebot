@@ -296,6 +296,12 @@ export default function TeacherDashboard() {
     return 'badge-upcoming'
   }
 
+  const getPaidBadgeClass = (percent) => {
+    if (percent >= 100) return 'badge-paid'
+    if (percent > 0) return 'badge-partial'
+    return 'badge-unpaid'
+  }
+
   const getSessionStatusLabel = (status) => {
     if (status === 'done') return t('common.done')
     if (status === 'ongoing') return t('common.inProgress')
@@ -424,6 +430,43 @@ export default function TeacherDashboard() {
           </div>
         )}
 
+        {/* Today's Schedule (Priority #1 Actionable Info) */}
+        <div className="m3-card mb-5 stagger-item border border-outline-variant/30">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-sm font-bold text-on-surface">{t('teacherHome.today')}</span>
+            <span className="text-sm font-semibold text-primary">{today}</span>
+          </div>
+          {dash?.todaySessions?.length > 0 ? (
+            <div className="space-y-0">
+              {dash.todaySessions.map((session, index) => (
+                <div key={session.id}>
+                  <div className="flex items-center gap-3 py-3">
+                    <Avatar name={session.group?.name || '?'} size="md" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-on-surface">{session.group?.name}</p>
+                      <p className="text-xs text-on-surface-variant">
+                        {new Date(session.scheduled_at).toLocaleTimeString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { hour: '2-digit', minute: '2-digit' })} - {session.group?.subject}
+                      </p>
+                    </div>
+                    <span className={`${getSessionBadgeClass(session.status)} whitespace-nowrap`}>
+                      {session.status === 'done' ? <CheckCircle2 size={10} /> : null}
+                      {getSessionStatusLabel(session.status)}
+                    </span>
+                  </div>
+                  {index < dash.todaySessions.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2">
+              <CalendarDays size={28} className="opacity-40 text-brand" />
+              <p className="text-sm font-medium">
+                {lang === 'ru' ? 'На сегодня занятий не запланировано 🎉' : "Bugun darslar yo'q 🎉"}
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Analytics & Income Card (Entire Card is Tap Zone) */}
         <button 
           onClick={() => { haptic?.light(); navigate('/teacher/analytics') }}
@@ -518,39 +561,8 @@ export default function TeacherDashboard() {
           </div>
         </button>
 
-        <div className="mb-5 grid grid-cols-2 gap-3" style={{ gridTemplateRows: 'auto auto' }}>
-          {/* Talabalar */}
-          <div className="m3-card p-5 flex flex-col items-center justify-center text-center row-span-2 transition-all duration-200 active:scale-[0.98]">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand/10 mb-3">
-              <User size={20} className="text-primary" />
-            </div>
-            <p className="text-4xl font-bold text-on-surface leading-none">{dash?.totalStudents ?? '—'}</p>
-            <p className="m3-label mt-2">{t('teacherHome.students')}</p>
-          </div>
-          {/* Guruhlar */}
-          <div className="m3-card p-4 flex items-center gap-3 transition-all duration-200 active:scale-[0.98]">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-tertiary/10 shrink-0">
-              <Layers size={18} className="text-tertiary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-on-surface leading-none">{dash?.totalGroups ?? '—'}</p>
-              <p className="m3-label mt-0.5">{t('teacherHome.groups')}</p>
-            </div>
-          </div>
-          {/* Bugungi darslar */}
-          <div className="m3-card p-4 flex items-center gap-3 transition-all duration-200 active:scale-[0.98]">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/10 shrink-0">
-              <CalendarDays size={18} className="text-secondary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-on-surface leading-none">{dash?.todaySessions?.length ?? 0}</p>
-              <p className="m3-label mt-0.5">{t('teacherHome.lessons')}</p>
-            </div>
-          </div>
-        </div>
-
         {/* Recent Groups */}
-        <div className="m3-card mb-4 stagger-item">
+        <div className="m3-card mb-5 stagger-item border border-outline-variant/30">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-sm font-bold text-on-surface">{t('teacherHome.recentGroups')}</span>
             <button
@@ -582,7 +594,7 @@ export default function TeacherDashboard() {
                         {group.subject} • {group.group_members?.[0]?.count ?? 0} {lang === 'ru' ? 'студ.' : 'ta o\'quvchi'}
                       </p>
                     </div>
-                    <span className="badge-paid shrink-0">{group.paidPercent ?? 0}%</span>
+                    <span className={`${getPaidBadgeClass(group.paidPercent ?? 0)} shrink-0`}>{group.paidPercent ?? 0}%</span>
                   </button>
                   {index < recentGroups.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
                 </div>
@@ -592,43 +604,6 @@ export default function TeacherDashboard() {
             <div className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2">
               <Layers size={28} className="opacity-40" />
               <p className="text-sm font-medium">{lang === 'ru' ? 'Пока нет активных групп' : "Hali guruhlar yaratilmadi"}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Today's Schedule */}
-        <div className="m3-card mb-4 stagger-item">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm font-bold text-on-surface">{t('teacherHome.today')}</span>
-            <span className="text-sm font-semibold text-primary">{today}</span>
-          </div>
-          {dash?.todaySessions?.length > 0 ? (
-            <div className="space-y-0">
-              {dash.todaySessions.map((session, index) => (
-                <div key={session.id}>
-                  <div className="flex items-center gap-3 py-3">
-                    <Avatar name={session.group?.name || '?'} size="md" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-on-surface">{session.group?.name}</p>
-                      <p className="text-xs text-on-surface-variant">
-                        {new Date(session.scheduled_at).toLocaleTimeString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { hour: '2-digit', minute: '2-digit' })} - {session.group?.subject}
-                      </p>
-                    </div>
-                    <span className={`${getSessionBadgeClass(session.status)} whitespace-nowrap`}>
-                      {session.status === 'done' ? <CheckCircle2 size={10} /> : null}
-                      {getSessionStatusLabel(session.status)}
-                    </span>
-                  </div>
-                  {index < dash.todaySessions.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2">
-              <CalendarDays size={28} className="opacity-40 text-brand" />
-              <p className="text-sm font-medium">
-                {lang === 'ru' ? 'На сегодня занятий не запланировано 🎉' : "Bugun darslar yo'q 🎉"}
-              </p>
             </div>
           )}
         </div>
