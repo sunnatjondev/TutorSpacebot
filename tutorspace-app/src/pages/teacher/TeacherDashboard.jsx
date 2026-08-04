@@ -416,7 +416,7 @@ export default function TeacherDashboard() {
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button 
                       onClick={() => handleOverdueAction(session.id, 'done')}
-                      className="bg-paid-green hover:bg-emerald-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-transform flex items-center gap-1 shadow-sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-transform flex items-center gap-1 shadow-sm border border-emerald-500/30"
                     >
                       <CheckCircle2 size={14} />
                       {lang === 'ru' ? 'Завершить' : 'Yakunlash'}
