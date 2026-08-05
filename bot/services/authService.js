@@ -2,6 +2,38 @@ import { supabase, requireServiceSupabase, getUserRowByTelegramId, upsertTrusted
 import { signSupabaseAppJwt, verifyTelegramInitData } from '../auth.js'
 import { getUrlOrigin, escapeHtml, escapeMarkdown, escapeMarkdownV2, buildTelegramUserPayload, getCurrentPeriod, generateInviteToken, buildStudentName } from '../helpers.js'
 import { validate } from '../validation.js'
+export async function processReferral(telegramUser, userRow) {
+  if (!telegramUser || !userRow) return
+  try {
+    const startParam = telegramUser.start_param || telegramUser.startParam
+    if (!startParam || typeof startParam !== 'string') return
+
+    if (startParam.startsWith('ref_')) {
+      const referrerIdStr = startParam.replace(/^ref_/, '')
+      
+      let referrerQuery = supabase.from('users').select('id')
+      if (/^\d+$/.test(referrerIdStr)) {
+        referrerQuery = referrerQuery.eq('telegram_id', Number(referrerIdStr))
+      } else {
+        referrerQuery = referrerQuery.eq('id', referrerIdStr)
+      }
+
+      const { data: referrer } = await referrerQuery.maybeSingle()
+
+      if (referrer && referrer.id !== userRow.id) {
+        await supabase.from('referrals').upsert({
+          referrer_id: referrer.id,
+          referred_id: userRow.id,
+          bonus_days: 7,
+          status: 'completed'
+        }, { onConflict: 'referred_id' })
+      }
+    }
+  } catch (err) {
+    console.error('[processReferral] Warning:', err.message)
+  }
+}
+
 export async function handleAuthSession(telegramUser) {
   const userRow = await upsertTrustedTelegramUser(telegramUser)
   if (userRow.role === 'teacher') await processReferral(telegramUser, userRow)
