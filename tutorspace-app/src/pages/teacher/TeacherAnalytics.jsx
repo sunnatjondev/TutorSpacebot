@@ -4,7 +4,7 @@ import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useTeacherAnalytics } from '../../hooks/api/useTeacher'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
-import { ArrowLeft, TrendingUp, Users, CalendarDays, AlertTriangle, Lock } from 'lucide-react'
+import { ArrowLeft, TrendingUp, Users, CalendarDays, AlertTriangle, Lock, CheckCircle2, Sparkles } from 'lucide-react'
 
 export default function TeacherAnalytics() {
   const { user, haptic } = useTelegram()
@@ -68,10 +68,9 @@ export default function TeacherAnalytics() {
           {lang === 'ru' ? 'Аналитика' : "Analitika"}
         </h1>
         {!isCenter && (
-          <div className="flex items-center gap-1 bg-surface-variant/50 px-3 py-1 rounded-full text-xs font-medium text-brand">
-            <Lock className="w-3 h-3" />
-            Solo
-          </div>
+          <span className="bg-surface-variant/50 px-3 py-1 rounded-full text-xs font-semibold text-on-surface-variant">
+            {lang === 'ru' ? 'Тариф Solo' : 'Solo ta\'rif'}
+          </span>
         )}
       </div>
 
@@ -88,21 +87,31 @@ export default function TeacherAnalytics() {
           
           <div className="h-48 flex items-end justify-between gap-3 mt-6">
             {(revenueData || []).map((d, i) => {
-              const earnedHeight = Math.max((d.earned / maxRevenue) * 100, 4)
-              const expectedHeight = Math.max((d.expected / maxRevenue) * 100, 4)
+              const hasEarned = d.earned > 0
+              const hasExpected = d.expected > 0
+              const earnedHeight = hasEarned ? Math.max((d.earned / maxRevenue) * 100, 6) : 0
+              const expectedHeight = hasExpected ? Math.max((d.expected / maxRevenue) * 100, 6) : 0
+
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
                   <div className="w-full relative h-full flex items-end justify-center">
                     {/* Expected (Background Bar) */}
-                    <div 
-                      className="absolute bottom-0 w-full max-w-[24px] bg-surface-variant rounded-t-md transition-all duration-300"
-                      style={{ height: `${expectedHeight}%` }}
-                    />
+                    {hasExpected ? (
+                      <div 
+                        className="absolute bottom-0 w-full max-w-[24px] bg-surface-variant rounded-t-md transition-all duration-300"
+                        style={{ height: `${expectedHeight}%` }}
+                      />
+                    ) : (
+                      <div className="absolute bottom-0 w-full max-w-[24px] h-[2px] bg-outline-variant/20 rounded-none" />
+                    )}
+
                     {/* Earned (Foreground Bar) */}
-                    <div 
-                      className="absolute bottom-0 w-full max-w-[24px] bg-brand rounded-t-md transition-all duration-300"
-                      style={{ height: `${earnedHeight}%` }}
-                    />
+                    {hasEarned && (
+                      <div 
+                        className="absolute bottom-0 w-full max-w-[24px] bg-brand rounded-t-md transition-all duration-300"
+                        style={{ height: `${earnedHeight}%` }}
+                      />
+                    )}
                   </div>
                   <span className="text-[11px] font-medium text-on-surface-variant">
                     {getMonthLabel(d.month)}
@@ -126,20 +135,25 @@ export default function TeacherAnalytics() {
         {/* Top Debtors (Available for all plans) */}
         <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/30">
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-5 h-5 text-error" />
+            {topDebtors && topDebtors.length > 0 ? (
+              <AlertTriangle className="w-5 h-5 text-error" />
+            ) : (
+              <CheckCircle2 className="w-5 h-5 text-paid-green" />
+            )}
             <h2 className="text-lg font-bold text-on-surface">
               {lang === 'ru' ? 'Топ должников' : "Top qarzdorlar"}
             </h2>
           </div>
 
           {!topDebtors || topDebtors.length === 0 ? (
-            <div className="text-center py-6 text-on-surface-variant text-sm font-medium">
-              {lang === 'ru' ? 'Нет должников 🎉' : "Qarzdorlar yo'q 🎉"}
+            <div className="text-center py-6 text-on-surface-variant text-sm font-medium flex items-center justify-center gap-1.5">
+              {lang === 'ru' ? 'Нет должников' : "Qarzdorlar yo'q"}
+              <Sparkles className="w-4 h-4 text-amber-400" />
             </div>
           ) : (
             <div className="space-y-3">
               {topDebtors.map((d, i) => (
-                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded.16px bg-surface-variant/20">
+                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded-2xl bg-surface-variant/20">
                   <div className="flex items-center gap-3">
                     <div className="w-7 h-7 rounded-full bg-error/10 text-error flex items-center justify-center text-xs font-bold shrink-0">
                       {i + 1}
@@ -183,7 +197,7 @@ export default function TeacherAnalytics() {
                   haptic?.selection()
                   navigate('/teacher/settings')
                 }}
-                className="bg-brand text-on-brand px-6 py-2.5 rounded-full font-medium active:scale-95 transition-transform"
+                className="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold active:scale-95 transition-transform shadow-m3-elevation-1"
               >
                 {lang === 'ru' ? 'Улучшить тариф' : "Ta'rifni yangilash"}
               </button>
