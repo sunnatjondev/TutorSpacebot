@@ -133,11 +133,11 @@ export default function TeacherAnalytics() {
           </div>
           <div className="flex justify-center gap-6 mt-4 text-xs font-medium">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-brand rounded-[3px]" />
+              <div className="w-2.5 h-2.5 bg-brand rounded-full shrink-0" />
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Оплачено' : 'To\'langan'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-surface-variant rounded-[3px]" />
+              <div className="w-2.5 h-2.5 bg-[#36343B] rounded-full shrink-0" />
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Ожидается' : 'Kutilmoqda'}</span>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default function TeacherAnalytics() {
           ) : (
             <div className="space-y-3">
               {topDebtors.map((d, i) => (
-                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded-2xl bg-surface-high/60 border border-outline-variant/10">
+                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded-xl bg-surface-high/40 hover:bg-surface-high/60 transition-colors">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-7 h-7 rounded-full bg-error/15 text-error flex items-center justify-center text-xs font-bold shrink-0">
                       {i + 1}
