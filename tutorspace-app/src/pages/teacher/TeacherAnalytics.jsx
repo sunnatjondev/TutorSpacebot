@@ -117,7 +117,7 @@ export default function TeacherAnalytics() {
                     {/* Earned (Foreground Bar) */}
                     {hasEarned ? (
                       <div 
-                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-t-full transition-all duration-300`}
+                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-t-[14px] transition-all duration-300`}
                         style={{ height: `${earnedHeight}%` }}
                       />
                     ) : (
@@ -164,7 +164,7 @@ export default function TeacherAnalytics() {
           ) : (
             <div className="space-y-3">
               {topDebtors.map((d, i) => (
-                <div key={d.studentId || i} className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-high/50 border border-outline-variant/25">
+                <div key={d.studentId || i} className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-high/60 border border-brand/30 shadow-xs">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-7 h-7 rounded-full bg-error/15 text-error flex items-center justify-center text-xs font-bold shrink-0">
                       {i + 1}
