@@ -1077,7 +1077,7 @@ export default function GroupDetail() {
                             className="w-9 h-9 rounded-full bg-surface-high flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform shrink-0"
                             title={lang === 'ru' ? 'Ссылка для родителей' : 'Ota-ona taklif havolasi'}
                           >
-                            <span className="text-sm">👨‍👩‍👦</span>
+                            <Users size={15} className="text-primary" />
                           </button>
                           <button onClick={() => toggleAttendance(student.id)} className="transition-all duration-200 active:scale-90 shrink-0">
                             {attendance[student.id] ? (
@@ -1485,8 +1485,8 @@ export default function GroupDetail() {
             <div className="flex items-center gap-3 bg-surface-container rounded-2xl p-4">
               <Avatar name={displayStudentName(markingPaymentStudent.name)} size="md" />
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-on-surface truncate">{displayStudentName(markingPaymentStudent.name)}</p>
-                <p className="text-on-surface-variant text-sm truncate">👥 {group?.name}</p>
+                <p className="text-on-surface font-semibold truncate text-base">{markingPaymentStudent.name}</p>
+                <p className="text-on-surface-variant text-xs truncate flex items-center gap-1 mt-0.5"><Users size={12} /> {group?.name}</p>
               </div>
               <div className="text-right shrink-0">
                 <p className="text-lg font-extrabold text-debt-red">{formatUZS(markingPaymentStudent.amount)}</p>

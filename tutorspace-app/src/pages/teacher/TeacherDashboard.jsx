@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, BarChart3, Settings, Trash2 } from 'lucide-react'
+import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, BarChart3, Settings, Trash2, AlertCircle, AlertTriangle, Users, Clock, Sparkles, XCircle } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -203,11 +203,11 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
                                 {s.presentCount}/{s.totalCount}
                               </span>
                               <div className="flex items-center gap-1.5">
-                                <span className="inline-flex items-center text-[9px] font-bold text-paid-green bg-paid-green/10 px-1.5 py-0.5 rounded">
-                                  🟢 {s.presentCount}
+                                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-paid-green bg-paid-green/10 px-1.5 py-0.5 rounded">
+                                  <CheckCircle2 size={10} /> {s.presentCount}
                                 </span>
-                                <span className={`inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded ${absentCount > 0 ? 'text-debt-red bg-debt-red/10' : 'text-on-surface-variant/40 bg-surface-high/50'}`}>
-                                  🔴 {absentCount}
+                                <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${absentCount > 0 ? 'text-debt-red bg-debt-red/10' : 'text-on-surface-variant/40 bg-surface-high/50'}`}>
+                                  <XCircle size={10} /> {absentCount}
                                 </span>
                               </div>
                             </div>
@@ -329,12 +329,10 @@ export default function TeacherDashboard() {
   }
 
   const handleGroupCreated = async (group) => {
-
     if (group?.id) {
       navigate(`/teacher/groups/${group.id}`)
       return
     }
-
     navigate('/teacher/groups')
   }
 
@@ -343,16 +341,20 @@ export default function TeacherDashboard() {
       <div className="page-wrapper px-4 pt-6 pb-36">
         {/* Compact 1-line Header */}
         <div className="mb-4 animate-slide-down py-2">
-          <h1 className="text-xl font-bold text-on-surface">
-            {lang === 'ru' ? `Привет, ${firstName} 👋` : `Salom, ${firstName} 👋`}
+          <h1 className="text-xl font-bold text-on-surface flex items-center gap-2">
+            {lang === 'ru' ? `Привет, ${firstName}` : `Salom, ${firstName}`}
+            <Sparkles size={18} className="text-amber-400 fill-amber-400/20" />
           </h1>
         </div>
 
         {/* Subscription Banner with Dynamic Urgency & Full-width Button */}
         {dash?.subscription && dash.subscription.status === 'expired' && (
-          <div className="mb-5 m3-card bg-red-500/10 border-2 border-red-500/30 flex flex-col gap-3 p-4">
+          <div className="mb-5 bg-red-500/10 border border-red-500/30 rounded-2xl flex flex-col gap-3 p-4">
             <div>
-              <h3 className="text-red-500 font-bold text-sm mb-1">{lang === 'ru' ? '🔴 Подписка истекла' : '🔴 Obunangiz tugagan'}</h3>
+              <h3 className="text-red-500 font-bold text-sm mb-1 flex items-center gap-1.5">
+                <AlertCircle size={16} />
+                {lang === 'ru' ? 'Подписка истекла' : 'Obunangiz tugagan'}
+              </h3>
               <p className="text-on-surface-variant text-xs">
                 {lang === 'ru' ? 'Оплатите подписку, чтобы продолжить работу со студентами.' : 'Talabalar bilan ishlashni davom ettirish uchun obunangizni uzaytiring.'}
               </p>
@@ -371,18 +373,19 @@ export default function TeacherDashboard() {
           const daysLeft = Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24))
           if (daysLeft <= 3 && daysLeft > 0) {
             const isCritical = daysLeft <= 1
-            const bgBorderClass = isCritical ? 'bg-red-500/10 border-2 border-red-500/30' : 'bg-orange-500/10 border-2 border-orange-500/30'
+            const bgBorderClass = isCritical ? 'bg-red-500/10 border border-red-500/30' : 'bg-orange-500/10 border border-orange-500/30'
             const textClass = isCritical ? 'text-red-500' : 'text-orange-500'
             const btnBgClass = isCritical ? 'bg-red-500' : 'bg-orange-500'
 
             return (
-              <div className={`mb-5 m3-card p-4 ${bgBorderClass} flex flex-col gap-3`}>
+              <div className={`mb-5 rounded-2xl p-4 ${bgBorderClass} flex flex-col gap-3`}>
                 <div>
-                  <h3 className={`${textClass} font-bold text-sm mb-1`}>
-                    {lang === 'ru' ? `🔴 Подписка истекает через ${daysLeft} дн.` : `🔴 Obunangiz ${daysLeft} kundan so'ng tugaydi`}
+                  <h3 className={`${textClass} font-bold text-sm mb-1 flex items-center gap-1.5`}>
+                    <AlertCircle size={16} />
+                    {lang === 'ru' ? `Подписка истекает через ${daysLeft} дн.` : `Obunangiz ${daysLeft} kundan so'ng tugaydi`}
                   </h3>
                   <p className="text-on-surface-variant text-xs">
-                    {lang === 'ru' ? 'Оплатите сейчас, чтобы не потерять доступ к данным.' : 'Kirishni yo\'qotmaslik uchun hozir to\'lang.'}
+                    {lang === 'ru' ? 'Оплатите сейчас, чтобы не потерять доступ к данным.' : 'Kirishni yo\'qotmaslik учун hozir to\'lang.'}
                   </p>
                 </div>
                 <button 
@@ -399,14 +402,14 @@ export default function TeacherDashboard() {
 
         {/* Overdue Sessions Banner (Amber Warning Theme) */}
         {dash?.overdueSessions?.length > 0 && (
-          <div className="mb-5 m3-card bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl">
-            <h3 className="text-amber-500 font-bold text-sm mb-3 flex items-center gap-2">
-              <span>⚠️</span>
+          <div className="mb-5 bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl">
+            <h3 className="text-amber-500 font-bold text-sm mb-3 flex items-center gap-1.5">
+              <AlertTriangle size={16} />
               {lang === 'ru' ? 'Просроченные уроки (Не отмечена посещаемость)' : "O'tib ketgan darslar (Davomat belgilanmagan)"}
             </h3>
             <div className="space-y-2.5">
               {dash.overdueSessions.map((session) => (
-                <div key={session.id} className="bg-surface-lowest border border-outline-variant/30 rounded-xl p-3 flex items-center justify-between gap-3">
+                <div key={session.id} className="bg-surface-high/60 rounded-xl p-3 flex items-center justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-on-surface text-sm truncate">{session.groups?.name}</p>
                     <p className="text-xs text-on-surface-variant truncate">
@@ -436,7 +439,7 @@ export default function TeacherDashboard() {
         )}
 
         {/* Today's Schedule (Priority #1 Actionable Info) */}
-        <div className="m3-card mb-5 stagger-item border border-outline-variant/30">
+        <div className="m3-card mb-5 stagger-item">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-sm font-bold text-on-surface">{t('teacherHome.today')}</span>
             <span className="text-sm font-semibold text-primary">{today}</span>
@@ -465,8 +468,9 @@ export default function TeacherDashboard() {
           ) : (
             <div className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2">
               <CalendarDays size={28} className="opacity-40 text-brand" />
-              <p className="text-sm font-medium">
-                {lang === 'ru' ? 'На сегодня занятий не запланировано 🎉' : "Bugun darslar yo'q 🎉"}
+              <p className="text-sm font-medium flex items-center justify-center gap-1.5">
+                {lang === 'ru' ? 'На сегодня занятий не запланировано' : "Bugun darslar yo'q"}
+                <Sparkles size={14} className="text-amber-400" />
               </p>
             </div>
           )}
@@ -475,7 +479,7 @@ export default function TeacherDashboard() {
         {/* Analytics & Income Card (Entire Card is Tap Zone) */}
         <button 
           onClick={() => { haptic?.light(); navigate('/teacher/analytics') }}
-          className="mb-5 m3-card p-5 w-full text-left stagger-item active:scale-[0.98] transition-transform hover:shadow-md border border-outline-variant/30 relative"
+          className="mb-5 m3-card p-5 w-full text-left stagger-item active:scale-[0.98] transition-transform hover:shadow-md relative"
         >
           <div className="flex justify-between items-center mb-3">
             <div className="flex items-center gap-2">
@@ -567,7 +571,7 @@ export default function TeacherDashboard() {
         </button>
 
         {/* Recent Groups */}
-        <div className="m3-card mb-5 stagger-item border border-outline-variant/30">
+        <div className="m3-card mb-5 stagger-item">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-sm font-bold text-on-surface">{t('teacherHome.recentGroups')}</span>
             <button
@@ -626,11 +630,15 @@ export default function TeacherDashboard() {
                   <div className="flex items-center justify-between py-3">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-on-surface">{hw.title}</p>
-                      <p className="text-xs text-on-surface-variant truncate">👥 {hw.group?.name}</p>
+                      <p className="text-xs text-on-surface-variant truncate flex items-center gap-1 mt-0.5">
+                        <Users size={12} className="shrink-0" />
+                        {hw.group?.name}
+                      </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-[10px] text-error font-bold bg-error/15 px-2.5 py-1 rounded-full whitespace-nowrap">
-                        ⌛ {new Date(hw.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}
+                      <p className="text-[10px] text-error font-bold bg-error/15 px-2.5 py-1 rounded-full whitespace-nowrap flex items-center gap-1">
+                        <Clock size={10} />
+                        {new Date(hw.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}
                       </p>
                     </div>
                   </div>
