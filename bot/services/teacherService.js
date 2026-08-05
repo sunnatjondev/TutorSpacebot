@@ -499,18 +499,25 @@ export async function handleTeacherAnalytics(telegramUser) {
       }
     }
     
-    if (p.status === 'unpaid' || p.status === 'partial') {
-      const sId = p.student_id
+    const pStatus = (p.status || '').toLowerCase()
+    if (pStatus === 'unpaid' || pStatus === 'partial') {
+      const sId = p.student_id || p.id
       if (!topDebtorsMap[sId]) {
+        let name = ''
+        if (p.student) {
+          name = `${p.student.first_name || ''} ${p.student.last_name || ''}`.trim() || p.student.username
+        }
+        if (!name) name = p.student_name || 'Ученик'
+
         topDebtorsMap[sId] = {
           studentId: sId,
-          name: p.student ? `${p.student.first_name || ''} ${p.student.last_name || ''}`.trim() : 'Unknown',
+          name,
           debt: 0,
           months: 0
         }
       }
       topDebtorsMap[sId].debt += (p.amount || 0)
-      if (p.status === 'unpaid') {
+      if (pStatus === 'unpaid') {
         topDebtorsMap[sId].months += 1
       }
     }

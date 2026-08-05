@@ -108,26 +108,23 @@ export default function TeacherAnalytics() {
                 <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
                   <div className="w-full relative h-full flex items-end justify-center">
                     {/* Full Gray Track Column */}
-                    <div className="w-full max-w-[24px] h-full bg-surface-variant/20 rounded-t-md relative flex items-end overflow-hidden">
+                    <div className="w-full max-w-[24px] h-full bg-white/10 rounded-t-md relative flex items-end overflow-hidden">
                       {/* Expected (Background Fill) */}
                       {hasExpected && (
                         <div 
-                          className="absolute bottom-0 w-full bg-surface-variant/40 rounded-t-md transition-all duration-300"
+                          className="absolute bottom-0 w-full bg-white/20 rounded-t-md transition-all duration-300"
                           style={{ height: `${expectedHeight}%` }}
                         />
                       )}
 
                       {/* Earned (Foreground Fill) */}
-                      {hasEarned && (
+                      {hasEarned ? (
                         <div 
                           className={`absolute bottom-0 w-full ${earnedBarClass} rounded-t-md transition-all duration-300`}
                           style={{ height: `${earnedHeight}%` }}
                         />
-                      )}
-
-                      {/* Empty indicator for 0 data */}
-                      {!hasEarned && !hasExpected && (
-                        <div className={`w-full h-1 ${isCurrent ? 'bg-brand/40' : 'bg-outline-variant/20'} rounded-t-xs`} />
+                      ) : (
+                        <div className={`w-full h-1 ${isCurrent ? 'bg-brand/60' : 'bg-white/20'} rounded-t-xs`} />
                       )}
                     </div>
                   </div>
