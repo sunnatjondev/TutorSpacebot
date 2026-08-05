@@ -87,7 +87,7 @@ export async function handleTeacherDashboard(telegramUser, body = {}) {
   const homeworkRes = groupIds.length
     ? await supabase
         .from('homework')
-        .select('id, title, due_at, group:groups(name)')
+        .select('id, title, description, due_at, group_id, group:groups(name)')
         .in('group_id', groupIds)
         .gte('due_at', now.toISOString())
         .order('due_at', { ascending: true })

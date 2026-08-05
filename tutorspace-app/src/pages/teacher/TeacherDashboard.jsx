@@ -232,6 +232,7 @@ export default function TeacherDashboard() {
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
   const [showAttendance, setShowAttendance] = useState(false)
+  const [selectedHomework, setSelectedHomework] = useState(null)
   const todayDate = new Date()
   const [attendanceMonth, setAttendanceMonth] = useState(() => todayDate.getMonth() + 1)
   const [attendanceYear, setAttendanceYear] = useState(() => todayDate.getFullYear())
@@ -646,12 +647,7 @@ export default function TeacherDashboard() {
                   <button
                     onClick={() => {
                       haptic?.light()
-                      const targetGroupId = hw.group_id || hw.group?.id
-                      if (targetGroupId) {
-                        navigate(`/teacher/groups/${targetGroupId}`)
-                      } else {
-                        navigate('/teacher/groups')
-                      }
+                      setSelectedHomework(hw)
                     }}
                     className="flex w-full items-center justify-between py-3 text-left transition-transform active:scale-[0.99]"
                   >
@@ -808,6 +804,57 @@ export default function TeacherDashboard() {
           }}
           haptic={haptic}
         />
+      </Modal>
+
+      <Modal 
+        isOpen={!!selectedHomework} 
+        onClose={() => setSelectedHomework(null)} 
+        title={lang === 'ru' ? 'Детали задания' : 'Vazifa tafsilotlari'}
+      >
+        {selectedHomework && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-bold text-on-surface mb-1.5">{selectedHomework.title}</h3>
+              <div className="flex items-center gap-3 text-xs text-on-surface-variant">
+                <span className="flex items-center gap-1 font-semibold text-primary">
+                  <Users size={14} />
+                  {selectedHomework.group?.name}
+                </span>
+                {selectedHomework.due_at && (
+                  <span className="flex items-center gap-1 font-semibold text-error">
+                    <Clock size={14} />
+                    {new Date(selectedHomework.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'long' })}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-surface-high/60 border border-outline-variant/20 p-4 rounded-xl space-y-1">
+              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">
+                {lang === 'ru' ? 'Описание / Инструкции' : 'Tavsif / Ko\'rsatmalar'}
+              </label>
+              <p className="text-sm text-on-surface whitespace-pre-wrap leading-relaxed">
+                {selectedHomework.description || (lang === 'ru' ? 'Описание отсутствует' : 'Tavsif mavjud emas')}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                const gid = selectedHomework.group_id || selectedHomework.group?.id
+                setSelectedHomework(null)
+                if (gid) {
+                  navigate(`/teacher/groups/${gid}`)
+                } else {
+                  navigate('/teacher/groups')
+                }
+              }}
+              className="m3-btn-filled w-full gap-2"
+            >
+              <ChevronRight size={18} />
+              {lang === 'ru' ? 'Перейти в группу →' : 'Guruhga o\'tish →'}
+            </button>
+          </div>
+        )}
       </Modal>
 
       <BottomNav role="teacher" />
