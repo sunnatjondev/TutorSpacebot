@@ -117,11 +117,11 @@ export default function TeacherAnalytics() {
                     {/* Earned (Foreground Bar) */}
                     {hasEarned ? (
                       <div 
-                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-t-md transition-all duration-300`}
+                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-t-full transition-all duration-300`}
                         style={{ height: `${earnedHeight}%` }}
                       />
                     ) : (
-                      <div className={`w-full max-w-[24px] h-1.5 ${isCurrent ? 'bg-brand/50' : 'bg-[#36343B]'} rounded-t-xs`} />
+                      <div className={`w-full max-w-[24px] h-1.5 ${isCurrent ? 'bg-brand/60' : 'bg-[#36343B]'} rounded-full`} />
                     )}
                   </div>
                   <span className={`text-[11px] font-medium ${isCurrent ? 'text-brand font-bold' : 'text-on-surface-variant'}`}>
@@ -164,7 +164,7 @@ export default function TeacherAnalytics() {
           ) : (
             <div className="space-y-3">
               {topDebtors.map((d, i) => (
-                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded-xl bg-surface-high/40 hover:bg-surface-high/60 transition-colors">
+                <div key={d.studentId || i} className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-high/50 border border-outline-variant/25">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-7 h-7 rounded-full bg-error/15 text-error flex items-center justify-center text-xs font-bold shrink-0">
                       {i + 1}
