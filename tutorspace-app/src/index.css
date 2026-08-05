@@ -289,19 +289,25 @@ h1, h2, h3, .font-serif {
 
   /* Status Badges */
   .badge-paid {
-    @apply px-3 py-1 text-[10px] font-bold rounded-full bg-tertiary-container text-on-tertiary-container tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
+    background-color: var(--paid-green-bg);
+    color: var(--paid-green);
+    @apply px-3 py-1 text-[10px] font-bold rounded-full tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }
   .badge-upcoming {
     @apply px-3 py-1 text-[10px] font-bold rounded-full bg-primary-container text-on-primary-container tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }
   .badge-debt {
-    @apply px-3 py-1 text-[10px] font-bold rounded-full bg-error-container text-on-error-container tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
+    background-color: var(--debt-red-bg);
+    color: var(--debt-red);
+    @apply px-3 py-1 text-[10px] font-bold rounded-full tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }
   .badge-unpaid {
     @apply px-3 py-1 text-[10px] font-bold rounded-full bg-surface-variant text-on-surface-variant tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }
   .badge-partial {
-    @apply px-3 py-1 text-[10px] font-bold rounded-full bg-partial-orange bg-opacity-20 text-partial-orange tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
+    background-color: var(--partial-orange-bg);
+    color: var(--partial-orange);
+    @apply px-3 py-1 text-[10px] font-bold rounded-full tracking-wider uppercase min-w-[105px] h-6 inline-flex items-center justify-center gap-1 text-center;
   }
 }
 

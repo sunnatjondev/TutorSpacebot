@@ -64,11 +64,11 @@ export default function TeacherAnalytics() {
   return (
     <div className="pb-24 animate-fade-in">
       <div className="p-4 pt-6 bg-surface-container sticky top-0 z-10 flex items-center justify-between shadow-sm">
-        <h1 className="text-2xl font-bold text-on-surface">
+        <h1 className="text-xl font-bold text-on-surface">
           {lang === 'ru' ? 'Аналитика' : "Analitika"}
         </h1>
         {!isCenter && (
-          <span className="bg-surface-variant/50 px-3 py-1 rounded-full text-xs font-semibold text-on-surface-variant">
+          <span className="px-3 py-1 rounded-full bg-surface-high text-on-surface-variant text-xs font-bold border border-outline-variant/30 shadow-xs">
             {lang === 'ru' ? 'Тариф Solo' : 'Solo ta\'rif'}
           </span>
         )}
@@ -153,22 +153,22 @@ export default function TeacherAnalytics() {
           ) : (
             <div className="space-y-3">
               {topDebtors.map((d, i) => (
-                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded-2xl bg-surface-variant/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-error/10 text-error flex items-center justify-center text-xs font-bold shrink-0">
+                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded-2xl bg-surface-high/60 border border-outline-variant/20">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-7 h-7 rounded-full bg-error/15 text-error flex items-center justify-center text-xs font-bold shrink-0">
                       {i + 1}
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-on-surface truncate max-w-[140px]">
-                        {d.name}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-on-surface truncate">
+                        {d.name || (lang === 'ru' ? 'Студент' : 'Talaba')}
                       </p>
-                      <p className="text-xs text-error/80 font-medium">
-                        {d.months} {lang === 'ru' ? 'мес. долга' : "oy qarzdor"}
+                      <p className="text-xs text-error font-medium mt-0.5">
+                        {d.months || 1} {lang === 'ru' ? 'мес. долга' : "oy qarzdor"}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-bold text-error">
+                  <div className="text-right shrink-0 ml-2">
+                    <p className="text-sm font-extrabold text-error">
                       -{formatUZS(d.debt)}
                     </p>
                   </div>

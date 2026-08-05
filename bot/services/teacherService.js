@@ -517,7 +517,10 @@ export async function handleTeacherAnalytics(telegramUser) {
     }
   })
 
-  const topDebtors = Object.values(topDebtorsMap).sort((a, b) => b.debt - a.debt).slice(0, 10)
+  const topDebtors = Object.values(topDebtorsMap)
+    .filter(d => d.debt > 0)
+    .sort((a, b) => b.debt - a.debt)
+    .slice(0, 10)
 
   // Students (group by year-month)
   const studentData = {}
