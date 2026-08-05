@@ -420,14 +420,13 @@ export async function handleTeacherAnalytics(telegramUser) {
   const now = new Date()
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1)
 
-  // 1. Revenue dynamics
+  // 1. Revenue dynamics & Debtors
   let payments = []
   try {
     const { data, error } = await supabase
       .from('payments')
-      .select('amount, status, period_month, period_year, student_id, student:users!payments_student_id_fkey(first_name, last_name)')
+      .select('amount, status, period_month, period_year, created_at, student_id, student:users!payments_student_id_fkey(first_name, last_name)')
       .eq('teacher_id', user.id)
-      .gte('created_at', sixMonthsAgo.toISOString())
     if (error) throw error
     payments = data || []
   } catch (e) {

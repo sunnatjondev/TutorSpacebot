@@ -71,9 +71,9 @@ export default function TeacherAnalytics() {
           <button
             onClick={() => {
               haptic?.selection()
-              navigate('/teacher/settings')
+              navigate('/teacher/subscription')
             }}
-            className="px-3.5 py-1.5 rounded-full bg-surface-variant/40 text-on-surface-variant text-xs font-semibold border border-outline-variant/30 active:scale-95 transition-all flex items-center gap-1 hover:bg-surface-variant/60"
+            className="px-3.5 py-1.5 rounded-full bg-surface-variant/40 text-on-surface-variant text-xs font-semibold border border-outline-variant/15 active:scale-95 transition-all flex items-center gap-1 hover:bg-surface-variant/60"
           >
             {lang === 'ru' ? 'Тариф Solo' : 'Solo ta\'rif'}
           </button>
@@ -83,7 +83,7 @@ export default function TeacherAnalytics() {
       <div className="p-4 space-y-6">
         
         {/* Revenue Dynamics (Full 6 months for all plans) */}
-        <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/30">
+        <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/15">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-brand" />
             <h2 className="text-lg font-bold text-on-surface">
@@ -102,30 +102,34 @@ export default function TeacherAnalytics() {
 
               const earnedBarClass = isCurrent
                 ? "bg-gradient-to-t from-brand to-purple-400 shadow-sm shadow-brand/20"
-                : "bg-surface-variant"
+                : "bg-brand/80"
 
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
                   <div className="w-full relative h-full flex items-end justify-center">
-                    {/* Expected (Background Bar) */}
-                    {hasExpected ? (
-                      <div 
-                        className="absolute bottom-0 w-full max-w-[24px] bg-surface-variant/30 rounded-t-md transition-all duration-300"
-                        style={{ height: `${expectedHeight}%` }}
-                      />
-                    ) : (
-                      <div className="absolute bottom-0 w-full max-w-[24px] h-1 bg-outline-variant/15 rounded-t-xs" />
-                    )}
+                    {/* Full Gray Track Column */}
+                    <div className="w-full max-w-[24px] h-full bg-surface-variant/20 rounded-t-md relative flex items-end overflow-hidden">
+                      {/* Expected (Background Fill) */}
+                      {hasExpected && (
+                        <div 
+                          className="absolute bottom-0 w-full bg-surface-variant/40 rounded-t-md transition-all duration-300"
+                          style={{ height: `${expectedHeight}%` }}
+                        />
+                      )}
 
-                    {/* Earned (Foreground Bar) */}
-                    {hasEarned ? (
-                      <div 
-                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-t-md transition-all duration-300`}
-                        style={{ height: `${earnedHeight}%` }}
-                      />
-                    ) : (
-                      <div className={`absolute bottom-0 w-full max-w-[24px] h-1 ${isCurrent ? 'bg-brand/30' : 'bg-outline-variant/10'} rounded-t-xs`} />
-                    )}
+                      {/* Earned (Foreground Fill) */}
+                      {hasEarned && (
+                        <div 
+                          className={`absolute bottom-0 w-full ${earnedBarClass} rounded-t-md transition-all duration-300`}
+                          style={{ height: `${earnedHeight}%` }}
+                        />
+                      )}
+
+                      {/* Empty indicator for 0 data */}
+                      {!hasEarned && !hasExpected && (
+                        <div className={`w-full h-1 ${isCurrent ? 'bg-brand/40' : 'bg-outline-variant/20'} rounded-t-xs`} />
+                      )}
+                    </div>
                   </div>
                   <span className={`text-[11px] font-medium ${isCurrent ? 'text-brand font-bold' : 'text-on-surface-variant'}`}>
                     {getMonthLabel(d.month)}
@@ -147,7 +151,7 @@ export default function TeacherAnalytics() {
         </div>
 
         {/* Top Debtors (Available for all plans) */}
-        <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/30">
+        <div className="bg-surface-container-low p-5 rounded-[24px] shadow-sm border border-outline-variant/15">
           <div className="flex items-center gap-2 mb-4">
             {topDebtors && topDebtors.length > 0 ? (
               <AlertTriangle className="w-5 h-5 text-error" />
@@ -167,7 +171,7 @@ export default function TeacherAnalytics() {
           ) : (
             <div className="space-y-3">
               {topDebtors.map((d, i) => (
-                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded-2xl bg-surface-high/60 border border-outline-variant/20">
+                <div key={d.studentId || i} className="flex items-center justify-between p-3 rounded-2xl bg-surface-high/60 border border-outline-variant/15">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-7 h-7 rounded-full bg-error/15 text-error flex items-center justify-center text-xs font-bold shrink-0">
                       {i + 1}
@@ -194,7 +198,7 @@ export default function TeacherAnalytics() {
 
         {/* Center Plan Features (Locked for Solo) */}
         {!isCenter ? (
-          <div className="bg-surface-variant/30 p-6 rounded-[24px] border border-outline-variant/30 text-center relative overflow-hidden">
+          <div className="bg-surface-variant/30 p-6 rounded-[24px] border border-outline-variant/15 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface-container z-0" />
             <div className="relative z-10 flex flex-col items-center">
               <Lock className="w-10 h-10 text-on-surface-variant mb-3 opacity-50" />
@@ -209,7 +213,7 @@ export default function TeacherAnalytics() {
               <button 
                 onClick={() => {
                   haptic?.selection()
-                  navigate('/teacher/settings')
+                  navigate('/teacher/subscription')
                 }}
                 className="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold active:scale-95 transition-transform shadow-m3-elevation-1"
               >
