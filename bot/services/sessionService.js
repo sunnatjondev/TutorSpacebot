@@ -1,5 +1,6 @@
 import { supabase, requireServiceSupabase, getUserRowByTelegramId, upsertTrustedTelegramUser, requireUserRow, requireGroupOwner, requireSessionOwner } from '../db.js'
 import { signSupabaseAppJwt, verifyTelegramInitData } from '../auth.js'
+import { checkTeacherSubscription } from './authService.js'
 import { getUrlOrigin, escapeHtml, escapeMarkdown, escapeMarkdownV2, buildTelegramUserPayload, getCurrentPeriod, generateInviteToken, buildStudentName } from '../helpers.js'
 import { validate } from '../validation.js'
 import { config } from '../config.js'
@@ -7,6 +8,9 @@ import { config } from '../config.js'
 export async function handleSessionCreate(telegramUser, body) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)
+  const sub = await checkTeacherSubscription(user.id)
+  if (!sub.active) throw new Error('subscription_expired')
+
   await requireGroupOwner(user.id, body.groupId)
 
   const { data, error } = await supabase

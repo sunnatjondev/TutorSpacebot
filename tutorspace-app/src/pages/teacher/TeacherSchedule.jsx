@@ -116,7 +116,13 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
         })
       } catch (err) {
         allSuccess = false
-        setError(err.message || t('teacherSchedule.createError'))
+        let displayError = err.message || t('teacherSchedule.createError')
+        if (err.message === 'subscription_expired') {
+          displayError = lang === 'ru' 
+            ? 'Срок подписки истек! Продлите подписку для создания урока.' 
+            : "Obuna muddati tugagan! Dars yaratish uchun obunangizni uzaytiring."
+        }
+        setError(displayError)
       }
     }
 
@@ -130,7 +136,6 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
       return
     }
 
-    setError(t('teacherSchedule.createError'))
     haptic?.warning?.()
   }
 

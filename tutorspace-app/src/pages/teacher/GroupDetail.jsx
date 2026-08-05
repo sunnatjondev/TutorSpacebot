@@ -707,7 +707,13 @@ export default function GroupDetail() {
       setSelectedDayIndex(day === 0 ? 6 : day - 1)
       setShowCreateSessionModal(false)
     } catch (err) {
-      alert(err.message || (lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi"))
+      let displayError = err.message || (lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi")
+      if (err.message === 'subscription_expired') {
+        displayError = lang === 'ru' 
+          ? 'Срок подписки истек! Продлите подписку для создания урока.' 
+          : "Obuna muddati tugagan! Dars yaratish uchun obunangizni uzaytiring."
+      }
+      alert(displayError)
     } finally {
       setCreatingSession(false)
     }

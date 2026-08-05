@@ -177,6 +177,9 @@ export async function handleGroupHomeworkDelete(telegramUser, body) {
 export async function handleHomeworkCreate(telegramUser, body) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)
+  const sub = await checkTeacherSubscription(user.id)
+  if (!sub.active) throw new Error('subscription_expired')
+
   await requireGroupOwner(user.id, body.groupId)
 
   const { data, error } = await supabase
