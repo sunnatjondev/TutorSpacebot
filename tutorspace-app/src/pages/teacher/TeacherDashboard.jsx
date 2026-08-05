@@ -440,15 +440,27 @@ export default function TeacherDashboard() {
 
         {/* Today's Schedule (Priority #1 Actionable Info) */}
         <div className="m3-card mb-5 stagger-item">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm font-bold text-on-surface">{t('teacherHome.today')}</span>
+          <div 
+            onClick={() => { haptic?.light(); navigate('/teacher/schedule') }}
+            className="mb-3 flex items-center justify-between cursor-pointer active:opacity-70 transition-opacity"
+          >
+            <span className="text-sm font-bold text-on-surface flex items-center gap-1.5">
+              {t('teacherHome.today')}
+              <ChevronRight size={16} className="text-on-surface-variant" />
+            </span>
             <span className="text-sm font-semibold text-primary">{today}</span>
           </div>
           {dash?.todaySessions?.length > 0 ? (
             <div className="space-y-0">
               {dash.todaySessions.map((session, index) => (
                 <div key={session.id}>
-                  <div className="flex items-center gap-3 py-3">
+                  <button
+                    onClick={() => {
+                      haptic?.light()
+                      navigate('/teacher/schedule')
+                    }}
+                    className="flex w-full items-center gap-3 py-3 text-left transition-transform active:scale-[0.99]"
+                  >
                     <Avatar name={session.group?.name || '?'} size="md" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-on-surface">{session.group?.name}</p>
@@ -460,13 +472,17 @@ export default function TeacherDashboard() {
                       {session.status === 'done' ? <CheckCircle2 size={10} /> : null}
                       {getSessionStatusLabel(session.status)}
                     </span>
-                  </div>
+                    <ChevronRight size={16} className="text-on-surface-variant shrink-0" />
+                  </button>
                   {index < dash.todaySessions.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
                 </div>
               ))}
             </div>
           ) : (
-            <div className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2">
+            <div 
+              onClick={() => { haptic?.light(); navigate('/teacher/schedule') }}
+              className="py-6 text-center text-on-surface-variant flex flex-col items-center gap-2 cursor-pointer active:opacity-70 transition-opacity"
+            >
               <CalendarDays size={28} className="opacity-40 text-brand" />
               <p className="text-sm font-medium flex items-center justify-center gap-1.5">
                 {lang === 'ru' ? 'На сегодня занятий не запланировано' : "Bugun darslar yo'q"}
@@ -627,7 +643,18 @@ export default function TeacherDashboard() {
             <div className="space-y-0">
               {dash.upcomingHomeworks.map((hw, index) => (
                 <div key={hw.id}>
-                  <div className="flex items-center justify-between py-3">
+                  <button
+                    onClick={() => {
+                      haptic?.light()
+                      const targetGroupId = hw.group_id || hw.group?.id
+                      if (targetGroupId) {
+                        navigate(`/teacher/groups/${targetGroupId}`)
+                      } else {
+                        navigate('/teacher/groups')
+                      }
+                    }}
+                    className="flex w-full items-center justify-between py-3 text-left transition-transform active:scale-[0.99]"
+                  >
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-on-surface">{hw.title}</p>
                       <p className="text-xs text-on-surface-variant truncate flex items-center gap-1 mt-0.5">
@@ -635,13 +662,14 @@ export default function TeacherDashboard() {
                         {hw.group?.name}
                       </p>
                     </div>
-                    <div className="text-right shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       <p className="text-[10px] text-error font-bold bg-error/15 px-2.5 py-1 rounded-full whitespace-nowrap flex items-center gap-1">
                         <Clock size={10} />
                         {new Date(hw.due_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}
                       </p>
+                      <ChevronRight size={16} className="text-on-surface-variant shrink-0" />
                     </div>
-                  </div>
+                  </button>
                   {index < dash.upcomingHomeworks.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
                 </div>
               ))}
