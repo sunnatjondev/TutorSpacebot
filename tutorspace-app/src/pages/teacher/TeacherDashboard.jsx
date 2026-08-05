@@ -441,14 +441,8 @@ export default function TeacherDashboard() {
 
         {/* Today's Schedule (Priority #1 Actionable Info) */}
         <div className="m3-card mb-5 stagger-item">
-          <div 
-            onClick={() => { haptic?.light(); navigate('/teacher/schedule') }}
-            className="mb-3 flex items-center justify-between cursor-pointer active:opacity-70 transition-opacity"
-          >
-            <span className="text-sm font-bold text-on-surface flex items-center gap-1.5">
-              {t('teacherHome.today')}
-              <ChevronRight size={16} className="text-on-surface-variant" />
-            </span>
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-sm font-bold text-on-surface">{t('teacherHome.today')}</span>
             <span className="text-sm font-semibold text-primary">{today}</span>
           </div>
           {dash?.todaySessions?.length > 0 ? (
