@@ -63,14 +63,20 @@ export default function TeacherAnalytics() {
 
   return (
     <div className="pb-24 animate-fade-in">
-      <div className="p-4 pt-6 bg-surface-container sticky top-0 z-10 flex items-center justify-between shadow-sm">
-        <h1 className="text-xl font-bold text-on-surface">
+      <div className="p-4 pt-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-on-surface">
           {lang === 'ru' ? 'Аналитика' : "Analitika"}
         </h1>
         {!isCenter && (
-          <span className="px-3 py-1 rounded-full bg-surface-high text-on-surface-variant text-xs font-bold border border-outline-variant/30 shadow-xs">
+          <button
+            onClick={() => {
+              haptic?.selection()
+              navigate('/teacher/settings')
+            }}
+            className="px-3.5 py-1.5 rounded-full bg-surface-variant/40 text-on-surface-variant text-xs font-semibold border border-outline-variant/30 active:scale-95 transition-all flex items-center gap-1 hover:bg-surface-variant/60"
+          >
             {lang === 'ru' ? 'Тариф Solo' : 'Solo ta\'rif'}
-          </span>
+          </button>
         )}
       </div>
 
@@ -87,10 +93,16 @@ export default function TeacherAnalytics() {
           
           <div className="h-48 flex items-end justify-between gap-3 mt-6">
             {(revenueData || []).map((d, i) => {
+              const isCurrent = i === (revenueData.length - 1)
               const hasEarned = d.earned > 0
               const hasExpected = d.expected > 0
-              const earnedHeight = hasEarned ? Math.max((d.earned / maxRevenue) * 100, 6) : 0
-              const expectedHeight = hasExpected ? Math.max((d.expected / maxRevenue) * 100, 6) : 0
+              
+              const earnedHeight = hasEarned ? Math.max((d.earned / maxRevenue) * 100, 8) : 0
+              const expectedHeight = hasExpected ? Math.max((d.expected / maxRevenue) * 100, 8) : 0
+
+              const earnedBarClass = isCurrent
+                ? "bg-gradient-to-t from-brand to-purple-400 shadow-sm shadow-brand/20"
+                : "bg-surface-variant"
 
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
@@ -98,22 +110,24 @@ export default function TeacherAnalytics() {
                     {/* Expected (Background Bar) */}
                     {hasExpected ? (
                       <div 
-                        className="absolute bottom-0 w-full max-w-[24px] bg-surface-variant rounded-t-md transition-all duration-300"
+                        className="absolute bottom-0 w-full max-w-[24px] bg-surface-variant/30 rounded-t-md transition-all duration-300"
                         style={{ height: `${expectedHeight}%` }}
                       />
                     ) : (
-                      <div className="absolute bottom-0 w-full max-w-[24px] h-[2px] bg-outline-variant/20 rounded-none" />
+                      <div className="absolute bottom-0 w-full max-w-[24px] h-1 bg-outline-variant/15 rounded-t-xs" />
                     )}
 
                     {/* Earned (Foreground Bar) */}
-                    {hasEarned && (
+                    {hasEarned ? (
                       <div 
-                        className="absolute bottom-0 w-full max-w-[24px] bg-brand rounded-t-md transition-all duration-300"
+                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-t-md transition-all duration-300`}
                         style={{ height: `${earnedHeight}%` }}
                       />
+                    ) : (
+                      <div className={`absolute bottom-0 w-full max-w-[24px] h-1 ${isCurrent ? 'bg-brand/30' : 'bg-outline-variant/10'} rounded-t-xs`} />
                     )}
                   </div>
-                  <span className="text-[11px] font-medium text-on-surface-variant">
+                  <span className={`text-[11px] font-medium ${isCurrent ? 'text-brand font-bold' : 'text-on-surface-variant'}`}>
                     {getMonthLabel(d.month)}
                   </span>
                 </div>
