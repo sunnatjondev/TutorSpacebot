@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, Download } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, Download, Copy } from 'lucide-react'
 import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -165,7 +165,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         {/* ── Basic Info Section ── */}
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block uppercase tracking-wider">{t('groupDetail.groupName')}</label>
+            <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block">{t('groupDetail.groupName')}</label>
             <input
               className="m3-input"
               value={name}
@@ -174,7 +174,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
             />
           </div>
           <div>
-            <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block uppercase tracking-wider">{t('groupDetail.subject')}</label>
+            <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block">{t('groupDetail.subject')}</label>
             <input
               className="m3-input"
               value={subject}
@@ -186,7 +186,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
 
         {/* ── Payment Section ── */}
         <div className="bg-surface-container/35 rounded-2xl p-4 space-y-3 border border-outline-variant">
-          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">💳 To'lov sozlamalari</p>
+          <p className="text-xs font-bold text-on-surface-variant">💳 To'lov sozlamalari</p>
           <div className="flex gap-3">
             <div className="flex-1">
               <label className="text-xs text-on-surface-variant mb-1 block font-medium">Oylik summa (UZS)</label>
@@ -213,7 +213,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
 
         {/* ── Telegram Link ── */}
         <div>
-          <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block uppercase tracking-wider">Telegram guruh (ixtiyoriy)</label>
+          <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block">Telegram guruh (ixtiyoriy)</label>
           <input
             className="m3-input"
             value={telegramGroupLink}
@@ -224,7 +224,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
 
         {/* ── Color Picker ── */}
         <div>
-          <label className="text-xs font-semibold text-on-surface-variant mb-2 block uppercase tracking-wider">Guruh rangi</label>
+          <label className="text-xs font-semibold text-on-surface-variant mb-2 block">Guruh rangi</label>
           <div className="flex gap-3">
             {colors.map((c) => (
               <button
@@ -238,7 +238,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
 
         {/* ── Schedule Section ── */}
         <div>
-          <label className="text-xs font-semibold text-on-surface-variant mb-3 block uppercase tracking-wider">📅 Haftalik dars jadvali</label>
+          <label className="text-xs font-semibold text-on-surface-variant mb-3 block">📅 Haftalik dars jadvali</label>
 
           {/* Day Toggle Pills */}
           <div className="flex flex-wrap gap-2 mb-3">
@@ -900,25 +900,25 @@ export default function GroupDetail() {
         {/* Statistics Cards Grid */}
         <div className="grid grid-cols-3 gap-3">
           <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
-            <span className="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">{t('groupDetail.debtors')}</span>
-            <span className="text-lg font-extrabold text-debt-red mt-2">{t('groupDetail.studentsCount', { count: monthlyStats.unpaidCount })}</span>
-            <span className="text-[9px] text-on-surface-variant mt-1">{t('common.unpaid').toLowerCase()}</span>
+            <span className="text-xs font-bold text-on-surface-variant">{t('groupDetail.debtors')}</span>
+            <span className="text-lg font-extrabold text-debt-red mt-1.5">{t('groupDetail.studentsCount', { count: monthlyStats.unpaidCount })}</span>
+            <span className="text-[10px] text-on-surface-variant/70 mt-0.5">{t('common.unpaid').toLowerCase()}</span>
           </div>
           <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
-            <span className="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">{t('groupDetail.absent')}</span>
-            <span className="text-lg font-extrabold text-orange-400 mt-2">{t('groupDetail.studentsCount', { count: monthlyStats.absentCount })}</span>
-            <span className="text-[9px] text-on-surface-variant mt-1">{t('groupDetail.absent').toLowerCase()}</span>
+            <span className="text-xs font-bold text-on-surface-variant">{t('groupDetail.absent')}</span>
+            <span className="text-lg font-extrabold text-orange-400 mt-1.5">{t('groupDetail.studentsCount', { count: monthlyStats.absentCount })}</span>
+            <span className="text-[10px] text-on-surface-variant/70 mt-0.5">{t('groupDetail.absentSubtext')}</span>
           </div>
           <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
-            <span className="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">{t('groupDetail.attendanceStats')}</span>
-            <span className="text-lg font-extrabold text-paid-green mt-2">{monthlyStats.averageAttendance}%</span>
-            <span className="text-[9px] text-on-surface-variant mt-1">{t('groupDetail.lessonsCount', { count: monthlyStats.totalClasses })}</span>
+            <span className="text-xs font-bold text-on-surface-variant">{t('groupDetail.attendanceStats')}</span>
+            <span className="text-lg font-extrabold text-paid-green mt-1.5">{monthlyStats.averageAttendance}%</span>
+            <span className="text-[10px] text-on-surface-variant/70 mt-0.5">{t('groupDetail.lessonsCount', { count: monthlyStats.totalClasses })}</span>
           </div>
         </div>
 
         {/* Invitation Link m3-card */}
         <div className="m3-card bg-brand/10 border border-brand/20 p-4">
-          <div className="flex items-start justify-between mb-1">
+          <div className="flex items-center justify-between mb-1">
             <h3 className="text-sm font-bold text-on-surface">{t('groupDetail.inviteLink')}</h3>
             <span className="text-[10px] bg-brand/20 text-primary px-2 py-0.5 rounded-full font-bold">{t('groupDetail.inviteLinkBadge')}</span>
           </div>
@@ -926,11 +926,29 @@ export default function GroupDetail() {
             {t('groupDetail.inviteLinkDesc')}
           </p>
           <div className="space-y-3">
-            <input
-              readOnly
-              value={`https://t.me/${botUsername}?start=invite_${group?.invite_token}`}
-              className="m3-input py-2.5 text-xs w-full bg-surface-high border-outline-variant text-on-surface-variant font-mono"
-            />
+            <div 
+              onClick={() => {
+                navigator.clipboard.writeText(`https://t.me/${botUsername}?start=invite_${group?.invite_token}`)
+                haptic?.success()
+                if (window.Telegram?.WebApp?.showAlert) {
+                  window.Telegram.WebApp.showAlert(t('groupDetail.inviteLinkCopied'))
+                } else {
+                  alert(t('groupDetail.inviteLinkCopied'))
+                }
+              }}
+              className="flex items-center gap-2 bg-surface-high/80 border border-outline-variant/30 rounded-2xl px-3.5 py-3 cursor-pointer active:scale-[0.98] transition-transform"
+            >
+              <span className="truncate flex-1 font-mono text-xs text-on-surface select-all">
+                {`https://t.me/${botUsername}?start=invite_${group?.invite_token}`}
+              </span>
+              <button
+                type="button"
+                className="p-1 rounded-lg text-primary hover:bg-brand/10 shrink-0"
+                title={t('common.copy')}
+              >
+                <Copy size={16} />
+              </button>
+            </div>
             <button
               onClick={() => {
                 navigator.clipboard.writeText(`https://t.me/${botUsername}?start=invite_${group?.invite_token}`)
@@ -943,6 +961,7 @@ export default function GroupDetail() {
               }}
               className="w-full h-11 rounded-full bg-brand text-on-primary font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all duration-200"
             >
+              <Copy size={16} />
               {t('groupDetail.inviteStudent')}
             </button>
           </div>
@@ -1128,9 +1147,9 @@ export default function GroupDetail() {
         {/* Payments m3-card */}
         <div className="m3-card">
           <div className="flex items-center justify-between mb-3">
-            <p className="m3-label">
+            <h3 className="text-base font-bold text-on-surface">
               {t('groupDetail.paymentStatus')}
-            </p>
+            </h3>
             <span className="text-[10px] bg-surface-high text-on-surface-variant px-2 py-0.5 rounded-full">{t('common.edit')}</span>
           </div>
           <p className="text-[10px] text-on-surface-variant mb-2">
@@ -1185,9 +1204,9 @@ export default function GroupDetail() {
         {/* Homeworks m3-card */}
         <div className="m3-card">
           <div className="flex items-center justify-between mb-3">
-            <p className="m3-label">
+            <h3 className="text-base font-bold text-on-surface">
               {t('groupDetail.homeworkTitle')}
-            </p>
+            </h3>
             <button
               onClick={() => {
                 haptic?.medium()

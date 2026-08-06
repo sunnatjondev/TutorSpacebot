@@ -92,6 +92,7 @@ const ru = {
     "saving": "Сохранение...",
     "debtors": "Должники",
     "absent": "Отсутствуют",
+    "absentSubtext": "за этот месяц",
     "attendanceStats": "Посещаемость",
     "studentsCount": "{count} чел.",
     "lessonsCount": "{count} ур.",

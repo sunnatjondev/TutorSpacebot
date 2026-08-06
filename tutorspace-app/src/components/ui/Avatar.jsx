@@ -13,12 +13,12 @@ export function Avatar({ name, size = 'md', src, color }) {
   }
 
   const colorMap = {
-    purple: 'from-brand to-primary',
-    orange: 'from-orange-500 to-amber-400',
-    teal: 'from-teal-500 to-cyan-400',
-    pink: 'from-pink-500 to-rose-400',
-    green: 'from-green-500 to-emerald-400',
-    blue: 'from-blue-500 to-indigo-400',
+    purple: 'from-purple-600 to-indigo-600',
+    orange: 'from-orange-500 to-amber-600',
+    teal: 'from-teal-600 to-cyan-600',
+    pink: 'from-pink-600 to-rose-600',
+    green: 'from-emerald-600 to-teal-700',
+    blue: 'from-blue-600 to-indigo-600',
   }
 
   // Generate a consistent color from name

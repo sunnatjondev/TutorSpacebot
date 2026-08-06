@@ -92,6 +92,7 @@ const uz = {
     "saving": "Saqlanmoqda...",
     "debtors": "Qarzdorlar",
     "absent": "Kelmadi",
+    "absentSubtext": "ushbu oyda",
     "attendanceStats": "Davomat",
     "studentsCount": "{count} ta",
     "lessonsCount": "{count} dars",
