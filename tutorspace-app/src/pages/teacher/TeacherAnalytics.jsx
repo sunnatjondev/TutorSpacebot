@@ -109,7 +109,7 @@ export default function TeacherAnalytics() {
                     {/* Expected (Background Bar) */}
                     {hasExpected && (
                       <div 
-                        className="absolute bottom-0 w-full max-w-[24px] bg-[#36343B] rounded-t-full rounded-b-xl transition-all duration-300"
+                        className="absolute bottom-0 w-full max-w-[24px] bg-[#36343B] rounded-full transition-all duration-300"
                         style={{ height: `${expectedHeight}%` }}
                       />
                     )}
@@ -117,7 +117,7 @@ export default function TeacherAnalytics() {
                     {/* Earned (Foreground Bar) */}
                     {hasEarned ? (
                       <div 
-                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-t-full rounded-b-xl transition-all duration-300`}
+                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-full transition-all duration-300`}
                         style={{ height: `${earnedHeight}%` }}
                       />
                     ) : (
@@ -244,7 +244,7 @@ export default function TeacherAnalytics() {
                         )}
                         {hasStudents ? (
                           <div 
-                            className={`w-full max-w-[24px] ${barClass} rounded-t-full rounded-b-xl transition-all`}
+                            className={`w-full max-w-[24px] ${barClass} rounded-full transition-all`}
                             style={{ height: `${height}%` }}
                           />
                         ) : (
