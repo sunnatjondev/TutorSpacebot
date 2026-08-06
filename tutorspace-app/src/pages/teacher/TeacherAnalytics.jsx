@@ -219,21 +219,32 @@ export default function TeacherAnalytics() {
             {/* Student Dynamics */}
             <div className="m3-card">
               <div className="flex items-center gap-2 mb-4">
-                <Users className="w-5 h-5 text-secondary" />
+                <Users className="w-5 h-5 text-brand" />
                 <h2 className="text-lg font-bold text-on-surface">
                   {lang === 'ru' ? 'Новые ученики' : "Yangi o'quvchilar"}
                 </h2>
               </div>
               
-              <div className="h-32 flex items-end justify-between gap-2 mt-4">
+              <div className="h-36 flex items-end justify-between gap-2 mt-4">
                 {(studentData || []).map((d, i) => {
-                  const height = Math.max((d.newStudents / maxStudents) * 100, 5)
+                  const hasStudents = d.newStudents > 0
+                  const height = hasStudents ? Math.max((d.newStudents / maxStudents) * 100, 20) : 0
+
                   return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full max-w-[24px] bg-secondary/80 rounded-t-md flex items-end justify-center pb-1 text-[10px] font-bold text-white transition-all" style={{ height: `${height}%` }}>
-                        {d.newStudents > 0 ? d.newStudents : ''}
+                    <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                      <div className="w-full relative h-full flex items-end justify-center">
+                        {hasStudents ? (
+                          <div 
+                            className="w-full max-w-[24px] bg-gradient-to-t from-brand to-purple-400 rounded-full flex items-start justify-center pt-1.5 text-[10px] font-bold text-white transition-all shadow-sm shadow-brand/20"
+                            style={{ height: `${height}%` }}
+                          >
+                            {d.newStudents}
+                          </div>
+                        ) : (
+                          <div className="w-full max-w-[24px] h-1.5 bg-[#36343B] rounded-full" />
+                        )}
                       </div>
-                      <span className="text-[10px] text-on-surface-variant">{getMonthLabel(d.month)}</span>
+                      <span className="text-[10px] text-on-surface-variant font-medium">{getMonthLabel(d.month)}</span>
                     </div>
                   )
                 })}
@@ -254,13 +265,13 @@ export default function TeacherAnalytics() {
                   const stats = (attendanceByDay || {})[day]
                   const percent = stats?.total > 0 ? (stats.present / stats.total) * 100 : 0
                   
-                  let bgClass = "bg-surface-variant/30"
-                  let textClass = "text-on-surface-variant"
+                  let bgClass = "bg-[#25232A]/60"
+                  let textClass = "text-on-surface-variant/30"
                   if (stats?.total > 0) {
-                    if (percent >= 90) { bgClass = "bg-[#8b5cf6]"; textClass = "text-white" }
-                    else if (percent >= 75) { bgClass = "bg-[#8b5cf6]/70"; textClass = "text-white" }
-                    else if (percent >= 50) { bgClass = "bg-[#8b5cf6]/40"; textClass = "text-on-surface" }
-                    else { bgClass = "bg-[#8b5cf6]/20"; textClass = "text-on-surface" }
+                    if (percent >= 90) { bgClass = "bg-[#8b5cf6] shadow-sm shadow-purple-500/20"; textClass = "text-white" }
+                    else if (percent >= 75) { bgClass = "bg-[#8b5cf6]/75"; textClass = "text-white" }
+                    else if (percent >= 50) { bgClass = "bg-[#8b5cf6]/45"; textClass = "text-on-surface" }
+                    else { bgClass = "bg-[#8b5cf6]/25 border border-[#8b5cf6]/30"; textClass = "text-on-surface" }
                   }
 
                   return (
@@ -268,7 +279,7 @@ export default function TeacherAnalytics() {
                       <span className="text-[10px] text-on-surface-variant font-medium">
                         {daysOfWeek[day]}
                       </span>
-                      <div className={`w-full aspect-square rounded-lg flex items-center justify-center ${bgClass}`}>
+                      <div className={`w-full aspect-square rounded-2xl flex items-center justify-center ${bgClass} transition-all`}>
                         <span className={`text-[10px] font-bold ${textClass}`}>
                           {stats?.total > 0 ? `${Math.round(percent)}%` : '-'}
                         </span>
