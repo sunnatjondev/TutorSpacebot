@@ -864,37 +864,69 @@ export default function GroupDetail() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface-lowest">
-      <header className="flex items-center gap-3 px-4 h-14 border-b border-outline-variant/40 sticky top-0 z-30 bg-surface-lowest/80 backdrop-blur-xl">
+    <div className="flex flex-col min-h-screen bg-surface-lowest pb-24">
+      {/* Top Header - No white border line, safe padding below Telegram controls */}
+      <header className="flex items-center justify-between px-4 pt-4 pb-2 sticky top-0 z-30 bg-surface-lowest/90 backdrop-blur-md">
         <button
           onClick={() => {
             haptic?.light()
             navigate(-1)
           }}
-          className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center active:scale-90 transition-transform"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container/70 text-on-surface text-xs font-semibold active:scale-95 transition-all border border-[#8b5cf6]/20 dark:border-[#a855f7]/20"
         >
-          <ArrowLeft size={18} className="text-on-surface" />
+          <ArrowLeft size={16} />
+          <span>{lang === 'ru' ? 'Назад' : 'Orqaga'}</span>
         </button>
-        <h1 className="font-bold text-on-surface flex-1 truncate">{group?.name || 'Guruh'}</h1>
+
         <button
-          className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center"
+          className="w-9 h-9 rounded-full bg-surface-container/70 flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform border border-[#8b5cf6]/20 dark:border-[#a855f7]/20"
           onClick={() => {
             haptic?.light()
             setShowActions(true)
           }}
         >
-          <MoreVertical size={18} className="text-on-surface-variant" />
+          <MoreVertical size={18} />
         </button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6 space-y-4">
+      <div className="flex-1 px-4 pt-2 pb-6 space-y-4">
         {loading && !group && (
           <div className="m3-card text-center py-8 text-on-surface-variant">{t('common.loading')}</div>
         )}
 
-        <div className="flex gap-2 mb-1">
-          <span className="chip bg-brand text-on-primary font-bold text-xs h-7 inline-flex items-center px-3">{group?.subject || '-'}</span>
-          <span className="chip bg-surface-high text-on-surface-variant text-xs h-7 inline-flex items-center px-3">{t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? 0 })}</span>
+        {/* Creative Group Hero Banner */}
+        <div className="m3-card bg-gradient-to-br from-[#8b5cf6]/20 via-surface-container/60 to-surface-container border border-[#8b5cf6]/40 dark:border-[#a855f7]/40 p-4.5 relative overflow-hidden shadow-sm">
+          <div className="flex items-center justify-between gap-3 mb-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-10 h-10 rounded-2xl bg-[#8b5cf6] text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
+                {group?.name?.[0]?.toUpperCase() || 'G'}
+              </div>
+              <h1 className="text-xl font-extrabold text-on-surface truncate tracking-tight">
+                {group?.name || 'Guruh'}
+              </h1>
+            </div>
+            <button
+              onClick={() => {
+                haptic?.light()
+                setShowEdit(true)
+              }}
+              className="text-xs font-bold text-primary bg-[#8b5cf6]/15 hover:bg-[#8b5cf6]/25 px-3 py-1.5 rounded-full transition-all flex items-center gap-1 shrink-0 border border-[#8b5cf6]/30"
+            >
+              <Pencil size={12} />
+              {t('common.edit')}
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#8b5cf6]/15">
+            {group?.subject && (
+              <span className="px-3 py-1 rounded-full bg-[#8b5cf6]/20 text-[#8b5cf6] dark:text-[#a855f7] font-bold text-xs border border-[#8b5cf6]/30">
+                {group.subject}
+              </span>
+            )}
+            <span className="px-3 py-1 rounded-full bg-surface-high/80 text-on-surface-variant text-xs font-bold border border-outline-variant/20">
+              👥 {t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? students.length })}
+            </span>
+          </div>
         </div>
 
         {/* Statistics Cards Grid */}
@@ -917,10 +949,10 @@ export default function GroupDetail() {
         </div>
 
         {/* Invitation Link m3-card */}
-        <div className="m3-card bg-brand/10 border border-brand/20 p-4">
+        <div className="m3-card bg-[#8b5cf6]/10 border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 p-4">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-sm font-bold text-on-surface">{t('groupDetail.inviteLink')}</h3>
-            <span className="text-[10px] bg-brand/20 text-primary px-2 py-0.5 rounded-full font-bold">{t('groupDetail.inviteLinkBadge')}</span>
+            <span className="text-[10px] bg-[#8b5cf6]/20 text-primary px-2 py-0.5 rounded-full font-bold">{t('groupDetail.inviteLinkBadge')}</span>
           </div>
           <p className="text-xs text-on-surface-variant mb-3">
             {t('groupDetail.inviteLinkDesc')}
@@ -936,7 +968,7 @@ export default function GroupDetail() {
                   alert(t('groupDetail.inviteLinkCopied'))
                 }
               }}
-              className="flex items-center gap-2 bg-surface-high/80 border border-outline-variant/30 rounded-2xl px-3.5 py-3 cursor-pointer active:scale-[0.98] transition-transform"
+              className="flex items-center gap-2 bg-surface-high/90 border border-[#8b5cf6]/40 dark:border-[#a855f7]/40 rounded-2xl px-3.5 py-3 cursor-pointer active:scale-[0.98] transition-transform"
             >
               <span className="truncate flex-1 font-mono text-xs text-on-surface select-all">
                 {`https://t.me/${botUsername}?start=invite_${group?.invite_token}`}
