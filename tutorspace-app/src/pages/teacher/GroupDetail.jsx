@@ -1193,6 +1193,14 @@ export default function GroupDetail() {
                     </div>
                   </div>
 
+                  <button
+                    onClick={() => handleCopyParentInvite(student.id)}
+                    className="w-8 h-8 rounded-full bg-surface-high hover:bg-surface-highest flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform shrink-0"
+                    title={lang === 'ru' ? 'Ссылка для родителей' : 'Ota-ona taklif havolasi'}
+                  >
+                    <Users size={14} className="text-primary" />
+                  </button>
+
                   {student.status === 'paid' ? (
                     <span className="badge-paid select-none">✓ {t('common.paid')}</span>
                   ) : (
