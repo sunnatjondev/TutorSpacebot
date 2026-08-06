@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, Download, Copy } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Download, Copy } from 'lucide-react'
 import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -1119,10 +1119,10 @@ export default function GroupDetail() {
                           )}
                           <button
                             onClick={() => handleCopyParentInvite(student.id)}
-                            className="w-9 h-9 rounded-full bg-surface-high flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform shrink-0"
+                            className="w-8 h-8 rounded-full bg-brand/10 hover:bg-brand/20 flex items-center justify-center text-primary active:scale-90 transition-transform shrink-0"
                             title={lang === 'ru' ? 'Ссылка для родителей' : 'Ota-ona taklif havolasi'}
                           >
-                            <Users size={15} className="text-primary" />
+                            <UserPlus size={14} />
                           </button>
                           <button onClick={() => toggleAttendance(student.id)} className="transition-all duration-200 active:scale-90 shrink-0">
                             {attendance[student.id] ? (
@@ -1178,50 +1178,52 @@ export default function GroupDetail() {
           <div className="space-y-0">
             {students.map((student, index) => (
               <div key={student.id}>
-                <div className="flex items-center gap-3 py-3">
+                <div className="flex items-center gap-2.5 py-3">
                   <Avatar name={displayStudentName(student.name)} size="sm" />
                   <div
-                    className="flex-1 min-w-0 cursor-pointer hover:opacity-80 flex items-center gap-2 group"
+                    className="flex-1 min-w-0 cursor-pointer hover:opacity-80 group pr-1"
                     onClick={() => handleEditRateClick(student)}
                   >
-                    <div>
-                      <p className="text-on-surface text-sm font-semibold truncate">{displayStudentName(student.name)}</p>
-                      <p className="text-on-surface-variant text-xs flex items-center gap-1.5">
-                        {formatUZS(student.amount)}
-                        <Pencil size={11} className="text-on-surface-variant/50 group-hover:text-primary transition-colors" />
-                      </p>
-                    </div>
+                    <p className="text-on-surface text-sm font-semibold truncate leading-tight">
+                      {displayStudentName(student.name)}
+                    </p>
+                    <p className="text-on-surface-variant text-xs flex items-center gap-1 mt-0.5 truncate">
+                      <span className="whitespace-nowrap font-medium">{formatUZS(student.amount)}</span>
+                      <Pencil size={10} className="text-on-surface-variant/50 group-hover:text-primary transition-colors shrink-0" />
+                    </p>
                   </div>
 
-                  <button
-                    onClick={() => handleCopyParentInvite(student.id)}
-                    className="w-8 h-8 rounded-full bg-surface-high hover:bg-surface-highest flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform shrink-0"
-                    title={lang === 'ru' ? 'Ссылка для родителей' : 'Ota-ona taklif havolasi'}
-                  >
-                    <Users size={14} className="text-primary" />
-                  </button>
-
-                  {student.status === 'paid' ? (
-                    <span className="badge-paid select-none">✓ {t('common.paid')}</span>
-                  ) : (
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (student.payment_id) {
-                          setMarkingPaymentStudent(student)
-                          setPaymentMethod('cash')
-                          haptic?.light()
-                        } else {
-                          alert(lang === 'ru' ? "Сначала создайте платеж в Финансах" : "Avval moliya bo'limida to'lov yarating")
-                        }
-                      }}
-                      className={`active:scale-95 transition-transform ${
-                        student.status === 'unpaid' ? 'badge-unpaid cursor-pointer' : 'badge-partial cursor-pointer'
-                      }`}
+                      onClick={() => handleCopyParentInvite(student.id)}
+                      className="w-8 h-8 rounded-full bg-brand/10 hover:bg-brand/20 flex items-center justify-center text-primary active:scale-90 transition-transform"
+                      title={lang === 'ru' ? 'Ссылка для родителей' : 'Ota-ona taklif havolasi'}
                     >
-                      {student.status === 'unpaid' ? t('common.unpaid') : t('common.partial')}
+                      <UserPlus size={14} />
                     </button>
-                  )}
+
+                    {student.status === 'paid' ? (
+                      <span className="badge-paid select-none">✓ {t('common.paid')}</span>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (student.payment_id) {
+                            setMarkingPaymentStudent(student)
+                            setPaymentMethod('cash')
+                            haptic?.light()
+                          } else {
+                            alert(lang === 'ru' ? "Сначала создайте платеж в Финансах" : "Avval moliya bo'limida to'lov yarating")
+                          }
+                        }}
+                        className={`active:scale-95 transition-transform ${
+                          student.status === 'unpaid' ? 'badge-unpaid cursor-pointer' : 'badge-partial cursor-pointer'
+                        }`}
+                      >
+                        {student.status === 'unpaid' ? t('common.unpaid') : t('common.partial')}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {index < students.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
               </div>
