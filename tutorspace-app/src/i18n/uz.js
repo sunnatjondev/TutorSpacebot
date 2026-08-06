@@ -77,7 +77,7 @@ const uz = {
   },
   "groupDetail": {
     "attendance": "Davomat",
-    "paymentStatus": "TO'LOV HOLATI",
+    "paymentStatus": "To'lov holati",
     "addStudent": "Talaba qo'shish",
     "manageStudents": "Talabalarni boshqarish",
     "hideManageStudents": "Talabalarni yashirish",

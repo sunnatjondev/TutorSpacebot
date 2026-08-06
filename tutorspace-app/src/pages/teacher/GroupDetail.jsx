@@ -865,7 +865,7 @@ export default function GroupDetail() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest pb-24">
-      <div className="flex-1 px-4 pt-4 pb-6 space-y-4">
+      <div className="flex-1 px-4 pt-10 pb-6 space-y-4">
         {loading && !group && (
           <div className="m3-card text-center py-8 text-on-surface-variant">{t('common.loading')}</div>
         )}

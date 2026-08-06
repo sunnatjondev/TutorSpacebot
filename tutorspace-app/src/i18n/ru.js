@@ -77,7 +77,7 @@ const ru = {
   },
   "groupDetail": {
     "attendance": "Посещаемость",
-    "paymentStatus": "СТАТУС ОПЛАТЫ",
+    "paymentStatus": "Статус оплаты",
     "addStudent": "Добавить студента",
     "manageStudents": "Управлять студентами",
     "hideManageStudents": "Скрыть управление",
