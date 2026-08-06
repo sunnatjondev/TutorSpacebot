@@ -62,8 +62,9 @@ export default function TeacherAnalytics() {
     : ['Ya', 'Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh']
 
   return (
-    <div className="pb-24 animate-fade-in">
-      <div className="p-4 pt-6 flex items-center justify-between">
+    <div className="pb-24 animate-fade-in min-h-screen bg-surface">
+      {/* Sticky Header with Glassmorphism */}
+      <div className="sticky top-0 z-30 p-4 pt-6 flex items-center justify-between bg-surface/85 backdrop-blur-md border-b border-outline-variant/10 transition-colors">
         <h1 className="text-2xl font-bold text-on-surface">
           {lang === 'ru' ? 'Аналитика' : "Analitika"}
         </h1>
