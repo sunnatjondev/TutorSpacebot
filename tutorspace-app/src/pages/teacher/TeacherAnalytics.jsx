@@ -216,48 +216,149 @@ export default function TeacherAnalytics() {
           </div>
         ) : (
           <>
-            {/* Student Dynamics */}
+            {/* Student Dynamics (Smooth Area Wave Chart) */}
             <div className="m3-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="w-5 h-5 text-brand" />
-                <h2 className="text-lg font-bold text-on-surface">
-                  {lang === 'ru' ? 'Новые ученики' : "Yangi o'quvchilar"}
-                </h2>
-              </div>
-              
-              <div className="h-36 flex items-end justify-between gap-2 mt-4">
-                {(studentData || []).map((d, i) => {
-                  const isCurrent = i === ((studentData || []).length - 1)
-                  const hasStudents = d.newStudents > 0
-                  const height = hasStudents ? Math.max((d.newStudents / maxStudents) * 100, 15) : 0
-                  const barClass = isCurrent
-                    ? "bg-gradient-to-t from-brand to-purple-400 shadow-sm shadow-brand/20"
-                    : "bg-[#5E5968]"
-
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-brand" />
+                  <h2 className="text-lg font-bold text-on-surface">
+                    {lang === 'ru' ? 'Прирост учеников' : "O'quvchilar o'sishi"}
+                  </h2>
+                </div>
+                {(() => {
+                  const totalNew = (studentData || []).reduce((sum, d) => sum + (d.newStudents || 0), 0)
                   return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                      <div className="w-full relative h-full flex flex-col items-center justify-end">
-                        {hasStudents && (
-                          <span className={`text-[11px] font-bold ${isCurrent ? 'text-brand font-extrabold' : 'text-on-surface-variant'} mb-1`}>
-                            {d.newStudents}
-                          </span>
-                        )}
-                        {hasStudents ? (
-                          <div 
-                            className={`w-full max-w-[24px] ${barClass} rounded-full transition-all duration-300`}
-                            style={{ height: `${height}%` }}
-                          />
-                        ) : (
-                          <div className={`w-full max-w-[24px] h-1.5 ${isCurrent ? 'bg-brand/60' : 'bg-[#36343B]'} rounded-full`} />
-                        )}
-                      </div>
-                      <span className={`text-[10px] font-medium ${isCurrent ? 'text-brand font-bold' : 'text-on-surface-variant'}`}>
-                        {getMonthLabel(d.month)}
-                      </span>
-                    </div>
+                    <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <Sparkles size={12} />
+                      +{totalNew} {lang === 'ru' ? 'всего' : 'jami'}
+                    </span>
                   )
-                })}
+                })()}
               </div>
+
+              {/* Area Wave Chart SVG */}
+              {(() => {
+                const list = studentData || []
+                const totalPoints = list.length || 6
+                const viewBoxW = 320
+                const viewBoxH = 120
+                const padX = 22
+                const padBottom = 25
+                const padTop = 32
+                const availW = viewBoxW - padX * 2
+                const availH = viewBoxH - padBottom - padTop
+
+                const points = list.map((d, i) => {
+                  const x = padX + (i / Math.max(totalPoints - 1, 1)) * availW
+                  const y = viewBoxH - padBottom - (d.newStudents / maxStudents) * availH
+                  return {
+                    x,
+                    y,
+                    val: d.newStudents,
+                    month: getMonthLabel(d.month),
+                    isCurrent: i === totalPoints - 1
+                  }
+                })
+
+                const pathD = points.reduce((acc, pt, i, arr) => {
+                  if (i === 0) return `M ${pt.x},${pt.y}`
+                  const prev = arr[i - 1]
+                  const cx1 = prev.x + (pt.x - prev.x) / 2
+                  const cy1 = prev.y
+                  const cx2 = prev.x + (pt.x - prev.x) / 2
+                  const cy2 = pt.y
+                  return `${acc} C ${cx1},${cy1} ${cx2},${cy2} ${pt.x},${pt.y}`
+                }, '')
+
+                const areaD = points.length > 0 
+                  ? `${pathD} L ${points[points.length - 1].x},${viewBoxH - padBottom} L ${points[0].x},${viewBoxH - padBottom} Z`
+                  : ''
+
+                return (
+                  <div className="mt-4">
+                    <svg viewBox={`0 0 ${viewBoxW} ${viewBoxH}`} className="w-full h-auto overflow-visible">
+                      <defs>
+                        <linearGradient id="student-area-grad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
+                          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+                        </linearGradient>
+                        <linearGradient id="student-line-grad" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#6366f1" />
+                          <stop offset="100%" stopColor="#a855f7" />
+                        </linearGradient>
+                      </defs>
+
+                      {/* Baseline */}
+                      <line 
+                        x1={padX} y1={viewBoxH - padBottom} 
+                        x2={viewBoxW - padX} y2={viewBoxH - padBottom} 
+                        stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3 3" 
+                      />
+
+                      {/* Gradient Area Fill */}
+                      {areaD && <path d={areaD} fill="url(#student-area-grad)" />}
+
+                      {/* Smooth Wave Line */}
+                      {pathD && (
+                        <path 
+                          d={pathD} 
+                          fill="none" 
+                          stroke="url(#student-line-grad)" 
+                          strokeWidth="3" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                        />
+                      )}
+
+                      {/* Nodes & Badges */}
+                      {points.map((pt, idx) => (
+                        <g key={idx}>
+                          {pt.val > 0 ? (
+                            <g>
+                              {/* Pulse Ring for Current */}
+                              {pt.isCurrent && (
+                                <circle cx={pt.x} cy={pt.y} r="8" fill="#a855f7" opacity="0.25" className="animate-ping" />
+                              )}
+                              {/* Point Circle */}
+                              <circle 
+                                cx={pt.x} cy={pt.y} r="5" 
+                                fill={pt.isCurrent ? '#a855f7' : '#8b5cf6'} 
+                                stroke="#1e1b2e" strokeWidth="2" 
+                              />
+                              {/* Floating Badge */}
+                              <g transform={`translate(${pt.x}, ${pt.y - 12})`}>
+                                <rect 
+                                  x="-11" y="-12" width="22" height="14" rx="7" 
+                                  fill={pt.isCurrent ? '#a855f7' : '#2b2638'} 
+                                  stroke={pt.isCurrent ? '#c084fc' : 'rgba(255,255,255,0.15)'}
+                                  strokeWidth="1"
+                                />
+                                <text 
+                                  x="0" y="-2" textAnchor="middle" 
+                                  fill="#ffffff" fontSize="9" fontWeight="bold"
+                                >
+                                  +{pt.val}
+                                </text>
+                              </g>
+                            </g>
+                          ) : (
+                            <circle cx={pt.x} cy={pt.y} r="3" fill="rgba(255,255,255,0.2)" />
+                          )}
+
+                          {/* Month Label */}
+                          <text 
+                            x={pt.x} y={viewBoxH - 6} textAnchor="middle" 
+                            fill={pt.isCurrent ? '#a855f7' : 'rgba(255,255,255,0.5)'} 
+                            fontSize="10" fontWeight={pt.isCurrent ? 'bold' : 'normal'}
+                          >
+                            {pt.month}
+                          </text>
+                        </g>
+                      ))}
+                    </svg>
+                  </div>
+                )
+              })()}
             </div>
 
             {/* Attendance Heatmap */}
