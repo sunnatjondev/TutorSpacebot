@@ -109,7 +109,7 @@ export default function TeacherAnalytics() {
                     {/* Expected (Background Bar) */}
                     {hasExpected && (
                       <div 
-                        className="absolute bottom-0 w-full max-w-[24px] bg-[#36343B] rounded-full transition-all duration-300"
+                        className="absolute bottom-0 w-full max-w-[24px] bg-[#36343B] rounded-t-full rounded-b-xl transition-all duration-300"
                         style={{ height: `${expectedHeight}%` }}
                       />
                     )}
@@ -117,7 +117,7 @@ export default function TeacherAnalytics() {
                     {/* Earned (Foreground Bar) */}
                     {hasEarned ? (
                       <div 
-                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-full transition-all duration-300`}
+                        className={`absolute bottom-0 w-full max-w-[24px] ${earnedBarClass} rounded-t-full rounded-b-xl transition-all duration-300`}
                         style={{ height: `${earnedHeight}%` }}
                       />
                     ) : (
@@ -227,24 +227,33 @@ export default function TeacherAnalytics() {
               
               <div className="h-36 flex items-end justify-between gap-2 mt-4">
                 {(studentData || []).map((d, i) => {
+                  const isCurrent = i === ((studentData || []).length - 1)
                   const hasStudents = d.newStudents > 0
-                  const height = hasStudents ? Math.max((d.newStudents / maxStudents) * 100, 20) : 0
+                  const height = hasStudents ? Math.max((d.newStudents / maxStudents) * 100, 15) : 0
+                  const barClass = isCurrent
+                    ? "bg-gradient-to-t from-brand to-purple-400 shadow-sm shadow-brand/20"
+                    : "bg-brand/40"
 
                   return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                      <div className="w-full relative h-full flex items-end justify-center">
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                      <div className="w-full relative h-full flex flex-col items-center justify-end">
+                        {hasStudents && (
+                          <span className={`text-[11px] font-bold ${isCurrent ? 'text-brand font-extrabold' : 'text-on-surface-variant'} mb-1`}>
+                            {d.newStudents}
+                          </span>
+                        )}
                         {hasStudents ? (
                           <div 
-                            className="w-full max-w-[24px] bg-gradient-to-t from-brand to-purple-400 rounded-full flex items-start justify-center pt-1.5 text-[10px] font-bold text-white transition-all shadow-sm shadow-brand/20"
+                            className={`w-full max-w-[24px] ${barClass} rounded-t-full rounded-b-xl transition-all`}
                             style={{ height: `${height}%` }}
-                          >
-                            {d.newStudents}
-                          </div>
+                          />
                         ) : (
                           <div className="w-full max-w-[24px] h-1.5 bg-[#36343B] rounded-full" />
                         )}
                       </div>
-                      <span className="text-[10px] text-on-surface-variant font-medium">{getMonthLabel(d.month)}</span>
+                      <span className={`text-[10px] font-medium ${isCurrent ? 'text-brand font-bold' : 'text-on-surface-variant'}`}>
+                        {getMonthLabel(d.month)}
+                      </span>
                     </div>
                   )
                 })}
