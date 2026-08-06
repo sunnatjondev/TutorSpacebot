@@ -101,7 +101,7 @@ export default function TeacherAnalytics() {
 
               const earnedBarClass = isCurrent
                 ? "bg-gradient-to-t from-brand to-purple-400 shadow-sm shadow-brand/20"
-                : "bg-brand/50"
+                : "bg-[#79747E]"
 
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
@@ -109,7 +109,7 @@ export default function TeacherAnalytics() {
                     {/* Expected (Background Bar) */}
                     {hasExpected && (
                       <div 
-                        className="absolute bottom-0 w-full max-w-[24px] bg-surface-variant/60 rounded-full transition-all duration-300"
+                        className="absolute bottom-0 w-full max-w-[24px] bg-[#E2DCE7] dark:bg-[#36343B] rounded-full transition-all duration-300"
                         style={{ height: `${expectedHeight}%` }}
                       />
                     )}
@@ -121,7 +121,7 @@ export default function TeacherAnalytics() {
                         style={{ height: `${earnedHeight}%` }}
                       />
                     ) : (
-                      <div className={`w-full max-w-[24px] h-1.5 ${isCurrent ? 'bg-brand/60' : 'bg-surface-variant'} rounded-full`} />
+                      <div className={`w-full max-w-[24px] h-1.5 ${isCurrent ? 'bg-brand/60' : 'bg-[#E2DCE7] dark:bg-[#36343B]'} rounded-full`} />
                     )}
                   </div>
                   <span className={`text-[11px] font-medium ${isCurrent ? 'text-brand font-bold' : 'text-on-surface-variant'}`}>
@@ -137,7 +137,7 @@ export default function TeacherAnalytics() {
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Оплачено' : 'To\'langan'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 bg-surface-variant rounded-full shrink-0" />
+              <div className="w-2.5 h-2.5 bg-[#E2DCE7] dark:bg-[#36343B] rounded-full shrink-0" />
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Ожидается' : 'Kutilmoqda'}</span>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default function TeacherAnalytics() {
           ) : (
             <div className="space-y-3">
               {topDebtors.map((d, i) => (
-                <div key={d.studentId || i} className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-high/60 border border-brand/30 shadow-xs">
+                <div key={d.studentId || i} className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-high/60 border border-[#8b5cf6]/40 dark:border-[#a855f7]/40 shadow-xs">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-7 h-7 rounded-full bg-error/15 text-error flex items-center justify-center text-xs font-bold shrink-0">
                       {i + 1}
@@ -279,8 +279,8 @@ export default function TeacherAnalytics() {
                     <svg viewBox={`0 0 ${viewBoxW} ${viewBoxH}`} className="w-full h-auto overflow-visible">
                       <defs>
                         <linearGradient id="student-area-grad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="var(--primary, #8b5cf6)" stopOpacity="0.35" />
-                          <stop offset="100%" stopColor="var(--primary, #8b5cf6)" stopOpacity="0.0" />
+                          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
+                          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
                         </linearGradient>
                         <linearGradient id="student-line-grad" x1="0" y1="0" x2="1" y2="0">
                           <stop offset="0%" stopColor="#6366f1" />
@@ -378,10 +378,10 @@ export default function TeacherAnalytics() {
                   let bgClass = "bg-surface-variant/40"
                   let textClass = "text-on-surface-variant/50"
                   if (stats?.total > 0) {
-                    if (percent >= 90) { bgClass = "bg-brand text-white shadow-sm shadow-brand/20"; textClass = "text-white" }
-                    else if (percent >= 75) { bgClass = "bg-brand/80 text-white"; textClass = "text-white" }
-                    else if (percent >= 50) { bgClass = "bg-brand/50 text-on-surface"; textClass = "text-on-surface" }
-                    else { bgClass = "bg-brand/20 border border-brand/30 text-on-surface"; textClass = "text-on-surface" }
+                    if (percent >= 90) { bgClass = "bg-[#7c3aed] text-white font-extrabold shadow-sm shadow-purple-500/20"; textClass = "text-white" }
+                    else if (percent >= 75) { bgClass = "bg-[#8b5cf6] text-white font-bold"; textClass = "text-white" }
+                    else if (percent >= 50) { bgClass = "bg-[#a855f7]/40 text-on-surface font-bold"; textClass = "text-on-surface" }
+                    else { bgClass = "bg-[#a855f7]/20 border border-[#a855f7]/30 text-on-surface"; textClass = "text-on-surface" }
                   }
 
                   return (
