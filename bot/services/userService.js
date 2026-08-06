@@ -143,12 +143,17 @@ export async function handleGroupMonthlyStats(telegramUser, body) {
 
   let totalAttendanceMarks = 0
   let presentAttendanceMarks = 0
+  let monthAbsentCount = 0
   const totalClasses = monthSessions?.length || 0
 
   monthSessions?.forEach((session) => {
     session.attendance?.forEach((att) => {
       totalAttendanceMarks++
-      if (att.present) presentAttendanceMarks++
+      if (att.present) {
+        presentAttendanceMarks++
+      } else {
+        monthAbsentCount++
+      }
     })
   })
 
@@ -156,7 +161,7 @@ export async function handleGroupMonthlyStats(telegramUser, body) {
     ? Math.round((presentAttendanceMarks / totalAttendanceMarks) * 100)
     : 0
 
-  return { ok: true, totalClasses, averageAttendance }
+  return { ok: true, totalClasses, averageAttendance, monthAbsentCount }
 }
 
 // Telegram Payments API

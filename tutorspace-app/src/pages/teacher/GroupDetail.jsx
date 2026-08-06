@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Download, Copy } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy } from 'lucide-react'
 import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -622,16 +622,15 @@ export default function GroupDetail() {
       if (!id) return
 
       const unpaidCount = students.filter((s) => s.status !== 'paid').length
-      const absentCount = students.filter((s) => !attendance[s.id]).length
 
       try {
         const statsData = await fetchGroupMonthlyStats(id)
 
         setMonthlyStats({
           unpaidCount,
-          absentCount,
-          averageAttendance: statsData.averageAttendance,
-          totalClasses: statsData.totalClasses,
+          absentCount: statsData?.monthAbsentCount || 0,
+          averageAttendance: statsData?.averageAttendance || 0,
+          totalClasses: statsData?.totalClasses || 0,
         })
       } catch (err) {
         console.error('[Stats] load error:', err)
@@ -936,55 +935,34 @@ export default function GroupDetail() {
           </div>
         </div>
 
-        {/* Invitation Link m3-card */}
-        <div className="m3-card bg-[#8b5cf6]/10 border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 p-4">
-          <div className="flex items-center justify-between mb-1">
-            <h3 className="text-sm font-bold text-on-surface">{t('groupDetail.inviteLink')}</h3>
-            <span className="text-[10px] bg-[#8b5cf6]/20 text-primary px-2 py-0.5 rounded-full font-bold">{t('groupDetail.inviteLinkBadge')}</span>
-          </div>
-          <p className="text-xs text-on-surface-variant mb-3">
-            {t('groupDetail.inviteLinkDesc')}
-          </p>
-          <div className="space-y-3">
-            <div 
-              onClick={() => {
-                navigator.clipboard.writeText(`https://t.me/${botUsername}?start=invite_${group?.invite_token}`)
-                haptic?.success()
-                if (window.Telegram?.WebApp?.showAlert) {
-                  window.Telegram.WebApp.showAlert(t('groupDetail.inviteLinkCopied'))
-                } else {
-                  alert(t('groupDetail.inviteLinkCopied'))
-                }
-              }}
-              className="flex items-center gap-2 bg-surface-high/90 border border-[#8b5cf6]/40 dark:border-[#a855f7]/40 rounded-2xl px-3.5 py-3 cursor-pointer active:scale-[0.98] transition-transform"
-            >
-              <span className="truncate flex-1 font-mono text-xs text-on-surface select-all">
-                {`https://t.me/${botUsername}?start=invite_${group?.invite_token}`}
-              </span>
-              <button
-                type="button"
-                className="p-1 rounded-lg text-primary hover:bg-brand/10 shrink-0"
-                title={t('common.copy')}
-              >
-                <Copy size={16} />
-              </button>
+        {/* Compact Invitation Link Card */}
+        <div className="m3-card bg-gradient-to-br from-[#8b5cf6]/15 via-surface-container/60 to-surface-container border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 p-3.5 flex items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3 overflow-hidden min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#8b5cf6]/20 text-primary flex items-center justify-center shrink-0">
+              <Link2 size={18} />
             </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(`https://t.me/${botUsername}?start=invite_${group?.invite_token}`)
-                haptic?.success()
-                if (window.Telegram?.WebApp?.showAlert) {
-                  window.Telegram.WebApp.showAlert(t('groupDetail.inviteLinkCopied'))
-                } else {
-                  alert(t('groupDetail.inviteLinkCopied'))
-                }
-              }}
-              className="w-full h-11 rounded-full bg-brand text-on-primary font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all duration-200"
-            >
-              <Copy size={16} />
-              {t('groupDetail.inviteStudent')}
-            </button>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-on-surface truncate">{t('groupDetail.inviteLink')}</p>
+              <p className="text-[11px] text-on-surface-variant font-mono truncate select-all mt-0.5">
+                {`t.me/${botUsername}?start=invite_${group?.invite_token}`}
+              </p>
+            </div>
           </div>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(`https://t.me/${botUsername}?start=invite_${group?.invite_token}`)
+              haptic?.success()
+              if (window.Telegram?.WebApp?.showAlert) {
+                window.Telegram.WebApp.showAlert(t('groupDetail.inviteLinkCopied'))
+              } else {
+                alert(t('groupDetail.inviteLinkCopied'))
+              }
+            }}
+            className="px-3.5 py-2 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-bold rounded-xl shrink-0 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm"
+          >
+            <Copy size={13} />
+            <span>{lang === 'ru' ? 'Поделиться' : 'Ulashish'}</span>
+          </button>
         </div>
 
         {/* Attendance m3-card */}
@@ -1188,7 +1166,7 @@ export default function GroupDetail() {
                       {displayStudentName(student.name)}
                     </p>
                     <p className="text-on-surface-variant text-xs flex items-center gap-1 mt-0.5 truncate">
-                      <span className="whitespace-nowrap font-medium">{formatUZS(student.amount)}</span>
+                      <span className="whitespace-nowrap font-medium">{formatUZS(student.amount, false, lang)}</span>
                       <Pencil size={10} className="text-on-surface-variant/50 group-hover:text-primary transition-colors shrink-0" />
                     </p>
                   </div>
