@@ -232,7 +232,7 @@ export default function TeacherAnalytics() {
                   const height = hasStudents ? Math.max((d.newStudents / maxStudents) * 100, 15) : 0
                   const barClass = isCurrent
                     ? "bg-gradient-to-t from-brand to-purple-400 shadow-sm shadow-brand/20"
-                    : "bg-brand/40"
+                    : "bg-[#5E5968]"
 
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
@@ -244,11 +244,11 @@ export default function TeacherAnalytics() {
                         )}
                         {hasStudents ? (
                           <div 
-                            className={`w-full max-w-[24px] ${barClass} rounded-full transition-all`}
+                            className={`w-full max-w-[24px] ${barClass} rounded-full transition-all duration-300`}
                             style={{ height: `${height}%` }}
                           />
                         ) : (
-                          <div className="w-full max-w-[24px] h-1.5 bg-[#36343B] rounded-full" />
+                          <div className={`w-full max-w-[24px] h-1.5 ${isCurrent ? 'bg-brand/60' : 'bg-[#36343B]'} rounded-full`} />
                         )}
                       </div>
                       <span className={`text-[10px] font-medium ${isCurrent ? 'text-brand font-bold' : 'text-on-surface-variant'}`}>
