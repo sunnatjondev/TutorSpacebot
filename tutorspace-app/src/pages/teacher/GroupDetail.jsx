@@ -865,31 +865,7 @@ export default function GroupDetail() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest pb-24">
-      {/* Top Header - No white border line, safe padding below Telegram controls */}
-      <header className="flex items-center justify-between px-4 pt-4 pb-2 sticky top-0 z-30 bg-surface-lowest/90 backdrop-blur-md">
-        <button
-          onClick={() => {
-            haptic?.light()
-            navigate(-1)
-          }}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container/70 text-on-surface text-xs font-semibold active:scale-95 transition-all border border-[#8b5cf6]/20 dark:border-[#a855f7]/20"
-        >
-          <ArrowLeft size={16} />
-          <span>{lang === 'ru' ? 'Назад' : 'Orqaga'}</span>
-        </button>
-
-        <button
-          className="w-9 h-9 rounded-full bg-surface-container/70 flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform border border-[#8b5cf6]/20 dark:border-[#a855f7]/20"
-          onClick={() => {
-            haptic?.light()
-            setShowActions(true)
-          }}
-        >
-          <MoreVertical size={18} />
-        </button>
-      </header>
-
-      <div className="flex-1 px-4 pt-2 pb-6 space-y-4">
+      <div className="flex-1 px-4 pt-4 pb-6 space-y-4">
         {loading && !group && (
           <div className="m3-card text-center py-8 text-on-surface-variant">{t('common.loading')}</div>
         )}
@@ -905,16 +881,28 @@ export default function GroupDetail() {
                 {group?.name || 'Guruh'}
               </h1>
             </div>
-            <button
-              onClick={() => {
-                haptic?.light()
-                setShowEdit(true)
-              }}
-              className="text-xs font-bold text-primary bg-[#8b5cf6]/15 hover:bg-[#8b5cf6]/25 px-3 py-1.5 rounded-full transition-all flex items-center gap-1 shrink-0 border border-[#8b5cf6]/30"
-            >
-              <Pencil size={12} />
-              {t('common.edit')}
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => {
+                  haptic?.light()
+                  setShowEdit(true)
+                }}
+                className="text-xs font-bold text-primary bg-[#8b5cf6]/15 hover:bg-[#8b5cf6]/25 px-3 py-1.5 rounded-full transition-all flex items-center gap-1 border border-[#8b5cf6]/30"
+              >
+                <Pencil size={12} />
+                {t('common.edit')}
+              </button>
+              <button
+                onClick={() => {
+                  haptic?.light()
+                  setShowActions(true)
+                }}
+                className="w-8 h-8 rounded-full bg-[#8b5cf6]/15 hover:bg-[#8b5cf6]/25 text-primary flex items-center justify-center transition-all border border-[#8b5cf6]/30"
+                title="Опции"
+              >
+                <MoreVertical size={16} />
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#8b5cf6]/15">
@@ -923,7 +911,7 @@ export default function GroupDetail() {
                 {group.subject}
               </span>
             )}
-            <span className="px-3 py-1 rounded-full bg-surface-high/80 text-on-surface-variant text-xs font-bold border border-outline-variant/20">
+            <span className="px-3 py-1 rounded-full bg-[#8b5cf6]/10 text-on-surface text-xs font-bold border border-[#8b5cf6]/30 dark:border-[#a855f7]/30">
               👥 {t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? students.length })}
             </span>
           </div>
