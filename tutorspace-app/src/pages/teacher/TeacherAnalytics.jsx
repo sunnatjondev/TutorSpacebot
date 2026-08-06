@@ -101,7 +101,7 @@ export default function TeacherAnalytics() {
 
               const earnedBarClass = isCurrent
                 ? "bg-gradient-to-t from-brand to-purple-400 shadow-sm shadow-brand/20"
-                : "bg-[#5E5968]"
+                : "bg-brand/50"
 
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
@@ -109,7 +109,7 @@ export default function TeacherAnalytics() {
                     {/* Expected (Background Bar) */}
                     {hasExpected && (
                       <div 
-                        className="absolute bottom-0 w-full max-w-[24px] bg-[#36343B] rounded-full transition-all duration-300"
+                        className="absolute bottom-0 w-full max-w-[24px] bg-surface-variant/60 rounded-full transition-all duration-300"
                         style={{ height: `${expectedHeight}%` }}
                       />
                     )}
@@ -121,7 +121,7 @@ export default function TeacherAnalytics() {
                         style={{ height: `${earnedHeight}%` }}
                       />
                     ) : (
-                      <div className={`w-full max-w-[24px] h-1.5 ${isCurrent ? 'bg-brand/60' : 'bg-[#36343B]'} rounded-full`} />
+                      <div className={`w-full max-w-[24px] h-1.5 ${isCurrent ? 'bg-brand/60' : 'bg-surface-variant'} rounded-full`} />
                     )}
                   </div>
                   <span className={`text-[11px] font-medium ${isCurrent ? 'text-brand font-bold' : 'text-on-surface-variant'}`}>
@@ -137,7 +137,7 @@ export default function TeacherAnalytics() {
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Оплачено' : 'To\'langan'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 bg-[#36343B] rounded-full shrink-0" />
+              <div className="w-2.5 h-2.5 bg-surface-variant rounded-full shrink-0" />
               <span className="text-on-surface-variant">{lang === 'ru' ? 'Ожидается' : 'Kutilmoqda'}</span>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default function TeacherAnalytics() {
           ) : (
             <div className="space-y-3">
               {topDebtors.map((d, i) => (
-                <div key={d.studentId || i} className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-high/60 border border-[#8b5cf6]/40 shadow-xs">
+                <div key={d.studentId || i} className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-high/60 border border-brand/30 shadow-xs">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-7 h-7 rounded-full bg-error/15 text-error flex items-center justify-center text-xs font-bold shrink-0">
                       {i + 1}
@@ -228,7 +228,7 @@ export default function TeacherAnalytics() {
                 {(() => {
                   const totalNew = (studentData || []).reduce((sum, d) => sum + (d.newStudents || 0), 0)
                   return (
-                    <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full flex items-center gap-1">
                       <Sparkles size={12} />
                       +{totalNew} {lang === 'ru' ? 'всего' : 'jami'}
                     </span>
@@ -242,7 +242,7 @@ export default function TeacherAnalytics() {
                 const totalPoints = list.length || 6
                 const viewBoxW = 320
                 const viewBoxH = 120
-                const padX = 22
+                const padX = 24
                 const padBottom = 25
                 const padTop = 32
                 const availW = viewBoxW - padX * 2
@@ -279,8 +279,8 @@ export default function TeacherAnalytics() {
                     <svg viewBox={`0 0 ${viewBoxW} ${viewBoxH}`} className="w-full h-auto overflow-visible">
                       <defs>
                         <linearGradient id="student-area-grad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
-                          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+                          <stop offset="0%" stopColor="var(--primary, #8b5cf6)" stopOpacity="0.35" />
+                          <stop offset="100%" stopColor="var(--primary, #8b5cf6)" stopOpacity="0.0" />
                         </linearGradient>
                         <linearGradient id="student-line-grad" x1="0" y1="0" x2="1" y2="0">
                           <stop offset="0%" stopColor="#6366f1" />
@@ -292,7 +292,7 @@ export default function TeacherAnalytics() {
                       <line 
                         x1={padX} y1={viewBoxH - padBottom} 
                         x2={viewBoxW - padX} y2={viewBoxH - padBottom} 
-                        stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3 3" 
+                        stroke="var(--outline-variant, rgba(120,120,120,0.2))" strokeWidth="1" strokeDasharray="3 3" 
                       />
 
                       {/* Gradient Area Fill */}
@@ -315,22 +315,22 @@ export default function TeacherAnalytics() {
                         <g key={idx}>
                           {pt.val > 0 ? (
                             <g>
-                              {/* Pulse Ring for Current */}
+                              {/* Static Aura Ring for Current */}
                               {pt.isCurrent && (
-                                <circle cx={pt.x} cy={pt.y} r="8" fill="#a855f7" opacity="0.25" className="animate-ping" />
+                                <circle cx={pt.x} cy={pt.y} r="9" fill="#a855f7" opacity="0.25" />
                               )}
                               {/* Point Circle */}
                               <circle 
                                 cx={pt.x} cy={pt.y} r="5" 
                                 fill={pt.isCurrent ? '#a855f7' : '#8b5cf6'} 
-                                stroke="#1e1b2e" strokeWidth="2" 
+                                stroke="var(--surface, #ffffff)" strokeWidth="2" 
                               />
                               {/* Floating Badge */}
                               <g transform={`translate(${pt.x}, ${pt.y - 12})`}>
                                 <rect 
                                   x="-11" y="-12" width="22" height="14" rx="7" 
-                                  fill={pt.isCurrent ? '#a855f7' : '#2b2638'} 
-                                  stroke={pt.isCurrent ? '#c084fc' : 'rgba(255,255,255,0.15)'}
+                                  fill={pt.isCurrent ? '#8b5cf6' : '#6b5a96'} 
+                                  stroke={pt.isCurrent ? '#c084fc' : 'rgba(255,255,255,0.2)'}
                                   strokeWidth="1"
                                 />
                                 <text 
@@ -342,13 +342,13 @@ export default function TeacherAnalytics() {
                               </g>
                             </g>
                           ) : (
-                            <circle cx={pt.x} cy={pt.y} r="3" fill="rgba(255,255,255,0.2)" />
+                            <circle cx={pt.x} cy={pt.y} r="3" fill="var(--outline-variant, rgba(120,120,120,0.3))" />
                           )}
 
-                          {/* Month Label */}
+                          {/* Month Label (Theme Adaptive) */}
                           <text 
                             x={pt.x} y={viewBoxH - 6} textAnchor="middle" 
-                            fill={pt.isCurrent ? '#a855f7' : 'rgba(255,255,255,0.5)'} 
+                            fill={pt.isCurrent ? '#8b5cf6' : 'var(--on-surface-variant, #666666)'} 
                             fontSize="10" fontWeight={pt.isCurrent ? 'bold' : 'normal'}
                           >
                             {pt.month}
@@ -375,13 +375,13 @@ export default function TeacherAnalytics() {
                   const stats = (attendanceByDay || {})[day]
                   const percent = stats?.total > 0 ? (stats.present / stats.total) * 100 : 0
                   
-                  let bgClass = "bg-[#25232A]/60"
-                  let textClass = "text-on-surface-variant/30"
+                  let bgClass = "bg-surface-variant/40"
+                  let textClass = "text-on-surface-variant/50"
                   if (stats?.total > 0) {
-                    if (percent >= 90) { bgClass = "bg-[#8b5cf6] shadow-sm shadow-purple-500/20"; textClass = "text-white" }
-                    else if (percent >= 75) { bgClass = "bg-[#8b5cf6]/75"; textClass = "text-white" }
-                    else if (percent >= 50) { bgClass = "bg-[#8b5cf6]/45"; textClass = "text-on-surface" }
-                    else { bgClass = "bg-[#8b5cf6]/25 border border-[#8b5cf6]/30"; textClass = "text-on-surface" }
+                    if (percent >= 90) { bgClass = "bg-brand text-white shadow-sm shadow-brand/20"; textClass = "text-white" }
+                    else if (percent >= 75) { bgClass = "bg-brand/80 text-white"; textClass = "text-white" }
+                    else if (percent >= 50) { bgClass = "bg-brand/50 text-on-surface"; textClass = "text-on-surface" }
+                    else { bgClass = "bg-brand/20 border border-brand/30 text-on-surface"; textClass = "text-on-surface" }
                   }
 
                   return (
