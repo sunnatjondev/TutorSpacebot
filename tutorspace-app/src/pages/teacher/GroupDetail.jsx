@@ -1327,16 +1327,37 @@ export default function GroupDetail() {
           handleDeleteGroup()
         }}
         onExportCSV={() => {
+          if (!students || !students.length) {
+            haptic?.notification('warning')
+            const msg = lang === 'ru' ? 'В группе нет учеников для экспорта' : 'Guruhda eksport qilish uchun o\'quvchilar yo\'q'
+            if (window.Telegram?.WebApp?.showAlert) {
+              window.Telegram.WebApp.showAlert(msg)
+            } else {
+              alert(msg)
+            }
+            return
+          }
+
           const rows = students.map(s => ({
-            'ID': s.id,
-            'Name': s.name,
-            'Username': s.username || '',
-            'Phone': s.phone_number || '',
-            'Status': s.status,
-            'Amount': s.amount
+            [lang === 'ru' ? 'Имя' : 'Ism']: s.name,
+            [lang === 'ru' ? 'Username' : 'Foydalanuvchi']: s.username ? `@${s.username}` : '—',
+            [lang === 'ru' ? 'Телефон' : 'Telefon']: s.phone_number || '—',
+            [lang === 'ru' ? 'Статус оплаты' : 'To\'lov holati']: s.status === 'paid' ? (lang === 'ru' ? 'Оплачено' : 'To\'langan') : (lang === 'ru' ? 'Не оплачено' : 'To\'lanmagan'),
+            [lang === 'ru' ? 'Стоимость (UZS)' : 'Narxi (UZS)']: s.amount || 0
           }))
-          downloadCSV(`Group_${group?.name}_Students`, rows)
+
+          downloadCSV(`Group_${group?.name || 'Students'}`, rows)
           haptic?.success()
+
+          const successMsg = lang === 'ru'
+            ? 'CSV-файл скачан и скопирован в буфер обмена!'
+            : 'CSV fayli yuklandi va buferga nusxalandi!'
+
+          if (window.Telegram?.WebApp?.showAlert) {
+            window.Telegram.WebApp.showAlert(successMsg)
+          } else {
+            alert(successMsg)
+          }
         }}
       />
 
