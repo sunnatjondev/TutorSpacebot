@@ -1127,13 +1127,13 @@ export default function GroupDetail() {
 
           {/* Session Notes */}
           {!loadingAttendance && sessionId && (
-            <div className="mt-4 pt-4 border-t border-outline-variant/20">
+            <div className="mt-4 pt-4 border-t border-[#8b5cf6]/30 dark:border-[#a855f7]/30">
               <label className="text-xs font-bold text-on-surface mb-2 flex items-center gap-1.5">
                 <FileText size={15} className="text-primary" />
                 <span>{lang === 'ru' ? 'Заметки к уроку (темы, замечания)' : 'Dars qaydlari (mavzular, izohlar)'}</span>
               </label>
               <textarea
-                className="w-full resize-none h-24 text-sm p-3.5 rounded-xl bg-surface-high/60 border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-[#8b5cf6] transition-colors"
+                className="m3-input !rounded-xl !h-24 !p-3.5 border !border-[#8b5cf6]/40 dark:!border-[#a855f7]/40 text-sm resize-none focus:!border-[#8b5cf6]"
                 value={sessionNotes}
                 onChange={(e) => setSessionNotes(e.target.value)}
                 placeholder={lang === 'ru' ? 'Что проходили на уроке...' : 'Darsda nima o\'tildi...'}
