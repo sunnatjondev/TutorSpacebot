@@ -36,8 +36,8 @@ function getLocalDateKey(date) {
 function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDeleteGroup, onExportCSV, manageStudents, t }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('groupDetail.groupManagement')}>
-      <div className="divide-y divide-outline-variant bg-surface-high rounded-2xl overflow-hidden border border-outline-variant">
-        {/* Edit Group */}
+      <div className="divide-y divide-[#8b5cf6]/20 bg-surface-high rounded-2xl overflow-hidden border border-[#8b5cf6]/30 dark:border-[#a855f7]/30">
+        {/* 1. Edit Group */}
         <button
           onClick={() => { onEdit(); onClose(); }}
           className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container/50 active:bg-surface-container transition-colors text-left"
@@ -47,11 +47,11 @@ function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDelete
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-on-surface">{t('groupDetail.editGroup')}</p>
-            <p className="text-xs text-on-surface-variant mt-0.5">{t('groupDetail.groupName')}</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t('groupDetail.editGroupSub')}</p>
           </div>
         </button>
 
-        {/* Manage Students */}
+        {/* 2. Manage Students */}
         <button
           onClick={() => { onManageStudents(); onClose(); }}
           className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface-container/50 active:bg-surface-container transition-colors text-left"
@@ -63,14 +63,33 @@ function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDelete
             <p className="text-sm font-bold text-on-surface">
               {manageStudents ? t('groupDetail.hideManageStudents') : t('groupDetail.manageStudents')}
             </p>
-            <p className="text-xs text-on-surface-variant mt-0.5">{t('groupDetail.editRateHint')}</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t('groupDetail.manageStudentsSub')}</p>
           </div>
         </button>
 
-        {/* Delete Group */}
+        {/* 3. Export CSV */}
+        <button
+          onClick={() => { onExportCSV(); onClose(); }}
+          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-emerald-500/5 active:bg-emerald-500/10 transition-colors text-left"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
+            <Download size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-bold text-emerald-400">{t('groupDetail.exportCSV')}</p>
+              <span className="px-2 py-0.5 text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 rounded-md">
+                Center
+              </span>
+            </div>
+            <p className="text-xs text-emerald-500/70 mt-0.5">{t('groupDetail.exportCSVSub')}</p>
+          </div>
+        </button>
+
+        {/* 4. Delete Group (Always at the bottom!) */}
         <button
           onClick={() => { onDeleteGroup(); onClose(); }}
-          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-red-500/5 active:bg-red-500/10 transition-colors text-left"
+          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-red-500/5 active:bg-red-500/10 transition-colors text-left bg-red-500/[0.02]"
         >
           <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">
             <Trash2 size={18} />
@@ -78,20 +97,6 @@ function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDelete
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-red-400">{t('groupDetail.deleteGroup')}</p>
             <p className="text-xs text-red-500/70 mt-0.5">{t('groupDetail.deleteGroupConfirm')}</p>
-          </div>
-        </button>
-
-        {/* Export CSV */}
-        <button
-          onClick={() => { onExportCSV(); onClose(); }}
-          className="w-full flex items-center gap-4 px-5 py-4 hover:bg-green-500/5 active:bg-green-500/10 transition-colors text-left"
-        >
-          <div className="w-10 h-10 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
-            <Download size={18} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-green-600">CSV Export</p>
-            <p className="text-xs text-green-600/70 mt-0.5">Talabalar va to'lovlar</p>
           </div>
         </button>
       </div>
