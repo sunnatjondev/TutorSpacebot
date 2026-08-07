@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy } from 'lucide-react'
+import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save } from 'lucide-react'
 import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -1066,49 +1066,55 @@ export default function GroupDetail() {
                 return (
                   <div className="space-y-3">
                     {showMarkAllBtn && (
-                      <div className="flex justify-end pr-1">
-                        <button
-                          onClick={handleMarkAllPresent}
-                          className="text-[11px] font-bold text-primary bg-primary/10 hover:bg-primary/15 active:scale-95 px-3 py-1.5 rounded-full transition-all flex items-center gap-1"
-                        >
-                          ✓ {lang === 'ru' ? 'Отметить всех присутствующими' : 'Hammani bor deb belgilash'}
-                        </button>
-                      </div>
+                      <button
+                        onClick={handleMarkAllPresent}
+                        className="w-full py-2.5 px-4 my-1 bg-[#8b5cf6]/10 hover:bg-[#8b5cf6]/20 text-primary rounded-2xl text-xs font-bold border border-[#8b5cf6]/30 flex items-center justify-center gap-2 active:scale-98 transition-all shadow-sm"
+                      >
+                        <CheckCircle2 size={16} />
+                        <span>{lang === 'ru' ? 'Отметить всех присутствующими' : 'Hammani bor deb belgilash'}</span>
+                      </button>
                     )}
 
                     {visibleStudents.map((student, index) => (
                       <div key={student.id}>
                         <div className="flex items-center gap-3 py-3">
                           <Avatar name={displayStudentName(student.name)} size="md" />
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 pr-1">
                             <p className="font-semibold text-on-surface text-sm truncate">{displayStudentName(student.name)}</p>
-                            <p className="text-on-surface-variant text-[10px] truncate">
+                            <p className="text-on-surface-variant text-[10px] truncate mt-0.5">
                               {student.username ? `@${student.username}` : '—'}
                               {student.joined_at && ` • ${lang === 'ru' ? 'Вступил(а)' : "Qo'shilgan"}: ${new Date(student.joined_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short' })}`}
                             </p>
                           </div>
-                          {manageStudents && (
-                            <button
-                              onClick={() => handleRemoveStudent(student.id)}
-                              className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-90 transition-transform shrink-0"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleCopyParentInvite(student.id)}
-                            className="w-8 h-8 rounded-full bg-brand/10 hover:bg-brand/20 flex items-center justify-center text-primary active:scale-90 transition-transform shrink-0"
-                            title={lang === 'ru' ? 'Ссылка для родителей' : 'Ota-ona taklif havolasi'}
-                          >
-                            <UserPlus size={14} />
-                          </button>
-                          <button onClick={() => toggleAttendance(student.id)} className="transition-all duration-200 active:scale-90 shrink-0">
-                            {attendance[student.id] ? (
-                              <CheckCircle size={24} className="text-paid-green" />
-                            ) : (
-                              <Circle size={24} className="text-outline" />
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            {manageStudents && (
+                              <button
+                                onClick={() => handleRemoveStudent(student.id)}
+                                className="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 active:scale-90 transition-transform"
+                              >
+                                <Trash2 size={15} />
+                              </button>
                             )}
-                          </button>
+                            <button
+                              onClick={() => handleCopyParentInvite(student.id)}
+                              className="w-8 h-8 rounded-full bg-[#8b5cf6]/10 hover:bg-[#8b5cf6]/20 flex items-center justify-center text-primary active:scale-90 transition-transform"
+                              title={lang === 'ru' ? 'Ссылка для родителей' : 'Ota-ona taklif havolasi'}
+                            >
+                              <UserPlus size={14} />
+                            </button>
+                            <button
+                              onClick={() => toggleAttendance(student.id)}
+                              className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 active:scale-90"
+                              title={attendance[student.id] ? (lang === 'ru' ? 'Присутствует' : 'Bor') : (lang === 'ru' ? 'Отсутствует' : 'Yo\'q')}
+                            >
+                              {attendance[student.id] ? (
+                                <CheckCircle size={28} className="text-paid-green drop-shadow-sm" />
+                              ) : (
+                                <Circle size={28} className="text-outline-variant hover:text-on-surface-variant" />
+                              )}
+                            </button>
+                          </div>
                         </div>
                         {index < visibleStudents.length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
                       </div>
@@ -1122,21 +1128,22 @@ export default function GroupDetail() {
           {/* Session Notes */}
           {!loadingAttendance && sessionId && (
             <div className="mt-4 pt-4 border-t border-outline-variant/20">
-              <label className="text-xs font-semibold text-on-surface-variant mb-2 block">
-                {lang === 'ru' ? 'Заметки к уроку (темы, замечания)' : 'Dars qaydlari (mavzular, izohlar)'}
+              <label className="text-xs font-bold text-on-surface mb-2 block">
+                📝 {lang === 'ru' ? 'Заметки к уроку (темы, замечания)' : 'Dars qaydlari (mavzular, izohlar)'}
               </label>
               <textarea
-                className="m3-input w-full resize-none h-20 text-sm"
+                className="m3-input w-full resize-none h-20 text-sm p-3 rounded-2xl border border-outline-variant/30 focus:border-[#8b5cf6]"
                 value={sessionNotes}
                 onChange={(e) => setSessionNotes(e.target.value)}
                 placeholder={lang === 'ru' ? 'Что проходили на уроке...' : 'Darsda nima o\'tildi...'}
               />
               <button
-                className="mt-2 text-xs font-bold text-brand hover:text-primary transition-colors disabled:opacity-50"
+                className="mt-3 w-full py-3 rounded-2xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-bold active:scale-98 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
                 onClick={handleSaveNotes}
                 disabled={savingNotes}
               >
-                {savingNotes ? (lang === 'ru' ? 'Сохранение...' : 'Saqlanmoqda...') : (lang === 'ru' ? 'Сохранить заметки' : 'Qaydlarni saqlash')}
+                <Save size={15} />
+                <span>{savingNotes ? (lang === 'ru' ? 'Сохранение...' : 'Saqlanmoqda...') : (lang === 'ru' ? 'Сохранить заметки' : 'Qaydlarni saqlash')}</span>
               </button>
             </div>
           )}
