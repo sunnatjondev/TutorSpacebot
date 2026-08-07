@@ -156,7 +156,7 @@ export default function AddStudent() {
         <div>
           <p className="font-semibold text-on-surface mb-2">{t('addStudent.monthlyRate')}</p>
           <div className="relative">
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">UZS</span>
             <input
               type="number"
               className="m3-input pr-14"

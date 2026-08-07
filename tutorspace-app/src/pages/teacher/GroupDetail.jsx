@@ -1329,7 +1329,7 @@ export default function GroupDetail() {
             <p className="text-sm font-semibold text-on-surface mb-1">{editingStudent?.name}</p>
             <p className="text-xs text-on-surface-variant mb-3">{t('groupDetail.editRateDesc')}</p>
             <div className="relative">
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">so'm</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">UZS</span>
               <input
                 type="number"
                 className="m3-input pr-14"

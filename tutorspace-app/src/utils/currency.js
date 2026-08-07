@@ -8,21 +8,21 @@
  * @param {number} amount - amount in so'm
  * @param {boolean} compact - use compact format (120K so'm)
  */
-export function formatUZS(amount, compact = false, lang = 'ru') {
-  const currencySuffix = lang === 'ru' ? 'сум' : "so'm"
+export function formatUZS(amount, compact = false) {
+  const currencySuffix = 'UZS'
   if (amount === null || amount === undefined) return `0 ${currencySuffix}`
 
   const abs = Math.abs(amount)
   const sign = amount < 0 ? '-' : ''
 
   if (compact && abs >= 1_000_000) {
-    return `${sign}${(abs / 1_000_000).toFixed(1).replace('.0', '')} ${lang === 'ru' ? 'млн сум' : 'mln so\'m'}`
+    return `${sign}${(abs / 1_000_000).toFixed(1).replace('.0', '')} mln ${currencySuffix}`
   }
   if (compact && abs >= 1_000) {
     return `${sign}${(abs / 1_000).toFixed(0)}K ${currencySuffix}`
   }
 
-  // Space-separated thousands: 1 200 000 сум / so'm
+  // Space-separated thousands: 1 200 000 UZS
   const formatted = abs
     .toFixed(0)
     .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
