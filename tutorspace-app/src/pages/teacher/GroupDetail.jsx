@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save, FileText } from 'lucide-react'
+import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save, FileText, CreditCard, Palette } from 'lucide-react'
 import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -118,15 +118,15 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
     { value: 'teal', bg: 'bg-teal-500', ring: 'ring-teal-500' },
   ]
 
-  const weekDays = [
-    { id: 1, short: 'Du', full: 'Dushanba' },
-    { id: 2, short: 'Se', full: 'Seshanba' },
-    { id: 3, short: 'Ch', full: 'Chorshanba' },
-    { id: 4, short: 'Pa', full: 'Payshanba' },
-    { id: 5, short: 'Ju', full: 'Juma' },
-    { id: 6, short: 'Sh', full: 'Shanba' },
-    { id: 0, short: 'Ya', full: 'Yakshanba' },
-  ]
+  const weekDays = useMemo(() => [
+    { id: 1, short: lang === 'ru' ? 'Пн' : 'Du', full: lang === 'ru' ? 'Понедельник' : 'Dushanba' },
+    { id: 2, short: lang === 'ru' ? 'Вт' : 'Se', full: lang === 'ru' ? 'Вторник' : 'Seshanba' },
+    { id: 3, short: lang === 'ru' ? 'Ср' : 'Ch', full: lang === 'ru' ? 'Среда' : 'Chorshanba' },
+    { id: 4, short: lang === 'ru' ? 'Чт' : 'Pa', full: lang === 'ru' ? 'Четверг' : 'Payshanba' },
+    { id: 5, short: lang === 'ru' ? 'Пт' : 'Ju', full: lang === 'ru' ? 'Пятница' : 'Juma' },
+    { id: 6, short: lang === 'ru' ? 'Сб' : 'Sh', full: lang === 'ru' ? 'Суббота' : 'Shanba' },
+    { id: 0, short: lang === 'ru' ? 'Вс' : 'Ya', full: lang === 'ru' ? 'Воскресенье' : 'Yakshanba' },
+  ], [lang])
 
   useEffect(() => {
     if (!isOpen) return
@@ -185,11 +185,14 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         </div>
 
         {/* ── Payment Section ── */}
-        <div className="bg-surface-container/35 rounded-2xl p-4 space-y-3 border border-outline-variant">
-          <p className="text-xs font-bold text-on-surface-variant">💳 To'lov sozlamalari</p>
+        <div className="bg-surface-container/35 rounded-2xl p-4 space-y-3 border border-outline-variant/30">
+          <p className="text-xs font-bold text-on-surface flex items-center gap-1.5">
+            <CreditCard size={15} className="text-primary" />
+            <span>{t('groupDetail.paymentSettings')}</span>
+          </p>
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="text-xs text-on-surface-variant mb-1 block font-medium">Oylik summa (UZS)</label>
+              <label className="text-xs text-on-surface-variant mb-1 block font-medium">{t('groupDetail.monthlyRate')}</label>
               <input
                 className="m3-input !py-3"
                 type="number"
@@ -197,8 +200,8 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
                 onChange={(event) => setPricePerMonth(parseInt(event.target.value) || 0)}
               />
             </div>
-            <div className="w-24">
-              <label className="text-xs text-on-surface-variant mb-1 block font-medium">Kuni</label>
+            <div className="w-32">
+              <label className="text-xs text-on-surface-variant mb-1 block font-medium">{t('groupDetail.billingDay')}</label>
               <input
                 className="m3-input !py-3 text-center"
                 type="number"
@@ -209,11 +212,14 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
               />
             </div>
           </div>
+          <p className="text-[11px] text-on-surface-variant/80 mt-1.5 leading-tight">
+            💡 {t('groupDetail.billingDayHint')}
+          </p>
         </div>
 
         {/* ── Telegram Link ── */}
         <div>
-          <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block">Telegram guruh (ixtiyoriy)</label>
+          <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block">{t('groupDetail.telegramGroupOptional')}</label>
           <input
             className="m3-input"
             value={telegramGroupLink}
@@ -224,13 +230,17 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
 
         {/* ── Color Picker ── */}
         <div>
-          <label className="text-xs font-semibold text-on-surface-variant mb-2 block">Guruh rangi</label>
-          <div className="flex gap-3">
+          <label className="text-xs font-bold text-on-surface-variant mb-2.5 flex items-center gap-1.5">
+            <Palette size={15} className="text-primary" />
+            <span>{t('groupDetail.groupColor')}</span>
+          </label>
+          <div className="flex items-center gap-3">
             {colors.map((c) => (
               <button
                 key={c.value}
+                type="button"
                 onClick={() => setColor(c.value)}
-                className={`w-9 h-9 rounded-full ${c.bg} transition-all duration-200 ${color === c.value ? `ring-[3px] ring-offset-2 ${c.ring} ring-offset-[var(--surface-container)] scale-110` : 'opacity-60 hover:opacity-90 scale-90'}`}
+                className={`w-10 h-10 rounded-full ${c.bg} transition-all duration-200 ${color === c.value ? `ring-[3px] ring-offset-2 ${c.ring} ring-offset-[var(--surface-container)] scale-105` : 'opacity-60 hover:opacity-90 scale-90'}`}
               />
             ))}
           </div>
@@ -238,7 +248,10 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
 
         {/* ── Schedule Section ── */}
         <div>
-          <label className="text-xs font-semibold text-on-surface-variant mb-3 block">📅 Haftalik dars jadvali</label>
+          <label className="text-xs font-bold text-on-surface-variant mb-3 flex items-center gap-1.5">
+            <CalendarDays size={15} className="text-primary" />
+            <span>{t('groupDetail.weeklySchedule')}</span>
+          </label>
 
           {/* Day Toggle Pills */}
           <div className="flex flex-wrap gap-2 mb-3">
