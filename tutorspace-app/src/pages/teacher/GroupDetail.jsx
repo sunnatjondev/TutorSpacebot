@@ -168,7 +168,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
           <div>
             <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block">{t('groupDetail.groupName')}</label>
             <input
-              className="m3-input"
+              className="m3-input border !border-[#8b5cf6]/30 dark:!border-[#a855f7]/30 focus:!border-[#8b5cf6] !rounded-xl"
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder={t('groupDetail.groupNamePlaceholder')}
@@ -177,7 +177,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
           <div>
             <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block">{t('groupDetail.subject')}</label>
             <input
-              className="m3-input"
+              className="m3-input border !border-[#8b5cf6]/30 dark:!border-[#a855f7]/30 focus:!border-[#8b5cf6] !rounded-xl"
               value={subject}
               onChange={(event) => setSubject(event.target.value)}
               placeholder={t('groupDetail.subjectPlaceholder')}
@@ -186,7 +186,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         </div>
 
         {/* ── Payment Section ── */}
-        <div className="bg-surface-container/35 rounded-2xl p-4 space-y-3 border border-outline-variant/30">
+        <div className="bg-surface-container/40 rounded-xl p-4 space-y-3 border border-[#8b5cf6]/35 dark:border-[#a855f7]/35 shadow-sm">
           <p className="text-xs font-bold text-on-surface flex items-center gap-1.5">
             <CreditCard size={15} className="text-primary" />
             <span>{t('groupDetail.paymentSettings')}</span>
@@ -195,7 +195,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
             <div className="flex-1">
               <label className="text-xs text-on-surface-variant mb-1 block font-medium">{t('groupDetail.monthlyRate')}</label>
               <input
-                className="m3-input !py-3"
+                className="m3-input !py-3 border !border-[#8b5cf6]/30 dark:!border-[#a855f7]/30 focus:!border-[#8b5cf6] !rounded-xl"
                 type="number"
                 value={pricePerMonth}
                 onChange={(event) => setPricePerMonth(parseInt(event.target.value) || 0)}
@@ -204,7 +204,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
             <div className="w-32">
               <label className="text-xs text-on-surface-variant mb-1 block font-medium">{t('groupDetail.billingDay')}</label>
               <input
-                className="m3-input !py-3 text-center"
+                className="m3-input !py-3 text-center border !border-[#8b5cf6]/30 dark:!border-[#a855f7]/30 focus:!border-[#8b5cf6] !rounded-xl"
                 type="number"
                 min="1"
                 max="31"
@@ -222,7 +222,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
         <div>
           <label className="text-xs font-semibold text-on-surface-variant mb-1.5 block">{t('groupDetail.telegramGroupOptional')}</label>
           <input
-            className="m3-input"
+            className="m3-input border !border-[#8b5cf6]/30 dark:!border-[#a855f7]/30 focus:!border-[#8b5cf6] !rounded-xl"
             value={telegramGroupLink}
             onChange={(event) => setTelegramGroupLink(event.target.value)}
             placeholder="https://t.me/+"
@@ -265,7 +265,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
                   className={`h-10 px-4 rounded-xl text-sm font-bold transition-all duration-200 border ${
                     isActive
                       ? 'bg-primary text-on-primary border-primary shadow-sm'
-                      : 'bg-surface-high text-on-surface-variant border-outline-variant/30 hover:border-primary/40'
+                      : 'bg-surface-high text-on-surface-variant border-[#8b5cf6]/30 dark:border-[#a855f7]/30 hover:border-[#8b5cf6]'
                   }`}
                 >
                   {wd.short}
@@ -283,12 +283,12 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
                   const entry = scheduleTemplate.find(st => st.dayOfWeek === wd.id)
                   const [h, m] = (entry?.time || '15:00').split(':')
                   return (
-                    <div key={wd.id} className="flex items-center gap-3 bg-surface-high/60 rounded-xl px-3 py-2.5 border border-outline-variant/10">
+                    <div key={wd.id} className="flex items-center gap-3 bg-surface-high/60 rounded-xl px-3.5 py-2.5 border border-[#8b5cf6]/30 dark:border-[#a855f7]/30">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <CheckCircle size={16} className="text-primary shrink-0" />
                         <span className="text-sm font-semibold text-on-surface">{wd.full}</span>
                       </div>
-                      <div className="flex items-center gap-1 bg-surface-container rounded-lg px-2.5 py-1.5 border border-outline-variant/20 shrink-0">
+                      <div className="flex items-center gap-1 bg-surface-container rounded-lg px-2.5 py-1.5 border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 shrink-0">
                         <input
                           type="number"
                           min="0"
