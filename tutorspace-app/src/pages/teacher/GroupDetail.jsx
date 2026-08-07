@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save } from 'lucide-react'
+import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save, FileText } from 'lucide-react'
 import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -1128,17 +1128,18 @@ export default function GroupDetail() {
           {/* Session Notes */}
           {!loadingAttendance && sessionId && (
             <div className="mt-4 pt-4 border-t border-outline-variant/20">
-              <label className="text-xs font-bold text-on-surface mb-2 block">
-                📝 {lang === 'ru' ? 'Заметки к уроку (темы, замечания)' : 'Dars qaydlari (mavzular, izohlar)'}
+              <label className="text-xs font-bold text-on-surface mb-2 flex items-center gap-1.5">
+                <FileText size={15} className="text-primary" />
+                <span>{lang === 'ru' ? 'Заметки к уроку (темы, замечания)' : 'Dars qaydlari (mavzular, izohlar)'}</span>
               </label>
               <textarea
-                className="m3-input w-full resize-none h-20 text-sm p-3 rounded-2xl border border-outline-variant/30 focus:border-[#8b5cf6]"
+                className="w-full resize-none h-24 text-sm p-3.5 rounded-xl bg-surface-high/60 border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-[#8b5cf6] transition-colors"
                 value={sessionNotes}
                 onChange={(e) => setSessionNotes(e.target.value)}
                 placeholder={lang === 'ru' ? 'Что проходили на уроке...' : 'Darsda nima o\'tildi...'}
               />
               <button
-                className="mt-3 w-full py-3 rounded-2xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-bold active:scale-98 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                className="mt-3 w-full py-3 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-bold active:scale-98 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
                 onClick={handleSaveNotes}
                 disabled={savingNotes}
               >
