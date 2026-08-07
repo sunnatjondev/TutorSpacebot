@@ -100,6 +100,7 @@ function GroupActionsModal({ isOpen, onClose, onEdit, onManageStudents, onDelete
 }
 
 function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
+  const { lang } = useI18n()
   const [name, setName] = useState(group?.name || '')
   const [subject, setSubject] = useState(group?.subject || '')
   const [telegramGroupLink, setTelegramGroupLink] = useState(group?.telegram_group_link || '')
