@@ -428,7 +428,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
             {selectedDate && (
               <div className="flex items-center gap-3 mt-3">
                 <span className="text-sm text-on-surface-variant">{t('teacherSchedule.time')}</span>
-                <div className="flex items-center gap-2 bg-surface-container rounded-xl px-3 py-2">
+                <div className="flex items-center gap-2 bg-surface-container border border-outline-variant/40 dark:border-white/15 rounded-xl px-3 py-1.5 shadow-sm">
                   <input
                     type="number"
                     min="0" max="23"
@@ -439,7 +439,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
                     }}
                     className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
                   />
-                  <span className="text-on-surface font-bold">:</span>
+                  <span className="text-on-surface-variant font-bold">:</span>
                   <input
                     type="number"
                     min="0" max="59"
@@ -454,10 +454,10 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
                 <button
                   type="button"
                   onClick={() => { haptic?.light?.(); setSelectedDate(null); }}
-                  className="ml-auto px-3 py-1.5 rounded-xl bg-surface-high/80 border border-[#8b5cf6]/35 dark:border-[#a855f7]/35 text-on-surface-variant hover:text-on-surface text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-sm"
+                  className="ml-auto px-3 py-1.5 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-outline-variant/40 dark:border-white/15 text-on-surface-variant hover:text-on-surface text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 shadow-sm"
                   title={lang === 'ru' ? 'Сбросить дата/время' : 'Sana/vaqtni tiklash'}
                 >
-                  <RotateCcw size={13} className="text-primary" />
+                  <RotateCcw size={13} className="text-on-surface-variant" />
                   <span>{lang === 'ru' ? 'Сбросить' : 'Tiklash'}</span>
                 </button>
               </div>
@@ -1265,23 +1265,7 @@ export default function GroupDetail() {
               const activeHomework = homework.filter(h => !h.due_at || new Date(h.due_at) >= todayStart)
 
               if (!activeHomework.length) {
-                return (
-                  <div className="py-6 text-center">
-                    <p className="text-on-surface-variant text-sm mb-3 font-medium">
-                      {t('homework.noTasks')}
-                    </p>
-                    <button
-                      onClick={() => {
-                        haptic?.medium()
-                        setShowCreateHomework(true)
-                      }}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-bold transition-all active:scale-95 shadow-md"
-                    >
-                      <Plus size={15} />
-                      <span>{lang === 'ru' ? 'Дать новое задание' : 'Yangi vazifa berish'}</span>
-                    </button>
-                  </div>
-                )
+                return <p className="py-4 text-center text-sm text-on-surface-variant">{t('homework.noTasks')}</p>
               }
 
               return activeHomework.map((item) => {
