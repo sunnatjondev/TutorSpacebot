@@ -340,6 +340,7 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
 }
 
 function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t }) {
+  const { lang } = useI18n()
   const [title, setTitle] = useState('')
   const [selectedDate, setSelectedDate] = useState(null)
   const [timeHour, setTimeHour] = useState('23')
