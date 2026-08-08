@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, GraduationCap, Smartphone, UserRound, UserRoundPlus } from 'lucide-react'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
@@ -10,7 +10,7 @@ export default function AddStudent() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, haptic } = useTelegram()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const { data: groups } = useTeacherGroups(user?.id)
   const createStudentMutation = useCreateStudent()
 
@@ -25,13 +25,40 @@ export default function AddStudent() {
   const [error, setError] = useState(null)
   const [form, setForm] = useState({ name: '', contact: '', subject: '', rate: '', notes: '' })
 
+  useEffect(() => {
+    if (initialGroupId && availableGroups.length) {
+      const g = availableGroups.find((group) => group.id === initialGroupId)
+      if (g) {
+        setForm((f) => ({
+          ...f,
+          subject: f.subject || g.subject || '',
+          rate: f.rate || g.monthly_fee || g.monthly_amount || g.amount || '',
+        }))
+      }
+    }
+  }, [initialGroupId, availableGroups])
+
   const canSubmit = useMemo(() => form.name.trim() && selectedGroupIds.length > 0, [form.name, selectedGroupIds])
 
   const toggleGroup = (groupId) => {
     haptic?.selection()
-    setSelectedGroupIds((prev) =>
-      prev.includes(groupId) ? prev.filter((value) => value !== groupId) : [...prev, groupId]
-    )
+    setSelectedGroupIds((prev) => {
+      const isSelecting = !prev.includes(groupId)
+      const nextIds = isSelecting ? [...prev, groupId] : prev.filter((value) => value !== groupId)
+
+      if (isSelecting) {
+        const groupObj = availableGroups.find((g) => g.id === groupId)
+        if (groupObj) {
+          setForm((f) => ({
+            ...f,
+            subject: f.subject || groupObj.subject || '',
+            rate: f.rate || groupObj.monthly_fee || groupObj.monthly_amount || groupObj.amount || '',
+          }))
+        }
+      }
+
+      return nextIds
+    })
   }
 
   const handleSubmit = async () => {
@@ -92,33 +119,50 @@ export default function AddStudent() {
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-8 space-y-5">
-        <div className="space-y-3">
-          <div className="relative">
-            <UserRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
-            <input
-              className="m3-input pl-10"
-              placeholder={t('addStudent.fullName')}
-              value={form.name}
-              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-            />
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-on-surface-variant block mb-1.5">
+              {lang === 'ru' ? 'Полное имя *' : 'To\'liq ismi *'}
+            </label>
+            <div className="relative">
+              <UserRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+              <input
+                className="m3-input pl-10"
+                placeholder={t('addStudent.fullName')}
+                value={form.name}
+                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              />
+            </div>
           </div>
-          <div className="relative">
-            <Smartphone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
-            <input
-              className="m3-input pl-10"
-              placeholder={t('addStudent.contact')}
-              value={form.contact}
-              onChange={(event) => setForm((prev) => ({ ...prev, contact: event.target.value }))}
-            />
+
+          <div>
+            <label className="text-xs font-bold text-on-surface-variant block mb-1.5">
+              {lang === 'ru' ? 'Контакты (Телефон или Telegram username)' : 'Aloqa (Telefon yoki Telegram username)'}
+            </label>
+            <div className="relative">
+              <Smartphone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+              <input
+                className="m3-input pl-10"
+                placeholder={t('addStudent.contact')}
+                value={form.contact}
+                onChange={(event) => setForm((prev) => ({ ...prev, contact: event.target.value }))}
+              />
+            </div>
           </div>
-          <div className="relative">
-            <GraduationCap size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
-            <input
-              className="m3-input pl-10"
-              placeholder={t('addStudent.subject')}
-              value={form.subject}
-              onChange={(event) => setForm((prev) => ({ ...prev, subject: event.target.value }))}
-            />
+
+          <div>
+            <label className="text-xs font-bold text-on-surface-variant block mb-1.5">
+              {lang === 'ru' ? 'Предмет' : 'Fan'}
+            </label>
+            <div className="relative">
+              <GraduationCap size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+              <input
+                className="m3-input pl-10"
+                placeholder={t('addStudent.subject')}
+                value={form.subject}
+                onChange={(event) => setForm((prev) => ({ ...prev, subject: event.target.value }))}
+              />
+            </div>
           </div>
         </div>
 
@@ -168,7 +212,10 @@ export default function AddStudent() {
         </div>
 
         <div>
-          <p className="font-semibold text-on-surface mb-3">{t('addStudent.billingDay')}</p>
+          <p className="font-semibold text-on-surface mb-0.5">{t('addStudent.billingDay')}</p>
+          <p className="text-xs text-on-surface-variant/80 mb-3 leading-tight">
+            {lang === 'ru' ? 'В этот день месяца система автоматически сформирует счёт на оплату' : 'Har oyning ushbu kunida tizim avtomatik ravishda to\'lov hisobini shakllantiradi'}
+          </p>
           <div className="bg-surface-container rounded-[24px] grid grid-cols-7 gap-1 p-4 shadow-m3-elevation-1">
             {Array.from({ length: 31 }, (_, index) => index + 1).map((day) => (
               <button
@@ -201,14 +248,14 @@ export default function AddStudent() {
         </div>
       </div>
 
-      <div className="px-4 pb-6 pt-2 border-t border-outline-variant/40">
+      <div className="px-4 pb-6 pt-3 border-t border-outline-variant/40 bg-surface-lowest">
         <button
-          className="m3-btn-filled gap-2"
+          className="m3-btn-filled w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm shadow-lg shadow-purple-500/20 active:scale-98 transition-all"
           onClick={handleSubmit}
           disabled={!canSubmit || saving}
         >
           <UserRoundPlus size={18} />
-          {saving ? t('common.loading') : t('addStudent.submit')}
+          <span>{saving ? t('common.loading') : t('addStudent.submit')}</span>
         </button>
       </div>
     </div>

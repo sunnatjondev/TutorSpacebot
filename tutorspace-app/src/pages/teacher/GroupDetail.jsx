@@ -454,10 +454,10 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
                 <button
                   type="button"
                   onClick={() => { haptic?.light?.(); setSelectedDate(null); }}
-                  className="ml-auto px-3 py-1.5 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-outline-variant/40 dark:border-white/15 text-on-surface-variant hover:text-on-surface text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 shadow-sm"
+                  className="ml-auto px-3 py-1.5 rounded-xl bg-[#8b5cf6]/10 hover:bg-[#8b5cf6]/20 border border-[#8b5cf6]/40 dark:border-[#a855f7]/40 text-primary text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-sm"
                   title={lang === 'ru' ? 'Сбросить дата/время' : 'Sana/vaqtni tiklash'}
                 >
-                  <RotateCcw size={13} className="text-on-surface-variant" />
+                  <RotateCcw size={13} className="text-primary" />
                   <span>{lang === 'ru' ? 'Сбросить' : 'Tiklash'}</span>
                 </button>
               </div>
