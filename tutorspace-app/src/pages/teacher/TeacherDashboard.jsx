@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, BarChart3, Settings, Trash2, AlertCircle, AlertTriangle, Users, Clock, Sparkles, XCircle } from 'lucide-react'
+import { User, Layers, CalendarDays, Bell, Plus, CheckCircle2, TrendingUp, BookOpen, ChevronRight, ArrowRight, BarChart3, Settings, Trash2, AlertCircle, AlertTriangle, Users, Clock, Sparkles, XCircle } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -842,10 +842,10 @@ export default function TeacherDashboard() {
                   navigate('/teacher/groups')
                 }
               }}
-              className="m3-btn-filled w-full gap-2"
+              className="m3-btn-filled w-full flex items-center justify-center gap-2 py-3.5"
             >
-              <ChevronRight size={18} />
-              {lang === 'ru' ? 'Перейти в группу →' : 'Guruhga o\'tish →'}
+              <span>{lang === 'ru' ? 'Перейти в группу' : 'Guruhga o\'tish'}</span>
+              <ArrowRight size={18} />
             </button>
           </div>
         )}

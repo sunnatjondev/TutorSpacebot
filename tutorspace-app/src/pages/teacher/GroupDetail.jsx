@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save, FileText, CreditCard, Palette } from 'lucide-react'
+import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save, FileText, CreditCard, Palette, RotateCcw, Send } from 'lucide-react'
 import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -452,10 +452,12 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
                 </div>
                 <button
                   type="button"
-                  onClick={() => setSelectedDate(null)}
-                  className="text-xs text-red-400 hover:text-red-300 ml-auto"
+                  onClick={() => { haptic?.light?.(); setSelectedDate(null); }}
+                  className="text-xs text-on-surface-variant/70 hover:text-on-surface ml-auto flex items-center gap-1.5 transition-colors px-2 py-1 rounded-lg hover:bg-surface-high"
+                  title={lang === 'ru' ? 'Сбросить дата/время' : 'Sana/vaqtni tiklash'}
                 >
-                  {t('common.delete')}
+                  <RotateCcw size={13} />
+                  <span>{lang === 'ru' ? 'Сбросить' : 'Tiklash'}</span>
                 </button>
               </div>
             )}
@@ -478,11 +480,12 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
             </div>
           )}
           <button
-            className="m3-btn-filled"
+            className="m3-btn-filled w-full py-3.5 flex items-center justify-center gap-2 mt-2"
             onClick={handleCreate}
             disabled={!title.trim() || loading}
           >
-            {loading ? t('common.sending') : t('common.send')}
+            <Send size={16} />
+            <span>{loading ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') : (lang === 'ru' ? 'Отправить задание' : 'Vazifani yuborish')}</span>
           </button>
         </div>
       </Modal>
