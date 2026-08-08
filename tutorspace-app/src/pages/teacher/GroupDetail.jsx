@@ -454,10 +454,10 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
                 <button
                   type="button"
                   onClick={() => { haptic?.light?.(); setSelectedDate(null); }}
-                  className="text-xs text-on-surface-variant/70 hover:text-on-surface ml-auto flex items-center gap-1.5 transition-colors px-2 py-1 rounded-lg hover:bg-surface-high"
+                  className="ml-auto px-3 py-1.5 rounded-xl bg-surface-high/80 border border-[#8b5cf6]/35 dark:border-[#a855f7]/35 text-on-surface-variant hover:text-on-surface text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-sm"
                   title={lang === 'ru' ? 'Сбросить дата/время' : 'Sana/vaqtni tiklash'}
                 >
-                  <RotateCcw size={13} />
+                  <RotateCcw size={13} className="text-primary" />
                   <span>{lang === 'ru' ? 'Сбросить' : 'Tiklash'}</span>
                 </button>
               </div>
@@ -1251,10 +1251,11 @@ export default function GroupDetail() {
                 haptic?.medium()
                 setShowCreateHomework(true)
               }}
-              className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center text-primary active:scale-90 transition-transform shrink-0"
+              className="px-3 py-1.5 rounded-xl bg-[#8b5cf6]/15 hover:bg-[#8b5cf6]/25 text-primary border border-[#8b5cf6]/35 dark:border-[#a855f7]/35 text-xs font-bold flex items-center gap-1 transition-all active:scale-95 shadow-sm shrink-0"
               title={t('homework.createTitle')}
             >
-              <Plus size={16} />
+              <Plus size={14} />
+              <span>{lang === 'ru' ? 'Задание' : 'Vazifa'}</span>
             </button>
           </div>
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
@@ -1264,7 +1265,23 @@ export default function GroupDetail() {
               const activeHomework = homework.filter(h => !h.due_at || new Date(h.due_at) >= todayStart)
 
               if (!activeHomework.length) {
-                return <p className="py-4 text-center text-sm text-on-surface-variant">{t('homework.noTasks')}</p>
+                return (
+                  <div className="py-6 text-center">
+                    <p className="text-on-surface-variant text-sm mb-3 font-medium">
+                      {t('homework.noTasks')}
+                    </p>
+                    <button
+                      onClick={() => {
+                        haptic?.medium()
+                        setShowCreateHomework(true)
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-bold transition-all active:scale-95 shadow-md"
+                    >
+                      <Plus size={15} />
+                      <span>{lang === 'ru' ? 'Дать новое задание' : 'Yangi vazifa berish'}</span>
+                    </button>
+                  </div>
+                )
               }
 
               return activeHomework.map((item) => {
