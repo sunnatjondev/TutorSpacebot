@@ -39,6 +39,24 @@ export function formatUZSNumber(amount) {
     .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
+/**
+ * Format a raw string/number as space-separated digits (e.g. 200000 -> "200 000")
+ */
+export function formatNumberWithSpaces(val) {
+  if (val === null || val === undefined || val === '') return ''
+  const clean = String(val).replace(/\D/g, '')
+  if (!clean) return ''
+  return clean.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+}
+
+/**
+ * Parse a space-separated string back to numeric string (e.g. "200 000" -> "200000")
+ */
+export function parseFormattedNumber(val) {
+  if (!val) return ''
+  return String(val).replace(/\D/g, '')
+}
+
 // Common presets (in UZS)
 export const UZS = {
   sessionFee: 120_000,

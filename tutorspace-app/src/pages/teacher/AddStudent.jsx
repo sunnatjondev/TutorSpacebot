@@ -1,10 +1,11 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft, GraduationCap, Smartphone, UserRound, UserRoundPlus } from 'lucide-react'
+import { GraduationCap, Smartphone, UserRound, UserRoundPlus } from 'lucide-react'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { useTeacherGroups } from '../../hooks/api/useTeacher'
 import { useCreateStudent } from '../../hooks/api/useGroups'
+import { formatNumberWithSpaces, parseFormattedNumber } from '../../utils/currency'
 
 export default function AddStudent() {
   const navigate = useNavigate()
@@ -105,20 +106,11 @@ export default function AddStudent() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
-      <header className="flex items-center gap-3 px-4 h-14 border-b border-outline-variant/40 sticky top-0 z-30 bg-surface-lowest/80 backdrop-blur-xl">
-        <button
-          onClick={() => {
-            haptic?.light()
-            navigate(-1)
-          }}
-          className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center active:scale-90 transition-transform"
-        >
-          <ArrowLeft size={18} className="text-on-surface" />
-        </button>
-        <h1 className="m3-label-large text-lg flex-1">{t('addStudent.title')}</h1>
+      <header className="px-4 pt-3 pb-2 sticky top-0 z-30 bg-surface-lowest/90 backdrop-blur-xl flex items-center justify-center">
+        <h1 className="m3-label-large text-lg font-bold text-center text-on-surface">{t('addStudent.title')}</h1>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 pt-6 pb-8 space-y-5">
+      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-8 space-y-5">
         <div className="space-y-4">
           <div>
             <label className="text-xs font-bold text-on-surface-variant block mb-1.5">
@@ -202,11 +194,15 @@ export default function AddStudent() {
           <div className="relative">
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">UZS</span>
             <input
-              type="number"
-              className="m3-input pr-14"
+              type="text"
+              inputMode="numeric"
+              className="m3-input pr-14 font-semibold tracking-wide"
               placeholder="200 000"
-              value={form.rate}
-              onChange={(event) => setForm((prev) => ({ ...prev, rate: event.target.value }))}
+              value={formatNumberWithSpaces(form.rate)}
+              onChange={(event) => {
+                const clean = parseFormattedNumber(event.target.value)
+                setForm((prev) => ({ ...prev, rate: clean }))
+              }}
             />
           </div>
         </div>
@@ -248,7 +244,7 @@ export default function AddStudent() {
         </div>
       </div>
 
-      <div className="px-4 pb-6 pt-3 border-t border-outline-variant/40 bg-surface-lowest">
+      <div className="px-4 pb-6 pt-3 bg-surface-lowest">
         <button
           className="m3-btn-filled w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm shadow-lg shadow-purple-500/20 active:scale-98 transition-all"
           onClick={handleSubmit}

@@ -8,7 +8,7 @@ import { Modal } from '../../components/ui/Modal'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { formatUZS } from '../../utils/currency'
+import { formatUZS, formatNumberWithSpaces, parseFormattedNumber } from '../../utils/currency'
 import { createParentInvite, fetchGroupDayAttendance, fetchGroupMonthlyStats } from '../../lib/backend'
 import { useGroupDetail, useUpdateGroup, useRemoveStudentFromGroup, useUpdateStudentRate, useSaveAttendance, useCreateHomework, useGroupHomework, useDeleteGroupHomework } from '../../hooks/api/useGroups'
 import { useDeleteGroup, useCreateSession, useUpdateSession, useMarkPaymentPaid } from '../../hooks/api/useTeacher'
@@ -1384,10 +1384,11 @@ export default function GroupDetail() {
             <div className="relative">
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-semibold">UZS</span>
               <input
-                type="number"
-                className="m3-input pr-14"
-                value={newRateValue}
-                onChange={(event) => setNewRateValue(event.target.value)}
+                type="text"
+                inputMode="numeric"
+                className="m3-input pr-14 font-semibold tracking-wide"
+                value={formatNumberWithSpaces(newRateValue)}
+                onChange={(event) => setNewRateValue(parseFormattedNumber(event.target.value))}
                 placeholder="200 000"
                 autoFocus
               />
