@@ -119,7 +119,7 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
   return (
     <div className="space-y-4">
       {/* Month Navigator Toggles */}
-      <div className="flex items-center justify-between bg-surface-high p-3 rounded-2xl border border-[#8b5cf6]/30 dark:border-[#a855f7]/30">
+      <div className="flex items-center justify-between bg-surface-high p-3 rounded-xl border border-[#8b5cf6]/30 dark:border-[#a855f7]/30">
         <button
           onClick={handlePrevMonth}
           className="p-1 rounded-lg hover:bg-surface-highest text-on-surface"
@@ -153,7 +153,7 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
             return (
               <div 
                 key={ga.groupId} 
-                className="bg-surface-high rounded-2xl border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 overflow-hidden transition-all duration-200"
+                className="bg-surface-high rounded-xl border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 overflow-hidden transition-all duration-200"
               >
                 {/* Header Row */}
                 <button
@@ -196,7 +196,7 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
                       ga.students.map(s => {
                         const absentCount = s.totalCount - s.presentCount
                         return (
-                          <div key={s.studentId} className="flex items-center justify-between py-1.5 px-1 border-b border-outline-variant/10 last:border-b-0">
+                          <div key={s.studentId} className="flex items-center justify-between py-1.5 px-1 border-b border-[#8b5cf6]/15 dark:border-[#a855f7]/15 last:border-b-0">
                             <span className="text-xs font-semibold text-on-surface truncate pr-2">{s.name}</span>
                             <div className="flex items-center gap-2 shrink-0">
                               {absentCount === 0 ? (
