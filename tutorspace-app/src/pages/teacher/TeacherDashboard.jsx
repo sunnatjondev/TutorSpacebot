@@ -119,7 +119,7 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
   return (
     <div className="space-y-4">
       {/* Month Navigator Toggles */}
-      <div className="flex items-center justify-between bg-surface-high p-3 rounded-2xl border border-outline-variant/30">
+      <div className="flex items-center justify-between bg-surface-high p-3 rounded-2xl border border-[#8b5cf6]/30 dark:border-[#a855f7]/30">
         <button
           onClick={handlePrevMonth}
           className="p-1 rounded-lg hover:bg-surface-highest text-on-surface"
@@ -153,7 +153,7 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
             return (
               <div 
                 key={ga.groupId} 
-                className="bg-surface-high rounded-2xl border border-outline-variant/20 overflow-hidden transition-all duration-200"
+                className="bg-surface-high rounded-2xl border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 overflow-hidden transition-all duration-200"
               >
                 {/* Header Row */}
                 <button
@@ -168,7 +168,7 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-on-surface truncate">{group.name}</p>
                       <p className="text-[10px] text-on-surface-variant truncate font-medium mt-0.5">
-                        {group.subject} • {ga.present} / {ga.total} {lang === 'ru' ? 'посещ.' : 'kelgan'}
+                        {group.subject} • {ga.present} / {ga.total} {lang === 'ru' ? 'уроков' : 'dars'}
                       </p>
                     </div>
                   </div>
@@ -187,7 +187,7 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
 
                 {/* Expanded Students Details Accordion */}
                 {isExpanded && (
-                  <div className="border-t border-outline-variant/10 bg-surface/30 px-3 py-2 space-y-2">
+                  <div className="border-t border-[#8b5cf6]/20 bg-surface/30 px-3 py-2 space-y-2">
                     {!ga.students || ga.students.length === 0 ? (
                       <p className="text-xs text-on-surface-variant/70 text-center py-2">
                         {lang === 'ru' ? 'Нет записанных учеников' : 'Yozilgan talabalar yo\'q'}
@@ -196,20 +196,23 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
                       ga.students.map(s => {
                         const absentCount = s.totalCount - s.presentCount
                         return (
-                          <div key={s.studentId} className="flex items-center justify-between py-1.5 px-1 border-b border-outline-variant/5 last:border-b-0">
+                          <div key={s.studentId} className="flex items-center justify-between py-1.5 px-1 border-b border-outline-variant/10 last:border-b-0">
                             <span className="text-xs font-semibold text-on-surface truncate pr-2">{s.name}</span>
-                            <div className="flex items-center gap-2.5 shrink-0">
-                              <span className="text-[10px] text-on-surface-variant font-medium">
-                                {s.presentCount}/{s.totalCount}
-                              </span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-paid-green bg-paid-green/10 px-1.5 py-0.5 rounded">
-                                  <CheckCircle2 size={10} /> {s.presentCount}
+                            <div className="flex items-center gap-2 shrink-0">
+                              {absentCount === 0 ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                                  <CheckCircle2 size={11} /> {s.presentCount}/{s.totalCount}
                                 </span>
-                                <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${absentCount > 0 ? 'text-debt-red bg-debt-red/10' : 'text-on-surface-variant/40 bg-surface-high/50'}`}>
-                                  <XCircle size={10} /> {absentCount}
-                                </span>
-                              </div>
+                              ) : (
+                                <>
+                                  <span className="text-xs font-bold text-on-surface">
+                                    {s.presentCount}/{s.totalCount}
+                                  </span>
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/15 px-2 py-0.5 rounded-full border border-red-500/30">
+                                    <XCircle size={11} /> {absentCount} {lang === 'ru' ? 'пропуск' : 'qoldirilgan'}
+                                  </span>
+                                </>
+                              )}
                             </div>
                           </div>
                         )

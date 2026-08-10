@@ -10,17 +10,17 @@ export function Modal({ isOpen, onClose, title, children, closeOnBackdropClick =
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center pt-14">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-scrim animate-fade-in"
+        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-fade-in"
         onClick={closeOnBackdropClick ? onClose : undefined}
       />
       {/* Sheet */}
       <div
-        className="relative w-full max-w-[480px] bg-surface-container rounded-t-[32px] shadow-m3-elevation-3 animate-slide-up"
+        className="relative w-full max-w-[480px] bg-surface-container rounded-t-[32px] border-t border-x border-[#8b5cf6]/20 shadow-2xl animate-slide-up"
         style={{
-          maxHeight: '85dvh',
+          maxHeight: '82dvh',
           display: 'flex',
           flexDirection: 'column',
         }}
