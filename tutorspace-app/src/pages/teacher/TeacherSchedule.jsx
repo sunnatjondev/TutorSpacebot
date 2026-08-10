@@ -22,6 +22,8 @@ function getDayDates(baseDate = new Date()) {
 
 function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t, weekStartKey }) {
   const navigate = useNavigate()
+  const { user } = useTelegram()
+  const { lang } = useI18n()
   const [selectedGroupId, setSelectedGroupId] = useState(groups[0]?.id || '')
   const [lessonDate, setLessonDate] = useState(() => new Date(initialDate || new Date()))
   const [lessonHour, setLessonHour] = useState('09')
@@ -213,7 +215,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
           </button>
           <div className="flex items-center gap-3 mt-3">
             <span className="text-sm text-on-surface-variant">{t('teacherSchedule.time')}</span>
-            <div className="flex items-center gap-2 bg-surface-container rounded-xl px-3 py-2">
+            <div className="flex items-center gap-2 bg-surface-container border border-outline-variant/40 dark:border-white/15 rounded-xl px-3 py-1.5 shadow-sm">
               <input
                 type="number"
                 min="0"
@@ -225,7 +227,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
                 }}
                 className="w-10 text-center bg-transparent text-on-surface text-sm font-bold outline-none"
               />
-              <span className="text-on-surface font-bold">:</span>
+              <span className="text-on-surface-variant font-bold">:</span>
               <input
                 type="number"
                 min="0"
@@ -271,7 +273,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
           </div>
         )}
 
-        <button className="m3-btn-filled" onClick={handleCreate} disabled={loading}>
+        <button className="m3-btn-filled w-full py-3.5 flex items-center justify-center gap-2 mt-2 font-bold" onClick={handleCreate} disabled={loading}>
           {loading ? t('teacherSchedule.creating') : t('teacherSchedule.create')}
         </button>
       </div>
