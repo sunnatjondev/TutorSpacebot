@@ -138,7 +138,7 @@ const ru = {
   "teacherSchedule": {
     "title": "Расписание",
     "addLesson": "Добавить занятие",
-    "students": "учеников",
+    "students": "Студентов",
     "noLessons": "На этот день занятий нет",
     "createTitle": "Добавить занятие",
     "selectGroup": "Выберите группу",
