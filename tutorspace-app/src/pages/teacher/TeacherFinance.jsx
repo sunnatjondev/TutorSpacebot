@@ -172,6 +172,8 @@ export default function TeacherFinance() {
   const totalUnpaid = displayPayments
     .filter((payment) => payment.status === 'unpaid')
     .reduce((sum, payment) => sum + (payment.amount || 0), 0)
+  const unpaidPaymentsCount = displayPayments
+    .filter((payment) => payment.status === 'unpaid' || payment.status === 'partial').length
 
   const handleMassRemind = async () => {
     haptic?.heavy?.()
@@ -237,7 +239,7 @@ export default function TeacherFinance() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
-      <div className="page-wrapper px-4 pt-6 pb-28">
+      <div className="page-wrapper px-4 pt-12 pb-28">
         <div className="mb-5 flex justify-between items-start">
           <div>
             <h1 className="m3-display-md">{t('teacherFinance.title')}</h1>
@@ -246,10 +248,10 @@ export default function TeacherFinance() {
           <button 
             onClick={handleExport}
             disabled={exportData.isPending}
-            className="bg-brand/10 text-brand px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-transform"
+            className="shrink-0 whitespace-nowrap bg-brand/10 border border-brand/20 text-brand px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm"
           >
-            <Download size={16} /> 
-            {exportData.isPending ? (lang === 'ru' ? 'Экспорт...' : 'Eksport...') : (lang === 'ru' ? 'В Excel' : 'Excel ga')}
+            <Download size={15} className="shrink-0" /> 
+            <span>{exportData.isPending ? (lang === 'ru' ? 'Экспорт...' : 'Eksport...') : 'Excel'}</span>
           </button>
         </div>
 
@@ -275,7 +277,7 @@ export default function TeacherFinance() {
         </div>
 
         {/* Summary cards — clean, minimal */}
-        <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="m3-card p-4 flex flex-col justify-between h-24">
             <p className="text-[10px] uppercase font-semibold text-on-surface-variant tracking-wider">{lang === 'ru' ? 'Получено' : 'Keltirilgan'}</p>
             <p className="text-xl font-bold text-paid-green">{formatUZS(totalEarned, true)}</p>
@@ -286,42 +288,22 @@ export default function TeacherFinance() {
           </div>
         </div>
 
-        {/* Referral card */}
-        <div className="m3-card p-4 mb-5 bg-brand/5 border border-brand/20">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-brand">{lang === 'ru' ? 'Реферальная программа' : 'Referal dasturi'}</h3>
-            <span className="bg-brand text-white text-[10px] px-2 py-1 rounded-lg font-bold">+7 {lang === 'ru' ? 'дней' : 'kun'}</span>
-          </div>
-          <p className="text-xs text-on-surface-variant mb-3">
-            {lang === 'ru' 
-              ? 'Приглашайте коллег и получайте +7 дней к подписке за каждого нового учителя!' 
-              : "Hamkasblaringizni taklif qiling va har bir yangi o'qituvchi uchun obunangizga +7 kun qo'shib oling!"}
-          </p>
-          <button
-            onClick={() => {
-              haptic?.selection()
-              navigator.clipboard.writeText(`https://t.me/tut0rspacebot/app?startapp=ref_${telegramId}`)
-              window.Telegram?.WebApp?.showAlert?.(
-                lang === 'ru' 
-                  ? 'Реферальная ссылка скопирована!' 
-                  : 'Referal havola nusxalandi!'
-              )
-            }}
-            className="w-full h-10 rounded-xl bg-brand text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
-          >
-            📋 {lang === 'ru' ? 'Копировать ссылку' : 'Hovolani nusxalash'}
-          </button>
-        </div>
-
-        {/* Remind debtors */}
-        {totalUnpaid > 0 && (
+        {/* Remind debtors CTA */}
+        {unpaidPaymentsCount > 0 ? (
           <button
             onClick={handleMassRemind}
             disabled={reminding}
-            className="w-full h-11 mb-5 rounded-2xl bg-surface-high text-on-surface font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-50 border border-outline-variant/30"
+            className="w-full h-11 mb-4 rounded-2xl bg-brand text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md shadow-brand/20 disabled:opacity-50"
           >
-            🔔 {reminding ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') : (lang === 'ru' ? 'Напомнить должникам' : 'Qarzdorlarga eslatish')}
+            🔔 {reminding 
+              ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') 
+              : (lang === 'ru' ? `Напомнить должникам (${unpaidPaymentsCount})` : `Qarzdorlarga eslatish (${unpaidPaymentsCount})`)}
           </button>
+        ) : (
+          <div className="w-full h-10 mb-4 rounded-2xl bg-paid-green/10 border border-paid-green/20 text-paid-green font-semibold text-xs flex items-center justify-center gap-1.5">
+            <CheckCircle size={14} />
+            <span>{lang === 'ru' ? 'Все оплаты получены' : "Barcha to'lovlar qabul qilingan"}</span>
+          </div>
         )}
 
         {/* Payment status filter */}
@@ -407,6 +389,33 @@ export default function TeacherFinance() {
               {t('teacherFinance.noPayments')}
             </div>
           )}
+        </div>
+
+        {/* Referral card at bottom */}
+        <div className="m3-card p-4 mt-6 bg-brand/5 border border-brand/20 rounded-2xl">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-bold text-sm text-brand">{lang === 'ru' ? 'Реферальная программа' : 'Referal dasturi'}</h3>
+            <span className="bg-brand text-white text-[10px] px-2 py-0.5 rounded-md font-bold">+7 {lang === 'ru' ? 'дней' : 'kun'}</span>
+          </div>
+          <p className="text-xs text-on-surface-variant mb-3">
+            {lang === 'ru' 
+              ? 'Приглашайте коллег и получайте +7 дней к подписке за каждого нового учителя!' 
+              : "Hamkasblaringizni taklif qiling va har bir yangi o'qituvchi uchun obunangizga +7 kun qo'shib oling!"}
+          </p>
+          <button
+            onClick={() => {
+              haptic?.selection()
+              navigator.clipboard.writeText(`https://t.me/tut0rspacebot/app?startapp=ref_${telegramId}`)
+              window.Telegram?.WebApp?.showAlert?.(
+                lang === 'ru' 
+                  ? 'Реферальная ссылка скопирована!' 
+                  : 'Referal havola nusxalandi!'
+              )
+            }}
+            className="w-full h-10 rounded-xl bg-brand text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
+          >
+            📋 {lang === 'ru' ? 'Копировать ссылку' : 'Hovolani nusxalash'}
+          </button>
         </div>
       </div>
 
