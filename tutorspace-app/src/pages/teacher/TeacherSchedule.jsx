@@ -176,18 +176,19 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
               return (
                 <button
                   key={group.id}
+                  type="button"
                   onClick={() => {
                     setSelectedGroupId(group.id)
                     haptic?.selection?.()
                   }}
-                  className={`rounded-[16px] border px-4 py-3 text-left transition-all duration-200 ${
+                  className={`rounded-2xl border px-4 py-2.5 text-left transition-all duration-200 ${
                     active
-                      ? 'border-brand bg-brand/15 text-on-surface'
-                      : 'border-outline-variant bg-level-1 text-on-surface-variant'
+                      ? 'border-brand bg-brand text-white shadow-md shadow-brand/25'
+                      : 'border-outline-variant/30 bg-surface-high text-on-surface-variant hover:border-brand/40'
                   }`}
                 >
-                  <div className="font-semibold">{group.name}</div>
-                  <div className="mt-1 text-xs">{group.subject || '-'}</div>
+                  <div className={`font-bold text-sm ${active ? 'text-white' : 'text-on-surface'}`}>{group.name}</div>
+                  <div className={`text-xs ${active ? 'text-white/80' : 'text-on-surface-variant'}`}>{group.subject || '-'}</div>
                 </button>
               )
             })}
@@ -246,9 +247,39 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
         <div>
           <label className="mb-2 block text-sm font-semibold text-on-surface-variant">{t('teacherSchedule.repeat')}</label>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => { setRepeat('none'); haptic?.selection() }} className={`px-4 py-2.5 text-xs font-semibold rounded-[12px] border ${repeat === 'none' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatNone')}</button>
-            <button onClick={() => { setRepeat('odd'); haptic?.selection() }} className={`px-4 py-2.5 text-xs font-semibold rounded-[12px] border ${repeat === 'odd' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatOdd')}</button>
-            <button onClick={() => { setRepeat('even'); haptic?.selection() }} className={`px-4 py-2.5 text-xs font-semibold rounded-[12px] border ${repeat === 'even' ? 'bg-brand/20 border-brand text-primary' : 'bg-surface-high border-outline-variant text-on-surface-variant'}`}>{t('teacherSchedule.repeatEven')}</button>
+            <button 
+              type="button"
+              onClick={() => { setRepeat('none'); haptic?.selection?.() }} 
+              className={`px-4 py-2.5 text-xs font-bold rounded-xl border transition-all ${
+                repeat === 'none' 
+                  ? 'bg-brand border-brand text-white shadow-md shadow-brand/25' 
+                  : 'bg-surface-high border-outline-variant/30 text-on-surface-variant hover:border-brand/40'
+              }`}
+            >
+              {t('teacherSchedule.repeatNone')}
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setRepeat('odd'); haptic?.selection?.() }} 
+              className={`px-4 py-2.5 text-xs font-bold rounded-xl border transition-all ${
+                repeat === 'odd' 
+                  ? 'bg-brand border-brand text-white shadow-md shadow-brand/25' 
+                  : 'bg-surface-high border-outline-variant/30 text-on-surface-variant hover:border-brand/40'
+              }`}
+            >
+              {t('teacherSchedule.repeatOdd')}
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setRepeat('even'); haptic?.selection?.() }} 
+              className={`px-4 py-2.5 text-xs font-bold rounded-xl border transition-all ${
+                repeat === 'even' 
+                  ? 'bg-brand border-brand text-white shadow-md shadow-brand/25' 
+                  : 'bg-surface-high border-outline-variant/30 text-on-surface-variant hover:border-brand/40'
+              }`}
+            >
+              {t('teacherSchedule.repeatEven')}
+            </button>
           </div>
         </div>
 
@@ -293,9 +324,25 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
   )
 }
 
+function formatStudentCount(count, lang) {
+  const c = Number(count) || 0
+  if (lang === 'uz') {
+    return `${c} ta talaba`
+  }
+  const mod10 = c % 10
+  const mod100 = c % 100
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${c} ученик`
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `${c} ученика`
+  }
+  return `${c} учеников`
+}
+
 export default function TeacherSchedule() {
   const { user, haptic } = useTelegram()
-  const { t } = useI18n()
+  const { lang, t } = useI18n()
   const [baseDate, setBaseDate] = useState(() => new Date())
   const today = new Date()
   const [selectedDay, setSelectedDay] = useState(() => {
@@ -395,7 +442,7 @@ export default function TeacherSchedule() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-lowest">
-      <div className="page-wrapper px-4 pt-6">
+      <div className="page-wrapper px-4 pt-12 pb-24">
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h1 className="m3-display-md">{t('teacherSchedule.title')}</h1>
@@ -406,13 +453,13 @@ export default function TeacherSchedule() {
               haptic?.medium()
               setShowDatePicker(true)
             }}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform shrink-0"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container active:scale-90 transition-transform shrink-0 shadow-sm"
           >
             <CalendarDays size={18} className="text-on-surface-variant" />
           </button>
         </div>
 
-        <div className="m3-card mb-5 flex items-center justify-between gap-1 p-3">
+        <div className="m3-card mb-5 flex items-center justify-between gap-1 p-2.5">
           {dayKeys.map((dayKey, index) => {
             const date = days[index]
             const isToday = date.toDateString() === today.toDateString()
@@ -425,8 +472,8 @@ export default function TeacherSchedule() {
                   setSelectedDay(index)
                   haptic?.selection()
                 }}
-                className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-0.5 py-1.5 transition-all duration-200 ${
-                  isSelected ? 'bg-brand' : isToday ? 'bg-surface-high' : ''
+                className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-0.5 py-1.5 transition-all duration-200 ${
+                  isSelected ? 'bg-brand shadow-md shadow-brand/20' : isToday ? 'bg-surface-high' : ''
                 }`}
               >
                 <span className={`text-[9px] font-bold tracking-wide ${isSelected ? 'text-white' : 'text-on-surface-variant'}`}>
@@ -464,16 +511,13 @@ export default function TeacherSchedule() {
               const groupColor = colorsMap[lesson.group?.color] || '#a855f7'
 
               return (
-                <div key={lesson.id} className="stagger-item flex gap-3" style={{ animationDelay: `${index * 80}ms` }}>
-                  <div className="w-14 flex-shrink-0 pt-3">
-                    <p className="text-xs font-semibold text-on-surface-variant">{time}</p>
-                  </div>
+                <div key={lesson.id} className="stagger-item w-full" style={{ animationDelay: `${index * 80}ms` }}>
                   <div
-                    className={`flex-1 rounded-[24px] border p-4 transition-all duration-200 ${
+                    className={`w-full rounded-[24px] border p-4 transition-all duration-200 ${
                       isDone
-                        ? 'border-outline-variant bg-surface-container'
+                        ? 'border-outline-variant/30 bg-surface-container'
                         : isInProgress
-                          ? 'card-in-progress border-paid-green/30 bg-surface-container'
+                          ? 'card-in-progress border-paid-green/40 bg-surface-container'
                           : 'border-brand/30 bg-surface-container'
                     }`}
                     style={{
@@ -485,80 +529,98 @@ export default function TeacherSchedule() {
                           : '0 0 0 1px rgba(108,99,255,0.2)'
                     }}
                   >
-                    <div className="mb-2 flex items-start justify-between">
-                      <span
-                        className={`max-w-[150px] truncate rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide ${
-                          isDone
-                            ? 'bg-surface-high text-on-surface-variant'
-                            : isInProgress
-                              ? 'bg-paid-green/15 text-paid-green'
-                              : 'bg-brand/20 text-primary'
-                        }`}
-                      >
-                        {subject}
-                      </span>
-                      {isDone ? (
-                        <CheckCircle size={16} className="shrink-0 text-paid-green" />
-                      ) : (
-                        <span className="flex shrink-0 items-center gap-1 text-[10px] text-on-surface-variant">
-                          <span className={`h-1.5 w-1.5 rounded-full ${isInProgress ? 'bg-paid-green animate-ping' : 'bg-primary'} ${isInProgress ? '' : 'animate-pulse'}`} />
-                          {getStatusLabel(lesson.status)}
+                    {/* Top Header inside card: Time + Subject on left, Status + Safe Delete on right */}
+                    <div className="mb-2.5 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="shrink-0 rounded-lg bg-surface-highest/80 px-2.5 py-0.5 text-xs font-bold text-on-surface border border-outline-variant/20">
+                          {time}
                         </span>
-                      )}
-                    </div>
-                    <h3 className="mb-2 truncate text-base font-bold text-on-surface">{name}</h3>
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-xs text-on-surface-variant">
-                        <Users size={12} /> {studentCount} {t('teacherSchedule.students')} {duration ? ` - ${duration}` : ''}
-                      </span>
-                      <div className="flex items-center gap-2">
+                        <span
+                          className={`truncate rounded-lg px-2.5 py-0.5 text-[11px] font-bold tracking-wide ${
+                            isDone
+                              ? 'bg-surface-high text-on-surface-variant'
+                              : isInProgress
+                                ? 'bg-paid-green/15 text-paid-green'
+                                : 'bg-brand/15 text-primary'
+                          }`}
+                        >
+                          {subject}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {isDone ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-paid-green bg-paid-green/10 px-2 py-0.5 rounded-full">
+                            <CheckCircle size={13} /> {getStatusLabel(lesson.status)}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-on-surface-variant bg-surface-high/60 px-2 py-0.5 rounded-full">
+                            <span className={`h-1.5 w-1.5 rounded-full ${isInProgress ? 'bg-paid-green animate-ping' : 'bg-primary animate-pulse'}`} />
+                            {getStatusLabel(lesson.status)}
+                          </span>
+                        )}
                         <button
                           onClick={() => handleDeleteLesson(lesson.id)}
                           disabled={isProcessing}
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-300 active:scale-90 transition-transform disabled:opacity-50"
+                          title={t('teacherSchedule.deleteConfirm')}
+                          className="ml-1 p-1 rounded-lg text-on-surface-variant/40 hover:text-red-400 hover:bg-red-500/10 active:scale-90 transition-all disabled:opacity-30"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={15} />
                         </button>
-                        {!isDone && (
-                          <button
-                            onClick={() => (isInProgress ? handleFinishLesson(lesson.id) : handleStartLesson(lesson.id))}
-                            disabled={isProcessing}
-                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full active:scale-90 transition-transform disabled:opacity-50 ${
-                              isInProgress ? 'bg-paid-green text-white' : 'bg-brand text-white'
-                            }`}
-                            title={isInProgress ? t('teacherSchedule.finishLesson') : t('teacherSchedule.startLesson')}
-                          >
-                            {isProcessing ? (
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                            ) : isInProgress ? (
-                              <Square size={13} className="fill-white text-white" />
-                            ) : (
-                              <Play size={14} className="fill-white text-white" />
-                            )}
-                          </button>
-                        )}
                       </div>
                     </div>
-                    {!isDone && (
-                      <div className="mt-3 text-[11px] font-medium text-on-surface-variant flex items-center gap-1.5">
+
+                    {/* Middle: Group Name & Student count */}
+                    <div className="flex items-baseline justify-between gap-2 mb-3">
+                      <h3 className="truncate text-base font-bold text-on-surface">{name}</h3>
+                      <span className="shrink-0 flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+                        <Users size={13} /> {formatStudentCount(studentCount, lang)} {duration ? `• ${duration}` : ''}
+                      </span>
+                    </div>
+
+                    {/* Bottom Action / Status Bar */}
+                    <div className="flex items-center justify-between gap-3 pt-1 border-t border-outline-variant/10">
+                      <div className="text-[11px] font-medium text-on-surface-variant flex items-center gap-1.5 min-w-0">
                         {isInProgress ? (
                           <>
-                            <span className="flex h-2 w-2 relative">
+                            <span className="flex h-2 w-2 relative shrink-0">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-paid-green opacity-75"></span>
                               <span className="relative inline-flex rounded-full h-2 w-2 bg-paid-green"></span>
                             </span>
-                            <span className="text-paid-green font-bold animate-pulse">{t('teacherSchedule.lessonInProgress')}</span>
+                            <span className="text-paid-green font-bold truncate">{t('teacherSchedule.lessonInProgress')}</span>
                           </>
+                        ) : isDone ? (
+                          <span className="text-paid-green font-medium truncate">{t('teacherSchedule.lessonFinished')}</span>
                         ) : (
-                          <span>{t('teacherSchedule.startHint')}</span>
+                          <span className="text-on-surface-variant/70 truncate">{t('teacherSchedule.startHint')}</span>
                         )}
                       </div>
-                    )}
-                    {isDone && (
-                      <div className="mt-3 text-[11px] font-medium text-paid-green flex items-center gap-1">
-                        <span>{t('teacherSchedule.lessonFinished')}</span>
-                      </div>
-                    )}
+
+                      {!isDone && (
+                        <button
+                          onClick={() => (isInProgress ? handleFinishLesson(lesson.id) : handleStartLesson(lesson.id))}
+                          disabled={isProcessing}
+                          className={`shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-all disabled:opacity-50 ${
+                            isInProgress 
+                              ? 'bg-paid-green text-white shadow-paid-green/20' 
+                              : 'bg-brand text-white shadow-brand/25'
+                          }`}
+                        >
+                          {isProcessing ? (
+                            <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          ) : isInProgress ? (
+                            <>
+                              <Square size={12} className="fill-white text-white" />
+                              <span>{t('teacherSchedule.finishLesson')}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play size={12} className="fill-white text-white" />
+                              <span>{t('teacherSchedule.startLesson')}</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )
