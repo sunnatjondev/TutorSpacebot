@@ -106,6 +106,8 @@ export async function handleBillingStatus(telegramUser) {
   requireServiceSupabase()
   const teacher = await requireUserRow(telegramUser)
   
+  if (teacher.role !== 'teacher') throw new Error('Only teachers can access billing')
+  
   const subscription = await checkTeacherSubscription(teacher.id)
   
   return { ok: true, subscription }

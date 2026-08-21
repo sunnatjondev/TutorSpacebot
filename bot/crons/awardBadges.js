@@ -24,7 +24,7 @@ export async function runAwardBadges(bot, supabase, claimNotification) {
           .select('present, sessions!inner(status, scheduled_at)')
           .eq('student_id', student.id)
           .eq('sessions.status', 'done')
-          .order('sessions(scheduled_at)', { ascending: false })
+          .order('scheduled_at', { referencedTable: 'sessions', ascending: false })
           .limit(5)
 
         if (attendances && attendances.length === 5 && attendances.every(a => a.present)) {
@@ -47,16 +47,10 @@ export async function runAwardBadges(bot, supabase, claimNotification) {
     }
 
     // 2. Award Homework Master (Completed 3 homeworks)
-    const { data: studentsWithoutHwMaster } = await supabase
-      .from('users')
-      .select(`
-        id, telegram_id, language,
-        student_badges (badge_type)
-      `)
-      .eq('role', 'student')
+    const students = studentsWithoutStreak // already fetched
       
-    if (studentsWithoutHwMaster) {
-      for (const student of studentsWithoutHwMaster) {
+    if (students) {
+      for (const student of students) {
         if (student.student_badges?.some(b => b.badge_type === 'hw_master_3')) continue
 
         const { data: hwSubs } = await supabase

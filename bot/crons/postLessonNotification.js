@@ -18,6 +18,7 @@ export async function runPostLessonNotification(bot, supabase, claimNotification
         )
       `)
       .eq('status', 'upcoming')
+      .gte('scheduled_at', new Date(now.getTime() - 24 * 60 * 60000).toISOString())
 
     if (error) throw error
 
@@ -36,9 +37,10 @@ export async function runPostLessonNotification(bot, supabase, claimNotification
         if (!claimed) continue
 
         const lang = teacher.language || 'uz'
+        const groupName = session.group?.name || 'Guruh'
         const msg = lang === 'ru' 
-          ? `Урок в группе "${session.group.name}" завершился. Не забудьте отметить посещаемость!` 
-          : `"${session.group.name}" guruhida dars yakunlandi. Davomatni belgilashni unutmang!`
+          ? `Урок в группе "${groupName}" завершился. Не забудьте отметить посещаемость!`
+          : `"${groupName}" guruhida dars yakunlandi. Davomatni belgilashni unutmang!`
         
         bot.sendMessage(teacher.telegram_id, msg).catch(() => {})
       }

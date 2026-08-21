@@ -1,11 +1,10 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ws from 'ws'
 import { setBot } from './bot.js'
-import { requireServiceSupabase } from './db.js'
+import { supabase, requireServiceSupabase } from './db.js'
+import { hasSupabase, config } from './config.js'
 import { startCronJobs } from './cron.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -17,27 +16,13 @@ dotenv.config({ path: path.resolve(__dirname, '../bot.env') })
 const BOT_TOKEN = process.env.BOT_TOKEN
 const BOT_USERNAME = process.env.BOT_USERNAME || '@tutorspace_app_bot'
 const WEBAPP_URL = process.env.WEBAPP_URL || 'https://tutorspace-app.loca.lt'
-const SUPABASE_URL = process.env.SUPABASE_URL
-const rawSupabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
-const rawSupabaseAnonKey = process.env.SUPABASE_ANON_KEY
-const SUPABASE_SERVICE_KEY = rawSupabaseServiceKey && !rawSupabaseServiceKey.includes('YOUR_SERVICE_ROLE_KEY')
-  ? rawSupabaseServiceKey
-  : ''
-const SUPABASE_KEY = SUPABASE_SERVICE_KEY || rawSupabaseAnonKey
 const ADMIN_TELEGRAM_ID = Number(process.env.ADMIN_TELEGRAM_ID || process.env.VITE_ADMIN_TELEGRAM_ID || 0)
 
 if (!BOT_TOKEN) {
   throw new Error('BOT_TOKEN is required. Add it to bot/.env or ../bot.env before starting the bot.')
 }
 
-const hasSupabase = Boolean(SUPABASE_URL && SUPABASE_KEY)
-
 const bot = new TelegramBot(BOT_TOKEN, { polling: true })
-const supabase = hasSupabase
-  ? createClient(SUPABASE_URL, SUPABASE_KEY, {
-      realtime: { transport: ws },
-    })
-  : null
 
 import { startApiServer } from './server.js'
 import { escapeHtml, escapeMarkdown, escapeMarkdownV2, buildTelegramUserPayload } from './helpers.js'
@@ -45,12 +30,10 @@ import { t } from './i18n.js'
 
 console.log(`TutorSpace Bot ${BOT_USERNAME} is running`)
 console.log('Mini App URL:', WEBAPP_URL)
-console.log('Supabase:', hasSupabase ? SUPABASE_URL : 'disabled')
+console.log('Supabase:', hasSupabase ? config.SUPABASE_URL : 'disabled')
 
 startCronJobs(bot, supabase)
 setBot(bot)
-
-import { config } from './config.js'
 
 async function updatePlanPrices() {
   if (!supabase) return

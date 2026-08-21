@@ -28,11 +28,17 @@ export async function runGenerateSessions(supabase) {
         
         const dayOfWeek = targetDate.getDay() // 0 = Sun, 1 = Mon ...
         
-        const schedule = template.find(t => Number(t.dayOfWeek) === dayOfWeek)
-        if (schedule) {
+        const schedules = template.filter(t => Number(t.dayOfWeek) === dayOfWeek)
+        for (const schedule of schedules) {
           // Parse time
           const [hours, minutes] = (schedule.time || '15:00').split(':')
-          targetDate.setHours(Number(hours), Number(minutes), 0, 0)
+          
+          // Convert teacher's local time (Tashkent UTC+5) to UTC
+          const localHours = Number(hours)
+          const localMinutes = Number(minutes)
+          if (isNaN(localHours) || isNaN(localMinutes)) continue
+          const utcHours = localHours - 5 // Tashkent is UTC+5
+          targetDate.setUTCHours(utcHours, localMinutes, 0, 0)
           
           const targetDateIso = targetDate.toISOString()
 
@@ -46,9 +52,9 @@ export async function runGenerateSessions(supabase) {
             .eq('group_id', group.id)
             .gte('scheduled_at', startWindow)
             .lte('scheduled_at', endWindow)
-            .maybeSingle()
+            .limit(1)
 
-          if (!existing) {
+          if (!existing || existing.length === 0) {
             // Create session
             await supabase.from('sessions').insert({
               group_id: group.id,

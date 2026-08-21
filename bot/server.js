@@ -132,7 +132,8 @@ function getCorsOrigin(originHeader) {
   if (originHeader && allowedOrigins.includes(originHeader)) {
     return originHeader
   }
-  return allowedOrigins[0] || '*'
+  // Don't reflect unknown origins — return first allowed or reject
+  return allowedOrigins[0] || 'null'
 }
 
 function sendJson(res, statusCode, data, origin = '*') {

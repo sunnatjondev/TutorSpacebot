@@ -44,7 +44,7 @@ export async function runHwDeadlineReminder(bot, supabase, claimNotification) {
 
         const lang = student.language || 'uz'
         const msg = t(lang, 'hw_reminder', hw.title || 'Vazifa')
-        bot.sendMessage(student.telegram_id, msg).catch(() => {})
+        bot.sendMessage(student.telegram_id, msg, { parse_mode: 'HTML' }).catch(() => {})
       }
     }
   } catch (error) {

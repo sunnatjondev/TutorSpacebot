@@ -5,6 +5,8 @@ export async function handleTeacherExport(telegramUser, body) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)
   
+  if (user.role !== 'teacher') throw new Error('Only teachers can export data')
+  
   // Feature Gate: Only Center plans can export data
   const subscription = await checkTeacherSubscription(user.id)
   if (subscription?.plan?.slug !== 'center') {

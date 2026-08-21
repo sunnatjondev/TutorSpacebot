@@ -18,9 +18,13 @@ export async function runSubscriptionReminder(bot, supabase, claimNotification) 
       for (const sub of expiredSubs) {
         await supabase.from('subscriptions').update({ status: 'expired' }).eq('id', sub.id)
         if (sub.teacher?.telegram_id) {
-          const lang = sub.teacher.language || 'uz'
-          const text = t(lang, 'sub_expired')
-          await bot.sendMessage(sub.teacher.telegram_id, text, { parse_mode: 'HTML' })
+          try {
+            const lang = sub.teacher.language || 'uz'
+            const text = t(lang, 'sub_expired')
+            await bot.sendMessage(sub.teacher.telegram_id, text, { parse_mode: 'HTML' })
+          } catch (sendErr) {
+            console.error(`Failed to send expiry notice to ${sub.teacher.telegram_id}:`, sendErr.message)
+          }
         }
       }
     }
@@ -36,7 +40,8 @@ export async function runSubscriptionReminder(bot, supabase, claimNotification) 
     if (!warnError && warningSubs) {
       for (const sub of warningSubs) {
         if (sub.teacher?.telegram_id) {
-          const claimed = await claimNotification('sub_warning', sub.id, sub.teacher.telegram_id)
+          const now_month = `${now.getFullYear()}-${now.getMonth() + 1}`
+          const claimed = await claimNotification('sub_warning', `${sub.id}:${now_month}`, sub.teacher.telegram_id)
           if (claimed) {
             const lang = sub.teacher.language || 'uz'
             const dateStr = new Date(sub.expires_at).toLocaleDateString('uz-UZ')

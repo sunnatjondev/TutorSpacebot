@@ -233,13 +233,28 @@ export async function handleStudentHomeworkDone(telegramUser, body) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)
 
-  // Verify the submission belongs to this student (only students themselves can mark tasks done)
+  // Verify the submission belongs to this student or their parent
   const { data: sub } = await supabase
     .from('homework_submissions')
     .select('student_id')
     .eq('id', body.submissionId)
     .maybeSingle()
-  if (!sub || sub.student_id !== user.id) throw new Error('Unauthorized')
+  if (!sub) throw new Error('Submission not found')
+
+  if (sub.student_id !== user.id) {
+    // If user is a parent, check if they have a relation to this student
+    if (user.role === 'parent') {
+      const { data: relation } = await supabase
+        .from('parent_relations')
+        .select('id')
+        .eq('parent_id', user.id)
+        .eq('student_id', sub.student_id)
+        .maybeSingle()
+      if (!relation) throw new Error('Unauthorized')
+    } else {
+      throw new Error('Unauthorized')
+    }
+  }
 
   const { error } = await supabase
     .from('homework_submissions')

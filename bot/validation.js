@@ -9,8 +9,12 @@ export function validate(body, rules) {
         if (rule.type === 'uuid' && typeof value === 'string' && !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(value)) {
           throw new Error(`${field} must be a valid UUID`)
         }
-        if (rule.type === 'number' && typeof value !== 'number' && isNaN(Number(value))) {
-          throw new Error(`${field} must be a number`)
+        if (rule.type === 'number') {
+          const num = Number(value)
+          if (typeof value !== 'number' && isNaN(num)) {
+            throw new Error(`${field} must be a number`)
+          }
+          body[field] = num  // Coerce to actual number
         }
         if (rule.type === 'string' && typeof value !== 'string') {
           throw new Error(`${field} must be a string`)

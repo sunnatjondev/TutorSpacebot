@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_name     TEXT,
   username      TEXT,
   photo_url     TEXT,
-  role          TEXT CHECK (role IN ('teacher', 'student')),
+  role          TEXT CHECK (role IN ('teacher', 'student', 'parent')),
   language      TEXT DEFAULT 'uz' CHECK (language IN ('uz', 'ru')),
   lesson_reminders_enabled BOOLEAN DEFAULT TRUE,
   payment_alerts_enabled   BOOLEAN DEFAULT TRUE,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS groups (
   id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   teacher_id          UUID REFERENCES users(id) ON DELETE CASCADE,
   name                TEXT NOT NULL,
-  subject             TEXT NOT NULL,
+  subject             TEXT,
   invite_token        TEXT NOT NULL UNIQUE,
   color               TEXT DEFAULT 'purple',
   price_per_month     BIGINT DEFAULT 0,       -- in UZS (tiyin)
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS homework (
   group_id    UUID REFERENCES groups(id) ON DELETE CASCADE,
   title       TEXT NOT NULL,
   description TEXT,
-  due_date    TIMESTAMPTZ,
+  due_at      TIMESTAMPTZ,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS homework_submissions (
   id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   homework_id  UUID REFERENCES homework(id) ON DELETE CASCADE,
   student_id   UUID REFERENCES users(id) ON DELETE CASCADE,
-  status       TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'submitted', 'graded')),
+  status       TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'submitted', 'done', 'graded')),
   grade        INT,
   submitted_at TIMESTAMPTZ,
   UNIQUE(homework_id, student_id)

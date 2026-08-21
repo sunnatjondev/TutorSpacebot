@@ -27,6 +27,7 @@ const messages = {
     parent_payment_alert: (studentName, amount, groupName) => '\u{1F4B3} <b>Tolov xabari</b>\n\n' + studentName + ' uchun <b>' + groupName + '</b> guruhiga ' + amount + ' somlik tolov kutilmoqda.',
     parent_invite_same_account: '\u{26A0}\u{FE0F} Bu havolani oquvchi akkauntida ochib bolmaydi. Uni ota-onangizning alohida Telegram akkauntida oching.',
     parent_invite_role_conflict: '\u{26A0}\u{FE0F} Bu Telegram akkaunti boshqa rol bilan royxatdan otgan. Ota-ona uchun boshqa akkauntdan foydalaning.',
+    post_lesson: (group) => '📋 "' + group + '" guruhida dars yakunlandi. Davomatni belgilashni unutmang!',
   },
   ru: {
     welcome_student: (name, groupName) => '\u{1F389} <b>Поздравляем, ' + name + '!</b>\n\nВы успешно добавлены в группу <b>' + groupName + '</b>.',
@@ -49,6 +50,7 @@ const messages = {
     parent_payment_alert: (studentName, amount, groupName) => '\u{1F4B3} <b>Оплата</b>\n\nДля ' + studentName + ' ожидается оплата ' + amount + ' сум за группу <b>' + groupName + '</b>.',
     parent_invite_same_account: '\u{26A0}\u{FE0F} Нельзя открыть эту ссылку в аккаунте ученика. Откройте ее в отдельном Telegram-аккаунте родителя.',
     parent_invite_role_conflict: '\u{26A0}\u{FE0F} Этот Telegram-аккаунт уже зарегистрирован с другой ролью. Используйте другой аккаунт для родителя.',
+    post_lesson: (group) => '📋 Урок в группе "' + group + '" завершился. Не забудьте отметить посещаемость!',
   },
 }
 

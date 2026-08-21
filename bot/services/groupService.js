@@ -47,6 +47,7 @@ export async function handleGroupDelete(telegramUser, body) {
 export async function handleGroupUpdate(telegramUser, body) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)
+  await requireGroupOwner(user.id, body.groupId)
 
   const payload = {}
   if (body.name) payload.name = body.name.trim()

@@ -84,6 +84,19 @@ export async function ensureTrialSubscription(teacherId) {
 
 export async function handleAuthRole(telegramUser, body) {
   const requestedRole = ['teacher', 'student', 'parent'].includes(body.role) ? body.role : 'student'
+
+  // Prevent role escalation: if user already has a different role, don't allow switching to teacher
+  const existingUser = await getUserRowByTelegramId(telegramUser.id)
+  if (existingUser?.role && existingUser.role !== requestedRole) {
+    if (requestedRole === 'teacher' && existingUser.role !== 'teacher') {
+      throw new Error('Cannot switch to teacher role. Contact support.')
+    }
+    // Allow switching between student/parent but not to teacher
+    if (existingUser.role === 'teacher' && requestedRole !== 'teacher') {
+      throw new Error('Cannot switch from teacher to another role. Contact support.')
+    }
+  }
+
   const userRow = await upsertTrustedTelegramUser(telegramUser, { role: requestedRole })
 
   if (requestedRole === 'teacher') {
@@ -109,7 +122,10 @@ export async function handleInviteJoin(telegramUser, body) {
   if (groupError) throw groupError
   if (!group) return { ok: false, success: false, message: 'Invite not found' }
 
-  const userRow = await upsertTrustedTelegramUser(telegramUser, { role: 'student' })
+  // Preserve existing role if user already has one (don't overwrite teacher/parent to student)
+  const existingUser = await getUserRowByTelegramId(telegramUser.id)
+  const roleOverride = existingUser?.role ? {} : { role: 'student' }
+  const userRow = await upsertTrustedTelegramUser(telegramUser, roleOverride)
 
   const { error: memberError } = await supabase
     .from('group_members')
