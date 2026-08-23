@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle, XCircle, Download } from 'lucide-react'
+import { CheckCircle, XCircle, Download, Bell, Copy, Users } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -295,9 +295,12 @@ export default function TeacherFinance() {
             disabled={reminding}
             className="w-full h-11 mb-4 rounded-2xl bg-brand text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md shadow-brand/20 disabled:opacity-50"
           >
-            🔔 {reminding 
-              ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') 
-              : (lang === 'ru' ? `Напомнить должникам (${unpaidPaymentsCount})` : `Qarzdorlarga eslatish (${unpaidPaymentsCount})`)}
+            <Bell size={16} />
+            <span>
+              {reminding 
+                ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') 
+                : (lang === 'ru' ? `Напомнить должникам (${unpaidPaymentsCount})` : `Qarzdorlarga eslatish (${unpaidPaymentsCount})`)}
+            </span>
           </button>
         ) : (
           <div className="w-full h-10 mb-4 rounded-2xl bg-paid-green/10 border border-paid-green/20 text-paid-green font-semibold text-xs flex items-center justify-center gap-1.5">
@@ -414,7 +417,8 @@ export default function TeacherFinance() {
             }}
             className="w-full h-10 rounded-xl bg-brand text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
           >
-            📋 {lang === 'ru' ? 'Копировать ссылку' : 'Hovolani nusxalash'}
+            <Copy size={14} />
+            <span>{lang === 'ru' ? 'Копировать ссылку' : 'Hovolani nusxalash'}</span>
           </button>
         </div>
       </div>
@@ -426,7 +430,10 @@ export default function TeacherFinance() {
               <Avatar name={getName(selectedPayment)} size="md" />
               <div className="flex-1 min-w-0">
                 <p className="font-bold truncate">{getName(selectedPayment)}</p>
-                <p className="text-on-surface-variant text-sm truncate">👥 {getGroup(selectedPayment)}</p>
+                <p className="text-on-surface-variant text-sm truncate flex items-center gap-1">
+                  <Users size={14} className="text-on-surface-variant/70 shrink-0" />
+                  <span>{getGroup(selectedPayment)}</span>
+                </p>
               </div>
             </div>
             
@@ -458,9 +465,10 @@ export default function TeacherFinance() {
                 <button
                   onClick={() => handleSingleRemind(selectedPayment)}
                   disabled={sendingReminder}
-                  className="m3-btn-filled flex-1 gap-1"
+                  className="m3-btn-filled flex-1 gap-1.5"
                 >
-                  🔔 {sendingReminder ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') : t('common.remind')}
+                  <Bell size={15} />
+                  <span>{sendingReminder ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') : t('common.remind')}</span>
                 </button>
               </div>
             )}

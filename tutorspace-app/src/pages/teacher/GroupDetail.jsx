@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save, FileText, CreditCard, Palette, RotateCcw, Send } from 'lucide-react'
+import { ArrowLeft, CheckCircle, CheckCircle2, Circle, MoreVertical, Pencil, Plus, Trash2, CalendarDays, Users, UserPlus, Link2, Download, Copy, Save, FileText, CreditCard, Palette, RotateCcw, Send, Info } from 'lucide-react'
 import { downloadCSV } from '../../utils/csv.js'
 import { Avatar } from '../../components/ui/Avatar'
 import { Modal } from '../../components/ui/Modal'
@@ -218,8 +218,9 @@ function EditGroupModal({ isOpen, onClose, group, onSave, saving, t }) {
               />
             </div>
           </div>
-          <p className="text-[11px] text-on-surface-variant/80 mt-1.5 leading-tight">
-            💡 {t('groupDetail.billingDayHint')}
+          <p className="text-[11px] text-on-surface-variant/80 mt-1.5 leading-tight flex items-center gap-1.5">
+            <Info size={13} className="text-primary shrink-0" />
+            <span>{t('groupDetail.billingDayHint')}</span>
           </p>
         </div>
 
