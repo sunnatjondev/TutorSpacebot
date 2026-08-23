@@ -210,9 +210,10 @@ export function markHomeworkDone({ submissionId, done }) {
 // ─── Group Attendance Queries ─────────────────────────────
 
 export function fetchGroupDayAttendance({ groupId, date, startDate, endDate }) {
+  const safeDate = date || startDate || new Date()
   return requestBackend('/api/groups/day-attendance', {
     groupId,
-    date: date ? (date instanceof Date ? date.toISOString() : date) : undefined,
+    date: safeDate instanceof Date ? safeDate.toISOString() : safeDate,
     startDate: startDate ? (startDate instanceof Date ? startDate.toISOString() : startDate) : undefined,
     endDate: endDate ? (endDate instanceof Date ? endDate.toISOString() : endDate) : undefined,
   })

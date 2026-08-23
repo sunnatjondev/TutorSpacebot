@@ -35,7 +35,7 @@ const validationSchemas = {
   '/api/groups/homework/create': { groupId: { required: true, type: 'uuid' }, title: { required: true, type: 'string' }, dueDate: { type: 'string' }, description: { type: 'string' } },
   '/api/groups/homework/delete': { homeworkId: { required: true, type: 'uuid' } },
   '/api/groups/attendance': { sessionId: { required: true, type: 'uuid' }, studentId: { required: true, type: 'uuid' }, present: { required: true, type: 'boolean' } },
-  '/api/groups/day-attendance': { groupId: { required: true, type: 'uuid' }, date: { required: true, type: 'string' } },
+  '/api/groups/day-attendance': { groupId: { required: true, type: 'uuid' }, date: { type: 'string' }, startDate: { type: 'string' }, endDate: { type: 'string' } },
   '/api/groups/monthly-stats': { groupId: { required: true, type: 'uuid' } },
 
   '/api/students/create': { name: { required: true, type: 'string' }, contact: { type: 'string' }, groupIds: { required: true, type: 'array' }, monthlyRate: { type: 'number' } },
