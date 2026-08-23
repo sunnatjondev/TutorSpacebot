@@ -248,9 +248,9 @@ export default function TeacherFinance() {
           <button 
             onClick={handleExport}
             disabled={exportData.isPending}
-            className="shrink-0 whitespace-nowrap bg-brand/10 border border-brand/20 text-brand px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm"
+            className="shrink-0 whitespace-nowrap bg-surface-high/70 border border-[#8b5cf6]/30 text-on-surface hover:border-[#8b5cf6]/50 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-all"
           >
-            <Download size={15} className="shrink-0" /> 
+            <Download size={14} className="text-primary" /> 
             <span>{exportData.isPending ? (lang === 'ru' ? 'Экспорт...' : 'Eksport...') : 'Excel'}</span>
           </button>
         </div>
@@ -293,7 +293,7 @@ export default function TeacherFinance() {
           <button
             onClick={handleMassRemind}
             disabled={reminding}
-            className="w-full h-11 mb-4 rounded-2xl bg-brand text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md shadow-brand/20 disabled:opacity-50"
+            className="w-full h-11 mb-4 rounded-2xl bg-brand text-on-primary font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-xs disabled:opacity-50"
           >
             <Bell size={16} />
             <span>
