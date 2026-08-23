@@ -1,7 +1,6 @@
 import { runAutoBilling } from './crons/autoBilling.js'
 import { runHwDeadlineReminder } from './crons/hwDeadlineReminder.js'
 import { runPostLessonNotification } from './crons/postLessonNotification.js'
-import { runAwardBadges } from './crons/awardBadges.js'
 import { runGenerateSessions } from './crons/generateSessions.js'
 import { runSubscriptionReminder } from './crons/subscriptionReminder.js'
 import { t } from './i18n.js'
@@ -275,10 +274,9 @@ export function startCronJobs(bot, supabase) {
   }, 30 * 60000)
 
   // ==========================================
-  // 7. GAMIFICATION BADGES AND SCHEDULE GENERATION (Runs daily)
+  // 7. SCHEDULE GENERATION (Runs daily)
   // ==========================================
-  startSafeInterval('Award Badges', async () => {
-    await runAwardBadges(bot, supabase, claimNotification)
+  startSafeInterval('Generate Sessions', async () => {
     await runGenerateSessions(supabase)
   }, 24 * 60 * 60000)
 }

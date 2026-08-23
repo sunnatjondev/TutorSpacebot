@@ -90,19 +90,17 @@ export async function handleStudentDashboard(telegramUser, body) {
   const user = await requireUserRow(telegramUser)
   const targetStudentId = await resolveTargetStudent(user, body?.studentId)
 
-  const [membershipsRes, hwRes, payRes, attRes, badgesRes] = await Promise.all([
+  const [membershipsRes, hwRes, payRes, attRes] = await Promise.all([
     supabase.from('group_members').select('group_id').eq('student_id', targetStudentId),
     supabase.from('homework_submissions').select('status, homework(due_at)').eq('student_id', targetStudentId).eq('status', 'pending'),
     supabase.from('payments').select('amount').eq('student_id', targetStudentId).in('status', ['unpaid', 'partial']),
     supabase.from('attendance').select('present').eq('student_id', targetStudentId),
-    supabase.from('student_badges').select('badge_type, awarded_at').eq('student_id', targetStudentId),
   ])
 
   if (membershipsRes.error) throw membershipsRes.error
   if (hwRes.error) throw hwRes.error
   if (payRes.error) throw payRes.error
   if (attRes.error) throw attRes.error
-  if (badgesRes.error) throw badgesRes.error
 
   const groupIds = (membershipsRes.data || []).map((m) => m.group_id)
   const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60000).toISOString()
@@ -135,7 +133,6 @@ export async function handleStudentDashboard(telegramUser, body) {
     balance,
     attendance,
     nextLesson: nextLessonRes.data?.[0] || null,
-    badges: badgesRes.data || [],
   }
 }
 
