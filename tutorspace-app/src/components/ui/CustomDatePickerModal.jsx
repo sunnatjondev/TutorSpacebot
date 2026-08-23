@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Modal } from './Modal'
 import { useI18n } from '../../i18n/index.jsx'
 
-export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectDate, haptic }) {
+export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectDate, haptic, markedDates = [] }) {
   const { lang } = useI18n()
   const [currentMonth, setCurrentMonth] = useState(() => new Date(selectedDate || new Date()))
 
@@ -88,6 +88,11 @@ export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectD
 
             const isSelected = isSameDay(dateObj, selectedDate)
             const isToday = isSameDay(dateObj, new Date())
+            const dateKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`
+            const hasLesson = markedDates.some((d) => {
+              if (typeof d === 'string') return d === dateKey || d.startsWith(dateKey)
+              return isSameDay(d, dateObj)
+            })
 
             return (
               <button
@@ -97,15 +102,22 @@ export function CustomDatePickerModal({ isOpen, onClose, selectedDate, onSelectD
                   onSelectDate(dateObj)
                   onClose()
                 }}
-                className={`h-9 w-full rounded-xl text-sm font-semibold flex items-center justify-center transition-all duration-150 ${
+                className={`h-10 w-full rounded-xl text-sm font-semibold flex flex-col items-center justify-center relative transition-all duration-150 ${
                   isSelected
-                    ? 'bg-brand text-white shadow-glow-sm font-bold'
+                    ? 'bg-brand text-on-primary shadow-glow-sm font-bold'
                     : isToday
                       ? 'bg-surface-high border border-brand/50 text-primary font-bold'
                       : 'text-on-surface hover:bg-surface-high active:scale-90'
                 }`}
               >
-                {dateObj.getDate()}
+                <span>{dateObj.getDate()}</span>
+                {hasLesson && (
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full absolute bottom-1 ${
+                      isSelected ? 'bg-on-primary' : 'bg-primary shadow-glow-primary'
+                    }`}
+                  />
+                )}
               </button>
             )
           })}

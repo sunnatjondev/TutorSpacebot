@@ -209,8 +209,13 @@ export function markHomeworkDone({ submissionId, done }) {
 
 // ─── Group Attendance Queries ─────────────────────────────
 
-export function fetchGroupDayAttendance({ groupId, date }) {
-  return requestBackend('/api/groups/day-attendance', { groupId, date })
+export function fetchGroupDayAttendance({ groupId, date, startDate, endDate }) {
+  return requestBackend('/api/groups/day-attendance', {
+    groupId,
+    date: date ? (date instanceof Date ? date.toISOString() : date) : undefined,
+    startDate: startDate ? (startDate instanceof Date ? startDate.toISOString() : startDate) : undefined,
+    endDate: endDate ? (endDate instanceof Date ? endDate.toISOString() : endDate) : undefined,
+  })
 }
 
 export function fetchGroupMonthlyStats(groupId) {

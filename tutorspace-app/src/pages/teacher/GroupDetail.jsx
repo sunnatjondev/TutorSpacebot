@@ -596,21 +596,23 @@ export default function GroupDetail() {
     setShowCreateSessionModal(true)
   }
 
-  // Fetch Attendance Sessions for the Week
-  const [weekSessions, setWeekSessions] = useState([])
-  const weekStart = attendanceDays[0]
-  const weekEnd = attendanceDays[6]
+  // Fetch Attendance Sessions for the Group
+  const [allGroupSessions, setAllGroupSessions] = useState([])
 
-  const loadWeekAttendance = async () => {
-    if (!id || !weekStart || !weekEnd) return
+  const loadGroupAttendance = async () => {
+    if (!id) return
     setLoadingAttendance(true)
     try {
+      const now = attendanceBaseDate || new Date()
+      const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+      const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0, 23, 59, 59)
+
       const { sessions } = await fetchGroupDayAttendance({
         groupId: id,
-        startDate: weekStart,
-        endDate: weekEnd,
+        startDate,
+        endDate,
       })
-      setWeekSessions(sessions || [])
+      setAllGroupSessions(sessions || [])
     } catch (err) {
       console.error('[Attendance] load error:', err)
     } finally {
@@ -619,21 +621,23 @@ export default function GroupDetail() {
   }
 
   useEffect(() => {
-    loadWeekAttendance()
-  }, [id, getLocalDateKey(weekStart), getLocalDateKey(weekEnd)]) // eslint-disable-line react-hooks/exhaustive-deps
+    loadGroupAttendance()
+  }, [id, attendanceBaseDate?.getFullYear(), attendanceBaseDate?.getMonth()]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const weekLessonDates = useMemo(() => {
+  const allLessonDateKeys = useMemo(() => {
     const dates = new Set()
-    weekSessions.forEach((s) => {
+    allGroupSessions.forEach((s) => {
       if (s.scheduled_at) {
         dates.add(getLocalDateKey(new Date(s.scheduled_at)))
       }
     })
     return dates
-  }, [weekSessions])
+  }, [allGroupSessions])
+
+  const markedLessonDates = useMemo(() => Array.from(allLessonDateKeys), [allLessonDateKeys])
 
   useEffect(() => {
-    const session = weekSessions.find(
+    const session = allGroupSessions.find(
       (s) => getLocalDateKey(new Date(s.scheduled_at)) === selectedAttendanceDateKey
     )
     if (session) {
@@ -655,7 +659,7 @@ export default function GroupDetail() {
       })
       setAttendance(attMap)
     }
-  }, [selectedAttendanceDateKey, weekSessions, studentIdsKey]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedAttendanceDateKey, allGroupSessions, studentIdsKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch Monthly Stats & Selected Date Absences
   useEffect(() => {
@@ -746,7 +750,7 @@ export default function GroupDetail() {
       const day = scheduledAt.getDay()
       setSelectedDayIndex(day === 0 ? 6 : day - 1)
       setShowCreateSessionModal(false)
-      await loadWeekAttendance()
+      await loadGroupAttendance()
     } catch (err) {
       let displayError = err.message || (lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi")
       if (err.message === 'subscription_expired') {
@@ -1033,7 +1037,7 @@ export default function GroupDetail() {
               const date = attendanceDays[idx]
               const isSelected = idx === selectedDayIndex
               const isToday = date.toDateString() === new Date().toDateString()
-              const hasLesson = weekLessonDates.has(getLocalDateKey(date))
+              const hasLesson = allLessonDateKeys.has(getLocalDateKey(date))
 
               return (
                 <button
@@ -1495,6 +1499,7 @@ export default function GroupDetail() {
         isOpen={showDatePicker}
         onClose={() => setShowDatePicker(false)}
         selectedDate={attendanceBaseDate}
+        markedDates={markedLessonDates}
         haptic={haptic}
         onSelectDate={(selected) => {
           setAttendanceBaseDate(selected)
@@ -1587,6 +1592,7 @@ export default function GroupDetail() {
         isOpen={showLessonCalendar}
         onClose={() => setShowLessonCalendar(false)}
         selectedDate={lessonDate}
+        markedDates={markedLessonDates}
         onSelectDate={(date) => {
           setLessonDate(date)
           setShowLessonCalendar(false)
