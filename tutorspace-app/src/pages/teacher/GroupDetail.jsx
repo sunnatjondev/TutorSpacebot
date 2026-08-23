@@ -596,49 +596,66 @@ export default function GroupDetail() {
     setShowCreateSessionModal(true)
   }
 
-  // Fetch Attendance for the Selected Date
-  useEffect(() => {
-    async function loadDayAttendance() {
-      if (!id || !selectedAttendanceDate) return
-      setLoadingAttendance(true)
+  // Fetch Attendance Sessions for the Week
+  const [weekSessions, setWeekSessions] = useState([])
+  const weekStart = attendanceDays[0]
+  const weekEnd = attendanceDays[6]
 
-      const startOfDay = new Date(selectedAttendanceDate)
-      startOfDay.setHours(0, 0, 0, 0)
-      const endOfDay = new Date(selectedAttendanceDate)
-      endOfDay.setHours(23, 59, 59, 999)
-
-      try {
-        const { sessions } = await fetchGroupDayAttendance({ groupId: id, date: selectedAttendanceDate })
-
-        const session = sessions?.[0]
-        if (session) {
-          setSessionId(session.id)
-          setSessionNotes(session.notes || '')
-          const attMap = {}
-          students.forEach((s) => {
-            const attRow = session.attendance?.find((a) => a.student_id === s.id)
-            attMap[s.id] = attRow ? attRow.present : false
-          })
-          setAttendance(attMap)
-        } else {
-          setSessionId(null)
-          setSessionNotes('')
-          // Default all to false if no session exists yet
-          const attMap = {}
-          students.forEach((s) => {
-            attMap[s.id] = false
-          })
-          setAttendance(attMap)
-        }
-      } catch (err) {
-        console.error('[Attendance] load error:', err)
-      } finally {
-        setLoadingAttendance(false)
-      }
+  const loadWeekAttendance = async () => {
+    if (!id || !weekStart || !weekEnd) return
+    setLoadingAttendance(true)
+    try {
+      const { sessions } = await fetchGroupDayAttendance({
+        groupId: id,
+        startDate: weekStart,
+        endDate: weekEnd,
+      })
+      setWeekSessions(sessions || [])
+    } catch (err) {
+      console.error('[Attendance] load error:', err)
+    } finally {
+      setLoadingAttendance(false)
     }
+  }
 
-    loadDayAttendance()
-  }, [id, selectedAttendanceDateKey, studentIdsKey]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    loadWeekAttendance()
+  }, [id, getLocalDateKey(weekStart), getLocalDateKey(weekEnd)]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const weekLessonDates = useMemo(() => {
+    const dates = new Set()
+    weekSessions.forEach((s) => {
+      if (s.scheduled_at) {
+        dates.add(getLocalDateKey(new Date(s.scheduled_at)))
+      }
+    })
+    return dates
+  }, [weekSessions])
+
+  useEffect(() => {
+    const session = weekSessions.find(
+      (s) => getLocalDateKey(new Date(s.scheduled_at)) === selectedAttendanceDateKey
+    )
+    if (session) {
+      setSessionId(session.id)
+      setSessionNotes(session.notes || '')
+      const attMap = {}
+      students.forEach((s) => {
+        const attRow = session.attendance?.find((a) => a.student_id === s.id)
+        attMap[s.id] = attRow ? attRow.present : false
+      })
+      setAttendance(attMap)
+    } else {
+      setSessionId(null)
+      setSessionNotes('')
+      // Default all to false if no session exists yet
+      const attMap = {}
+      students.forEach((s) => {
+        attMap[s.id] = false
+      })
+      setAttendance(attMap)
+    }
+  }, [selectedAttendanceDateKey, weekSessions, studentIdsKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch Monthly Stats & Selected Date Absences
   useEffect(() => {
@@ -729,6 +746,7 @@ export default function GroupDetail() {
       const day = scheduledAt.getDay()
       setSelectedDayIndex(day === 0 ? 6 : day - 1)
       setShowCreateSessionModal(false)
+      await loadWeekAttendance()
     } catch (err) {
       let displayError = err.message || (lang === 'ru' ? 'Ошибка при создании урока' : "Dars yaratishda xatolik yuz berdi")
       if (err.message === 'subscription_expired') {
@@ -1015,6 +1033,7 @@ export default function GroupDetail() {
               const date = attendanceDays[idx]
               const isSelected = idx === selectedDayIndex
               const isToday = date.toDateString() === new Date().toDateString()
+              const hasLesson = weekLessonDates.has(getLocalDateKey(date))
 
               return (
                 <button
@@ -1023,7 +1042,7 @@ export default function GroupDetail() {
                     setSelectedDayIndex(idx)
                     haptic?.selection()
                   }}
-                  className={`flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-2 flex-1 transition-all duration-200 ${
+                  className={`flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-2 flex-1 transition-all duration-200 relative ${
                     isSelected
                       ? 'bg-brand text-on-primary shadow-m3-elevation-1 scale-105 font-bold'
                       : isToday
@@ -1037,6 +1056,16 @@ export default function GroupDetail() {
                   <span className={`text-sm font-bold ${isSelected ? 'text-on-primary' : 'text-on-surface'}`}>
                     {date.getDate()}
                   </span>
+                  {/* Lesson Indicator Dot / Light */}
+                  {hasLesson ? (
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full mt-0.5 transition-all ${
+                        isSelected ? 'bg-on-primary shadow-xs' : 'bg-primary shadow-glow-primary'
+                      }`}
+                    />
+                  ) : (
+                    <span className="w-1.5 h-1.5 mt-0.5" />
+                  )}
                 </button>
               )
             })}

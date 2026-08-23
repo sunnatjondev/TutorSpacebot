@@ -104,17 +104,26 @@ export async function handleGroupDayAttendance(telegramUser, body) {
   const user = await requireUserRow(telegramUser)
   await requireGroupOwner(user.id, body.groupId)
 
-  const startOfDay = new Date(body.date)
-  startOfDay.setHours(0, 0, 0, 0)
-  const endOfDay = new Date(body.date)
-  endOfDay.setHours(23, 59, 59, 999)
+  let startOfDay, endOfDay
+  if (body.startDate && body.endDate) {
+    startOfDay = new Date(body.startDate)
+    startOfDay.setHours(0, 0, 0, 0)
+    endOfDay = new Date(body.endDate)
+    endOfDay.setHours(23, 59, 59, 999)
+  } else {
+    startOfDay = new Date(body.date)
+    startOfDay.setHours(0, 0, 0, 0)
+    endOfDay = new Date(body.date)
+    endOfDay.setHours(23, 59, 59, 999)
+  }
 
   const { data: sessions, error } = await supabase
     .from('sessions')
-    .select('id, notes, attendance(student_id, present)')
+    .select('id, notes, scheduled_at, status, attendance(student_id, present)')
     .eq('group_id', body.groupId)
     .gte('scheduled_at', startOfDay.toISOString())
     .lte('scheduled_at', endOfDay.toISOString())
+    .neq('status', 'cancelled')
     .order('scheduled_at', { ascending: true })
 
   if (error) throw error
