@@ -395,10 +395,10 @@ export default function TeacherFinance() {
         </div>
 
         {/* Referral card at bottom */}
-        <div className="p-4 mt-6 bg-brand/5 border border-brand/20 rounded-lg shadow-sm">
+        <div className="p-4 mt-6 bg-surface-container border border-[#8b5cf6]/25 rounded-lg shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-sm text-brand">{lang === 'ru' ? 'Реферальная программа' : 'Referal dasturi'}</h3>
-            <span className="bg-brand text-on-primary text-[10px] px-2 py-0.5 rounded font-bold">+7 {lang === 'ru' ? 'дней' : 'kun'}</span>
+            <h3 className="font-bold text-sm text-on-surface">{lang === 'ru' ? 'Реферальная программа' : 'Referal dasturi'}</h3>
+            <span className="bg-brand/20 text-primary border border-brand/30 text-[10px] px-2.5 py-0.5 rounded-md font-bold">+7 {lang === 'ru' ? 'дней' : 'kun'}</span>
           </div>
           <p className="text-xs text-on-surface-variant mb-3 leading-relaxed">
             {lang === 'ru' 
