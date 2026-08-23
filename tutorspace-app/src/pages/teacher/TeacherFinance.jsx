@@ -395,12 +395,14 @@ export default function TeacherFinance() {
         </div>
 
         {/* Referral card at bottom */}
-        <div className="m3-card p-4 mt-6 bg-brand/5 border border-brand/20 rounded-2xl">
+        <div className="p-4 mt-6 bg-surface-container/60 border border-[#8b5cf6]/25 rounded-2xl shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-sm text-brand">{lang === 'ru' ? 'Реферальная программа' : 'Referal dasturi'}</h3>
-            <span className="bg-brand text-white text-[10px] px-2 py-0.5 rounded-md font-bold">+7 {lang === 'ru' ? 'дней' : 'kun'}</span>
+            <h3 className="font-bold text-sm text-on-surface">{lang === 'ru' ? 'Реферальная программа' : 'Referal dasturi'}</h3>
+            <span className="bg-brand/15 text-primary border border-brand/30 text-[10px] px-2.5 py-0.5 rounded-lg font-bold">
+              +7 {lang === 'ru' ? 'дней' : 'kun'}
+            </span>
           </div>
-          <p className="text-xs text-on-surface-variant mb-3">
+          <p className="text-xs text-on-surface-variant mb-3 leading-relaxed">
             {lang === 'ru' 
               ? 'Приглашайте коллег и получайте +7 дней к подписке за каждого нового учителя!' 
               : "Hamkasblaringizni taklif qiling va har bir yangi o'qituvchi uchun obunangizga +7 kun qo'shib oling!"}
@@ -415,7 +417,7 @@ export default function TeacherFinance() {
                   : 'Referal havola nusxalandi!'
               )
             }}
-            className="w-full h-10 rounded-xl bg-brand text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
+            className="w-full h-10 rounded-xl bg-brand text-on-primary font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xs"
           >
             <Copy size={14} />
             <span>{lang === 'ru' ? 'Копировать ссылку' : 'Hovolani nusxalash'}</span>
