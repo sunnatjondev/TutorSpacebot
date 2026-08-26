@@ -12,6 +12,7 @@ function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
   const monday = new Date(baseDate)
   monday.setDate(baseDate.getDate() - ((day === 0 ? 7 : day) - 1))
+  monday.setHours(0, 0, 0, 0)
 
   return Array.from({ length: 7 }, (_, index) => {
     const date = new Date(monday)

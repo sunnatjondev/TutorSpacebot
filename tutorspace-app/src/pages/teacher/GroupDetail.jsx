@@ -17,6 +17,7 @@ function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
   const monday = new Date(baseDate)
   monday.setDate(baseDate.getDate() - ((day === 0 ? 7 : day) - 1))
+  monday.setHours(0, 0, 0, 0)
 
   return Array.from({ length: 7 }, (_, index) => {
     const date = new Date(monday)
@@ -603,15 +604,7 @@ export default function GroupDetail() {
     if (!id) return
     setLoadingAttendance(true)
     try {
-      const now = attendanceBaseDate || new Date()
-      const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-      const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0, 23, 59, 59)
-
-      const { sessions } = await fetchGroupDayAttendance({
-        groupId: id,
-        startDate,
-        endDate,
-      })
+      const { sessions } = await fetchGroupDayAttendance({ groupId: id })
       setAllGroupSessions(sessions || [])
     } catch (err) {
       console.error('[Attendance] load error:', err)
@@ -622,7 +615,7 @@ export default function GroupDetail() {
 
   useEffect(() => {
     loadGroupAttendance()
-  }, [id, attendanceBaseDate?.getFullYear(), attendanceBaseDate?.getMonth()]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [id])
 
   const allLessonDateKeys = useMemo(() => {
     const dates = new Set()

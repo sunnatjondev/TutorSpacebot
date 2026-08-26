@@ -193,8 +193,10 @@ export async function handleStudentSchedule(telegramUser, body) {
   if (!groupIds.length) return { ok: true, sessions: [] }
 
   const start = body.weekStart ? new Date(body.weekStart) : new Date()
+  start.setHours(0, 0, 0, 0)
   const end = new Date(start)
   end.setDate(end.getDate() + 7)
+  end.setHours(23, 59, 59, 999)
 
   const { data, error } = await supabase
     .from('sessions')
@@ -205,7 +207,7 @@ export async function handleStudentSchedule(telegramUser, body) {
     `)
     .in('group_id', groupIds)
     .gte('scheduled_at', start.toISOString())
-    .lt('scheduled_at', end.toISOString())
+    .lte('scheduled_at', end.toISOString())
     .order('scheduled_at')
 
   if (error) throw error
