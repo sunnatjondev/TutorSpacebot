@@ -4,7 +4,7 @@ import { BottomNav } from '../../components/layout/BottomNav'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useStudentSchedule, useStudentHomework } from '../../hooks/api/useStudent'
+import { useStudentSchedule, useStudentAllSessions, useStudentHomework } from '../../hooks/api/useStudent'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -47,7 +47,29 @@ export default function StudentSchedule() {
   const days = getDayDates(baseDate)
   const weekStartKey = days[0].getTime()
   const { data: sessions } = useStudentSchedule(user?.id, weekStartKey)
+  const { data: allSessions } = useStudentAllSessions(user?.id)
   const { data: homeworks } = useStudentHomework(user?.id)
+
+  const allMarkedDates = useMemo(() => {
+    const dates = new Set()
+    ;(allSessions || []).forEach((s) => {
+      if (s.scheduled_at) {
+        const d = new Date(s.scheduled_at)
+        dates.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`)
+      }
+    })
+    return Array.from(dates)
+  }, [allSessions])
+
+  const weekSessionDates = useMemo(() => {
+    const set = new Set()
+    ;(sessions || []).forEach((s) => {
+      if (s.scheduled_at) {
+        set.add(new Date(s.scheduled_at).toDateString())
+      }
+    })
+    return set
+  }, [sessions])
 
   const selectedDate = days[selectedDay]
   const selectedDayKey = selectedDate?.toDateString()
@@ -119,7 +141,13 @@ export default function StudentSchedule() {
                 <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-on-surface'}`}>
                   {date.getDate()}
                 </span>
-                {isToday && !isSelected && <span className="mt-0.5 h-1 w-1 rounded-full bg-brand" />}
+                {weekSessionDates.has(date.toDateString()) ? (
+                  <span className={`h-1.5 w-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-white shadow-xs' : 'bg-primary shadow-glow-primary'}`} />
+                ) : isToday && !isSelected ? (
+                  <span className="mt-0.5 h-1 w-1 rounded-full bg-brand" />
+                ) : (
+                  <span className="h-1.5 w-1.5 mt-0.5" />
+                )}
               </button>
             )
           })}
@@ -185,6 +213,7 @@ export default function StudentSchedule() {
         isOpen={showDatePicker}
         onClose={() => setShowDatePicker(false)}
         selectedDate={baseDate}
+        markedDates={allMarkedDates}
         haptic={haptic}
         t={t}
         onSelectDate={(selected) => {

@@ -6,7 +6,7 @@ import { Modal } from '../../components/ui/Modal'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
-import { useCreateSession, useDeleteSession, useTeacherGroups, useTeacherSchedule, useUpdateSession } from '../../hooks/api/useTeacher'
+import { useCreateSession, useDeleteSession, useTeacherGroups, useTeacherSchedule, useTeacherAllSessions, useUpdateSession } from '../../hooks/api/useTeacher'
 
 function getDayDates(baseDate = new Date()) {
   const day = baseDate.getDay()
@@ -21,7 +21,7 @@ function getDayDates(baseDate = new Date()) {
   })
 }
 
-function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t, weekStartKey }) {
+function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t, weekStartKey, markedDates = [] }) {
   const navigate = useNavigate()
   const { user } = useTelegram()
   const { lang } = useI18n()
@@ -283,6 +283,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
         isOpen={showLessonCalendar}
         onClose={() => setShowLessonCalendar(false)}
         selectedDate={lessonDate}
+        markedDates={markedDates}
         onSelectDate={(date) => {
           setLessonDate(date)
           setShowLessonCalendar(false)
@@ -313,7 +314,29 @@ export default function TeacherSchedule() {
   const weekStart = days[0]
   const weekStartKey = weekStart.getTime()
   const { data: sessions, refetch } = useTeacherSchedule(user?.id, weekStartKey)
+  const { data: allSessions } = useTeacherAllSessions(user?.id)
   const { data: groups } = useTeacherGroups(user?.id)
+
+  const allMarkedDates = useMemo(() => {
+    const dates = new Set()
+    ;(allSessions || []).forEach((s) => {
+      if (s.scheduled_at) {
+        const d = new Date(s.scheduled_at)
+        dates.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`)
+      }
+    })
+    return Array.from(dates)
+  }, [allSessions])
+
+  const weekSessionDates = useMemo(() => {
+    const set = new Set()
+    ;(sessions || []).forEach((s) => {
+      if (s.scheduled_at) {
+        set.add(new Date(s.scheduled_at).toDateString())
+      }
+    })
+    return set
+  }, [sessions])
 
   const selectedDayKey = days[selectedDay]?.toDateString()
   const displaySessions = (sessions || []).filter(
@@ -436,7 +459,13 @@ export default function TeacherSchedule() {
                 <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-on-surface'}`}>
                   {date.getDate()}
                 </span>
-                {isToday && !isSelected && <span className="mt-0.5 h-1 w-1 rounded-full bg-brand" />}
+                {weekSessionDates.has(date.toDateString()) ? (
+                  <span className={`h-1.5 w-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-white shadow-xs' : 'bg-primary shadow-glow-primary'}`} />
+                ) : isToday && !isSelected ? (
+                  <span className="mt-0.5 h-1 w-1 rounded-full bg-brand" />
+                ) : (
+                  <span className="h-1.5 w-1.5 mt-0.5" />
+                )}
               </button>
             )
           })}
@@ -592,6 +621,7 @@ export default function TeacherSchedule() {
           haptic={haptic}
           t={t}
           weekStartKey={weekStartKey}
+          markedDates={allMarkedDates}
         />
       </Modal>
 
@@ -601,6 +631,7 @@ export default function TeacherSchedule() {
         isOpen={showDatePicker}
         onClose={() => setShowDatePicker(false)}
         selectedDate={baseDate}
+        markedDates={allMarkedDates}
         haptic={haptic}
         t={t}
         onSelectDate={(selected) => {

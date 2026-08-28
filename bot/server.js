@@ -21,7 +21,7 @@ const validationSchemas = {
   '/api/teacher/dashboard': { month: { type: 'number' }, year: { type: 'number' } },
   '/api/teacher/groups': {},
   '/api/teacher/payments': { filter: { type: 'string', enum: ['all', 'paid', 'unpaid'] } },
-  '/api/teacher/schedule': { weekStart: { type: 'number' } },
+  '/api/teacher/schedule': { weekStart: { type: 'number' }, all: { type: 'boolean' } },
   '/api/teacher/remind-debtors': {},
   '/api/teacher/remind-student': { paymentId: { required: true, type: 'uuid' } },
   '/api/teacher/analytics': {},
@@ -52,7 +52,7 @@ const validationSchemas = {
   '/api/student/dashboard': { studentId: { type: 'uuid' } },
   '/api/student/groups': { studentId: { type: 'uuid' } },
   '/api/student/payments': { studentId: { type: 'uuid' } },
-  '/api/student/schedule': { weekStart: { type: 'number' }, studentId: { type: 'uuid' } },
+  '/api/student/schedule': { weekStart: { type: 'number' }, studentId: { type: 'uuid' }, all: { type: 'boolean' } },
   '/api/student/homework': { studentId: { type: 'uuid' } },
   '/api/student/homework/done': { submissionId: { required: true, type: 'uuid' }, done: { required: true, type: 'boolean' } },
 

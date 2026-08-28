@@ -73,6 +73,17 @@ export function useStudentSchedule(telegramId, weekStart, studentId) {
   })
 }
 
+export function useStudentAllSessions(telegramId, studentId) {
+  return useQuery({
+    queryKey: ['student-all-sessions', telegramId, studentId],
+    queryFn: async () => {
+      const { sessions } = await fetchStudentSchedule(undefined, studentId, true)
+      return sessions || []
+    },
+    enabled: !!telegramId,
+  })
+}
+
 
 export function useMarkHomeworkDone() {
   const queryClient = useQueryClient()

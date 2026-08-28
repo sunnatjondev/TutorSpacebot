@@ -67,6 +67,17 @@ export function useTeacherSchedule(telegramId, weekStart) {
   })
 }
 
+export function useTeacherAllSessions(telegramId) {
+  return useQuery({
+    queryKey: ['teacher-all-sessions', telegramId],
+    queryFn: async () => {
+      const { sessions } = await fetchTeacherSchedule(undefined, true)
+      return sessions || []
+    },
+    enabled: !!telegramId,
+  })
+}
+
 export function useCreateGroup() {
   const queryClient = useQueryClient()
   return useMutation({

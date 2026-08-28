@@ -79,8 +79,8 @@ export function fetchTeacherPayments(filter = 'all') {
   return requestBackend('/api/teacher/payments', { filter })
 }
 
-export function fetchTeacherSchedule(weekStart) {
-  return requestBackend('/api/teacher/schedule', { weekStart })
+export function fetchTeacherSchedule(weekStart, all = false) {
+  return requestBackend('/api/teacher/schedule', { weekStart, all })
 }
 
 export function fetchTeacherAnalytics() {
@@ -186,8 +186,8 @@ export function fetchStudentPayments(studentId) {
   return requestBackend('/api/student/payments', { studentId })
 }
 
-export function fetchStudentSchedule(weekStart, studentId) {
-  return requestBackend('/api/student/schedule', { weekStart, studentId })
+export function fetchStudentSchedule(weekStart, studentId, all = false) {
+  return requestBackend('/api/student/schedule', { weekStart, studentId, all })
 }
 
 export function fetchStudentHomework(studentId) {

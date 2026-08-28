@@ -277,19 +277,23 @@ export async function handleTeacherSchedule(telegramUser, body) {
   const groupIds = (groups || []).map((g) => g.id)
   if (!groupIds.length) return { ok: true, sessions: [] }
 
-  const start = body.weekStart ? new Date(body.weekStart) : new Date()
-  start.setHours(0, 0, 0, 0)
-  const end = new Date(start)
-  end.setDate(end.getDate() + 7)
-  end.setHours(23, 59, 59, 999)
-
-  const { data, error } = await supabase
+  let query = supabase
     .from('sessions')
     .select('id, group_id, scheduled_at, duration_min, status, group:groups(name, subject, color, group_members(count))')
     .in('group_id', groupIds)
-    .gte('scheduled_at', start.toISOString())
-    .lte('scheduled_at', end.toISOString())
+    .neq('status', 'cancelled')
     .order('scheduled_at')
+
+  if (body.weekStart && !body.all) {
+    const start = new Date(body.weekStart)
+    start.setHours(0, 0, 0, 0)
+    const end = new Date(start)
+    end.setDate(end.getDate() + 7)
+    end.setHours(23, 59, 59, 999)
+    query = query.gte('scheduled_at', start.toISOString()).lte('scheduled_at', end.toISOString())
+  }
+
+  const { data, error } = await query
 
   if (error) throw error
   return { ok: true, sessions: data || [] }
