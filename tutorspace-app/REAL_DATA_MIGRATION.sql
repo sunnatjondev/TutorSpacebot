@@ -566,9 +566,10 @@ alter table public.users add column if not exists subscription_plan text default
 
 insert into public.subscription_plans (slug, name_uz, name_ru, price_uzs, max_groups, max_students, trial_days)
 values
-  ('trial', 'Sinov', 'Probniy', 0, 3, 30, 14),
-  ('solo', 'Solo', 'Solo', 150000, 3, 30, 0),
-  ('center', 'Center', 'Center', 400000, null, null, 0)
+  ('trial', 'Sinov', 'Probniy', 0, 4, 40, 14),
+  ('solo', 'Start', 'Start', 89000, 4, 40, 0),
+  ('pro', 'Pro', 'Pro', 189000, 12, 120, 0),
+  ('center', 'Center', 'Center', 390000, null, null, 0)
 on conflict (slug) do update set
   name_uz = excluded.name_uz,
   name_ru = excluded.name_ru,

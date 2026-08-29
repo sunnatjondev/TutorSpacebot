@@ -46,10 +46,18 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_plan TEXT DEFAULT 'none'
 -- 5. Insert default plans
 INSERT INTO subscription_plans (slug, name_uz, name_ru, price_uzs, max_groups, max_students, trial_days)
 VALUES
-  ('trial', 'Sinov', 'Пробный', 0, 3, 30, 14),
-  ('solo', 'Solo', 'Solo', 150000, 3, 30, 0),
-  ('center', 'Center', 'Центр', 400000, NULL, NULL, 0)
-ON CONFLICT (slug) DO NOTHING;
+  ('trial', 'Sinov', 'Пробный', 0, 4, 40, 14),
+  ('solo', 'Start', 'Start', 89000, 4, 40, 0),
+  ('pro', 'Pro', 'Pro', 189000, 12, 120, 0),
+  ('center', 'Center', 'Center', 390000, NULL, NULL, 0)
+ON CONFLICT (slug) DO UPDATE SET
+  name_uz = EXCLUDED.name_uz,
+  name_ru = EXCLUDED.name_ru,
+  price_uzs = EXCLUDED.price_uzs,
+  max_groups = EXCLUDED.max_groups,
+  max_students = EXCLUDED.max_students,
+  trial_days = EXCLUDED.trial_days,
+  is_active = true;
 
 -- 6. RLS Policies for new tables
 

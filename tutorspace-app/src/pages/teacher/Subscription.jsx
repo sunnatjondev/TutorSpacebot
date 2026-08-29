@@ -63,17 +63,23 @@ export default function Subscription() {
   // Infer plan if backend didn't join the plan object
   let activePlan = subscription?.plan
   if (!activePlan && subscription?.limits) {
-    if (subscription.limits.maxGroups === 3 && subscription.limits.maxStudents === 30) {
+    if (subscription.limits.maxGroups === 4 && subscription.limits.maxStudents === 40) {
       activePlan = {
         slug: isTrial ? 'trial' : 'solo',
-        name_uz: isTrial ? 'Sinov' : 'Solo',
-        name_ru: isTrial ? 'Пробный' : 'Solo'
+        name_uz: isTrial ? 'Sinov' : 'Start',
+        name_ru: isTrial ? 'Пробный' : 'Start'
+      }
+    } else if (subscription.limits.maxGroups === 12 && subscription.limits.maxStudents === 120) {
+      activePlan = {
+        slug: 'pro',
+        name_uz: 'Pro',
+        name_ru: 'Pro'
       }
     } else if (!subscription.limits.maxGroups && !subscription.limits.maxStudents) {
       activePlan = {
         slug: 'center',
         name_uz: 'Center',
-        name_ru: 'Центр'
+        name_ru: 'Center'
       }
     }
   }
@@ -94,12 +100,23 @@ export default function Subscription() {
     const slug = activePlan?.slug
     if (slug === 'solo') {
       return {
-        card: 'bg-gradient-to-br from-[#4c1d95]/40 to-[#581c87]/10 border border-[#9333ea]/50 shadow-[0_0_20px_rgba(147,51,234,0.15)] relative overflow-hidden rounded-[24px] p-5 transition-all duration-300',
+        card: 'bg-gradient-to-br from-[#4c1d95]/30 to-[#581c87]/10 border border-[#8b5cf6]/40 shadow-[0_0_20px_rgba(139,92,246,0.15)] relative overflow-hidden rounded-[24px] p-5 transition-all duration-300',
         title: 'text-purple-200/80',
         value: 'text-[#c084fc] font-bold',
         muted: 'text-purple-200/60',
-        badge: 'bg-[#9333ea]/35 text-[#c084fc] border border-[#9333ea]/50 font-bold',
+        badge: 'bg-[#7c3aed]/30 text-[#c084fc] border border-[#7c3aed]/40 font-bold',
         icon: 'text-[#c084fc]'
+      }
+    }
+
+    if (slug === 'pro') {
+      return {
+        card: 'bg-gradient-to-br from-[#581c87]/50 to-[#3b0764]/30 border border-[#a855f7]/60 shadow-[0_0_20px_rgba(168,85,247,0.2)] relative overflow-hidden rounded-[24px] p-5 transition-all duration-300',
+        title: 'text-purple-200/90',
+        value: 'text-[#d8b4fe] font-bold',
+        muted: 'text-purple-200/70',
+        badge: 'bg-[#9333ea]/40 text-[#d8b4fe] border border-[#a855f7]/60 font-bold',
+        icon: 'text-[#d8b4fe]'
       }
     }
     
@@ -247,31 +264,32 @@ export default function Subscription() {
           {lang === 'ru' ? 'Тарифные планы' : 'Ta\'rif rejalari'}
         </h3>
 
-        {/* Solo Plan */}
-        <div className="relative overflow-hidden rounded-[28px] border-[2px] border-[#9333ea] bg-gradient-to-br from-[#4c1d95]/40 to-[#581c87]/10 p-6 shadow-glow-sm">
-          <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-[#9333ea] opacity-20 blur-2xl" />
-          <div className="absolute top-4 right-4 bg-gradient-to-r from-[#9333ea] to-[#c084fc] text-white text-[11px] tracking-wider uppercase font-extrabold px-3 py-1 rounded-full shadow-md">
-            {lang === 'ru' ? 'Популярный' : 'Mashhur'}
+        {/* Start Plan */}
+        <div className="relative overflow-hidden rounded-[28px] border-[1px] border-[#8b5cf6]/40 bg-gradient-to-br from-[#4c1d95]/30 to-[#581c87]/10 p-6">
+          <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-[#8b5cf6] opacity-15 blur-2xl" />
+          <div className="absolute top-4 right-4 bg-[#7c3aed]/30 text-[#c084fc] border border-[#7c3aed]/40 text-[11px] tracking-wider uppercase font-extrabold px-3 py-1 rounded-full">
+            {lang === 'ru' ? 'Старт' : 'Start'}
           </div>
-          <h3 className="text-2xl font-black text-white relative z-10">Solo</h3>
+          <h3 className="text-2xl font-black text-white relative z-10">Start</h3>
           <div className="mt-2 flex items-baseline gap-1 relative z-10">
-            <span className="text-3xl font-extrabold text-[#c084fc]">{formatUZS(150000)}</span>
+            <span className="text-3xl font-extrabold text-[#c084fc]">{formatUZS(89000)}</span>
             <span className="text-sm font-semibold text-[#c084fc]/70">/ {lang === 'ru' ? 'мес' : 'oy'}</span>
           </div>
           
           <ul className="space-y-3 mt-6 text-on-surface text-sm font-medium relative z-10">
-            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#a855f7]"/> <span className="text-white/90">{lang === 'ru' ? 'До 3 групп' : '3 ta gacha guruh'}</span></li>
-            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#a855f7]"/> <span className="text-white/90">{lang === 'ru' ? 'До 30 учеников' : '30 ta gacha talaba'}</span></li>
-            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#a855f7]"/> <span className="text-white/90">{lang === 'ru' ? 'Напоминания об оплатах' : 'To\'lov eslatmalari'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#a855f7] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'До 4 групп' : '4 ta gacha guruh'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#a855f7] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'До 40 учеников' : '40 ta gacha o\'quvchi'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#a855f7] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Напоминания об оплатах' : 'To\'lov eslatmalari'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#a855f7] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Расписание и домашние задания' : 'Dars jadvali va vazifalar'}</span></li>
           </ul>
 
           <button 
             onClick={() => handlePay('solo')}
             disabled={loadingPlan !== null || (!isExpired && activePlan?.slug === 'solo')}
-            className={`w-full mt-8 h-[52px] rounded-2xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all flex items-center justify-center gap-2 relative z-10 ${
+            className={`w-full mt-8 h-[52px] rounded-2xl font-bold shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all flex items-center justify-center gap-2 relative z-10 ${
               !isExpired && activePlan?.slug === 'solo'
                 ? 'bg-white/10 text-white/50 cursor-not-allowed shadow-none border border-white/10'
-                : 'bg-gradient-to-r from-[#9333ea] to-[#a855f7] text-white active:scale-95 disabled:opacity-50'
+                : 'bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white active:scale-95 disabled:opacity-50'
             }`}
           >
             {loadingPlan === 'solo' ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
@@ -281,22 +299,59 @@ export default function Subscription() {
           </button>
         </div>
 
+        {/* Pro Plan (Popular) */}
+        <div className="relative overflow-hidden rounded-[28px] border-[2px] border-[#a855f7] bg-gradient-to-br from-[#581c87]/50 to-[#3b0764]/30 p-6 shadow-[0_0_25px_rgba(168,85,247,0.25)]">
+          <div className="absolute top-0 right-0 -mr-8 -mt-8 h-36 w-36 rounded-full bg-[#9333ea] opacity-25 blur-2xl" />
+          <div className="absolute top-4 right-4 bg-gradient-to-r from-[#9333ea] to-[#c084fc] text-white text-[11px] tracking-wider uppercase font-extrabold px-3 py-1 rounded-full shadow-md">
+            {lang === 'ru' ? 'Популярный ⭐' : 'Mashhur ⭐'}
+          </div>
+          <h3 className="text-2xl font-black text-white relative z-10">Pro</h3>
+          <div className="mt-2 flex items-baseline gap-1 relative z-10">
+            <span className="text-3xl font-extrabold text-[#d8b4fe]">{formatUZS(189000)}</span>
+            <span className="text-sm font-semibold text-[#d8b4fe]/70">/ {lang === 'ru' ? 'мес' : 'oy'}</span>
+          </div>
+          
+          <ul className="space-y-3 mt-6 text-on-surface text-sm font-medium relative z-10">
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#c084fc] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'До 12 групп' : '12 ta gacha guruh'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#c084fc] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'До 120 учеников' : '120 ta gacha o\'quvchi'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#c084fc] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Подробная аналитика и графики' : 'Batafsil analitika va grafiklar'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#c084fc] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Экспорт отчётов в Excel' : 'Excel formatida hisobotlar'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#c084fc] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Авто-напоминания должникам' : 'Qarzdorlarga avto-eslatmalar'}</span></li>
+          </ul>
+
+          <button 
+            onClick={() => handlePay('pro')}
+            disabled={loadingPlan !== null || (!isExpired && activePlan?.slug === 'pro')}
+            className={`w-full mt-8 h-[52px] rounded-2xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all flex items-center justify-center gap-2 relative z-10 ${
+              !isExpired && activePlan?.slug === 'pro'
+                ? 'bg-white/10 text-white/50 cursor-not-allowed shadow-none border border-white/10'
+                : 'bg-gradient-to-r from-[#9333ea] to-[#a855f7] text-white active:scale-95 disabled:opacity-50'
+            }`}
+          >
+            {loadingPlan === 'pro' ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
+            {!isExpired && activePlan?.slug === 'pro'
+              ? (lang === 'ru' ? 'Активный' : 'Faol')
+              : (lang === 'ru' ? 'Оплатить' : 'To\'lash')}
+          </button>
+        </div>
+
         {/* Center Plan */}
-        <div className="relative overflow-hidden rounded-[28px] border-[1px] border-[#fb923c]/30 bg-gradient-to-br from-[#431407]/60 to-[#7c2d12]/10 p-6">
+        <div className="relative overflow-hidden rounded-[28px] border-[1px] border-[#fb923c]/40 bg-gradient-to-br from-[#431407]/60 to-[#7c2d12]/10 p-6">
           <div className="absolute top-0 left-0 -ml-8 -mt-8 h-32 w-32 rounded-full bg-[#fb923c] opacity-10 blur-2xl" />
           <div className="absolute top-4 right-4 bg-gradient-to-r from-[#f97316] to-[#fb923c] text-white text-[11px] tracking-wider uppercase font-extrabold px-3 py-1 rounded-full shadow-md">
             {lang === 'ru' ? 'Бизнес' : 'Biznes'}
           </div>
           <h3 className="text-2xl font-black text-white relative z-10">Center</h3>
           <div className="mt-2 flex items-baseline gap-1 relative z-10">
-            <span className="text-3xl font-extrabold text-[#fdba74]">{formatUZS(400000)}</span>
+            <span className="text-3xl font-extrabold text-[#fdba74]">{formatUZS(390000)}</span>
             <span className="text-sm font-semibold text-[#fdba74]/70">/ {lang === 'ru' ? 'мес' : 'oy'}</span>
           </div>
           
           <ul className="space-y-3 mt-6 text-on-surface text-sm font-medium relative z-10">
-            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#fb923c]"/> <span className="text-white/90">{lang === 'ru' ? 'Безлимитные группы' : 'Cheksiz guruhlar'}</span></li>
-            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#fb923c]"/> <span className="text-white/90">{lang === 'ru' ? 'Безлимитные ученики' : 'Cheksiz talabalar'}</span></li>
-            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#fb923c]"/> <span className="text-white/90">{lang === 'ru' ? 'Приоритетная поддержка' : 'Ustuvor qo\'llab-quvvatlash'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#fb923c] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Безлимитные группы' : 'Cheksiz guruhlar'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#fb923c] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Безлимитные ученики' : 'Cheksiz talabalar'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#fb923c] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Все функции платформы' : 'Barcha premium imkoniyatlar'}</span></li>
+            <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#fb923c] shrink-0"/> <span className="text-white/90">{lang === 'ru' ? 'Приоритетная поддержка' : 'Ustuvor qo\'llab-quvvatlash'}</span></li>
           </ul>
 
           <button 
