@@ -35,6 +35,15 @@ console.log('Supabase:', hasSupabase ? config.SUPABASE_URL : 'disabled')
 startCronJobs(bot, supabase)
 setBot(bot)
 
+bot.setMyCommands([
+  { command: 'start', description: '🚀 Open TutorSpace App / Ilovani ochish' },
+  { command: 'schedule', description: '📅 Schedule & Lessons / Darslar jadvali' },
+  { command: 'stats', description: '📊 Statistics / Statistika' },
+  { command: 'myref', description: '🔗 Referral program / Referal havola' },
+  { command: 'setlang', description: '🌐 Change language / Tilni o\'zgartirish' },
+  { command: 'help', description: '❓ Help / Yordam' },
+]).catch((e) => console.error('setMyCommands error:', e.message))
+
 async function updatePlanPrices() {
   if (!supabase) return
   try {
@@ -292,6 +301,173 @@ bot.onText(/\/stats/, async (msg) => {
   const pct = total > 0 ? Math.round((present / total) * 100) : 0
 
   return bot.sendMessage(msg.chat.id, t(lang, 'stats_student', escapeMarkdown(user.first_name), pct, total), { parse_mode: 'Markdown' })
+})
+
+bot.onText(/\/(schedule|jadval|raspisanie|darslar)/, async (msg) => {
+  const user = await getUserRow(msg.from.id)
+  const lang = user?.language || 'uz'
+  const isRu = lang === 'ru'
+
+  if (!supabase) return sendStatsUnavailable(msg.chat.id, lang)
+  if (!user) return bot.sendMessage(msg.chat.id, t(lang, 'start_first'))
+
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+  const todayEnd = new Date()
+  todayEnd.setHours(23, 59, 59, 999)
+
+  const weekEnd = new Date(todayStart)
+  weekEnd.setDate(weekEnd.getDate() + 7)
+  weekEnd.setHours(23, 59, 59, 999)
+
+  try {
+    if (user.role === 'teacher') {
+      const { data: groups, error: groupsError } = await supabase
+        .from('groups')
+        .select('id, name, subject')
+        .eq('teacher_id', user.id)
+
+      if (groupsError) throw groupsError
+      if (!groups?.length) {
+        return bot.sendMessage(msg.chat.id, isRu ? 'У вас пока нет групп.' : 'Sizda hali guruhlar yo\'q.', {
+          reply_markup: {
+            inline_keyboard: [[{ text: isRu ? '➕ Создать группу' : '➕ Guruh yaratish', web_app: { url: WEBAPP_URL } }]],
+          },
+        })
+      }
+
+      const groupIds = groups.map((g) => g.id)
+
+      const { data: sessions, error: sessionsError } = await supabase
+        .from('sessions')
+        .select('id, scheduled_at, duration_min, status, group:groups(name, subject)')
+        .in('group_id', groupIds)
+        .gte('scheduled_at', todayStart.toISOString())
+        .lte('scheduled_at', weekEnd.toISOString())
+        .neq('status', 'cancelled')
+        .order('scheduled_at')
+
+      if (sessionsError) throw sessionsError
+
+      const todaySessions = (sessions || []).filter((s) => {
+        const d = new Date(s.scheduled_at)
+        return d >= todayStart && d <= todayEnd
+      })
+
+      const upcomingSessions = (sessions || []).filter((s) => {
+        const d = new Date(s.scheduled_at)
+        return d > todayEnd
+      })
+
+      let text = isRu ? '📅 <b>Расписание занятий</b>\n\n' : '📅 <b>Darslar jadvali</b>\n\n'
+
+      if (todaySessions.length > 0) {
+        text += isRu ? '<b>Сегодня:</b>\n' : '<b>Bugun:</b>\n'
+        todaySessions.forEach((s) => {
+          const time = new Date(s.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+          const groupName = escapeHtml(s.group?.name || 'Guruh')
+          const subject = s.group?.subject ? ` (${escapeHtml(s.group.subject)})` : ''
+          const statusIcon = s.status === 'done' ? '✅' : s.status === 'ongoing' ? '🟡' : '⏳'
+          text += `• <b>${time}</b> — ${groupName}${subject} ${statusIcon}\n`
+        })
+        text += '\n'
+      } else {
+        text += isRu ? '<i>Сегодня занятий нет.</i>\n\n' : '<i>Bugun darslar rejalashtirilmagan.</i>\n\n'
+      }
+
+      if (upcomingSessions.length > 0) {
+        text += isRu ? '<b>Ближайшие уроки на этой неделе:</b>\n' : '<b>Hafta davomidagi yaqin darslar:</b>\n'
+        upcomingSessions.slice(0, 5).forEach((s) => {
+          const d = new Date(s.scheduled_at)
+          const dateStr = d.toLocaleDateString(isRu ? 'ru-RU' : 'uz-UZ', { weekday: 'short', day: 'numeric', month: 'short' })
+          const time = d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+          const groupName = escapeHtml(s.group?.name || 'Guruh')
+          text += `• <b>${dateStr}, ${time}</b> — ${groupName}\n`
+        })
+      }
+
+      return bot.sendMessage(msg.chat.id, text, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: isRu ? '📱 Открыть расписание в приложении' : '📱 Ilovada jadvalni ochish', web_app: { url: WEBAPP_URL } }]],
+        },
+      })
+    } else {
+      // Student / Parent
+      const { data: memberships, error: memberError } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('student_id', user.id)
+
+      if (memberError) throw memberError
+      const groupIds = (memberships || []).map((m) => m.group_id)
+
+      if (!groupIds.length) {
+        return bot.sendMessage(msg.chat.id, isRu ? 'Вы пока не добавлены ни в одну группу.' : 'Siz hali hech qaysi guruhga qo\'shilmagansiz.', {
+          reply_markup: {
+            inline_keyboard: [[{ text: isRu ? '📱 Открыть TutorSpace' : '📱 TutorSpace ilovasi', web_app: { url: WEBAPP_URL } }]],
+          },
+        })
+      }
+
+      const { data: sessions, error: sessionsError } = await supabase
+        .from('sessions')
+        .select('id, scheduled_at, duration_min, status, group:groups(name, subject, teacher:users!groups_teacher_id_fkey(first_name, last_name))')
+        .in('group_id', groupIds)
+        .gte('scheduled_at', todayStart.toISOString())
+        .lte('scheduled_at', weekEnd.toISOString())
+        .neq('status', 'cancelled')
+        .order('scheduled_at')
+
+      if (sessionsError) throw sessionsError
+
+      const todaySessions = (sessions || []).filter((s) => {
+        const d = new Date(s.scheduled_at)
+        return d >= todayStart && d <= todayEnd
+      })
+
+      const upcomingSessions = (sessions || []).filter((s) => {
+        const d = new Date(s.scheduled_at)
+        return d > todayEnd
+      })
+
+      let text = isRu ? '📅 <b>Ваше расписание уроков</b>\n\n' : '📅 <b>Sizning darslar jadvalingiz</b>\n\n'
+
+      if (todaySessions.length > 0) {
+        text += isRu ? '<b>Сегодня:</b>\n' : '<b>Bugun:</b>\n'
+        todaySessions.forEach((s) => {
+          const time = new Date(s.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+          const groupName = escapeHtml(s.group?.name || s.group?.subject || 'Dars')
+          const teacherName = s.group?.teacher ? ` (${escapeHtml(s.group.teacher.first_name || '')})` : ''
+          text += `• <b>${time}</b> — ${groupName}${teacherName}\n`
+        })
+        text += '\n'
+      } else {
+        text += isRu ? '<i>Сегодня уроков нет.</i>\n\n' : '<i>Bugun darslar yo\'q.</i>\n\n'
+      }
+
+      if (upcomingSessions.length > 0) {
+        text += isRu ? '<b>Ближайшие уроки:</b>\n' : '<b>Yaqin darslar:</b>\n'
+        upcomingSessions.slice(0, 5).forEach((s) => {
+          const d = new Date(s.scheduled_at)
+          const dateStr = d.toLocaleDateString(isRu ? 'ru-RU' : 'uz-UZ', { weekday: 'short', day: 'numeric', month: 'short' })
+          const time = d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+          const groupName = escapeHtml(s.group?.name || s.group?.subject || 'Dars')
+          text += `• <b>${dateStr}, ${time}</b> — ${groupName}\n`
+        })
+      }
+
+      return bot.sendMessage(msg.chat.id, text, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: isRu ? '📱 Открыть расписание' : '📱 Jadvalni ochish', web_app: { url: WEBAPP_URL } }]],
+        },
+      })
+    }
+  } catch (err) {
+    console.error('Schedule command error:', err.message)
+    return bot.sendMessage(msg.chat.id, t(lang, 'error_occurred'))
+  }
 })
 
 bot.onText(/\/myref/, async (msg) => {
