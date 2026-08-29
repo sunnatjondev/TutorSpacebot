@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CalendarDays, CheckCircle, BookOpen } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { CustomDatePickerModal } from '../../components/ui/CustomDatePickerModal'
