@@ -8,7 +8,7 @@ import { useI18n } from '../../i18n/index.jsx'
 import { deleteUserAccount } from '../../lib/backend'
 
 export default function ParentSettings() {
-  const { user, haptic, tg } = useTelegram()
+  const { user, haptic, tg, showConfirm, showAlert } = useTelegram()
   const { t, lang, setLanguage, languages } = useI18n()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
@@ -19,7 +19,8 @@ export default function ParentSettings() {
       ? 'Вы уверены, что хотите НАВСЕГДА удалить свой родительский аккаунт? Связи с вашими детьми будут стерты.'
       : 'Hisobingizni o\'chirib tashlamoqchimisiz? Farzandlaringiz bilan aloqalar o\'chirib yuboriladi.'
       
-    if (window.confirm(confirmText)) {
+    const confirmed = await showConfirm(confirmText)
+    if (confirmed) {
       try {
         await deleteUserAccount()
         localStorage.clear()
@@ -27,7 +28,7 @@ export default function ParentSettings() {
         haptic?.success?.()
       } catch (err) {
         haptic?.error?.()
-        alert('Xatolik yuz berdi: ' + err.message)
+        await showAlert('Xatolik yuz berdi: ' + err.message)
       }
     }
   }

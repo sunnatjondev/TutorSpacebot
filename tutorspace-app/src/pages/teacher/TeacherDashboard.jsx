@@ -230,7 +230,7 @@ function AttendanceModal({ groups, groupAttendance, lang, attendanceMonth, atten
 }
 
 export default function TeacherDashboard() {
-  const { user, greeting, greetingRu, haptic, openTelegramLink, tg } = useTelegram()
+  const { user, greeting, greetingRu, haptic, openTelegramLink, tg, showConfirm, showAlert } = useTelegram()
   const { t, lang } = useI18n()
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
@@ -254,16 +254,14 @@ export default function TeacherDashboard() {
       if (action === 'done') {
         await updateSessionMutation.mutateAsync({ sessionId, status: 'done' })
       } else if (action === 'delete') {
-        if (confirm(lang === 'ru' ? 'Точно удалить этот урок?' : "Bu darsni aniq o'chirmoqchimisiz?")) {
-          await deleteSessionMutation.mutateAsync(sessionId)
-        } else {
-          return
-        }
+        const confirmed = await showConfirm(lang === 'ru' ? 'Точно удалить этот урок?' : "Bu darsni aniq o'chirmoqchimisiz?")
+        if (!confirmed) return
+        await deleteSessionMutation.mutateAsync({ sessionId, telegramId: user?.id })
       }
       haptic?.success()
       refetchDash()
     } catch {
-      alert(lang === 'ru' ? 'Ошибка при выполнении действия' : 'Xatolik yuz berdi')
+      await showAlert(lang === 'ru' ? 'Ошибка при выполнении действия' : 'Xatolik yuz berdi')
     }
   }
 

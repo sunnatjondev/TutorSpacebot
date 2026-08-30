@@ -296,7 +296,7 @@ function CreateLessonModal({ groups, initialDate, onClose, onCreated, haptic, t,
 }
 
 export default function TeacherSchedule() {
-  const { user, haptic } = useTelegram()
+  const { user, haptic, showConfirm } = useTelegram()
   const { t } = useI18n()
   const [baseDate, setBaseDate] = useState(() => new Date())
   const today = new Date()
@@ -399,7 +399,8 @@ export default function TeacherSchedule() {
 
   const handleDeleteLesson = async (sessionId) => {
     haptic?.heavy?.()
-    if (!confirm(t('teacherSchedule.deleteConfirm'))) return
+    const confirmed = await showConfirm(t('teacherSchedule.deleteConfirm'))
+    if (!confirmed) return
 
     setProcessingSessionId(sessionId)
     try {

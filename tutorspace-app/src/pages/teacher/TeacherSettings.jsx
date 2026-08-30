@@ -23,7 +23,7 @@ function NotificationToggle({ value, onChange }) {
 }
 
 export default function TeacherSettings() {
-  const { user, haptic } = useTelegram()
+  const { user, haptic, showConfirm, showAlert } = useTelegram()
   const { theme, toggleTheme } = useTheme()
   const { t, lang, setLanguage, languages } = useI18n()
   const navigate = useNavigate()
@@ -64,7 +64,8 @@ export default function TeacherSettings() {
       ? 'Вы уверены, что хотите НАВСЕГДА удалить свой аккаунт? Все ваши группы, студенты, уроки и платежи будут стерты безвозвратно.'
       : 'Hisobingizni BUTUNLAY o\'chirib tashlamoqchimisiz? Barcha guruhlaringiz, talabalaringiz, darslaringiz va to\'lovlaringiz qayta tiklanmaydigan qilib o\'chiriladi.'
       
-    if (window.confirm(confirmText)) {
+    const confirmed = await showConfirm(confirmText)
+    if (confirmed) {
       try {
         await deleteUserAccount()
         localStorage.clear()
@@ -72,7 +73,7 @@ export default function TeacherSettings() {
         haptic?.success?.()
       } catch (err) {
         haptic?.error?.()
-        alert('Xatolik yuz berdi: ' + err.message)
+        await showAlert('Xatolik yuz berdi: ' + err.message)
       }
     }
   }

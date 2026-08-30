@@ -507,7 +507,7 @@ function CreateHomeworkModal({ isOpen, onClose, groupId, onCreated, haptic, t })
 export default function GroupDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, haptic } = useTelegram()
+  const { user, haptic, showConfirm } = useTelegram()
   const { t, lang } = useI18n()
   const { data, loading } = useGroupDetail(id)
   const { data: homeworkRows } = useGroupHomework(id)
@@ -711,7 +711,7 @@ export default function GroupDetail() {
       })
       haptic?.success()
     } catch {
-      alert(lang === 'ru' ? 'Ошибка при сохранении заметок' : "Qaydlarni saqlashda xatolik yuz berdi")
+      showAlert(lang === 'ru' ? 'Ошибка при сохранении заметок' : "Qaydlarni saqlashda xatolik yuz berdi")
     } finally {
       setSavingNotes(false)
     }
@@ -878,7 +878,8 @@ export default function GroupDetail() {
 
   const handleRemoveStudent = async (studentId) => {
     haptic?.heavy?.()
-    if (!confirm(t('groupDetail.removeStudentConfirm'))) return
+    const confirmed = await showConfirm(t('groupDetail.removeStudentConfirm'))
+    if (!confirmed) return
 
     try {
       await removeStudentMutation.mutateAsync({ groupId: id, studentId })
@@ -890,7 +891,8 @@ export default function GroupDetail() {
 
   const handleDeleteGroup = async () => {
     haptic?.heavy?.()
-    if (!confirm(t('groupDetail.deleteGroupConfirm'))) return
+    const confirmed = await showConfirm(t('groupDetail.deleteGroupConfirm'))
+    if (!confirmed) return
 
     try {
       await deleteGroupMutation.mutateAsync(id)
@@ -1461,7 +1463,8 @@ export default function GroupDetail() {
             <button
               onClick={async () => {
                 haptic?.heavy()
-                if (confirm(t('homework.deleteConfirm') || 'Rostdan ham bu vazifani o`chirmoqchimisiz?')) {
+                const confirmed = await showConfirm(t('homework.deleteConfirm') || 'Rostdan ham bu vazifani o`chirmoqchimisiz?')
+                if (confirmed) {
                   try {
                     await deleteHomeworkMutation.mutateAsync(selectedTask.id)
                     setSelectedTask(null)

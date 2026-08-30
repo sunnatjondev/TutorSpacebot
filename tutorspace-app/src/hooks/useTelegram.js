@@ -113,6 +113,27 @@ export function useTelegram() {
     }
   }
 
+  const showConfirm = (message) => {
+    return new Promise((resolve) => {
+      if (tg?.showConfirm) {
+        tg.showConfirm(message, (confirmed) => resolve(confirmed))
+      } else {
+        resolve(window.confirm(message))
+      }
+    })
+  }
+
+  const showAlert = (message) => {
+    return new Promise((resolve) => {
+      if (tg?.showAlert) {
+        tg.showAlert(message, () => resolve())
+      } else {
+        window.alert(message)
+        resolve()
+      }
+    })
+  }
+
   return {
     tg,
     user,
@@ -128,6 +149,8 @@ export function useTelegram() {
     haptic,
     openLink,
     openTelegramLink,
+    showConfirm,
+    showAlert,
     themeParams: tg?.themeParams || {},
   }
 }

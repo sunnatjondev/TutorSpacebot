@@ -74,7 +74,7 @@ function CreateGroupModal({ onClose, onCreated, telegramId, haptic }) {
 }
 
 export default function TeacherGroups() {
-  const { user, haptic } = useTelegram()
+  const { user, haptic, showConfirm } = useTelegram()
   const { t, lang } = useI18n()
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
@@ -89,7 +89,8 @@ export default function TeacherGroups() {
   const handleDelete = async (event, groupId) => {
     event.stopPropagation()
     haptic?.heavy?.()
-    if (!confirm("Bu guruhni o'chirmoqchimisiz?")) return
+    const confirmed = await showConfirm("Bu guruhni o'chirmoqchimisiz?")
+    if (!confirmed) return
 
     setDeletingId(groupId)
     try {
