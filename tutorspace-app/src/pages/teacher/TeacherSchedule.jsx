@@ -437,7 +437,7 @@ export default function TeacherSchedule() {
           </button>
         </div>
 
-        <div className="m3-card mb-5 flex items-center justify-between gap-1 p-3">
+        <div className="m3-card mb-5 flex items-center justify-between gap-1 p-2 bg-surface-container/80 border border-outline-variant/30 rounded-2xl shadow-sm">
           {dayKeys.map((dayKey, index) => {
             const date = days[index]
             const isToday = date.toDateString() === today.toDateString()
@@ -450,22 +450,26 @@ export default function TeacherSchedule() {
                   setSelectedDay(index)
                   haptic?.selection()
                 }}
-                className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-0.5 py-1.5 transition-all duration-200 ${
-                  isSelected ? 'bg-brand' : isToday ? 'bg-surface-high' : ''
+                className={`flex flex-1 flex-col items-center justify-center min-h-[58px] py-2 px-1 rounded-xl transition-all duration-200 active:scale-95 ${
+                  isSelected
+                    ? 'bg-gradient-to-b from-[#7C3AED] to-[#6366F1] text-white shadow-md shadow-indigo-500/20 ring-1 ring-white/10'
+                    : isToday
+                      ? 'bg-surface-high/80 text-on-surface ring-1 ring-primary/30'
+                      : 'text-on-surface-variant hover:bg-surface-high/40'
                 }`}
               >
-                <span className={`text-[9px] font-bold tracking-wide ${isSelected ? 'text-white' : 'text-on-surface-variant'}`}>
+                <span className={`text-[10px] font-semibold tracking-wider uppercase ${isSelected ? 'text-white/90' : 'text-on-surface-variant'}`}>
                   {t(`days.${dayKey}`)}
                 </span>
-                <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-on-surface'}`}>
+                <span className={`text-[15px] font-extrabold leading-tight mt-0.5 ${isSelected ? 'text-white' : 'text-on-surface'}`}>
                   {date.getDate()}
                 </span>
                 {weekSessionDates.has(date.toDateString()) ? (
-                  <span className={`h-1.5 w-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-white shadow-xs' : 'bg-primary shadow-glow-primary'}`} />
+                  <span className={`h-1.5 w-1.5 rounded-full mt-1 ${isSelected ? 'bg-white shadow-xs' : 'bg-primary shadow-glow-primary'}`} />
                 ) : isToday && !isSelected ? (
-                  <span className="mt-0.5 h-1 w-1 rounded-full bg-brand" />
+                  <span className="mt-1 h-1 w-1 rounded-full bg-brand" />
                 ) : (
-                  <span className="h-1.5 w-1.5 mt-0.5" />
+                  <span className="h-1.5 w-1.5 mt-1" />
                 )}
               </button>
             )
@@ -480,8 +484,23 @@ export default function TeacherSchedule() {
               const subject = lesson.group?.subject || '-'
               const studentCount = lesson.group?.group_members?.[0]?.count ?? 0
               const duration = lesson.duration_min ? `${lesson.duration_min} ${t('teacherSchedule.minutes')}` : ''
-              const isDone = lesson.status === 'done'
-              const isInProgress = lesson.status === 'ongoing'
+              
+              const scheduledAt = new Date(lesson.scheduled_at)
+              const durationMin = lesson.duration_min || 90
+              const endsAt = new Date(scheduledAt.getTime() + durationMin * 60000)
+              const now = new Date()
+
+              let effectiveStatus = lesson.status
+              if (effectiveStatus !== 'cancelled') {
+                if (now >= endsAt) {
+                  effectiveStatus = 'done'
+                } else if (now >= scheduledAt && now < endsAt) {
+                  effectiveStatus = 'ongoing'
+                }
+              }
+
+              const isDone = effectiveStatus === 'done'
+              const isInProgress = effectiveStatus === 'ongoing'
               const isProcessing = processingSessionId === lesson.id
 
               const colorsMap = {
@@ -533,7 +552,7 @@ export default function TeacherSchedule() {
                       ) : (
                         <span className="flex shrink-0 items-center gap-1 text-[10px] text-on-surface-variant">
                           <span className={`h-1.5 w-1.5 rounded-full ${isInProgress ? 'bg-paid-green animate-ping' : 'bg-primary'} ${isInProgress ? '' : 'animate-pulse'}`} />
-                          {getStatusLabel(lesson.status)}
+                          {getStatusLabel(effectiveStatus)}
                         </span>
                       )}
                     </div>
@@ -555,7 +574,7 @@ export default function TeacherSchedule() {
                             onClick={() => (isInProgress ? handleFinishLesson(lesson.id) : handleStartLesson(lesson.id))}
                             disabled={isProcessing}
                             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full active:scale-90 transition-transform disabled:opacity-50 ${
-                              isInProgress ? 'bg-paid-green text-white' : 'bg-brand text-white'
+                              isInProgress ? 'bg-paid-green text-white' : 'bg-gradient-to-tr from-[#7C3AED] to-[#6366F1] text-white'
                             }`}
                             title={isInProgress ? t('teacherSchedule.finishLesson') : t('teacherSchedule.startLesson')}
                           >
@@ -604,7 +623,7 @@ export default function TeacherSchedule() {
       </div>
 
       <button
-        className="m3-fab bottom-[88px] right-4"
+        className="fixed bottom-20 right-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-[#6366F1] text-white shadow-lg shadow-indigo-500/25 active:scale-95 transition-transform z-30"
         onClick={() => {
           haptic?.medium()
           setShowCreate(true)

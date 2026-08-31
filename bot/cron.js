@@ -3,6 +3,7 @@ import { runHwDeadlineReminder } from './crons/hwDeadlineReminder.js'
 import { runPostLessonNotification } from './crons/postLessonNotification.js'
 import { runGenerateSessions } from './crons/generateSessions.js'
 import { runSubscriptionReminder } from './crons/subscriptionReminder.js'
+import { autoCompleteExpiredSessions } from './services/sessionService.js'
 import { t } from './i18n.js'
 export function startCronJobs(bot, supabase) {
   if (!supabase) {
@@ -279,4 +280,11 @@ export function startCronJobs(bot, supabase) {
   startSafeInterval('Generate Sessions', async () => {
     await runGenerateSessions(supabase)
   }, 24 * 60 * 60000)
+
+  // ==========================================
+  // 8. AUTO-COMPLETE SESSIONS (Runs every 1 min)
+  // ==========================================
+  startSafeInterval('Auto-complete sessions cron', async () => {
+    await autoCompleteExpiredSessions(supabase)
+  }, 60 * 1000)
 }

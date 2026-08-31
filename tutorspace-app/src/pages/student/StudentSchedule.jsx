@@ -81,6 +81,20 @@ export default function StudentSchedule() {
     .map((session) => {
       const attended = session.attendance?.some((item) => item.present)
       
+      const scheduledAt = new Date(session.scheduled_at)
+      const durationMin = session.duration_min || 90
+      const endsAt = new Date(scheduledAt.getTime() + durationMin * 60000)
+      const now = new Date()
+
+      let effectiveStatus = session.status || 'upcoming'
+      if (effectiveStatus !== 'cancelled') {
+        if (now >= endsAt) {
+          effectiveStatus = 'done'
+        } else if (now >= scheduledAt && now < endsAt) {
+          effectiveStatus = 'ongoing'
+        }
+      }
+
       const hwDue = pendingHomeworks.some(h => {
         const dueDate = new Date(h.homework.due_at).toDateString()
         return dueDate === selectedDayKey && h.homework.group?.subject === session.group?.subject
@@ -94,7 +108,7 @@ export default function StudentSchedule() {
           : '-',
         time: new Date(session.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
         duration: session.duration_min ? `${session.duration_min} min` : '-',
-        status: attended ? 'attended' : (session.status || 'upcoming'),
+        status: attended ? 'attended' : effectiveStatus,
         hwDue,
       }
     })
@@ -118,7 +132,7 @@ export default function StudentSchedule() {
           </button>
         </div>
 
-        <div className="m3-card mb-5 flex items-center justify-between gap-1 p-3">
+        <div className="m3-card mb-5 flex items-center justify-between gap-1 p-2 bg-surface-container/80 border border-outline-variant/30 rounded-2xl shadow-sm">
           {DAY_KEYS.map((dayKey, index) => {
             const date = days[index]
             const isToday = date.toDateString() === today.toDateString()
@@ -131,22 +145,26 @@ export default function StudentSchedule() {
                   setSelectedDay(index)
                   haptic?.selection()
                 }}
-                className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-0.5 py-1.5 transition-all duration-200 ${
-                  isSelected ? 'bg-brand' : isToday ? 'bg-surface-high' : ''
+                className={`flex flex-1 flex-col items-center justify-center min-h-[58px] py-2 px-1 rounded-xl transition-all duration-200 active:scale-95 ${
+                  isSelected
+                    ? 'bg-gradient-to-b from-[#7C3AED] to-[#6366F1] text-white shadow-md shadow-indigo-500/20 ring-1 ring-white/10'
+                    : isToday
+                      ? 'bg-surface-high/80 text-on-surface ring-1 ring-primary/30'
+                      : 'text-on-surface-variant hover:bg-surface-high/40'
                 }`}
               >
-                <span className={`text-[9px] font-bold tracking-wide ${isSelected ? 'text-white' : 'text-on-surface-variant'}`}>
+                <span className={`text-[10px] font-semibold tracking-wider uppercase ${isSelected ? 'text-white/90' : 'text-on-surface-variant'}`}>
                   {t(`days.${dayKey}`)}
                 </span>
-                <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-on-surface'}`}>
+                <span className={`text-[15px] font-extrabold leading-tight mt-0.5 ${isSelected ? 'text-white' : 'text-on-surface'}`}>
                   {date.getDate()}
                 </span>
                 {weekSessionDates.has(date.toDateString()) ? (
-                  <span className={`h-1.5 w-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-white shadow-xs' : 'bg-primary shadow-glow-primary'}`} />
+                  <span className={`h-1.5 w-1.5 rounded-full mt-1 ${isSelected ? 'bg-white shadow-xs' : 'bg-primary shadow-glow-primary'}`} />
                 ) : isToday && !isSelected ? (
-                  <span className="mt-0.5 h-1 w-1 rounded-full bg-brand" />
+                  <span className="mt-1 h-1 w-1 rounded-full bg-brand" />
                 ) : (
-                  <span className="h-1.5 w-1.5 mt-0.5" />
+                  <span className="h-1.5 w-1.5 mt-1" />
                 )}
               </button>
             )

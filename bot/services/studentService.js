@@ -3,6 +3,7 @@ import { supabase, requireServiceSupabase, getUserRowByTelegramId, upsertTrusted
 import { signSupabaseAppJwt, verifyTelegramInitData } from '../auth.js'
 import { getUrlOrigin, escapeHtml, escapeMarkdown, escapeMarkdownV2, buildTelegramUserPayload, getCurrentPeriod, generateInviteToken, buildStudentName } from '../helpers.js'
 import { validate } from '../validation.js'
+import { autoCompleteExpiredSessions } from './sessionService.js'
 
 async function resolveTargetStudent(currentUser, requestedStudentId = null) {
   if (currentUser.role === 'parent') {
@@ -87,6 +88,7 @@ export async function handleParentChildren(telegramUser) {
 
 export async function handleStudentDashboard(telegramUser, body) {
   requireServiceSupabase()
+  await autoCompleteExpiredSessions(supabase)
   const user = await requireUserRow(telegramUser)
   const targetStudentId = await resolveTargetStudent(user, body?.studentId)
 
@@ -179,6 +181,7 @@ export async function handleStudentPayments(telegramUser, body) {
 
 export async function handleStudentSchedule(telegramUser, body) {
   requireServiceSupabase()
+  await autoCompleteExpiredSessions(supabase)
   const user = await requireUserRow(telegramUser)
   const targetStudentId = await resolveTargetStudent(user, body?.studentId)
 

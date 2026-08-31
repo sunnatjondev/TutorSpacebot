@@ -6,6 +6,7 @@ import { setBot } from './bot.js'
 import { supabase, requireServiceSupabase } from './db.js'
 import { hasSupabase, config } from './config.js'
 import { startCronJobs } from './cron.js'
+import { autoCompleteExpiredSessions } from './services/sessionService.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -310,6 +311,8 @@ bot.onText(/\/(schedule|jadval|raspisanie|darslar)/, async (msg) => {
 
   if (!supabase) return sendStatsUnavailable(msg.chat.id, lang)
   if (!user) return bot.sendMessage(msg.chat.id, t(lang, 'start_first'))
+
+  await autoCompleteExpiredSessions(supabase)
 
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)

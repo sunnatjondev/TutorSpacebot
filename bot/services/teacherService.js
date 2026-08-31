@@ -2,8 +2,11 @@ import { supabase, requireServiceSupabase, requireUserRow } from '../db.js'
 import { checkTeacherSubscription } from './authService.js'
 import { buildStudentName, getCurrentPeriod } from '../helpers.js'
 import { getBot } from '../bot.js'
+import { autoCompleteExpiredSessions } from './sessionService.js'
+
 export async function handleTeacherDashboard(telegramUser, body = {}) {
   requireServiceSupabase()
+  await autoCompleteExpiredSessions(supabase)
   const user = await requireUserRow(telegramUser)
 
   const subscription = await checkTeacherSubscription(user.id)
@@ -265,6 +268,7 @@ export async function handleTeacherPayments(telegramUser, body) {
 
 export async function handleTeacherSchedule(telegramUser, body) {
   requireServiceSupabase()
+  await autoCompleteExpiredSessions(supabase)
   const user = await requireUserRow(telegramUser)
 
   const { data: groups, error: groupsError } = await supabase
