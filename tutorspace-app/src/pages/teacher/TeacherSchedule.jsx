@@ -619,13 +619,13 @@ export default function TeacherSchedule() {
       </div>
 
       <button
-        className="m3-fab bottom-[88px] right-4"
+        className="fixed bottom-[88px] right-4 h-16 w-16 flex items-center justify-center rounded-[24px] bg-primary text-on-primary shadow-m3-elevation-3 transition-all duration-300 active:scale-90 z-40"
         onClick={() => {
           haptic?.medium()
           setShowCreate(true)
         }}
       >
-        <Plus size={24} className="text-white" />
+        <Plus size={24} />
       </button>
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title={t('teacherSchedule.createTitle')}>
