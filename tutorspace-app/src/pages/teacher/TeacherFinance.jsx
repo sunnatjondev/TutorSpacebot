@@ -265,9 +265,9 @@ export default function TeacherFinance() {
             <button
               key={item.key}
               onClick={() => { setMonthFilter(item.key); haptic?.selection() }}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
                 monthFilter === item.key
-                  ? 'bg-on-surface text-surface'
+                  ? 'bg-primary text-on-primary shadow-xs'
                   : 'bg-surface-high text-on-surface-variant'
               }`}
             >
@@ -289,24 +289,26 @@ export default function TeacherFinance() {
         </div>
 
         {/* Remind debtors CTA */}
-        {unpaidPaymentsCount > 0 ? (
-          <button
-            onClick={handleMassRemind}
-            disabled={reminding}
-            className="w-full h-11 mb-4 rounded-2xl bg-brand text-on-primary font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-xs disabled:opacity-50"
-          >
-            <Bell size={16} />
-            <span>
-              {reminding 
-                ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') 
-                : (lang === 'ru' ? `Напомнить должникам (${unpaidPaymentsCount})` : `Qarzdorlarga eslatish (${unpaidPaymentsCount})`)}
-            </span>
-          </button>
-        ) : (
-          <div className="w-full h-10 mb-4 rounded-2xl bg-paid-green/10 border border-paid-green/20 text-paid-green font-semibold text-xs flex items-center justify-center gap-1.5">
-            <CheckCircle size={14} />
-            <span>{lang === 'ru' ? 'Все оплаты получены' : "Barcha to'lovlar qabul qilingan"}</span>
-          </div>
+        {displayPayments.length > 0 && (
+          unpaidPaymentsCount > 0 ? (
+            <button
+              onClick={handleMassRemind}
+              disabled={reminding}
+              className="w-full h-11 mb-4 rounded-2xl bg-brand text-on-primary font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-xs disabled:opacity-50"
+            >
+              <Bell size={16} />
+              <span>
+                {reminding 
+                  ? (lang === 'ru' ? 'Отправка...' : 'Yuborilmoqda...') 
+                  : (lang === 'ru' ? `Напомнить должникам (${unpaidPaymentsCount})` : `Qarzdorlarga eslatish (${unpaidPaymentsCount})`)}
+              </span>
+            </button>
+          ) : (
+            <div className="w-full h-10 mb-4 rounded-2xl bg-paid-green/10 border border-paid-green/20 text-paid-green font-semibold text-xs flex items-center justify-center gap-1.5">
+              <CheckCircle size={14} />
+              <span>{lang === 'ru' ? 'Все оплаты получены' : "Barcha to'lovlar qabul qilingan"}</span>
+            </div>
+          )
         )}
 
         {/* Payment status filter */}
@@ -320,7 +322,7 @@ export default function TeacherFinance() {
               }}
               className={`chip whitespace-nowrap transition-all duration-200 ${
                 activeFilter === filter.key
-                  ? 'bg-on-surface text-surface font-bold'
+                  ? 'bg-primary text-on-primary font-bold shadow-xs'
                   : 'bg-surface-high text-on-surface-variant'
               }`}
             >
