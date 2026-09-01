@@ -233,8 +233,8 @@ export function deleteUserAccount() {
   return requestBackend('/api/user/delete')
 }
 
-export function remindDebtors() {
-  return requestBackend('/api/teacher/remind-debtors')
+export function remindDebtors(params = {}) {
+  return requestBackend('/api/teacher/remind-debtors', params)
 }
 
 export function remindStudent(paymentId) {

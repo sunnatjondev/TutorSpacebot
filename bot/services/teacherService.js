@@ -8,6 +8,7 @@ export async function handleTeacherDashboard(telegramUser, body = {}) {
   requireServiceSupabase()
   await autoCompleteExpiredSessions(supabase)
   const user = await requireUserRow(telegramUser)
+  await ensureTeacherMonthlyPayments(user.id)
 
   const subscription = await checkTeacherSubscription(user.id)
 
@@ -242,9 +243,61 @@ export async function handleTeacherGroups(telegramUser) {
   return { ok: true, groups: enriched }
 }
 
+export async function ensureTeacherMonthlyPayments(teacherId) {
+  try {
+    const { month, year } = getCurrentPeriod()
+    const { data: groups, error } = await supabase
+      .from('groups')
+      .select(`
+        id, teacher_id, price_per_month,
+        group_members (
+          student_id
+        )
+      `)
+      .eq('teacher_id', teacherId)
+      .not('price_per_month', 'is', null)
+
+    if (error || !groups || groups.length === 0) return
+
+    for (const group of groups) {
+      const amount = group.price_per_month || 0
+      if (amount <= 0) continue
+
+      for (const member of group.group_members || []) {
+        const studentId = member.student_id
+        if (!studentId) continue
+
+        const { data: existing } = await supabase
+          .from('payments')
+          .select('id')
+          .eq('student_id', studentId)
+          .eq('group_id', group.id)
+          .eq('period_month', month)
+          .eq('period_year', year)
+          .maybeSingle()
+
+        if (!existing) {
+          await supabase.from('payments').insert({
+            student_id: studentId,
+            group_id: group.id,
+            teacher_id: group.teacher_id,
+            amount,
+            period_month: month,
+            period_year: year,
+            status: 'unpaid',
+          })
+        }
+      }
+    }
+  } catch (err) {
+    console.error('ensureTeacherMonthlyPayments error:', err.message)
+  }
+}
+
 export async function handleTeacherPayments(telegramUser, body) {
   requireServiceSupabase()
   const user = await requireUserRow(telegramUser)
+  await ensureTeacherMonthlyPayments(user.id)
   const filter = body.filter || 'all'
 
   let query = supabase
@@ -303,12 +356,11 @@ export async function handleTeacherSchedule(telegramUser, body) {
   return { ok: true, sessions: data || [] }
 }
 
-export async function handleTeacherRemindDebtors(telegramUser, body) {
+export async function handleTeacherRemindDebtors(telegramUser, body = {}) {
   requireServiceSupabase()
   const teacher = await requireUserRow(telegramUser)
 
-  const { month, year } = getCurrentPeriod()
-  const { data: payments, error } = await supabase
+  let query = supabase
     .from('payments')
     .select(`
       id, amount, student:users!payments_student_id_fkey(id, telegram_id, first_name, last_name, username, language),
@@ -316,8 +368,12 @@ export async function handleTeacherRemindDebtors(telegramUser, body) {
     `)
     .eq('teacher_id', teacher.id)
     .eq('status', 'unpaid')
-    .eq('period_month', month)
-    .eq('period_year', year)
+
+  if (body?.month && body?.year) {
+    query = query.eq('period_month', Number(body.month)).eq('period_year', Number(body.year))
+  }
+
+  const { data: payments, error } = await query
 
   if (error) throw error
   if (!payments || !payments.length) return { ok: true, sentCount: 0, failedCount: 0, failedStudents: [] }

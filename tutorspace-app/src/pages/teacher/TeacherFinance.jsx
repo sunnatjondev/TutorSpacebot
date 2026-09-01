@@ -149,13 +149,16 @@ export default function TeacherFinance() {
   const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1
   const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear
 
-  // Client-side filter by month
+  // Client-side filter by month with robust parsing and fallback to created_at
   const displayPayments = (payments || []).filter((payment) => {
+    const pMonth = Number(payment.period_month) || (payment.created_at ? new Date(payment.created_at).getMonth() + 1 : null)
+    const pYear = Number(payment.period_year) || (payment.created_at ? new Date(payment.created_at).getFullYear() : null)
+
     if (monthFilter === 'current') {
-      return payment.period_month === currentMonth && payment.period_year === currentYear
+      return pMonth === currentMonth && pYear === currentYear
     }
     if (monthFilter === 'prev') {
-      return payment.period_month === prevMonth && payment.period_year === prevYear
+      return pMonth === prevMonth && pYear === prevYear
     }
     return true // 'all'
   })
@@ -168,10 +171,10 @@ export default function TeacherFinance() {
 
   const totalEarned = displayPayments
     .filter((payment) => payment.status === 'paid')
-    .reduce((sum, payment) => sum + (payment.amount || 0), 0)
+    .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0)
   const totalUnpaid = displayPayments
     .filter((payment) => payment.status === 'unpaid')
-    .reduce((sum, payment) => sum + (payment.amount || 0), 0)
+    .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0)
   const unpaidPaymentsCount = displayPayments
     .filter((payment) => payment.status === 'unpaid' || payment.status === 'partial').length
 
@@ -179,7 +182,12 @@ export default function TeacherFinance() {
     haptic?.heavy?.()
     setReminding(true)
     try {
-      const res = await remindDebtors()
+      const payload = monthFilter === 'current' 
+        ? { month: currentMonth, year: currentYear } 
+        : monthFilter === 'prev' 
+          ? { month: prevMonth, year: prevYear } 
+          : {}
+      const res = await remindDebtors(payload)
       setRemindResult(res)
     } catch {
       alert(lang === 'ru' ? 'Ошибка при отправке напоминаний' : 'Eslatma yuborishda xatolik yuz berdi')
@@ -390,8 +398,19 @@ export default function TeacherFinance() {
           ))}
 
           {!displayPayments.length && (
-            <div className="m3-card text-center py-10 text-on-surface-variant">
-              {t('teacherFinance.noPayments')}
+            <div className="m3-card text-center py-10 text-on-surface-variant space-y-2">
+              <p>{t('teacherFinance.noPayments')}</p>
+              {monthFilter !== 'all' && (payments || []).length > 0 && (
+                <button
+                  onClick={() => {
+                    setMonthFilter('all')
+                    haptic?.light()
+                  }}
+                  className="text-xs font-bold text-primary underline"
+                >
+                  {lang === 'ru' ? 'Показать все периоды' : 'Barcha davrlarni ko\'rish'}
+                </button>
+              )}
             </div>
           )}
         </div>
