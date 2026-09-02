@@ -23,53 +23,53 @@ export function useParentChildren(telegramId) {
 
 export function useStudentDashboard(telegramId, studentId) {
   return useQuery({
-    queryKey: ['student-dashboard', telegramId, studentId],
+    queryKey: ['student-dashboard', telegramId, studentId || 'self'],
     queryFn: () => fetchStudentDashboard(studentId),
-    enabled: !!telegramId && !!studentId,
+    enabled: !!telegramId,
   })
 }
 
 export function useStudentGroups(telegramId, studentId) {
   return useQuery({
-    queryKey: ['student-groups', telegramId, studentId],
+    queryKey: ['student-groups', telegramId, studentId || 'self'],
     queryFn: async () => {
       const { groups } = await fetchStudentGroups(studentId)
       return groups
     },
-    enabled: !!telegramId && !!studentId,
+    enabled: !!telegramId,
   })
 }
 
 export function useStudentHomework(telegramId, studentId) {
   return useQuery({
-    queryKey: ['student-homework', telegramId, studentId],
+    queryKey: ['student-homework', telegramId, studentId || 'self'],
     queryFn: async () => {
       const { homework } = await fetchStudentHomework(studentId)
       return homework
     },
-    enabled: !!telegramId && !!studentId,
+    enabled: !!telegramId,
   })
 }
 
 export function useStudentPayments(telegramId, studentId) {
   return useQuery({
-    queryKey: ['student-payments', telegramId, studentId],
+    queryKey: ['student-payments', telegramId, studentId || 'self'],
     queryFn: async () => {
       const { payments } = await fetchStudentPayments(studentId)
       return payments
     },
-    enabled: !!telegramId && !!studentId,
+    enabled: !!telegramId,
   })
 }
 
 export function useStudentSchedule(telegramId, weekStart, studentId) {
   return useQuery({
-    queryKey: ['student-schedule', telegramId, weekStart, studentId],
+    queryKey: ['student-schedule', telegramId, weekStart, studentId || 'self'],
     queryFn: async () => {
       const { sessions } = await fetchStudentSchedule(weekStart, studentId)
       return sessions
     },
-    enabled: !!telegramId && !!studentId,
+    enabled: !!telegramId,
   })
 }
 

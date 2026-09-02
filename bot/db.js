@@ -52,10 +52,12 @@ export async function upsertTrustedTelegramUser(telegramUser, overrides = {}) {
     .eq('telegram_id', telegramUser.id)
     .maybeSingle()
 
+  const targetRole = overrides.role !== undefined ? overrides.role : (existing?.role || null)
+
   const payload = {
     ...buildTelegramUserPayload(telegramUser),
-    role: existing?.role || overrides.role || null,
     ...overrides,
+    role: targetRole,
   }
 
   const { data, error } = await supabase

@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { AlertCircle, BookOpen, Wallet, CheckCircle, CalendarDays, Users } from 'lucide-react'
+import { AlertCircle, BookOpen, Wallet, CheckCircle, CalendarDays, Users, Sparkles, ChevronRight } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
+import { RoleSwitcher } from '../../components/ui/RoleSwitcher'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
@@ -10,15 +11,29 @@ import { useParentChildren, useStudentDashboard, useStudentHomework, useStudentS
 export default function ParentDashboard() {
   const { user, haptic } = useTelegram()
   const { t, lang } = useI18n()
+  const [demoMode, setDemoMode] = useState(false)
 
   // 1. Fetch connected children
-  const { data: children, isLoading: loadingChildren, isError: childrenError, error: childrenLoadError } = useParentChildren(user?.id)
+  const { data: realChildren, isLoading: loadingChildren, isError: childrenError, error: childrenLoadError } = useParentChildren(user?.id)
+
+  const children = useMemo(() => {
+    if (realChildren && realChildren.length > 0) return realChildren
+    if (demoMode) {
+      return [{
+        id: 'demo-child-1',
+        first_name: lang === 'ru' ? 'Азиз (Демо)' : 'Aziz (Demo)',
+        last_name: lang === 'ru' ? 'Каримов' : 'Karimov',
+        username: 'aziz_k'
+      }]
+    }
+    return []
+  }, [realChildren, demoMode, lang])
 
   const [selectedChildId, setSelectedChildId] = useState(null)
 
   // Auto-select first child when loaded
   useEffect(() => {
-    if (children && children.length > 0 && !selectedChildId) {
+    if (children && children.length > 0 && (!selectedChildId || !children.some(c => c.id === selectedChildId))) {
       setSelectedChildId(children[0].id)
     }
   }, [children, selectedChildId])
@@ -38,10 +53,70 @@ export default function ParentDashboard() {
   }, [])
 
   // 2. Fetch data for selected child
-  const { data: dash, isLoading: loadingDash } = useStudentDashboard(user?.id, selectedChildId)
-  const { data: homeworks, isLoading: loadingHw } = useStudentHomework(user?.id, selectedChildId)
-  const { data: payments, isLoading: loadingPayments } = useStudentPayments(user?.id, selectedChildId)
-  const { data: sessions, isLoading: loadingSchedule } = useStudentSchedule(user?.id, weekStartKey, selectedChildId)
+  const isDemo = demoMode && (!realChildren || realChildren.length === 0)
+  const { data: realDash, isLoading: loadingDash } = useStudentDashboard(user?.id, isDemo ? null : selectedChildId)
+  const { data: realHomeworks, isLoading: loadingHw } = useStudentHomework(user?.id, isDemo ? null : selectedChildId)
+  const { data: realPayments, isLoading: loadingPayments } = useStudentPayments(user?.id, isDemo ? null : selectedChildId)
+  const { data: realSessions, isLoading: loadingSchedule } = useStudentSchedule(user?.id, weekStartKey, isDemo ? null : selectedChildId)
+
+  const dash = isDemo ? {
+    attendance: 94,
+    balance: 0,
+    homeworkCount: 2,
+    homeworkOverdue: 0,
+    nextLesson: {
+      scheduled_at: new Date(Date.now() + 3600000 * 3).toISOString(),
+      group: {
+        subject: lang === 'ru' ? 'Математика (IELTS)' : 'Matematika (IELTS)',
+        teacher: { first_name: 'Sunnatjon', last_name: 'Dev' }
+      }
+    }
+  } : realDash
+
+  const homeworks = isDemo ? [
+    {
+      id: 'demo-hw-1',
+      status: 'done',
+      homework: {
+        title: lang === 'ru' ? 'Тригонометрия: №12' : 'Trigonometriya 12-mashq',
+        description: lang === 'ru' ? 'Система уравнений (1-10 примеры)' : 'Tenglamalar sistemasi (1-10 misollar)',
+        due_at: new Date(Date.now() + 86400000).toISOString(),
+        group: { subject: lang === 'ru' ? 'Математика' : 'Matematika' }
+      }
+    },
+    {
+      id: 'demo-hw-2',
+      status: 'pending',
+      homework: {
+        title: lang === 'ru' ? 'Физика: 2-й закон Ньютона' : 'Fizika: Nyutonning 2-qonuni',
+        description: lang === 'ru' ? 'Сборник задач стр. 45' : 'Masalalar to\'plami 45-bet',
+        due_at: new Date(Date.now() + 86400000 * 2).toISOString(),
+        group: { subject: lang === 'ru' ? 'Физика' : 'Fizika' }
+      }
+    }
+  ] : realHomeworks
+
+  const payments = isDemo ? [
+    {
+      id: 'demo-pay-1',
+      status: 'paid',
+      amount: 450000,
+      period_month: '09',
+      period_year: 2026,
+      group: { name: 'Guruh A', subject: lang === 'ru' ? 'Математика' : 'Matematika' }
+    }
+  ] : realPayments
+
+  const sessions = isDemo ? [
+    {
+      id: 'demo-s-1',
+      scheduled_at: new Date(Date.now() + 3600000 * 3).toISOString(),
+      duration_min: 90,
+      status: 'upcoming',
+      group: { name: 'Guruh A', subject: lang === 'ru' ? 'Математика' : 'Matematika' },
+      attendance: [{ student_id: 'demo-child-1', present: true }]
+    }
+  ] : realSessions
 
   const [activeSubTab, setActiveSubTab] = useState('summary') // 'summary' | 'schedule' | 'payments' | 'homework'
 
@@ -55,7 +130,7 @@ export default function ParentDashboard() {
     ? `${selectedChild.first_name} ${selectedChild.last_name || ''}`.trim()
     : 'Farzandingiz'
 
-  if (loadingChildren) {
+  if (loadingChildren && !demoMode) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface-lowest">
         <div className="flex flex-col items-center gap-5">
@@ -66,43 +141,38 @@ export default function ParentDashboard() {
     )
   }
 
-  if (childrenError) {
-    return (
-      <div className="flex min-h-screen flex-col bg-surface-lowest">
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-error-container/30 flex items-center justify-center text-error">
-            <AlertCircle size={30} />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-xl font-extrabold text-on-surface">
-              {lang === 'ru' ? 'Ne udalos zagruzit svyaz' : 'Ulanishni yuklab bo\'lmadi'}
-            </h1>
-            <p className="text-on-surface-variant text-sm max-w-xs leading-relaxed">
-              {childrenLoadError?.message || (lang === 'ru' ? 'Otkroyte prilozhenie zanovo ili poprobuyte pozhe.' : 'Ilovani qayta oching yoki keyinroq urinib ko\'ring.')}
-            </p>
-          </div>
-        </div>
-        <BottomNav role="parent" />
-      </div>
-    )
-  }
   // If parent has no linked children yet
   if (!children || children.length === 0) {
     return (
       <div className="flex min-h-screen flex-col bg-surface-lowest">
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-6">
-          <div className="w-20 h-20 rounded-full bg-brand/10 flex items-center justify-center text-4xl animate-bounce-slow">
-            👨‍👩‍👦
+          <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center text-primary shadow-glow-sm">
+            <Users size={32} />
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-extrabold text-on-surface">
               {lang === 'ru' ? 'Свяжите аккаунт ребенка' : 'Farzandingizni ulang'}
             </h1>
-            <p className="text-on-surface-variant text-sm max-w-xs leading-relaxed">
+            <p className="text-on-surface-variant text-xs max-w-xs leading-relaxed">
               {lang === 'ru'
-                ? 'Вы еще не привязали ни одного ученика. Пожалуйста, попросите вашего ребенка скопировать ссылку привязки из настроек его приложения и отправить её вам.'
-                : 'Siz hali hech qaysi o\'quvchini ulamadingiz. Iltimos, farzandingizning sozlamalari bo\'limidan ota-ona uchun havola olib, sizga yuborishini so\'rang.'}
+                ? 'Вы еще не привязали ни одного ученика. Попросите ребенка скопировать ссылку привязки из его Настроек и отправить её вам.'
+                : 'Siz hali o\'quvchini ulamadingiz. Farzandingiz sozlamalar bo\'limidan ota-ona havolasini olib, sizga yuborishini so\'rang.'}
             </p>
+          </div>
+
+          <button
+            onClick={() => {
+              haptic?.medium?.()
+              setDemoMode(true)
+            }}
+            className="w-full max-w-xs py-3.5 px-4 rounded-2xl bg-brand text-on-primary font-bold text-sm shadow-glow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <Sparkles size={16} />
+            <span>{lang === 'ru' ? 'Включить ДЕМО-просмотр' : 'DEMO ko\'rinishni yoqish'}</span>
+          </button>
+
+          <div className="w-full max-w-xs pt-3">
+            <RoleSwitcher currentRole="parent" />
           </div>
         </div>
         <BottomNav role="parent" />

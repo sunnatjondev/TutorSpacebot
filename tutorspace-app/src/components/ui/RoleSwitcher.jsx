@@ -1,12 +1,12 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { saveTrustedRole } from '../../lib/backend'
-import { LS_ROLE_KEY } from '../../lib/constants'
+import { LS_ROLE_KEY, LS_TG_ID_KEY } from '../../lib/constants'
 
 export function RoleSwitcher({ currentRole = 'teacher' }) {
-  const { haptic } = useTelegram()
+  const { user, haptic } = useTelegram()
   const { lang } = useI18n()
   const [switching, setSwitching] = useState(false)
 
@@ -24,6 +24,7 @@ export function RoleSwitcher({ currentRole = 'teacher' }) {
     try {
       await saveTrustedRole(newRole)
       localStorage.setItem(LS_ROLE_KEY, newRole)
+      if (user?.id) localStorage.setItem(LS_TG_ID_KEY, String(user.id))
       haptic?.success?.()
       const target = newRole === 'teacher' ? '/teacher/home' : newRole === 'parent' ? '/parent/home' : '/student/home'
       window.location.href = target
