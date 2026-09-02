@@ -3,6 +3,7 @@ import { Globe, Trash2, Moon, Sun } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme.jsx'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
+import { RoleSwitcher } from '../../components/ui/RoleSwitcher'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { deleteUserAccount } from '../../lib/backend'
@@ -102,6 +103,9 @@ export default function ParentSettings() {
             ))}
           </div>
         </div>
+
+        {/* Role Switcher (Testing) */}
+        <RoleSwitcher currentRole="parent" />
 
         {/* Delete Account */}
         <div className="pt-2">

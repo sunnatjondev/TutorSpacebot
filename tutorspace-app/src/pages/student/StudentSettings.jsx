@@ -5,6 +5,7 @@ import { Bell, Globe, Trash2, Moon, Sun } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme.jsx'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
+import { RoleSwitcher } from '../../components/ui/RoleSwitcher'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { upsertTelegramUser, updateNotificationPreferences } from '../../hooks/api/auth'
@@ -202,6 +203,9 @@ export default function StudentSettings() {
             ))}
           </div>
         </div>
+
+        {/* Role Switcher (Testing) */}
+        <RoleSwitcher currentRole="student" />
 
         <div className="pt-2">
           <button

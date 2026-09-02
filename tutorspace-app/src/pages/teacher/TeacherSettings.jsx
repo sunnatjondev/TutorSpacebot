@@ -5,6 +5,7 @@ import { LogOut, ChevronRight, Bell, Globe, Crown, Shield, Activity, Wallet, Fil
 import { useTheme } from '../../hooks/useTheme.jsx'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
+import { RoleSwitcher } from '../../components/ui/RoleSwitcher'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { upsertTelegramUser, updateNotificationPreferences } from '../../hooks/api/auth'
@@ -183,6 +184,9 @@ export default function TeacherSettings() {
             ))}
           </div>
         </div>
+
+        {/* Role Switcher (Testing) */}
+        <RoleSwitcher currentRole="teacher" />
 
         <div className="pt-2">
           <button 
