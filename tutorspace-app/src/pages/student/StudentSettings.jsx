@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Globe, Trash2, Moon, Sun } from 'lucide-react'
+import { Bell, Globe, Trash2, Moon, Sun, Users } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme.jsx'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'

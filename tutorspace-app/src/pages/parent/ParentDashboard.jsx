@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { AlertCircle, BookOpen, Wallet, CheckCircle, CalendarDays, Users, Sparkles, ChevronRight } from 'lucide-react'
+import { AlertCircle, BookOpen, Wallet, CheckCircle, CheckCircle2, CalendarDays, Users, Sparkles, ChevronRight, Clock } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { RoleSwitcher } from '../../components/ui/RoleSwitcher'

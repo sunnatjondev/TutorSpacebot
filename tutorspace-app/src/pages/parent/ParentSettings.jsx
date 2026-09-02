@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Globe, Trash2, Moon, Sun } from 'lucide-react'
+import { Globe, Trash2, Moon, Sun, Users } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme.jsx'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
