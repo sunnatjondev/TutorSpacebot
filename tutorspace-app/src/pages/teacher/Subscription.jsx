@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, CheckCircle, CreditCard, AlertTriangle, Infinity as InfinityIcon, RefreshCw, ShieldCheck, Sparkles } from 'lucide-react'
+import { CheckCircle, CreditCard, AlertTriangle, Infinity as InfinityIcon, RefreshCw, ShieldCheck, Sparkles } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useBillingStatus, useCreateBillingOrder, useToggleAutoRenew } from '../../hooks/api/useTeacher'
@@ -147,24 +147,16 @@ export default function Subscription() {
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest pb-6">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-4 pb-1">
-        <button 
-          onClick={() => { haptic?.selection(); navigate('/teacher/settings') }} 
-          className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface active:scale-95 transition-transform shrink-0"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="m3-title-lg text-on-surface">
-            {lang === 'ru' ? 'Подписка' : 'Obuna'}
-          </h1>
-          <p className="text-xs text-on-surface-variant">
-            {lang === 'ru' ? 'Управление тарифом и возможности' : 'Ta\'rifni boshqarish va imkoniyatlar'}
-          </p>
-        </div>
+      <div className="px-4 pt-6 pb-2">
+        <h1 className="m3-display-md text-on-surface">
+          {lang === 'ru' ? 'Подписка' : 'Obuna'}
+        </h1>
+        <p className="text-sm text-on-surface-variant mt-0.5">
+          {lang === 'ru' ? 'Управление тарифом и возможности' : 'Ta\'rifni boshqarish va imkoniyatlar'}
+        </p>
       </div>
 
-      <div className="px-4 pt-3 space-y-4 page-wrapper">
+      <div className="px-4 pt-2 space-y-4 page-wrapper">
         
         {/* Status Card - Colored dynamically */}
         <div className={cardStyles.card}>
