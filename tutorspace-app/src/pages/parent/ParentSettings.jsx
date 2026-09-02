@@ -51,10 +51,10 @@ export default function ParentSettings() {
           </div>
           <div className="text-center">
             <p className="m3-title-lg">{fullName}</p>
-            {user?.username && <p className="text-on-surface-variant text-sm">@{user.username}</p>}
-            <p className="text-on-surface-variant text-[10px] mt-1 bg-surface-high/60 px-2 py-0.5 rounded-full inline-block font-bold">
-              👨‍👩‍👦 {lang === 'ru' ? 'Родитель' : 'Ota-ona'}
-            </p>
+            <span className="inline-flex items-center gap-1.5 text-[11px] mt-2 bg-primary/10 text-primary border border-primary/20 px-3 py-0.5 rounded-full font-bold">
+              <Users size={12} />
+              <span>{lang === 'ru' ? 'Родитель' : 'Ota-ona'}</span>
+            </span>
             <p className="text-on-surface-variant text-xs mt-2">{t('teacherSettings.syncedTelegram')}</p>
           </div>
         </div>

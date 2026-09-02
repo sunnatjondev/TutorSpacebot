@@ -166,9 +166,10 @@ export default function StudentSettings() {
 
         {/* Parent Link Connection Card */}
         {dbUser?.id && (
-          <div className="m3-card space-y-3">
+          <div className="m3-card space-y-3 border border-[#8b5cf6]/25">
             <p className="font-bold text-on-surface flex items-center gap-2">
-              <span>👨‍👩‍👦</span> {lang === 'ru' ? 'Связь с родителями' : 'Ota-onani ulash'}
+              <Users size={16} className="text-primary" />
+              <span>{lang === 'ru' ? 'Связь с родителями' : 'Ota-onani ulash'}</span>
             </p>
             <p className="text-xs text-on-surface-variant leading-relaxed">
               {lang === 'ru'
@@ -177,7 +178,7 @@ export default function StudentSettings() {
             </p>
             <button
               onClick={handleCopyParentInvite}
-              className="w-full h-11 rounded-full bg-brand/10 hover:bg-brand/15 active:scale-95 text-primary text-sm font-bold flex items-center justify-center gap-2 transition-all"
+              className="w-full h-11 rounded-2xl bg-primary/10 hover:bg-primary/15 active:scale-95 text-primary text-xs font-bold flex items-center justify-center gap-2 transition-all border border-primary/20"
             >
               <span>{lang === 'ru' ? 'Скопировать ссылку для родителей' : 'Ota-ona uchun havolani nusxalash'}</span>
             </button>

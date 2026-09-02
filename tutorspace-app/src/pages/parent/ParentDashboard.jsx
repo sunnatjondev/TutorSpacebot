@@ -254,99 +254,89 @@ export default function ParentDashboard() {
         {/* Dynamic Sub-Tab Rendering */}
         {activeSubTab === 'summary' && (
           <div className="space-y-4 animate-fade-in">
-            {/* Next Lesson Box */}
+            {/* Next Lesson Hero Card */}
             <div
-              className="rounded-[24px] p-5 cursor-pointer active:scale-[0.98] transition-transform"
-              style={{ background: 'linear-gradient(135deg, #5a52e0 0%, #7c74ff 60%, #a099ff 100%)', boxShadow: '0 8px 32px rgba(108,99,255,0.3)' }}
+              className="stagger-item m3-card !p-5 bg-gradient-to-br from-[#8b5cf6]/20 via-surface-container to-surface-container border border-[#8b5cf6]/35 dark:border-[#a855f7]/35 cursor-pointer active:scale-[0.98] transition-all duration-200 shadow-sm"
               onClick={() => {
                 haptic?.light()
                 setActiveSubTab('schedule')
               }}
             >
-              <div className="mb-3 flex items-start justify-between">
-                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold tracking-widest text-white/80">
-                  {lang === 'ru' ? 'СЛЕДУЮЩИЙ УРОК' : 'KEYINGI DARS'}
+              <div className="mb-3 flex items-center justify-between">
+                <span className="rounded-full bg-primary/20 text-primary px-3 py-1 text-[11px] font-bold tracking-wider uppercase border border-primary/30 flex items-center gap-1.5">
+                  <Sparkles size={12} />
+                  <span>{lang === 'ru' ? 'СЛЕДУЮЩИЙ УРОК' : 'KEYINGI DARS'}</span>
                 </span>
-                {nextLesson?.scheduled_at && (
-                  <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white/90">
-                    {new Date(nextLesson.scheduled_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
+                {nextLesson?.scheduled_at ? (
+                  <span className="rounded-full bg-surface-high px-2.5 py-0.5 text-xs font-semibold text-on-surface flex items-center gap-1">
+                    <Clock size={12} className="text-primary" />
+                    <span>
+                      {new Date(nextLesson.scheduled_at).toLocaleTimeString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </span>
-                )}
+                ) : null}
               </div>
 
-              <h2 className="mb-3 truncate text-2xl font-extrabold leading-tight text-white">
+              <h2 className="mb-3 truncate text-xl font-extrabold leading-tight text-on-surface">
                 {nextLesson?.group?.subject || (lang === 'ru' ? 'Нет запланированных уроков' : 'Darslar rejalashtirilmagan')}
               </h2>
 
               {nextLesson?.group?.teacher ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold text-white">
-                    {nextLesson.group.teacher.first_name?.[0] || 'T'}
+                <div className="flex items-center justify-between pt-2 border-t border-outline-variant/15">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Avatar name={nextLesson.group.teacher.first_name} size="sm" />
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-semibold text-on-surface">
+                        {nextLesson.group.teacher.first_name} {nextLesson.group.teacher.last_name || ''}
+                      </p>
+                      <p className="text-[10px] text-on-surface-variant">
+                        {lang === 'ru' ? 'Преподаватель' : 'O\'qituvchi'}
+                      </p>
+                    </div>
                   </div>
-                  <p className="truncate text-sm font-medium text-white/90">
-                    {nextLesson.group.teacher.first_name} {nextLesson.group.teacher.last_name || ''}
-                  </p>
+                  <div className="flex items-center gap-1 text-primary text-xs font-bold shrink-0">
+                    <span>{lang === 'ru' ? 'Уроки' : 'Darslar'}</span>
+                    <ChevronRight size={14} />
+                  </div>
                 </div>
               ) : (
-                <p className="text-sm text-white/70">{lang === 'ru' ? 'Дата и преподаватель появятся позже' : 'Dars jadvali keyinroq ko\'rsatiladi'}</p>
+                <p className="text-xs text-on-surface-variant pt-1">
+                  {lang === 'ru' ? 'Нажмите, чтобы открыть расписание занятий' : 'Dars jadvalini ko\'rish uchun bosing'}
+                </p>
               )}
             </div>
 
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="m3-card">
-                <div className="mb-2 flex items-center justify-between">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/20">
-                    <CheckCircle size={18} className="text-primary" />
-                  </div>
-                  <div className="h-10 w-10">
-                    <svg viewBox="0 0 36 36">
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(108,99,255,0.15)" strokeWidth="4" />
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="14"
-                        fill="none"
-                        stroke="#6C63FF"
-                        strokeWidth="4"
-                        strokeDasharray={`${attendance * 0.88} 88`}
-                        strokeLinecap="round"
-                        transform="rotate(-90 18 18)"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-xs font-medium tracking-wide text-on-surface-variant">{t('studentHome.attendance')}</p>
-                <p className="text-2xl font-extrabold text-on-surface mt-1">
-                  {attendance}
-                  <span className="text-sm font-medium text-on-surface-variant">%</span>
-                </p>
+            {/* 3-Column Metrics Grid */}
+            <div className="grid grid-cols-3 gap-2.5 stagger-item">
+              <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
+                <span className="text-[11px] font-bold text-on-surface-variant">{t('studentHome.attendance')}</span>
+                <span className="text-xl font-extrabold text-paid-green mt-1.5">{attendance}%</span>
+                <span className="text-[9px] text-on-surface-variant/70 mt-0.5">{lang === 'ru' ? 'посещений' : 'davomat'}</span>
               </div>
 
-              <div className="m3-card">
-                <div className="mb-2 flex items-start justify-between">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-error-container/30">
-                    <BookOpen size={18} className="text-error" />
-                  </div>
-                  {hwOverdue > 0 && (
-                    <span className="badge-unpaid text-[10px]">{lang === 'ru' ? `${hwOverdue} долг` : `${hwOverdue} ta qarz`}</span>
-                  )}
-                </div>
-                <p className="text-xs font-medium tracking-wide text-on-surface-variant">{lang === 'ru' ? 'Задачи ДЗ' : 'Vazifalar'}</p>
-                <p className="text-2xl font-extrabold text-on-surface mt-1">{hwCount}</p>
+              <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
+                <span className="text-[11px] font-bold text-on-surface-variant">{lang === 'ru' ? 'ДЗ' : 'Vazifalar'}</span>
+                <span className="text-xl font-extrabold text-on-surface mt-1.5">{hwCount}</span>
+                <span className={`text-[9px] mt-0.5 font-semibold ${hwOverdue > 0 ? 'text-debt-red' : 'text-on-surface-variant/70'}`}>
+                  {hwOverdue > 0 ? (lang === 'ru' ? `${hwOverdue} долг` : `${hwOverdue} ta qarz`) : (lang === 'ru' ? 'активных' : 'faol')}
+                </span>
               </div>
-            </div>
 
-            {/* Financial Card */}
-            <div className="m3-card flex items-center justify-between p-5">
-              <div>
-                <p className="text-xs font-semibold text-on-surface-variant tracking-wider uppercase">{lang === 'ru' ? 'Текущий баланс ребенка' : 'Farzandingiz hisobi'}</p>
-                <p className={`text-2xl font-extrabold mt-2 ${balance < 0 ? 'text-debt-red' : 'text-paid-green'}`}>
-                  {formatUZS(balance)}
-                </p>
-              </div>
-              <div className={`p-3.5 rounded-2xl ${balance < 0 ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-500'}`}>
-                <Wallet size={24} />
+              <div
+                className="m3-card flex flex-col items-center justify-center p-3 text-center cursor-pointer active:scale-95 transition-transform"
+                onClick={() => {
+                  haptic?.light()
+                  setActiveSubTab('payments')
+                }}
+              >
+                <span className="text-[11px] font-bold text-on-surface-variant">{t('studentHome.balance')}</span>
+                <span className={`text-sm font-extrabold mt-1.5 truncate max-w-full ${balance < 0 ? 'text-debt-red' : 'text-paid-green'}`}>
+                  {formatUZS(balance, false, lang)}
+                </span>
+                <span className="text-[9px] text-primary font-semibold mt-0.5 flex items-center gap-0.5">
+                  <span>{lang === 'ru' ? 'Оплата' : 'To\'lov'}</span>
+                  <ChevronRight size={9} />
+                </span>
               </div>
             </div>
           </div>
