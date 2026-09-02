@@ -951,8 +951,9 @@ export default function GroupDetail() {
                 {group.subject}
               </span>
             )}
-            <span className="px-3 py-1 rounded-full bg-[#8b5cf6]/10 text-on-surface text-xs font-bold border border-[#8b5cf6]/30 dark:border-[#a855f7]/30">
-              👥 {t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? students.length })}
+            <span className="px-3 py-1 rounded-full bg-[#8b5cf6]/10 text-on-surface text-xs font-bold border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 inline-flex items-center gap-1.5">
+              <Users size={13} className="text-primary" />
+              <span>{t('groupDetail.studentsCount', { count: group?.group_members?.[0]?.count ?? students.length })}</span>
             </span>
           </div>
         </div>

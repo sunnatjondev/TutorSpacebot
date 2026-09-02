@@ -183,7 +183,7 @@ export async function checkTeacherSubscription(userId) {
   const { data: sub, error } = await supabase
     .from('subscriptions')
     .select(`
-      id, status, expires_at,
+      id, status, expires_at, auto_renew,
       plan:subscription_plans(slug, max_groups, max_students)
     `)
     .eq('teacher_id', userId)
@@ -202,9 +202,12 @@ export async function checkTeacherSubscription(userId) {
   }
 
   return {
+    id: sub.id,
     active: currentStatus === 'active' || currentStatus === 'trial',
     status: currentStatus,
+    expires_at: sub.expires_at,
     expiresAt,
+    auto_renew: !!sub.auto_renew,
     plan: sub.plan,
     limits: {
       maxGroups: sub.plan?.max_groups,

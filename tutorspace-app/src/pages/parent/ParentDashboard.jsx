@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { AlertCircle, BookOpen, Wallet, CheckCircle, CalendarDays } from 'lucide-react'
+import { AlertCircle, BookOpen, Wallet, CheckCircle, CalendarDays, Users } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
 import { useTelegram } from '../../hooks/useTelegram'
@@ -306,7 +306,10 @@ export default function ParentDashboard() {
                       <div>
                         <span className="text-[10px] uppercase font-bold text-primary tracking-wider bg-brand/10 px-2 py-0.5 rounded-full">{dayName}, {dateStr}</span>
                         <h4 className="font-bold text-on-surface text-base mt-1.5">{s.group?.subject || 'Boshqa'}</h4>
-                        <p className="text-xs text-on-surface-variant mt-0.5">👥 {s.group?.name}</p>
+                        <p className="text-xs text-on-surface-variant mt-0.5 flex items-center gap-1">
+                          <Users size={12} className="text-primary shrink-0" />
+                          <span>{s.group?.name}</span>
+                        </p>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="font-extrabold text-on-surface text-base">{timeStr}</p>
@@ -388,7 +391,10 @@ export default function ParentDashboard() {
                           {p.period_month}-{p.period_year}
                         </span>
                         <h4 className="font-bold text-on-surface text-sm mt-1.5">{p.group?.subject || 'Dars to\'lovi'}</h4>
-                        <p className="text-xs text-on-surface-variant mt-0.5">👥 {p.group?.name}</p>
+                        <p className="text-xs text-on-surface-variant mt-0.5 flex items-center gap-1">
+                          <Users size={12} className="text-primary shrink-0" />
+                          <span>{p.group?.name}</span>
+                        </p>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="font-extrabold text-on-surface text-base">{formatUZS(p.amount)}</p>

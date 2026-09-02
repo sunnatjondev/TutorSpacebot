@@ -48,7 +48,10 @@ function MarkPaymentModal({ student, onClose, onPaid, t, haptic }) {
         <Avatar name={name} size="md" />
         <div className="flex-1 min-w-0">
           <p className="font-bold text-on-surface truncate">{name}</p>
-          <p className="text-on-surface-variant text-sm truncate">👥 {group}</p>
+          <p className="text-on-surface-variant text-sm truncate flex items-center gap-1.5 mt-0.5">
+            <Users size={14} className="text-primary shrink-0" />
+            <span>{group}</span>
+          </p>
         </div>
         <div className="text-right shrink-0">
           <p className="text-xl font-extrabold text-debt-red">{formatUZS(student?.amount)}</p>
@@ -356,7 +359,10 @@ export default function TeacherFinance() {
                 <Avatar name={getName(payment)} size="md" />
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-on-surface text-sm truncate">{getName(payment)}</p>
-                  <p className="text-on-surface-variant text-xs truncate">👥 {getGroup(payment)}</p>
+                  <p className="text-on-surface-variant text-xs truncate flex items-center gap-1 mt-0.5">
+                    <Users size={12} className="text-on-surface-variant/80 shrink-0" />
+                    <span>{getGroup(payment)}</span>
+                  </p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-extrabold text-on-surface text-sm">{formatUZS(payment.amount)}</p>
