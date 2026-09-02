@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, CheckCircle, CreditCard, AlertTriangle, Infinity as InfinityIcon } from 'lucide-react'
+import { ArrowLeft, CheckCircle, CreditCard, AlertTriangle, Infinity as InfinityIcon, RefreshCw, ShieldCheck, Sparkles } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTelegram, useTelegramBackButton } from '../../hooks/useTelegram'
 import { useBillingStatus, useCreateBillingOrder, useToggleAutoRenew } from '../../hooks/api/useTeacher'
@@ -147,16 +147,24 @@ export default function Subscription() {
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest pb-6">
       {/* Header */}
-      <div className="sticky top-0 z-20 flex h-14 items-center gap-3 bg-surface/80 px-4 backdrop-blur-md">
-        <button onClick={() => { haptic?.selection(); navigate('/teacher/settings') }} className="p-2 -ml-2 text-on-surface">
-          <ArrowLeft size={24} />
+      <div className="flex items-center gap-3 px-4 pt-4 pb-1">
+        <button 
+          onClick={() => { haptic?.selection(); navigate('/teacher/settings') }} 
+          className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface active:scale-95 transition-transform shrink-0"
+        >
+          <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold text-on-surface">
-          {lang === 'ru' ? 'Подписка' : 'Obuna'}
-        </h1>
+        <div>
+          <h1 className="m3-title-lg text-on-surface">
+            {lang === 'ru' ? 'Подписка' : 'Obuna'}
+          </h1>
+          <p className="text-xs text-on-surface-variant">
+            {lang === 'ru' ? 'Управление тарифом и возможности' : 'Ta\'rifni boshqarish va imkoniyatlar'}
+          </p>
+        </div>
       </div>
 
-      <div className="px-4 pt-4 space-y-6 page-wrapper">
+      <div className="px-4 pt-3 space-y-4 page-wrapper">
         
         {/* Status Card - Colored dynamically */}
         <div className={cardStyles.card}>
@@ -205,15 +213,15 @@ export default function Subscription() {
         {/* Limits Info - Reverted to clean style */}
         {!isExpired && subscription?.limits && (
           <div className="m3-card space-y-3">
-            <h3 className="font-bold text-on-surface">{lang === 'ru' ? 'Ваши лимиты' : 'Sizning limitlaringiz'}</h3>
+            <h3 className="font-bold text-on-surface text-sm">{lang === 'ru' ? 'Ваши лимиты' : 'Sizning limitlaringiz'}</h3>
             <div className="flex items-center justify-between">
-              <span className="text-on-surface-variant">{lang === 'ru' ? 'Группы' : 'Guruhlar'}</span>
+              <span className="text-on-surface-variant text-sm">{lang === 'ru' ? 'Группы' : 'Guruhlar'}</span>
               <span className="font-bold text-on-surface">
                 {subscription.limits.maxGroups || <InfinityIcon size={18} className="inline"/>}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-on-surface-variant">{lang === 'ru' ? 'Студенты' : 'Talabalar'}</span>
+              <span className="text-on-surface-variant text-sm">{lang === 'ru' ? 'Студенты' : 'Talabalar'}</span>
               <span className="font-bold text-on-surface">
                 {subscription.limits.maxStudents || <InfinityIcon size={18} className="inline"/>}
               </span>
@@ -221,41 +229,56 @@ export default function Subscription() {
           </div>
         )}
 
-        {/* Auto Renew Toggle */}
-        <div className="bg-surface-variant/20 rounded-[20px] p-4 border border-outline-variant/20">
-          <div className="flex justify-between items-center mb-2">
-            <h4 className="text-sm font-bold text-on-surface mb-1">
-              {lang === 'ru' ? 'Автопродление' : "Avtomatik uzaytirish"}
-            </h4>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                className="sr-only peer" 
-                checked={subscription?.auto_renew || false} 
-                disabled={toggleAutoRenewMutation.isPending || isExpired}
-                onChange={(e) => {
-                  haptic?.selection()
-                  toggleAutoRenewMutation.mutate({ autoRenew: e.target.checked })
-                }} 
-              />
-              <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand disabled:opacity-50"></div>
-            </label>
+        {/* Auto Renew Card */}
+        <div className="m3-card space-y-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <RefreshCw size={18} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-on-surface">
+                  {lang === 'ru' ? 'Автопродление' : "Avtomatik uzaytirish"}
+                </h4>
+                <p className="text-xs text-on-surface-variant font-medium">
+                  {subscription?.auto_renew 
+                    ? (lang === 'ru' ? 'Включено' : 'Yoqilgan') 
+                    : (lang === 'ru' ? 'Выключено' : 'O\'chirilgan')}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              disabled={toggleAutoRenewMutation.isPending || isExpired}
+              onClick={() => {
+                haptic?.selection()
+                toggleAutoRenewMutation.mutate({ autoRenew: !subscription?.auto_renew })
+              }}
+              className={`toggle ${subscription?.auto_renew ? 'bg-primary' : 'bg-surface-highest'} ${toggleAutoRenewMutation.isPending || isExpired ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span className={`toggle-knob ${subscription?.auto_renew ? 'translate-x-5 bg-on-primary' : 'translate-x-0 bg-outline'}`} />
+            </button>
           </div>
           <p className="text-xs text-on-surface-variant leading-relaxed">
             {lang === 'ru' 
-              ? 'Если автопродление включено, за 1 день до конца срока подписки мы автоматически отправим вам счёт на оплату для быстрого продления в 1 клик.' 
+              ? 'Если автопродление включено, за 1 день до окончания срока бот отправит вам счёт для быстрого продления в 1 клик.' 
               : "Agar avtomatik uzaytirish yoqilgan bo'lsa, obuna tugashidan 1 kun oldin biz sizga 1 marta bosish orqali uzaytirish uchun hisob-faktura yuboramiz."}
           </p>
         </div>
 
-        {/* Change/Cancel Info */}
-        <div className="bg-surface-variant/20 rounded-[20px] p-4 border border-outline-variant/20">
-          <h4 className="text-sm font-bold text-on-surface mb-1">
-            {lang === 'ru' ? 'Смена и отмена тарифа' : "Ta'rifni o'zgartirish va bekor qilish"}
-          </h4>
+        {/* Change/Cancel Info Card */}
+        <div className="m3-card space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              <ShieldCheck size={18} />
+            </div>
+            <h4 className="text-sm font-bold text-on-surface">
+              {lang === 'ru' ? 'Смена и отмена тарифа' : "Ta'rifni o'zgartirish va bekor qilish"}
+            </h4>
+          </div>
           <p className="text-xs text-on-surface-variant leading-relaxed">
             {lang === 'ru' 
-              ? 'Вы можете сменить тариф в любое время, купив новый. Старые дни автоматически прибавятся. Чтобы отменить подписку, просто не оплачивайте следующий месяц — списаний не будет.' 
+              ? 'Вы можете сменить тариф в любое время, купив новый. Неиспользованные дни автоматически прибавятся. Для отмены просто не оплачивайте следующий месяц — автоматических списаний нет.' 
               : "Ta'rifingizni xohlagan vaqtda yangisini sotib olib o'zgartirishingiz mumkin. Qoldiq kunlar avtomatik qo'shiladi. Obunani bekor qilish uchun keyingi oy to'lov qilmasangiz kifoya — avtomatik yechib olish yo'q."}
           </p>
         </div>
@@ -302,8 +325,9 @@ export default function Subscription() {
         {/* Pro Plan (Popular) */}
         <div className="relative overflow-hidden rounded-[28px] border-[2px] border-[#a855f7] bg-gradient-to-br from-[#581c87]/50 to-[#3b0764]/30 p-6 shadow-[0_0_25px_rgba(168,85,247,0.25)]">
           <div className="absolute top-0 right-0 -mr-8 -mt-8 h-36 w-36 rounded-full bg-[#9333ea] opacity-25 blur-2xl" />
-          <div className="absolute top-4 right-4 bg-gradient-to-r from-[#9333ea] to-[#c084fc] text-white text-[11px] tracking-wider uppercase font-extrabold px-3 py-1 rounded-full shadow-md">
-            {lang === 'ru' ? 'Популярный ⭐' : 'Mashhur ⭐'}
+          <div className="absolute top-4 right-4 bg-gradient-to-r from-[#9333ea] to-[#c084fc] text-white text-[11px] tracking-wider uppercase font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+            <Sparkles size={12} />
+            <span>{lang === 'ru' ? 'Популярный' : 'Mashhur'}</span>
           </div>
           <h3 className="text-2xl font-black text-white relative z-10">Pro</h3>
           <div className="mt-2 flex items-baseline gap-1 relative z-10">

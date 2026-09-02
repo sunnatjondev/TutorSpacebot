@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, ChevronRight, Bell, Globe, Crown, Shield, Activity, Wallet, FileText, Trash2, Moon, Sun } from 'lucide-react'
+import { LogOut, ChevronRight, Bell, Globe, Crown, Shield, Activity, Wallet, FileText, Trash2, Moon, Sun, CreditCard } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme.jsx'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
@@ -106,10 +106,6 @@ export default function TeacherSettings() {
           </div>
         </div>
 
-
-
-
-
         {/* Subscription */}
         <div 
           className="m3-card space-y-2 active:scale-95 transition-transform cursor-pointer"
@@ -117,9 +113,11 @@ export default function TeacherSettings() {
         >
           <div className="flex justify-between items-center">
             <p className="font-bold text-on-surface flex items-center gap-2">
-              <span className="text-xl">💳</span> {lang === 'ru' ? 'Подписка' : 'Obuna'}
+              <CreditCard size={18} className="text-primary" /> {lang === 'ru' ? 'Подписка' : 'Obuna'}
             </p>
-            <span className="text-primary font-bold">{lang === 'ru' ? 'Управление' : 'Boshqarish'} &rarr;</span>
+            <span className="text-primary font-bold text-sm flex items-center gap-0.5">
+              {lang === 'ru' ? 'Управление' : 'Boshqarish'} <ChevronRight size={16} />
+            </span>
           </div>
           <p className="text-sm text-on-surface-variant">
             {lang === 'ru' ? 'Управление тарифом и оплата' : 'Ta\'rifni boshqarish va to\'lov'}
