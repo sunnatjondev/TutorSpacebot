@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react'
 import { AlertCircle, BookOpen, Wallet, CheckCircle, CheckCircle2, CalendarDays, Users, Sparkles, ChevronRight, Clock } from 'lucide-react'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { Avatar } from '../../components/ui/Avatar'
-import { RoleSwitcher } from '../../components/ui/RoleSwitcher'
 import { useTelegram } from '../../hooks/useTelegram'
 import { useI18n } from '../../i18n/index.jsx'
 import { formatUZS } from '../../utils/currency'
@@ -170,10 +169,6 @@ export default function ParentDashboard() {
             <Sparkles size={16} />
             <span>{lang === 'ru' ? 'Включить ДЕМО-просмотр' : 'DEMO ko\'rinishni yoqish'}</span>
           </button>
-
-          <div className="w-full max-w-xs pt-3">
-            <RoleSwitcher currentRole="parent" />
-          </div>
         </div>
         <BottomNav role="parent" />
       </div>
