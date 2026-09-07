@@ -65,19 +65,12 @@ export default function StudentDashboard() {
   return (
     <div className="flex min-h-screen flex-col bg-surface-lowest">
       <div className="page-wrapper space-y-4 px-4 pt-6 pb-24">
-        {/* Header Greeting */}
-        <div className="animate-slide-down flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-extrabold text-on-surface">
-              {t('studentHome.greeting', { name: firstName })}
-            </h1>
-            <p className="mt-0.5 text-xs text-on-surface-variant">
-              {lang === 'ru' ? 'Ваш учебный прогресс и расписание' : 'O\'quv jarayoni va dars jadvalingiz'}
-            </p>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-            {firstName?.[0] || 'U'}
-          </div>
+        {/* Compact 1-line Header */}
+        <div className="mb-2 animate-slide-down py-1">
+          <h1 className="text-xl font-bold text-on-surface flex items-center gap-2">
+            {lang === 'ru' ? `Привет, ${firstName}` : `Salom, ${firstName}`}
+            <Sparkles size={18} className="text-amber-400 fill-amber-400/20" />
+          </h1>
         </div>
 
         {/* Hero Card: Next Lesson */}
@@ -126,9 +119,15 @@ export default function StudentDashboard() {
               </div>
             </div>
           ) : (
-            <p className="text-xs text-on-surface-variant pt-1">
-              {lang === 'ru' ? 'Нажмите, чтобы открыть расписание занятий' : 'Darslar jadvalini ko\'rish uchun bosing'}
-            </p>
+            <div className="flex items-center justify-between pt-2 border-t border-outline-variant/15 text-xs">
+              <span className="text-on-surface-variant truncate">
+                {lang === 'ru' ? 'Открыть расписание занятий' : 'Darslar jadvalini ko\'rish'}
+              </span>
+              <div className="flex items-center gap-1 text-primary font-bold shrink-0">
+                <span>{lang === 'ru' ? 'Расписание' : 'Jadval'}</span>
+                <ChevronRight size={14} />
+              </div>
+            </div>
           )}
         </div>
 
@@ -136,14 +135,18 @@ export default function StudentDashboard() {
         <div className="grid grid-cols-3 gap-2.5 stagger-item">
           {/* Attendance Card */}
           <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
-            <span className="text-[11px] font-bold text-on-surface-variant">{t('studentHome.attendance')}</span>
-            <span className="text-xl font-extrabold text-paid-green mt-1.5">{attendance}%</span>
+            <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{t('studentHome.attendance')}</span>
+            <span className={`text-xl font-extrabold mt-1.5 ${
+              attendance >= 80 ? 'text-paid-green' : attendance > 0 ? 'text-amber-400' : 'text-on-surface-variant/70'
+            }`}>
+              {attendance > 0 ? `${attendance}%` : '—'}
+            </span>
             <span className="text-[9px] text-on-surface-variant/70 mt-0.5">{lang === 'ru' ? 'посещений' : 'davomat'}</span>
           </div>
 
           {/* Homework Card */}
           <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
-            <span className="text-[11px] font-bold text-on-surface-variant">{t('studentHome.homework')}</span>
+            <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{t('studentHome.homework')}</span>
             <span className="text-xl font-extrabold text-on-surface mt-1.5">{hwCount}</span>
             <span className={`text-[9px] mt-0.5 font-semibold ${hwOverdue > 0 ? 'text-debt-red' : 'text-on-surface-variant/70'}`}>
               {hwOverdue > 0 ? (lang === 'ru' ? `${hwOverdue} просроч.` : `${hwOverdue} ta qarz`) : (lang === 'ru' ? 'активных' : 'faol')}
@@ -158,8 +161,10 @@ export default function StudentDashboard() {
               navigate('/student/finance')
             }}
           >
-            <span className="text-[11px] font-bold text-on-surface-variant">{t('studentHome.balance')}</span>
-            <span className={`text-sm font-extrabold mt-1.5 truncate max-w-full ${balance < 0 ? 'text-debt-red' : 'text-paid-green'}`}>
+            <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{t('studentHome.balance')}</span>
+            <span className={`text-sm font-extrabold mt-1.5 truncate max-w-full ${
+              balance < 0 ? 'text-debt-red' : balance > 0 ? 'text-paid-green' : 'text-on-surface'
+            }`}>
               {formatUZS(balance, false, lang)}
             </span>
             <span className="text-[9px] text-primary font-semibold mt-0.5 flex items-center gap-0.5">
@@ -232,9 +237,16 @@ export default function StudentDashboard() {
             ))}
 
             {!homework.length && (
-              <div className="py-8 text-center text-sm text-on-surface-variant">
-                <BookOpen size={28} className="mx-auto text-on-surface-variant/40 mb-2" />
-                <p>{t('studentHome.noTasks')}</p>
+              <div className="py-7 text-center text-sm text-on-surface-variant flex flex-col items-center justify-center">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-2.5 text-emerald-400">
+                  <CheckCircle size={22} />
+                </div>
+                <p className="font-bold text-xs text-on-surface">
+                  {lang === 'ru' ? 'Все задания выполнены' : 'Barcha topshiriqlar bajarilgan'}
+                </p>
+                <p className="text-[11px] text-on-surface-variant/70 mt-0.5">
+                  {t('studentHome.noTasks')}
+                </p>
               </div>
             )}
           </div>

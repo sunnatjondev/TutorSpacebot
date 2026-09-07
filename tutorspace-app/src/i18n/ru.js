@@ -55,7 +55,7 @@ const ru = {
     "getStarted": "Начать работу"
   },
   "teacherHome": {
-    "greeting": "{greeting}, {name} 👋",
+    "greeting": "{greeting}, {name}",
     "subtitle": "Ваша сводка на сегодня.",
     "students": "Студентов",
     "groups": "Группы",
@@ -212,11 +212,11 @@ const ru = {
     "attendance": "Посещаемость"
   },
   "studentHome": {
-    "greeting": "Привет, {name} 👋",
+    "greeting": "Привет, {name}",
     "subtitle": "Готовы к сегодняшним занятиям?",
     "nextLesson": "СЛЕДУЮЩЕЕ ЗАНЯТИЕ",
     "attendance": "ПОСЕЩАЕМОСТЬ",
-    "homework": "ДОМАШНЕЕ ЗАДАНИЕ",
+    "homework": "ЗАДАНИЯ",
     "balance": "БАЛАНС",
     "debtContact": "Свяжитесь с вашим преподавателем",
     "upcomingTasks": "Предстоящие задания",
