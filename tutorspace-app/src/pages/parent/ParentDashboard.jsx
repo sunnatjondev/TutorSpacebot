@@ -194,7 +194,7 @@ export default function ParentDashboard() {
             </p>
           </div>
           {children.length > 1 && (
-            <div className="flex items-center gap-1 bg-surface-high/30 rounded-full p-1 border border-outline-variant/10">
+            <div className="flex items-center gap-1 bg-surface-high/30 rounded-full p-1 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25">
               {children.map(c => {
                 const isSel = c.id === selectedChildId
                 return (
@@ -217,7 +217,7 @@ export default function ParentDashboard() {
         </div>
 
         {/* Selected Child Info Banner */}
-        <div className="flex items-center gap-3 bg-surface-high/20 rounded-[24px] p-4 border border-outline-variant/10">
+        <div className="flex items-center gap-3 bg-surface-high/20 rounded-[24px] p-4 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25">
           <Avatar name={childName} size="md" />
           <div>
             <p className="font-bold text-on-surface text-base">{childName}</p>
@@ -226,7 +226,7 @@ export default function ParentDashboard() {
         </div>
 
         {/* Navigation Tabs (Summary | Schedule | Homework | Payments) */}
-        <div className="flex gap-1 bg-surface-high/40 rounded-[20px] p-1.5 border border-outline-variant/10">
+        <div className="flex gap-1 bg-surface-high/40 rounded-[20px] p-1.5 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25">
           {[
             { key: 'summary', label: lang === 'ru' ? 'Дашборд' : 'Umumiy' },
             { key: 'schedule', label: lang === 'ru' ? 'Уроки' : 'Darslar' },
@@ -263,7 +263,7 @@ export default function ParentDashboard() {
               }}
             >
               <div className="mb-3 flex items-center justify-between">
-                <span className="rounded-full bg-primary/20 text-primary px-3 py-1 text-[11px] font-bold tracking-wider uppercase border border-primary/30 flex items-center gap-1.5">
+                <span className="rounded-full bg-primary/20 text-primary px-3 py-1 text-[11px] font-bold tracking-wider uppercase border border-[#8b5cf6]/35 dark:border-[#a855f7]/35 flex items-center gap-1.5">
                   <Sparkles size={12} />
                   <span>{lang === 'ru' ? 'СЛЕДУЮЩИЙ УРОК' : 'KEYINGI DARS'}</span>
                 </span>
@@ -282,7 +282,7 @@ export default function ParentDashboard() {
               </h2>
 
               {nextLesson?.group?.teacher ? (
-                <div className="flex items-center justify-between pt-2 border-t border-outline-variant/15">
+                <div className="flex items-center justify-between pt-2 border-t border-[#8b5cf6]/20">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Avatar name={nextLesson.group.teacher.first_name} size="sm" />
                     <div className="min-w-0">
@@ -308,29 +308,35 @@ export default function ParentDashboard() {
 
             {/* 3-Column Metrics Grid */}
             <div className="grid grid-cols-3 gap-2.5 stagger-item">
-              <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
-                <span className="text-[11px] font-bold text-on-surface-variant">{t('studentHome.attendance')}</span>
-                <span className="text-xl font-extrabold text-paid-green mt-1.5">{attendance}%</span>
-                <span className="text-[9px] text-on-surface-variant/70 mt-0.5">{lang === 'ru' ? 'посещений' : 'davomat'}</span>
+              <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center overflow-hidden">
+                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight truncate max-w-full px-0.5">{t('studentHome.attendance')}</span>
+                <span className={`text-xl font-extrabold mt-1.5 ${
+                  attendance >= 80 ? 'text-paid-green' : attendance > 0 ? 'text-amber-400' : 'text-on-surface-variant/70'
+                }`}>
+                  {attendance > 0 ? `${attendance}%` : '—'}
+                </span>
+                <span className="text-[9px] text-on-surface-variant/70 mt-0.5 truncate max-w-full">{lang === 'ru' ? 'посещений' : 'davomat'}</span>
               </div>
 
-              <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
-                <span className="text-[11px] font-bold text-on-surface-variant">{lang === 'ru' ? 'ДЗ' : 'Vazifalar'}</span>
+              <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center overflow-hidden">
+                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight truncate max-w-full px-0.5">{lang === 'ru' ? 'ЗАДАНИЯ' : 'Vazifalar'}</span>
                 <span className="text-xl font-extrabold text-on-surface mt-1.5">{hwCount}</span>
-                <span className={`text-[9px] mt-0.5 font-semibold ${hwOverdue > 0 ? 'text-debt-red' : 'text-on-surface-variant/70'}`}>
+                <span className={`text-[9px] mt-0.5 font-semibold truncate max-w-full ${hwOverdue > 0 ? 'text-debt-red' : 'text-on-surface-variant/70'}`}>
                   {hwOverdue > 0 ? (lang === 'ru' ? `${hwOverdue} долг` : `${hwOverdue} ta qarz`) : (lang === 'ru' ? 'активных' : 'faol')}
                 </span>
               </div>
 
               <div
-                className="m3-card flex flex-col items-center justify-center p-3 text-center cursor-pointer active:scale-95 transition-transform"
+                className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center cursor-pointer active:scale-95 transition-transform overflow-hidden"
                 onClick={() => {
                   haptic?.light()
                   setActiveSubTab('payments')
                 }}
               >
-                <span className="text-[11px] font-bold text-on-surface-variant">{t('studentHome.balance')}</span>
-                <span className={`text-sm font-extrabold mt-1.5 truncate max-w-full ${balance < 0 ? 'text-debt-red' : 'text-paid-green'}`}>
+                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight truncate max-w-full px-0.5">{t('studentHome.balance')}</span>
+                <span className={`text-sm font-extrabold mt-1.5 truncate max-w-full ${
+                  balance < 0 ? 'text-debt-red' : balance > 0 ? 'text-paid-green' : 'text-on-surface'
+                }`}>
                   {formatUZS(balance, false, lang)}
                 </span>
                 <span className="text-[9px] text-primary font-semibold mt-0.5 flex items-center gap-0.5">
@@ -362,7 +368,7 @@ export default function ParentDashboard() {
                   const isAttended = s.attendance?.some(a => a.student_id === selectedChildId && a.present)
                   
                   return (
-                    <div key={s.id} className="m3-card p-4 border border-outline-variant/15 flex justify-between items-center">
+                    <div key={s.id} className="m3-card p-4 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 flex justify-between items-center">
                       <div>
                         <span className="text-[10px] uppercase font-bold text-primary tracking-wider bg-brand/10 px-2 py-0.5 rounded-full">{dayName}, {dateStr}</span>
                         <h4 className="font-bold text-on-surface text-base mt-1.5">{s.group?.subject || 'Boshqa'}</h4>
@@ -404,7 +410,7 @@ export default function ParentDashboard() {
                     : '-'
                   
                   return (
-                    <div key={hw.id} className="m3-card p-4 border border-outline-variant/15 flex justify-between items-center">
+                    <div key={hw.id} className="m3-card p-4 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 flex justify-between items-center">
                       <div className="min-w-0 flex-1 pr-2">
                         <span className="text-[10px] font-bold text-on-surface-variant bg-surface-high px-2.5 py-0.5 rounded-full">{hw.homework?.group?.subject || 'Vazifa'}</span>
                         <h4 className="font-bold text-on-surface text-sm truncate mt-1.5">{hw.homework?.title || '-'}</h4>
@@ -445,7 +451,7 @@ export default function ParentDashboard() {
                 {payments.map(p => {
                   const paid = p.status === 'paid'
                   return (
-                    <div key={p.id} className="m3-card p-4 border border-outline-variant/15 flex justify-between items-center">
+                    <div key={p.id} className="m3-card p-4 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 flex justify-between items-center">
                       <div>
                         <span className="text-[10px] font-bold text-on-surface-variant bg-surface-high px-2 py-0.5 rounded-full">
                           {p.period_month}-{p.period_year}

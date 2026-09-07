@@ -82,7 +82,7 @@ export default function StudentDashboard() {
           }}
         >
           <div className="mb-3 flex items-center justify-between">
-            <span className="rounded-full bg-primary/20 text-primary px-3 py-1 text-[11px] font-bold tracking-wider uppercase border border-primary/30 flex items-center gap-1.5">
+            <span className="rounded-full bg-primary/20 text-primary px-3 py-1 text-[11px] font-bold tracking-wider uppercase border border-[#8b5cf6]/35 dark:border-[#a855f7]/35 flex items-center gap-1.5">
               <Sparkles size={12} />
               <span>{t('studentHome.nextLesson')}</span>
             </span>
@@ -134,34 +134,34 @@ export default function StudentDashboard() {
         {/* 3-Column Metrics Grid */}
         <div className="grid grid-cols-3 gap-2.5 stagger-item">
           {/* Attendance Card */}
-          <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center p-3 text-center">
-            <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{t('studentHome.attendance')}</span>
+          <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center overflow-hidden">
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight truncate max-w-full px-0.5">{t('studentHome.attendance')}</span>
             <span className={`text-xl font-extrabold mt-1.5 ${
               attendance >= 80 ? 'text-paid-green' : attendance > 0 ? 'text-amber-400' : 'text-on-surface-variant/70'
             }`}>
               {attendance > 0 ? `${attendance}%` : '—'}
             </span>
-            <span className="text-[9px] text-on-surface-variant/70 mt-0.5">{lang === 'ru' ? 'посещений' : 'davomat'}</span>
+            <span className="text-[9px] text-on-surface-variant/70 mt-0.5 truncate max-w-full">{lang === 'ru' ? 'посещений' : 'davomat'}</span>
           </div>
 
           {/* Homework Card */}
-          <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center p-3 text-center">
-            <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{t('studentHome.homework')}</span>
+          <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center overflow-hidden">
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight truncate max-w-full px-0.5">{t('studentHome.homework')}</span>
             <span className="text-xl font-extrabold text-on-surface mt-1.5">{hwCount}</span>
-            <span className={`text-[9px] mt-0.5 font-semibold ${hwOverdue > 0 ? 'text-debt-red' : 'text-on-surface-variant/70'}`}>
+            <span className={`text-[9px] mt-0.5 font-semibold truncate max-w-full ${hwOverdue > 0 ? 'text-debt-red' : 'text-on-surface-variant/70'}`}>
               {hwOverdue > 0 ? (lang === 'ru' ? `${hwOverdue} просроч.` : `${hwOverdue} ta qarz`) : (lang === 'ru' ? 'активных' : 'faol')}
             </span>
           </div>
 
           {/* Balance Card */}
           <div
-            className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center p-3 text-center cursor-pointer active:scale-95 transition-transform"
+            className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center cursor-pointer active:scale-95 transition-transform overflow-hidden"
             onClick={() => {
               haptic?.light()
               navigate('/student/finance')
             }}
           >
-            <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{t('studentHome.balance')}</span>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight truncate max-w-full px-0.5">{t('studentHome.balance')}</span>
             <span className={`text-sm font-extrabold mt-1.5 truncate max-w-full ${
               balance < 0 ? 'text-debt-red' : balance > 0 ? 'text-paid-green' : 'text-on-surface'
             }`}>
@@ -202,7 +202,7 @@ export default function StudentDashboard() {
                     {item.done ? (
                       <CheckCircle2 size={22} className="text-paid-green" />
                     ) : (
-                      <Circle size={22} className="text-outline-variant hover:text-on-surface" />
+                      <Circle size={22} className="text-[#8b5cf6]/40 hover:text-primary transition-colors" />
                     )}
                   </button>
 
@@ -214,7 +214,7 @@ export default function StudentDashboard() {
                     }}
                   >
                     <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                      <span className="rounded-full bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 text-[10px] font-bold">
+                      <span className="rounded-full bg-primary/10 text-primary border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 px-2 py-0.5 text-[10px] font-bold">
                         {item.subject}
                       </span>
                       {item.overdue && !item.done ? (
@@ -232,7 +232,7 @@ export default function StudentDashboard() {
                     </p>
                   </div>
                 </div>
-                {index < homework.slice(0, 4).length - 1 && <hr className="w-full h-px bg-outline-variant/20 border-0" />}
+                {index < homework.slice(0, 4).length - 1 && <hr className="w-full h-px bg-[#8b5cf6]/20 border-0" />}
               </div>
             ))}
 
@@ -257,9 +257,9 @@ export default function StudentDashboard() {
       <Modal isOpen={showAllTasks} onClose={() => setShowAllTasks(false)} title={t('studentHome.upcomingTasks')}>
         <div className="space-y-3 pt-2 max-h-[60vh] overflow-y-auto pr-1">
           {homework.map((item) => (
-            <div key={item.id} className="flex items-start gap-3 rounded-2xl bg-surface-high/60 p-3.5 border border-outline-variant/10">
+            <div key={item.id} className="flex items-start gap-3 rounded-2xl bg-surface-high/60 p-3.5 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25">
               <button onClick={() => toggleHomework(item.id, item.submissionId)} className="mt-0.5 transition-transform active:scale-90 text-primary">
-                {item.done ? <CheckCircle2 size={22} className="text-paid-green" /> : <Circle size={22} className="text-outline-variant" />}
+                {item.done ? <CheckCircle2 size={22} className="text-paid-green" /> : <Circle size={22} className="text-[#8b5cf6]/40 hover:text-primary" />}
               </button>
               <div
                 className="min-w-0 flex-1 cursor-pointer"
@@ -297,7 +297,7 @@ export default function StudentDashboard() {
                 {selectedTask.due}
               </span>
             </div>
-            <div className="rounded-2xl bg-surface-high/60 p-4 text-sm text-on-surface border border-outline-variant/15">
+            <div className="rounded-2xl bg-surface-high/60 p-4 text-sm text-on-surface border border-[#8b5cf6]/25 dark:border-[#a855f7]/25">
               {selectedTask.description ? (
                 <p className="whitespace-pre-wrap leading-relaxed">{selectedTask.description}</p>
               ) : (

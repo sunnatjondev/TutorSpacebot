@@ -51,7 +51,7 @@ export default function ParentSettings() {
           </div>
           <div className="text-center">
             <p className="m3-title-lg">{fullName}</p>
-            <span className="inline-flex items-center gap-1.5 text-[11px] mt-2 bg-primary/10 text-primary border border-primary/20 px-3 py-0.5 rounded-full font-bold">
+            <span className="inline-flex items-center gap-1.5 text-[11px] mt-2 bg-primary/10 text-primary border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 px-3 py-0.5 rounded-full font-bold">
               <Users size={12} />
               <span>{lang === 'ru' ? 'Родитель' : 'Ota-ona'}</span>
             </span>

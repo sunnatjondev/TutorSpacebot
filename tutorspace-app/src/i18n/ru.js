@@ -215,7 +215,7 @@ const ru = {
     "greeting": "Привет, {name}",
     "subtitle": "Готовы к сегодняшним занятиям?",
     "nextLesson": "СЛЕДУЮЩЕЕ ЗАНЯТИЕ",
-    "attendance": "ПОСЕЩАЕМОСТЬ",
+    "attendance": "ПОСЕЩЕНИЕ",
     "homework": "ЗАДАНИЯ",
     "balance": "БАЛАНС",
     "debtContact": "Свяжитесь с вашим преподавателем",

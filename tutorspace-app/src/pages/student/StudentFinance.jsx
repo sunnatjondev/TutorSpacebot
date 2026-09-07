@@ -120,7 +120,7 @@ export default function StudentFinance() {
                   return (
                     <div key={payment.id || index}>
                       <div className="flex items-center gap-3 py-3">
-                        <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold shrink-0">
+                        <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 flex items-center justify-center text-primary font-bold shrink-0">
                           <BookOpen size={18} />
                         </div>
                         <div className="flex-1 min-w-0">

@@ -126,7 +126,7 @@ export default function StudentSchedule() {
               haptic?.medium()
               setShowDatePicker(true)
             }}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface-container active:scale-90 transition-transform shrink-0"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 bg-surface-container active:scale-90 transition-transform shrink-0"
           >
             <CalendarDays size={18} className="text-on-surface-variant" />
           </button>

@@ -54,13 +54,13 @@ export default function StudentGroups() {
           {groups.map((group, index) => (
             <div
               key={group.id}
-              className="m3-card stagger-item !p-5 flex flex-col gap-4 border border-[#8b5cf6]/20 shadow-sm"
+              className="m3-card stagger-item !p-5 flex flex-col gap-4 !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 shadow-sm"
               style={{ animationDelay: `${index * 60}ms` }}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-on-surface">{group.name}</h2>
-                  <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold">
+                  <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-[#8b5cf6]/35 dark:border-[#a855f7]/35 text-[10px] font-bold">
                     {group.subject}
                   </span>
                 </div>
@@ -69,7 +69,7 @@ export default function StudentGroups() {
                     href={group.telegramLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary border border-primary/20 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-transform"
+                    className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary border border-[#8b5cf6]/30 dark:border-[#a855f7]/30 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-transform"
                   >
                     <Send size={12} />
                     <span>Telegram</span>
@@ -77,7 +77,7 @@ export default function StudentGroups() {
                 )}
               </div>
 
-              <div className="flex items-center gap-3 bg-surface-high/50 border border-outline-variant/15 rounded-2xl p-3">
+              <div className="flex items-center gap-3 bg-surface-high/50 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 rounded-2xl p-3">
                 <Avatar name={group.teacher} size="md" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-on-surface truncate">{group.teacher}</p>
@@ -86,14 +86,14 @@ export default function StudentGroups() {
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="rounded-xl bg-surface-high/50 border border-outline-variant/15 p-3">
+                <div className="rounded-xl bg-surface-high/50 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 p-3">
                   <p className="text-on-surface-variant text-[10px] font-medium mb-1">{t('studentGroups.students')}</p>
                   <p className="flex items-center gap-1.5 font-bold text-on-surface text-sm">
                     <Users size={14} className="text-primary" />
                     <span>{group.studentsCount}</span>
                   </p>
                 </div>
-                <div className="rounded-xl bg-surface-high/50 border border-outline-variant/15 p-3">
+                <div className="rounded-xl bg-surface-high/50 border border-[#8b5cf6]/25 dark:border-[#a855f7]/25 p-3">
                   <p className="text-on-surface-variant text-[10px] font-medium mb-1">{t('studentGroups.nextLesson')}</p>
                   <p className="flex items-center gap-1.5 font-bold text-on-surface text-xs truncate">
                     <CalendarDays size={14} className="text-primary shrink-0" />

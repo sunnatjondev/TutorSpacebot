@@ -178,7 +178,7 @@ export default function StudentSettings() {
             </p>
             <button
               onClick={handleCopyParentInvite}
-              className="w-full h-11 rounded-2xl bg-primary/10 hover:bg-primary/15 active:scale-95 text-primary text-xs font-bold flex items-center justify-center gap-2 transition-all border border-primary/20"
+              className="w-full h-11 rounded-2xl bg-primary/10 hover:bg-primary/15 active:scale-95 text-primary text-xs font-bold flex items-center justify-center gap-2 transition-all border border-[#8b5cf6]/25 dark:border-[#a855f7]/25"
             >
               <span>{lang === 'ru' ? 'Скопировать ссылку для родителей' : 'Ota-ona uchun havolani nusxalash'}</span>
             </button>
