@@ -168,11 +168,11 @@ h1, h2, h3, .font-serif {
   /* Cards */
   .m3-card {
     @apply bg-surface-container rounded-card p-5 shadow-m3-elevation-1 transition-all duration-300;
-    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+    border: 1px solid rgba(139, 92, 246, 0.25);
   }
   .m3-card-interactive {
     @apply bg-surface-container rounded-card p-5 shadow-m3-elevation-1 transition-all duration-300 cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
-    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+    border: 1px solid rgba(139, 92, 246, 0.25);
   }
   .m3-card-primary {
     @apply bg-primary-container text-on-primary-container rounded-card p-5 shadow-m3-elevation-2;
@@ -181,11 +181,11 @@ h1, h2, h3, .font-serif {
   /* Old compat classes */
   .card {
     @apply bg-surface-container rounded-card p-5 shadow-m3-elevation-1 transition-all duration-300;
-    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+    border: 1px solid rgba(139, 92, 246, 0.25);
   }
   .card-interactive {
     @apply bg-surface-container rounded-card p-5 shadow-m3-elevation-1 transition-all duration-300 cursor-pointer active:scale-[0.98] active:bg-surface-high hover:shadow-m3-elevation-2;
-    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+    border: 1px solid rgba(139, 92, 246, 0.25);
   }
 
   /* Buttons */

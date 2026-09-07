@@ -101,7 +101,7 @@ export default function StudentDashboard() {
           </h2>
 
           {teacherName ? (
-            <div className="flex items-center justify-between pt-2 border-t border-outline-variant/15">
+            <div className="flex items-center justify-between pt-2 border-t border-[#8b5cf6]/20">
               <div className="flex items-center gap-2.5 min-w-0">
                 <Avatar name={teacherName} size="sm" />
                 <div className="min-w-0">
@@ -119,7 +119,7 @@ export default function StudentDashboard() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between pt-2 border-t border-outline-variant/15 text-xs">
+            <div className="flex items-center justify-between pt-2 border-t border-[#8b5cf6]/20 text-xs">
               <span className="text-on-surface-variant truncate">
                 {lang === 'ru' ? 'Открыть расписание занятий' : 'Darslar jadvalini ko\'rish'}
               </span>
@@ -134,7 +134,7 @@ export default function StudentDashboard() {
         {/* 3-Column Metrics Grid */}
         <div className="grid grid-cols-3 gap-2.5 stagger-item">
           {/* Attendance Card */}
-          <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
+          <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center p-3 text-center">
             <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{t('studentHome.attendance')}</span>
             <span className={`text-xl font-extrabold mt-1.5 ${
               attendance >= 80 ? 'text-paid-green' : attendance > 0 ? 'text-amber-400' : 'text-on-surface-variant/70'
@@ -145,7 +145,7 @@ export default function StudentDashboard() {
           </div>
 
           {/* Homework Card */}
-          <div className="m3-card flex flex-col items-center justify-center p-3 text-center">
+          <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center p-3 text-center">
             <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">{t('studentHome.homework')}</span>
             <span className="text-xl font-extrabold text-on-surface mt-1.5">{hwCount}</span>
             <span className={`text-[9px] mt-0.5 font-semibold ${hwOverdue > 0 ? 'text-debt-red' : 'text-on-surface-variant/70'}`}>
@@ -155,7 +155,7 @@ export default function StudentDashboard() {
 
           {/* Balance Card */}
           <div
-            className="m3-card flex flex-col items-center justify-center p-3 text-center cursor-pointer active:scale-95 transition-transform"
+            className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 flex flex-col items-center justify-center p-3 text-center cursor-pointer active:scale-95 transition-transform"
             onClick={() => {
               haptic?.light()
               navigate('/student/finance')
@@ -191,7 +191,7 @@ export default function StudentDashboard() {
             )}
           </div>
 
-          <div className="m3-card space-y-0">
+          <div className="m3-card !border-[#8b5cf6]/25 dark:!border-[#a855f7]/25 space-y-0">
             {homework.slice(0, 4).map((item, index) => (
               <div key={item.id}>
                 <div className="flex items-start gap-3 py-3">
