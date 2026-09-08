@@ -111,19 +111,28 @@ document.addEventListener('DOMContentLoaded', () => {
       { opacity: 0, scale: 0.92, y: -90, duration: 0.45, ease: 'power2.in' }, 7.55);
 
   // ==========================================
-  // SCENE 4: 8.0s - 11.0s (TutorSpace Demo)
+  // SCENE 4: 8.0s - 11.0s (TutorSpace Live App Preview)
   // ==========================================
   tl.addLabel('scene4', 8.0)
     .call(() => showScene('scene4'), null, 8.0)
     .fromTo('#scene4 .card-s4',
-      { opacity: 0, scale: 0.8, y: 100 },
+      { opacity: 0, scale: 0.85, y: 80 },
       { opacity: 1, scale: 1, y: 0, duration: 0.75, ease: emphasized }, 8.0)
     .fromTo('#scene4 .brand-icon',
       { scale: 0, rotate: -30 },
-      { scale: 1, rotate: 0, duration: 0.6, ease: 'back.out(2)' }, 8.2)
+      { scale: 1, rotate: 0, duration: 0.6, ease: 'back.out(2)' }, 8.15)
     .fromTo('#scene4 .m3-chip',
       { opacity: 0, x: -90 },
-      { opacity: 1, x: 0, duration: 0.5, ease: 'back.out(1.8)' }, 8.45)
+      { opacity: 1, x: 0, duration: 0.5, ease: 'back.out(1.8)' }, 8.3)
+    .fromTo('#scene4 .phone-mockup-frame',
+      { opacity: 0, y: 60, scale: 0.92 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: springPop }, 8.35)
+    .fromTo('#scene4 .app-hero-card',
+      { opacity: 0, scale: 0.9, y: 20 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.8)' }, 8.65)
+    .fromTo('#scene4 .metric-box',
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration: 0.4, stagger: 0.1, ease: 'back.out(1.7)' }, 8.85)
     .to('#scene4 .card-s4',
       { opacity: 0, scale: 0.92, y: -90, duration: 0.45, ease: 'power2.in' }, 10.55);
 
@@ -143,33 +152,42 @@ document.addEventListener('DOMContentLoaded', () => {
     .fromTo('#scene5 .feat-1',
       { opacity: 0, x: -80, scale: 0.9 },
       { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: 'back.out(1.6)' }, 11.4)
+    .fromTo('#scene5 .feat-1 .app-link-box',
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 11.7)
     .fromTo('#scene5 .feat-1 .mini-status-chip',
       { scale: 0 },
-      { scale: 1, duration: 0.5, ease: 'back.out(2)' }, 11.85)
+      { scale: 1, duration: 0.5, ease: 'back.out(2)' }, 11.95)
 
-    // Feature Card 2: Auto Attendance (Pops at 13.1s)
+    // Feature Card 2: 1-Tap Attendance & Auto-Alert (Pops at 13.1s)
     .fromTo('#scene5 .feat-2',
       { opacity: 0, x: 80, scale: 0.9 },
       { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: 'back.out(1.6)' }, 13.1)
     .fromTo('#scene5 .feat-2 .att-item',
       { opacity: 0, y: 15 },
-      { opacity: 1, y: 0, duration: 0.4, stagger: 0.2, ease: 'power2.out' }, 13.5)
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.15, ease: 'power2.out' }, 13.45)
+    .fromTo('#scene5 .feat-2 .bot-auto-alert',
+      { opacity: 0, scale: 0.85 },
+      { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(1.8)' }, 13.8)
 
-    // Feature Card 3: Payments & Debt Control (Pops at 14.8s)
+    // Feature Card 3: Payments & Debt Reminders (Pops at 14.8s)
     .fromTo('#scene5 .feat-3',
       { opacity: 0, x: -80, scale: 0.9 },
       { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: 'back.out(1.6)' }, 14.8)
     .fromTo('#scene5 .feat-3 .fin-box',
-      { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1, duration: 0.45, stagger: 0.2, ease: 'back.out(1.7)' }, 15.2)
+      { opacity: 0, scale: 0.85 },
+      { opacity: 1, scale: 1, duration: 0.45, stagger: 0.15, ease: 'back.out(1.7)' }, 15.15)
+    .fromTo('#scene5 .feat-3 .remind-debt-row',
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 15.5)
 
-    // Feature Card 4: Schedule (Pops at 16.5s)
+    // Feature Card 4: Parent Portal (Pops at 16.5s)
     .fromTo('#scene5 .feat-4',
       { opacity: 0, x: 80, scale: 0.9 },
       { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: 'back.out(1.6)' }, 16.5)
-    .fromTo('#scene5 .feat-4 .sched-live-pill',
-      { scale: 0 },
-      { scale: 1, duration: 0.5, ease: 'back.out(2)' }, 16.95)
+    .fromTo('#scene5 .feat-4 .p-stat',
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration: 0.4, stagger: 0.12, ease: 'back.out(1.8)' }, 16.9)
 
     // Exit Scene 5 at 18.55s
     .to('#scene5 .card-s5',
