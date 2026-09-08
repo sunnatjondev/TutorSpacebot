@@ -3,646 +3,309 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TutorSpace Motion Canvas - OBS Reels Recording (1080x1920)</title>
-  
-  <!-- Fonts: Plus Jakarta Sans -->
+  <title>TutorSpace — Reels Ad Canvas (1080×1920)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Lucide Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <!-- GSAP 3 & CustomEase -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/md3-tokens.css">
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+<div class="stage-wrapper">
+<div class="reels-canvas" id="reelsCanvas">
 
-  <div class="stage-wrapper">
-    <!-- 1080x1920 Reels Viewport Canvas -->
-    <div class="reels-canvas" id="reelsCanvas">
-      
-      <!-- Decorative Glow Blobs -->
-      <div class="bg-glow-blob blob-1"></div>
-      <div class="bg-glow-blob blob-2"></div>
+  <!-- Ambient blobs -->
+  <div class="amb amb-1"></div>
+  <div class="amb amb-2"></div>
+  <div class="amb amb-3"></div>
 
-      <!-- ========================================== -->
-      <!-- SCENE 1: INTRO (0.0s - 3.2s)               -->
-      <!-- Logo + Introduction                        -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene1">
-        <div class="intro-card card-s1">
-          <div class="intro-logo-wrap">
-            <img src="assets/logo.jpg" alt="TutorSpace Logo" class="intro-logo-img">
-            <div class="logo-pulse-ring"></div>
-          </div>
-          <div class="m3-chip primary intro-chip">
-            <i data-lucide="sparkles"></i> TELEGRAM CRM TIZIMI
-          </div>
-          <h1 class="headline-hero">TutorSpace</h1>
-          <p class="intro-tagline">Repetitorlar va o'quv markazlari uchun aqlli boshqaruv platformasi</p>
-          <div class="intro-features-row">
-            <span class="intro-pill"><i data-lucide="check-circle-2"></i> 100% Avtomatlashgan</span>
-            <span class="intro-pill"><i data-lucide="zap"></i> Telegram ichida</span>
-            <span class="intro-pill"><i data-lucide="shield-check"></i> Shaffof tizim</span>
-          </div>
-        </div>
+  <!-- ===== S1 : INTRO  0 — 3.2s ===== -->
+  <div class="sc" id="s1">
+    <div class="intro" id="intro">
+      <img src="assets/logo.jpg" alt="" class="intro-logo">
+      <div class="intro-glow"></div>
+      <h1 class="intro-name">TutorSpace</h1>
+      <p class="intro-tag">Repetitorlar uchun<br>Telegram boshqaruv tizimi</p>
+      <div class="intro-pills">
+        <span><i data-lucide="zap"></i>Avtomatlashgan</span>
+        <span><i data-lucide="smartphone"></i>Telegram ichida</span>
+        <span><i data-lucide="shield-check"></i>Shaffof</span>
       </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 2: MUAMMO #1 (3.2s - 5.8s)           -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene2">
-        <div class="m3-card elevated card-s2">
-          <div class="m3-chip error">🔴 MUAMMO #1</div>
-          <div class="graphic-icon-wrap error-glow">
-            <i data-lucide="clipboard-x"></i>
-          </div>
-          <h1 class="headline-large">Hali ham davomatni qog'ozda yoki daftarda tekshiryapsizmi?</h1>
-          <p class="headline-sub">Har darsda 15 daqiqa vaqt yo'qotish va daftardagi chalkashliklar...</p>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 3: MUAMMO #2 (5.8s - 8.4s)           -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene3">
-        <div class="m3-card elevated card-s3">
-          <div class="m3-chip error">🔴 MUAMMO #2</div>
-          <div class="graphic-icon-wrap error-glow">
-            <i data-lucide="file-spreadsheet"></i>
-          </div>
-          <h1 class="headline-large">To'lovlarni Excel jadvallarida hisoblashdan charchadingizmi?</h1>
-          <p class="headline-sub">Qarzdorlar esdan chiqadi, kim to'lagani noma'lum bo'lib qoladi...</p>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 4: MUKAMMAL YECHIM BRIDGE (8.4s - 11.0s) -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene4">
-        <div class="m3-card elevated card-s4">
-          <div class="m3-chip success">✨ MUKAMMAL YECHIM</div>
-          <div class="graphic-icon-wrap success-glow">
-            <i data-lucide="sparkles"></i>
-          </div>
-          <h1 class="headline-large">TutorSpace ni sinab ko'ring!</h1>
-          <p class="headline-sub">Barcha boshqaruv to'g'ridan-to'g'ri Telegram ichida avtomatlashgan!</p>
-          <div class="bridge-highlight">
-            <i data-lucide="arrow-down-circle"></i>
-            <span>5 ta asosiy imkoniyat bilan tanishing</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 5: FEATURE 1 (11.0s - 14.8s)         -->
-      <!-- O'quvchini 1 klikda qo'shish               -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene5">
-        <div class="feature-stage-wrap card-s5">
-          <!-- Top Stepper Bar -->
-          <div class="stepper-bar">
-            <div class="stepper-item active">1. Guruhlar</div>
-            <div class="stepper-item">2. Davomat</div>
-            <div class="stepper-item">3. Moliya</div>
-            <div class="stepper-item">4. Ota-onalar</div>
-            <div class="stepper-item">5. Jadval</div>
-          </div>
-
-          <!-- Split Layout (Left: Text, Right: UI) -->
-          <div class="split-stage">
-            <div class="split-left">
-              <div class="feat-badge"><i data-lucide="link-2"></i> 01 / 05 • GURUHLAR BAZASI</div>
-              <h2 class="feat-title">O'quvchini 1 klikda guruhga qo'shish</h2>
-              <div class="feat-bullets">
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Guruh havolasini o'quvchiga yuborasiz — tamom</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>O'quvchi botga kirishi bilan bazaga avto tushadi</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Qo'lda ism va telefon kiritishga chek!</span>
-                </div>
-              </div>
-              <div class="feat-pill-success">
-                <i data-lucide="zap"></i> Lahzalik guruhga ulanish
-              </div>
-            </div>
-
-            <div class="split-right">
-              <div class="phone-device">
-                <!-- Phone Status Bar -->
-                <div class="phone-status">
-                  <span>09:41</span>
-                  <div class="phone-island"></div>
-                  <div class="phone-icons"><i data-lucide="wifi"></i><i data-lucide="battery-medium"></i></div>
-                </div>
-                <!-- Telegram WebApp Header -->
-                <div class="tg-bar">
-                  <span class="tg-close">✕</span>
-                  <div class="tg-title-box">
-                    <span class="tg-title">TutorSpace</span>
-                    <span class="tg-sub">bot</span>
-                  </div>
-                  <i data-lucide="more-vertical" class="tg-opt"></i>
-                </div>
-                <!-- App Screen Content -->
-                <div class="phone-content">
-                  <div class="group-hero">
-                    <span class="grp-badge">FAOL GURUH</span>
-                    <h3 class="grp-title">IELTS Intensive (A1 Guruhi)</h3>
-                    <span class="grp-meta"><i data-lucide="users"></i> 14 ta o'quvchi • Du-Chor-Jum</span>
-                  </div>
-
-                  <!-- Invite Link Box -->
-                  <div class="ui-invite-box">
-                    <div class="ui-link-row">
-                      <i data-lucide="link"></i>
-                      <span class="ui-url">t.me/TutorSpace_bot?start=inv_a1</span>
-                    </div>
-                    <button class="ui-copy-btn">Nusxalash 📋</button>
-                  </div>
-
-                  <!-- Live Join Alert Notification -->
-                  <div class="ui-toast-alert">
-                    <div class="toast-icon"><i data-lucide="user-plus"></i></div>
-                    <div class="toast-info">
-                      <span class="t-head">Yangi o'quvchi qo'shildi!</span>
-                      <span class="t-body">Jasur Aliyev (@jasur_a) • IELTS A1</span>
-                    </div>
-                  </div>
-
-                  <!-- Students Mini List -->
-                  <div class="ui-student-list">
-                    <div class="student-item active-anim">
-                      <div class="u-avatar">JA</div>
-                      <div class="u-meta">
-                        <span class="u-name">Jasur Aliyev</span>
-                        <span class="u-handle">@jasur_a • Telegram orqali</span>
-                      </div>
-                      <span class="u-badge success">Qo'shildi</span>
-                    </div>
-                    <div class="student-item">
-                      <div class="u-avatar">SK</div>
-                      <div class="u-meta">
-                        <span class="u-name">Sardor Karimov</span>
-                        <span class="u-handle">@sardor_k • Guruh a'zosi</span>
-                      </div>
-                      <span class="u-badge">Faol</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="phone-home-bar"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 6: FEATURE 2 (14.8s - 18.6s)         -->
-      <!-- 1 ta bosishda davomat va ota-onaga xabar   -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene6">
-        <div class="feature-stage-wrap card-s6">
-          <!-- Top Stepper Bar -->
-          <div class="stepper-bar">
-            <div class="stepper-item">1. Guruhlar</div>
-            <div class="stepper-item active">2. Davomat</div>
-            <div class="stepper-item">3. Moliya</div>
-            <div class="stepper-item">4. Ota-onalar</div>
-            <div class="stepper-item">5. Jadval</div>
-          </div>
-
-          <!-- Split Layout -->
-          <div class="split-stage">
-            <div class="split-left">
-              <div class="feat-badge"><i data-lucide="check-square"></i> 02 / 05 • AVTOMATIK DAVOMAT</div>
-              <h2 class="feat-title">1 ta bosishda davomat va ota-onaga xabar</h2>
-              <div class="feat-bullets">
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Har bir o'quvchini birgina bosish bilan belgilang</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Kelmadi deb belgilansa — ota-onasiga darhol botdan SMS ketadi</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Ota-onalar bilan uzluksiz qo'ng'iroqlarga chek!</span>
-                </div>
-              </div>
-              <div class="feat-pill-success">
-                <i data-lucide="bell-ring"></i> 10 soniyada butun guruh davomati
-              </div>
-            </div>
-
-            <div class="split-right">
-              <div class="phone-device">
-                <div class="phone-status">
-                  <span>09:41</span>
-                  <div class="phone-island"></div>
-                  <div class="phone-icons"><i data-lucide="wifi"></i><i data-lucide="battery-medium"></i></div>
-                </div>
-                <div class="tg-bar">
-                  <span class="tg-close">✕</span>
-                  <div class="tg-title-box">
-                    <span class="tg-title">TutorSpace</span>
-                    <span class="tg-sub">bot</span>
-                  </div>
-                  <i data-lucide="more-vertical" class="tg-opt"></i>
-                </div>
-                <div class="phone-content">
-                  <div class="screen-header">
-                    <span class="sh-pill">DAVOMAT JURNALI</span>
-                    <h3 class="sh-title">Bugungi Dars • 14:00</h3>
-                  </div>
-
-                  <!-- Real Attendance Controls -->
-                  <div class="attendance-list">
-                    <div class="att-row">
-                      <div class="u-avatar">SK</div>
-                      <span class="att-name">Sardor Karimov</span>
-                      <span class="att-btn present">✅ Darsda</span>
-                    </div>
-
-                    <div class="att-row mark-absent">
-                      <div class="u-avatar absent">MT</div>
-                      <span class="att-name">Malika Toshmatova</span>
-                      <span class="att-btn absent">❌ Kelmadi</span>
-                    </div>
-
-                    <div class="att-row">
-                      <div class="u-avatar">JA</div>
-                      <span class="att-name">Jasur Aliyev</span>
-                      <span class="att-btn present">✅ Darsda</span>
-                    </div>
-                  </div>
-
-                  <!-- Bot Alert Pop-up -->
-                  <div class="bot-sms-card">
-                    <div class="sms-icon"><i data-lucide="bell"></i></div>
-                    <div class="sms-content">
-                      <span class="sms-tag">Ota-onaga Telegram SMS ketdi:</span>
-                      <span class="sms-text">"Hurmatli ota-ona, Malika bugun 14:00 darsiga qatnashmadi"</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="phone-home-bar"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 7: FEATURE 3 (18.6s - 22.4s)         -->
-      <!-- To'lovlar nazorati va qarzdorlarga eslatma -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene7">
-        <div class="feature-stage-wrap card-s7">
-          <div class="stepper-bar">
-            <div class="stepper-item">1. Guruhlar</div>
-            <div class="stepper-item">2. Davomat</div>
-            <div class="stepper-item active">3. Moliya</div>
-            <div class="stepper-item">4. Ota-onalar</div>
-            <div class="stepper-item">5. Jadval</div>
-          </div>
-
-          <div class="split-stage">
-            <div class="split-left">
-              <div class="feat-badge"><i data-lucide="wallet"></i> 03 / 05 • MOLIYA VA QARZLAR</div>
-              <h2 class="feat-title">To'lovlar nazorati va qarzdorlarga eslatish</h2>
-              <div class="feat-bullets">
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Oylik tushum va qarzlar real vaqtda ko'rinadi</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Qarzdorlarga 1 tugma bilan xushmuomala eslatma boradi</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Endi o'zingiz noqulay bo'lib pul so'rab yurmaysiz</span>
-                </div>
-              </div>
-              <div class="feat-pill-success">
-                <i data-lucide="trending-up"></i> 100% to'lovlar o'z vaqtida
-              </div>
-            </div>
-
-            <div class="split-right">
-              <div class="phone-device">
-                <div class="phone-status">
-                  <span>09:41</span>
-                  <div class="phone-island"></div>
-                  <div class="phone-icons"><i data-lucide="wifi"></i><i data-lucide="battery-medium"></i></div>
-                </div>
-                <div class="tg-bar">
-                  <span class="tg-close">✕</span>
-                  <div class="tg-title-box">
-                    <span class="tg-title">TutorSpace</span>
-                    <span class="tg-sub">bot</span>
-                  </div>
-                  <i data-lucide="more-vertical" class="tg-opt"></i>
-                </div>
-                <div class="phone-content">
-                  <div class="screen-header">
-                    <span class="sh-pill">MOLIYA PANELI</span>
-                    <h3 class="sh-title">Sentyabr Hisoboti</h3>
-                  </div>
-
-                  <!-- Mini Finance Grid -->
-                  <div class="fin-stat-grid">
-                    <div class="fin-card income">
-                      <span class="fc-label">OYLIK TUSHUM</span>
-                      <span class="fc-val">+6,400,000</span>
-                      <span class="fc-currency">UZS</span>
-                    </div>
-                    <div class="fin-card debt">
-                      <span class="fc-label">QARZDORLIK</span>
-                      <span class="fc-val text-red">250,000</span>
-                      <span class="fc-currency">UZS (1 ta)</span>
-                    </div>
-                  </div>
-
-                  <!-- Debtor Card -->
-                  <div class="debtor-item">
-                    <div class="u-avatar debt">FN</div>
-                    <div class="debt-info">
-                      <span class="d-name">Farhod Normatov</span>
-                      <span class="d-sub">IELTS A1 • 250,000 UZS qarz</span>
-                    </div>
-                    <span class="d-status">Kutilmoqda</span>
-                  </div>
-
-                  <!-- Remind Action Button -->
-                  <div class="remind-action-box">
-                    <button class="btn-remind-auto">
-                      <i data-lucide="send"></i>
-                      <span>Qarzdorlarga eslatish</span>
-                    </button>
-                    <div class="remind-sent-tag">
-                      <i data-lucide="check-check"></i>
-                      <span>Xushmuomala Telegram eslatma yuborildi!</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="phone-home-bar"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 8: FEATURE 4 (22.4s - 26.2s)         -->
-      <!-- Ota-ona va talaba shaxsiy portali          -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene8">
-        <div class="feature-stage-wrap card-s8">
-          <div class="stepper-bar">
-            <div class="stepper-item">1. Guruhlar</div>
-            <div class="stepper-item">2. Davomat</div>
-            <div class="stepper-item">3. Moliya</div>
-            <div class="stepper-item active">4. Ota-onalar</div>
-            <div class="stepper-item">5. Jadval</div>
-          </div>
-
-          <div class="split-stage">
-            <div class="split-left">
-              <div class="feat-badge"><i data-lucide="shield-check"></i> 04 / 05 • SHAFFOF KABINET</div>
-              <h2 class="feat-title">Ota-ona va o'quvchi shaxsiy portali</h2>
-              <div class="feat-bullets">
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Ota-onalar farzandining davomati va baholarini o'zlari ko'radi</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>To'langan darslar va qoldiq shaffof hisoblanadi</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Sizga "Bolam bordimi?" deb ortiqcha telefon qilishmaydi</span>
-                </div>
-              </div>
-              <div class="feat-pill-success">
-                <i data-lucide="heart-handshake"></i> 100% ochiqlik va ishonch
-              </div>
-            </div>
-
-            <div class="split-right">
-              <div class="phone-device">
-                <div class="phone-status">
-                  <span>09:41</span>
-                  <div class="phone-island"></div>
-                  <div class="phone-icons"><i data-lucide="wifi"></i><i data-lucide="battery-medium"></i></div>
-                </div>
-                <div class="tg-bar">
-                  <span class="tg-close">✕</span>
-                  <div class="tg-title-box">
-                    <span class="tg-title">TutorSpace • Ota-ona</span>
-                    <span class="tg-sub">bot</span>
-                  </div>
-                  <i data-lucide="more-vertical" class="tg-opt"></i>
-                </div>
-                <div class="phone-content">
-                  <div class="parent-student-header">
-                    <div class="ps-avatar">JA</div>
-                    <div class="ps-meta">
-                      <span class="ps-label">Farzand:</span>
-                      <h4 class="ps-name">Jasur Aliyev (IELTS A1)</h4>
-                    </div>
-                    <span class="ps-badge">Faol</span>
-                  </div>
-
-                  <!-- 3 Transparent Metrics -->
-                  <div class="portal-metrics">
-                    <div class="pm-box">
-                      <span class="pm-val text-green">96%</span>
-                      <span class="pm-lbl">Davomat</span>
-                    </div>
-                    <div class="pm-box">
-                      <span class="pm-val text-purple">5/5</span>
-                      <span class="pm-lbl">Vazifalar</span>
-                    </div>
-                    <div class="pm-box">
-                      <span class="pm-val text-green">To'langan</span>
-                      <span class="pm-lbl">Sentyabr</span>
-                    </div>
-                  </div>
-
-                  <!-- Lesson Feed Card -->
-                  <div class="portal-lesson-card">
-                    <div class="plc-top">
-                      <span class="plc-tag">Oxirgi dars • Bugun</span>
-                      <span class="plc-grade">Baho: 5/5 ⭐</span>
-                    </div>
-                    <h5 class="plc-topic">Writing Task 2: Academic Essay</h5>
-                    <p class="plc-teacher-note">
-                      <i data-lucide="message-square"></i>
-                      <span>"Darsda juda faol qatnashdi va vazifani a'lo darajada bajardi 👏"</span>
-                    </p>
-                  </div>
-                </div>
-                <div class="phone-home-bar"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 9: FEATURE 5 (26.2s - 30.0s)         -->
-      <!-- Dars jadvali va uyga vazifalar nazorati    -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene9">
-        <div class="feature-stage-wrap card-s9">
-          <div class="stepper-bar">
-            <div class="stepper-item">1. Guruhlar</div>
-            <div class="stepper-item">2. Davomat</div>
-            <div class="stepper-item">3. Moliya</div>
-            <div class="stepper-item">4. Ota-onalar</div>
-            <div class="stepper-item active">5. Jadval</div>
-          </div>
-
-          <div class="split-stage">
-            <div class="split-left">
-              <div class="feat-badge"><i data-lucide="calendar"></i> 05 / 05 • JADVAL VA VAZIFALAR</div>
-              <h2 class="feat-title">Dars jadvali va vazifalar nazorati</h2>
-              <div class="feat-bullets">
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Barcha guruhlar dars jadvali tartibli ko'rinadi</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Darsdan oldin o'quvchilarga avto-eslatma boradi</span>
-                </div>
-                <div class="feat-bullet">
-                  <i data-lucide="check-circle-2"></i>
-                  <span>Uyga vazifalar berish, qabul qilish va baholash</span>
-                </div>
-              </div>
-              <div class="feat-pill-success">
-                <i data-lucide="clock"></i> Barcha ishlar yagona tizimda
-              </div>
-            </div>
-
-            <div class="split-right">
-              <div class="phone-device">
-                <div class="phone-status">
-                  <span>09:41</span>
-                  <div class="phone-island"></div>
-                  <div class="phone-icons"><i data-lucide="wifi"></i><i data-lucide="battery-medium"></i></div>
-                </div>
-                <div class="tg-bar">
-                  <span class="tg-close">✕</span>
-                  <div class="tg-title-box">
-                    <span class="tg-title">TutorSpace</span>
-                    <span class="tg-sub">bot</span>
-                  </div>
-                  <i data-lucide="more-vertical" class="tg-opt"></i>
-                </div>
-                <div class="phone-content">
-                  <div class="screen-header">
-                    <span class="sh-pill">DARSLAR REJASI</span>
-                    <h3 class="sh-title">Bugungi Darslar</h3>
-                  </div>
-
-                  <!-- Schedule Card 1 -->
-                  <div class="schedule-card active-lesson">
-                    <div class="sc-time-pill"><i data-lucide="clock"></i> 14:00 - 15:30</div>
-                    <h4 class="sc-title">IELTS Intensive (A1)</h4>
-                    <span class="sc-room">4-xona • 14 ta o'quvchi</span>
-                  </div>
-
-                  <!-- Schedule Card 2 -->
-                  <div class="schedule-card">
-                    <div class="sc-time-pill dim"><i data-lucide="clock"></i> 16:00 - 17:30</div>
-                    <h4 class="sc-title">General English (B2)</h4>
-                    <span class="sc-room">2-xona • 10 ta o'quvchi</span>
-                  </div>
-
-                  <!-- Active Homework Card -->
-                  <div class="hw-card">
-                    <div class="hw-top">
-                      <span class="hw-badge">VAZIFA</span>
-                      <span class="hw-deadline">Bugun 18:00 gacha</span>
-                    </div>
-                    <h5 class="hw-title">Writing Task 2: Essay</h5>
-                    <div class="hw-progress-bar">
-                      <div class="hw-progress-fill" style="width: 85%;"></div>
-                    </div>
-                    <div class="hw-bottom">
-                      <span>Topshirdi: 12 / 14</span>
-                      <span class="text-green">Tekshirildi: 10 ta</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="phone-home-bar"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- SCENE 10: CALL TO ACTION (30.0s - 34.0s)   -->
-      <!-- ========================================== -->
-      <div class="scene" id="scene10">
-        <div class="intro-card card-s10">
-          <div class="intro-logo-wrap">
-            <img src="assets/logo.jpg" alt="TutorSpace Logo" class="intro-logo-img">
-            <div class="logo-pulse-ring"></div>
-          </div>
-          <h1 class="headline-hero" style="font-size: 54px; margin-bottom: 16px;">TutorSpace bilan boshlang!</h1>
-          <p class="intro-tagline" style="font-size: 26px; max-width: 840px;">
-            Repetitorlik faoliyatingizni bugunoq avtomatlashtiring va ortiqcha tashvishlardan xalos bo'ling.
-          </p>
-
-          <div class="comment-cta-container">
-            <div class="cta-pulse-glow"></div>
-            <div class="comment-cta-box">
-              <i data-lucide="message-square-plus"></i>
-              <span>Izohlarda <b>«+»</b> qoldiring</span>
-            </div>
-          </div>
-
-          <div class="cta-bot-link">
-            <i data-lucide="bot"></i>
-            <span>Telegram: <b>@TutorSpace_bot</b></span>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <!-- OBS Recording Control Bar -->
-  <div class="obs-control-bar" id="controlBar">
-    <button class="btn-restart" id="btnRestart">
-      <i data-lucide="rotate-ccw" style="width: 18px; height: 18px;"></i>
-      Restart (Space / R)
-    </button>
-    <div class="timecode-display" id="timecode">00.0s / 34.0s</div>
-    <div class="hotkey-hint">[H] UI ni yashirish</div>
+  <!-- ===== S2 : MUAMMO 1  3.2 — 5.6s ===== -->
+  <div class="sc" id="s2">
+    <div class="prob" id="prob1">
+      <span class="prob-chip">🔴 Muammo</span>
+      <div class="prob-ico"><i data-lucide="clipboard-x"></i></div>
+      <h1>Davomatni hali ham<br>daftarda tekshiryapsizmi?</h1>
+      <p>Har darsda 15 daqiqa vaqt yo'qotish, qo'lda yozish va chalkashlik...</p>
+    </div>
   </div>
 
-  <!-- Motion Engine Script -->
-  <script src="js/motion.js"></script>
+  <!-- ===== S3 : MUAMMO 2  5.6 — 8.0s ===== -->
+  <div class="sc" id="s3">
+    <div class="prob" id="prob2">
+      <span class="prob-chip">🔴 Muammo</span>
+      <div class="prob-ico"><i data-lucide="file-spreadsheet"></i></div>
+      <h1>To'lovlarni Excel-da<br>hisoblashdan charchadingizmi?</h1>
+      <p>Qarzdorlar esdan chiqadi, kim to'lagani noma'lum...</p>
+    </div>
+  </div>
+
+  <!-- ===== S4 : BRIDGE  8.0 — 10.2s ===== -->
+  <div class="sc" id="s4">
+    <div class="bridge" id="bridge">
+      <div class="bridge-ico"><i data-lucide="sparkles"></i></div>
+      <h1>TutorSpace ni<br>sinab ko'ring!</h1>
+      <p>Barcha boshqaruv Telegram ichida — avtomatlashgan va oddiy.</p>
+    </div>
+  </div>
+
+  <!-- ===== S5 : FEAT 1 — GURUHLAR  10.2 — 13.8s ===== -->
+  <div class="sc" id="s5">
+    <div class="feat" id="f1">
+      <div class="feat-text">
+        <div class="feat-num">01</div>
+        <div class="feat-label">GURUHLAR</div>
+        <h2>O'quvchini 1 klikda<br>guruhga qo'shing</h2>
+        <p>Havola yuboring — o'quvchi Telegram orqali bazaga avto tushadi. Qo'lda kiritishga chek.</p>
+      </div>
+      <div class="feat-ui">
+        <div class="app-screen">
+          <!-- Group Card -->
+          <div class="ui-group-card">
+            <div class="ui-group-tags">
+              <span class="ui-chip purple">Ingliz tili</span>
+              <span class="ui-chip muted"><i data-lucide="users"></i>14 ta</span>
+            </div>
+            <h3>IELTS Morning A1</h3>
+            <div class="ui-group-foot">
+              <span><i data-lucide="calendar"></i>Du, 09:00</span>
+              <span class="ui-pct">85%</span>
+            </div>
+          </div>
+          <!-- Invite Link -->
+          <div class="ui-invite">
+            <div class="ui-invite-url"><i data-lucide="link"></i><span>t.me/tut0rspacebot?start=inv_a1</span></div>
+            <button class="ui-btn-sm">Nusxalash</button>
+          </div>
+          <!-- Joined Toast -->
+          <div class="ui-toast green">
+            <div class="ui-toast-dot"></div>
+            <div>
+              <b>Jasur Aliyev qo'shildi!</b>
+              <span>@jasur_a · IELTS A1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== S6 : FEAT 2 — DAVOMAT  13.8 — 17.4s ===== -->
+  <div class="sc" id="s6">
+    <div class="feat" id="f2">
+      <div class="feat-text">
+        <div class="feat-num">02</div>
+        <div class="feat-label">DAVOMAT</div>
+        <h2>1 bosishda davomat,<br>ota-onaga avtoxabar</h2>
+        <p>Kelmadi deb belgilang — ota-onaga darhol Telegram SMS ketadi. 10 soniyada butun guruh.</p>
+      </div>
+      <div class="feat-ui">
+        <div class="app-screen">
+          <button class="ui-mark-all"><i data-lucide="check-circle-2"></i>Hammani bor deb belgilash</button>
+          <!-- Attendance Rows -->
+          <div class="ui-att-row">
+            <div class="ui-ava">SK</div>
+            <span class="ui-att-name">Sardor Karimov</span>
+            <div class="ui-toggle on"><i data-lucide="check-circle"></i></div>
+          </div>
+          <div class="ui-att-row absent">
+            <div class="ui-ava red">MT</div>
+            <span class="ui-att-name">Malika Toshmatova</span>
+            <div class="ui-toggle off"><i data-lucide="circle"></i></div>
+          </div>
+          <div class="ui-att-row">
+            <div class="ui-ava">JA</div>
+            <span class="ui-att-name">Jasur Aliyev</span>
+            <div class="ui-toggle on"><i data-lucide="check-circle"></i></div>
+          </div>
+          <!-- Parent Alert -->
+          <div class="ui-toast red">
+            <i data-lucide="bell-ring"></i>
+            <div>
+              <b>Ota-onaga SMS ketdi</b>
+              <span>"Malika bugun darsga kelmadi"</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== S7 : FEAT 3 — MOLIYA  17.4 — 21.0s ===== -->
+  <div class="sc" id="s7">
+    <div class="feat" id="f3">
+      <div class="feat-text">
+        <div class="feat-num">03</div>
+        <div class="feat-label">MOLIYA</div>
+        <h2>To'lovlar nazorati,<br>qarzdorlarga eslatma</h2>
+        <p>Tushum va qarzlar real vaqtda. 1 tugma bilan xushmuomala eslatma boradi — o'zingiz noqulay bo'lmaysiz.</p>
+      </div>
+      <div class="feat-ui">
+        <div class="app-screen">
+          <!-- Finance Stats -->
+          <div class="ui-fin-grid">
+            <div class="ui-fin-card green">
+              <span class="ui-fin-label">TUSHUM</span>
+              <span class="ui-fin-val">5 850 000</span>
+              <span class="ui-fin-cur">UZS</span>
+            </div>
+            <div class="ui-fin-card red">
+              <span class="ui-fin-label">QARZDORLIK</span>
+              <span class="ui-fin-val">450 000</span>
+              <span class="ui-fin-cur">UZS · 2 ta</span>
+            </div>
+          </div>
+          <!-- Remind CTA -->
+          <button class="ui-btn-remind"><i data-lucide="bell"></i>Qarzdorlarga eslatish (2)</button>
+          <!-- Payment Row -->
+          <div class="ui-pay-row paid">
+            <div class="ui-pay-bar green"></div>
+            <div class="ui-ava">SK</div>
+            <div class="ui-pay-info"><b>Sardor Karimov</b><span>IELTS A1 · 450 000 UZS</span></div>
+            <span class="ui-pay-badge green">To'langan</span>
+          </div>
+          <div class="ui-pay-row unpaid">
+            <div class="ui-pay-bar red"></div>
+            <div class="ui-ava red">FN</div>
+            <div class="ui-pay-info"><b>Farhod Normatov</b><span>IELTS A1 · 450 000 UZS</span></div>
+            <span class="ui-pay-badge red">To'lanmagan</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== S8 : FEAT 4 — OTA-ONA  21.0 — 24.6s ===== -->
+  <div class="sc" id="s8">
+    <div class="feat" id="f4">
+      <div class="feat-text">
+        <div class="feat-num">04</div>
+        <div class="feat-label">OTA-ONA KABINETI</div>
+        <h2>Ota-onalar o'zlari<br>hamma narsani ko'radi</h2>
+        <p>Davomat, baholar, to'lovlar — hammasi shaffof. Sizga "Bolam bordimi?" deb qo'ng'iroq qilishmaydi.</p>
+      </div>
+      <div class="feat-ui">
+        <div class="app-screen">
+          <!-- Child Profile -->
+          <div class="ui-child-row">
+            <div class="ui-ava lg">JA</div>
+            <div class="ui-child-info">
+              <span class="ui-child-sub">Farzand:</span>
+              <b>Jasur Aliyev</b>
+            </div>
+            <span class="ui-status-pill">Faol</span>
+          </div>
+          <!-- 3 Metrics -->
+          <div class="ui-metrics-3">
+            <div class="ui-m-box"><span class="ui-m-val green">96%</span><span>Davomat</span></div>
+            <div class="ui-m-box"><span class="ui-m-val purple">5/5</span><span>Vazifalar</span></div>
+            <div class="ui-m-box"><span class="ui-m-val green">To'langan</span><span>Sentyabr</span></div>
+          </div>
+          <!-- Lesson Note -->
+          <div class="ui-note-card">
+            <div class="ui-note-top">
+              <span>Oxirgi dars · Bugun</span>
+              <span class="ui-note-grade">⭐ 5/5</span>
+            </div>
+            <h4>Writing Task 2: Essay</h4>
+            <p class="ui-note-comment"><i data-lucide="message-square"></i>"Juda faol qatnashdi, vazifani a'lo bajardi 👏"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== S9 : FEAT 5 — JADVAL  24.6 — 28.2s ===== -->
+  <div class="sc" id="s9">
+    <div class="feat" id="f5">
+      <div class="feat-text">
+        <div class="feat-num">05</div>
+        <div class="feat-label">DARS JADVALI</div>
+        <h2>Jadval va vazifalar<br>yagona tizimda</h2>
+        <p>Darslar rejasi, avto-eslatmalar va uyga vazifalar — hammasini Telegram ichida boshqaring.</p>
+      </div>
+      <div class="feat-ui">
+        <div class="app-screen">
+          <!-- Day Strip -->
+          <div class="ui-days">
+            <span>Du<b>8</b></span>
+            <span class="active">Se<b>9</b></span>
+            <span>Ch<b>10</b></span>
+            <span>Pa<b>11</b></span>
+            <span>Ju<b>12</b></span>
+          </div>
+          <!-- Lesson Cards -->
+          <div class="ui-lesson now">
+            <div class="ui-lesson-bar purple"></div>
+            <div class="ui-lesson-body">
+              <div class="ui-lesson-time"><div class="ui-ping"></div>14:00 – 15:30</div>
+              <h4>IELTS Intensive (A1)</h4>
+              <span>4-xona · 14 ta o'quvchi</span>
+            </div>
+          </div>
+          <div class="ui-lesson">
+            <div class="ui-lesson-bar blue"></div>
+            <div class="ui-lesson-body">
+              <div class="ui-lesson-time dim">16:00 – 17:30</div>
+              <h4>General English (B2)</h4>
+              <span>2-xona · 10 ta o'quvchi</span>
+            </div>
+          </div>
+          <!-- Homework -->
+          <div class="ui-hw">
+            <div class="ui-hw-head">
+              <span class="ui-hw-tag">VAZIFA</span>
+              <span class="ui-hw-due">18:00 gacha</span>
+            </div>
+            <h4>Writing Task 2</h4>
+            <div class="ui-hw-bar"><div class="ui-hw-fill"></div></div>
+            <span class="ui-hw-stat">Topshirdi: 12 / 14</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== S10 : OUTRO  28.2 — 32.0s ===== -->
+  <div class="sc" id="s10">
+    <div class="intro outro" id="outro">
+      <img src="assets/logo.jpg" alt="" class="intro-logo">
+      <div class="intro-glow"></div>
+      <h1 class="intro-name" style="font-size:58px">Bugunoq boshlang!</h1>
+      <p class="intro-tag">O'quv jarayoningizni avtomatlashtiring —<br>birinchi 30 kun bepul.</p>
+      <div class="cta-box">
+        <i data-lucide="message-square-plus"></i>
+        <span>Izohlarda <b>«+»</b> qoldiring</span>
+      </div>
+      <div class="cta-handle"><i data-lucide="bot"></i>@TutorSpace_bot</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- OBS Controls -->
+<div class="obs" id="obs">
+  <button id="btnR"><i data-lucide="rotate-ccw" style="width:16px;height:16px"></i> Restart</button>
+  <span id="tc">0.0 / 32.0</span>
+  <span class="obs-hint">[H] yashirish · [Space] restart</span>
+</div>
+
+<script src="js/motion.js"></script>
 </body>
 </html>
