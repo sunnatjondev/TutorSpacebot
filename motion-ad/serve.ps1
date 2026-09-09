@@ -48,6 +48,8 @@ while ($listener.IsListening) {
             elseif ($ext -eq ".png") { $response.ContentType = "image/png" }
             elseif ($ext -eq ".jpg") { $response.ContentType = "image/jpeg" }
             elseif ($ext -eq ".svg") { $response.ContentType = "image/svg+xml" }
+            elseif ($ext -eq ".mp3") { $response.ContentType = "audio/mpeg" }
+            elseif ($ext -eq ".wav") { $response.ContentType = "audio/wav" }
             else { $response.ContentType = "application/octet-stream" }
             
             $response.ContentLength64 = $bytes.Length

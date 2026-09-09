@@ -1,56 +1,177 @@
-/* Material Design 3 (MD3) Expressive System Tokens */
-:root {
-  /* Font Family */
-  --md-sys-typescale-font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+/* Material Design 3 (MD3) Expressive System Tokens — TutorSpace Authentic Light Theme
+   Extracted from tutorspace-app/src/index.css and tailwind.config.js */
 
-  /* M3 Color Palette */
-  --md-sys-color-primary: #6750A4;
+:root {
+  /* ═════════════════════════════════════════════════════════════════
+     TYPOGRAPHY TOKENS (Outfit)
+     ═════════════════════════════════════════════════════════════════ */
+  --font-family-base: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --md-sys-typescale-font: var(--font-family-base);
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Typescale */
+  --md-sys-typescale-display-lg-size: 57px;
+  --md-sys-typescale-display-lg-line-height: 64px;
+  --md-sys-typescale-display-lg-weight: var(--font-weight-extrabold);
+
+  --md-sys-typescale-display-md-size: 45px;
+  --md-sys-typescale-display-md-line-height: 52px;
+  --md-sys-typescale-display-md-weight: var(--font-weight-bold);
+
+  --md-sys-typescale-title-lg-size: 24px;
+  --md-sys-typescale-title-lg-line-height: 32px;
+  --md-sys-typescale-title-lg-weight: var(--font-weight-bold);
+
+  --md-sys-typescale-title-md-size: 18px;
+  --md-sys-typescale-title-md-line-height: 24px;
+  --md-sys-typescale-title-md-weight: var(--font-weight-semibold);
+
+  --md-sys-typescale-body-lg-size: 16px;
+  --md-sys-typescale-body-lg-line-height: 24px;
+  --md-sys-typescale-body-lg-weight: var(--font-weight-regular);
+
+  --md-sys-typescale-body-md-size: 14px;
+  --md-sys-typescale-body-md-line-height: 20px;
+  --md-sys-typescale-body-md-weight: var(--font-weight-medium);
+
+  --md-sys-typescale-label-size: 12px;
+  --md-sys-typescale-label-line-height: 16px;
+  --md-sys-typescale-label-weight: var(--font-weight-bold);
+
+  /* ═════════════════════════════════════════════════════════════════
+     PRIMARY M3 LIGHT THEME VARIABLES (Authoritative from TutorSpace)
+     ═════════════════════════════════════════════════════════════════ */
+  --primary: #4F378B;
+  --on-primary: #FFFFFF;
+  --primary-container: #EADDFF;
+  --on-primary-container: #21005D;
+
+  --secondary: #625B71;
+  --on-secondary: #FFFFFF;
+  --secondary-container: #E8DEF8;
+  --on-secondary-container: #1D192B;
+
+  --tertiary: #006D36;
+  --on-tertiary: #FFFFFF;
+  --tertiary-container: #91F0A1;
+  --on-tertiary-container: #00210C;
+
+  --error: #BA1A1A;
+  --on-error: #FFFFFF;
+  --error-container: #FFDAD6;
+  --on-error-container: #410002;
+
+  /* Surfaces & Containers */
+  --background: #F4F5F7;
+  --on-background: #1D1B20;
+  --surface: #F4F5F7;
+  --on-surface: #1D1B20;
+  --surface-variant: #E7E0EC;
+  --on-surface-variant: #49454F;
+  --outline: #79747E;
+  --outline-variant: #CAC4D0;
+
+  --surface-lowest: #FFFFFF;
+  --surface-low: #F7F2FA;
+  --surface-container: #E9EAEF;
+  --surface-high: #E2E2E5;
+  --surface-highest: #DCDDE0;
+
+  /* Status Colors & Backgrounds */
+  --paid-green: #006D36;
+  --paid-green-bg: rgba(0, 109, 54, 0.15);
+  --debt-red: #BA1A1A;
+  --debt-red-bg: rgba(186, 26, 26, 0.15);
+  --partial-orange: #8B5000;
+  --partial-orange-bg: rgba(139, 80, 0, 0.15);
+
+  /* Signature Soft Lavender Borders */
+  --card-border: 1px solid rgba(139, 92, 246, 0.25);
+  --card-border-subtle: 1px solid rgba(139, 92, 246, 0.15);
+  --card-border-strong: 1px solid rgba(139, 92, 246, 0.35);
+
+  /* ═════════════════════════════════════════════════════════════════
+     M3 COMPATIBILITY ALIASES (--md-sys-color-*)
+     ═════════════════════════════════════════════════════════════════ */
+  --md-sys-color-primary: #4F378B;
   --md-sys-color-primary-dark: #4F378B;
   --md-sys-color-on-primary: #FFFFFF;
   --md-sys-color-primary-container: #EADDFF;
   --md-sys-color-on-primary-container: #21005D;
-  
-  --md-sys-color-secondary: #625B71;
-  --md-sys-color-on-secondary: #FFFFFF;
-  --md-sys-color-secondary-container: #E8DEF8;
-  --md-sys-color-on-secondary-container: #1D192B;
-  
-  --md-sys-color-tertiary: #7D5260;
-  --md-sys-color-tertiary-container: #FFD8E4;
-  --md-sys-color-on-tertiary-container: #31111D;
 
-  --md-sys-color-surface: #F4F2FA;
-  --md-sys-color-surface-bright: #FAF8FF;
-  --md-sys-color-on-surface: #1C1B1F;
-  --md-sys-color-surface-variant: #E7E0EC;
-  --md-sys-color-on-surface-variant: #49454F;
-  --md-sys-color-outline: #79747E;
+  --md-sys-color-secondary: var(--secondary);
+  --md-sys-color-on-secondary: var(--on-secondary);
+  --md-sys-color-secondary-container: var(--secondary-container);
+  --md-sys-color-on-secondary-container: var(--on-secondary-container);
 
-  --md-sys-color-card-bg: #FFFFFF;
-  
-  /* Error / Problem Chips (Muammo) */
-  --md-sys-color-error-container: #FFDAD6;
+  --md-sys-color-tertiary: var(--tertiary);
+  --md-sys-color-on-tertiary: var(--on-tertiary);
+  --md-sys-color-tertiary-container: var(--tertiary-container);
+  --md-sys-color-on-tertiary-container: var(--on-tertiary-container);
+
+  --md-sys-color-surface: var(--surface);
+  --md-sys-color-surface-bright: var(--surface-lowest);
+  --md-sys-color-on-surface: var(--on-surface);
+  --md-sys-color-surface-variant: var(--surface-variant);
+  --md-sys-color-on-surface-variant: var(--on-surface-variant);
+  --md-sys-color-outline: var(--outline);
+  --md-sys-color-outline-variant: var(--outline-variant);
+
+  --md-sys-color-card-bg: var(--surface-container);
+  --md-sys-color-card-border: rgba(139, 92, 246, 0.25);
+
+  /* Error / Problem Chips */
+  --md-sys-color-error: var(--debt-red);
+  --md-sys-color-error-container: var(--debt-red-bg);
   --md-sys-color-on-error-container: #410002;
-  --md-sys-color-error: #B3261E;
 
   /* Success / Solution Chips */
-  --md-sys-color-success-container: #D1E8D5;
-  --md-sys-color-on-success-container: #00210B;
+  --md-sys-color-success: var(--paid-green);
+  --md-sys-color-success-container: var(--paid-green-bg);
+  --md-sys-color-on-success-container: #00210C;
 
-  /* MD3 Elevation Shadows */
+  /* ═════════════════════════════════════════════════════════════════
+     M3 ELEVATION SHADOWS
+     ═════════════════════════════════════════════════════════════════ */
   --md-sys-shadow-1: 0 4px 12px rgba(28, 27, 31, 0.05);
   --md-sys-shadow-2: 0 16px 32px -4px rgba(28, 27, 31, 0.08);
-  --md-sys-shadow-3: 0 24px 48px -8px rgba(103, 80, 164, 0.18);
-  --md-sys-shadow-glow: 0 0 50px rgba(103, 80, 164, 0.3);
+  --md-sys-shadow-3: 0 24px 48px -8px rgba(79, 55, 139, 0.18);
+  --md-sys-shadow-glow: 0 0 50px rgba(139, 92, 246, 0.28);
+  --shadow-m3-elevation-1: var(--md-sys-shadow-1);
+  --shadow-m3-elevation-2: var(--md-sys-shadow-2);
+  --shadow-m3-elevation-3: var(--md-sys-shadow-3);
+  --shadow-glow-primary: var(--md-sys-shadow-glow);
 
-  /* MD3 Expressive Easing Curves */
+  /* ═════════════════════════════════════════════════════════════════
+     M3 CORNER RADII (Squircles / Pill)
+     ═════════════════════════════════════════════════════════════════ */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-card: 32px;
+  --radius-modal: 40px;
+  --radius-full: 9999px;
+
+  --md-sys-radius-small: 12px;
+  --md-sys-radius-medium: 20px;
+  --md-sys-radius-large: 24px;
+  --md-sys-radius-card: 32px;
+  --md-sys-radius-full: 9999px;
+
+  /* ═════════════════════════════════════════════════════════════════
+     MD3 EXPRESSIVE EASING CURVES
+     ═════════════════════════════════════════════════════════════════ */
   --md-sys-motion-easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
   --md-sys-motion-easing-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
-
-  /* Corner Radii */
-  --md-sys-radius-small: 12px;
-  --md-sys-radius-medium: 20px;
-  --md-sys-radius-large: 28px;
-  --md-sys-radius-full: 9999px;
 }

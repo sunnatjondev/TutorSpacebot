@@ -9,22 +9,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <link rel="stylesheet" href="css/md3-tokens.css">
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 <div class="stage-wrapper">
 <div class="reels-canvas" id="reelsCanvas">
 
-  <!-- Ambient blobs -->
+  <!-- Ambient background glow blobs -->
   <div class="amb amb-1"></div>
   <div class="amb amb-2"></div>
   <div class="amb amb-3"></div>
 
+  <!-- Audio element hook -->
+  <audio id="bgMusic" src="assets/bg-music.mp3" preload="auto" loop></audio>
+
   <!-- ===== S1 : INTRO  0 — 3.2s ===== -->
   <div class="sc" id="s1">
     <div class="intro" id="intro">
-      <img src="assets/logo.jpg" alt="" class="intro-logo">
-      <div class="intro-glow"></div>
+      <div class="intro-logo-wrap">
+        <div class="intro-glow"></div>
+        <img src="assets/logo.jpg" alt="TutorSpace Logo" class="intro-logo">
+      </div>
       <h1 class="intro-name">TutorSpace</h1>
       <p class="intro-tag">Repetitorlar uchun<br>Telegram boshqaruv tizimi</p>
       <div class="intro-pills">
@@ -38,20 +44,28 @@
   <!-- ===== S2 : MUAMMO 1  3.2 — 5.6s ===== -->
   <div class="sc" id="s2">
     <div class="prob" id="prob1">
-      <span class="prob-chip">🔴 Muammo</span>
+      <span class="prob-chip">🔴 Muammo #1</span>
       <div class="prob-ico"><i data-lucide="clipboard-x"></i></div>
       <h1>Davomatni hali ham<br>daftarda tekshiryapsizmi?</h1>
-      <p>Har darsda 15 daqiqa vaqt yo'qotish, qo'lda yozish va chalkashlik...</p>
+      <p>Har darsda 15 daqiqa vaqt yo'qotish, qo'lda yozish va jurnaldagi chalkashliklar...</p>
+      <div class="prob-stats">
+        <div class="prob-stat-pill"><i data-lucide="clock"></i> 15 daqiqa yo'qotish</div>
+        <div class="prob-stat-pill"><i data-lucide="book-x"></i> Jurnaldagi xatolar</div>
+      </div>
     </div>
   </div>
 
   <!-- ===== S3 : MUAMMO 2  5.6 — 8.0s ===== -->
   <div class="sc" id="s3">
     <div class="prob" id="prob2">
-      <span class="prob-chip">🔴 Muammo</span>
+      <span class="prob-chip">🔴 Muammo #2</span>
       <div class="prob-ico"><i data-lucide="file-spreadsheet"></i></div>
       <h1>To'lovlarni Excel-da<br>hisoblashdan charchadingizmi?</h1>
-      <p>Qarzdorlar esdan chiqadi, kim to'lagani noma'lum...</p>
+      <p>Qarzdorlar esdan chiqadi, kim to'lagani noma'lum, o'quvchilarga to'lovni eslatish esa noqulay...</p>
+      <div class="prob-stats">
+        <div class="prob-stat-pill"><i data-lucide="alert-triangle"></i> Unutilgan qarzlar</div>
+        <div class="prob-stat-pill"><i data-lucide="message-circle-off"></i> Noqulay eslatmalar</div>
+      </div>
     </div>
   </div>
 
@@ -60,7 +74,12 @@
     <div class="bridge" id="bridge">
       <div class="bridge-ico"><i data-lucide="sparkles"></i></div>
       <h1>TutorSpace ni<br>sinab ko'ring!</h1>
-      <p>Barcha boshqaruv Telegram ichida — avtomatlashgan va oddiy.</p>
+      <p>Barcha boshqaruv Telegram ichida — avtomatlashgan, qulay va shaffof.</p>
+      <div class="bridge-pills">
+        <span class="bridge-pill"><i data-lucide="check-circle-2"></i> 1 klikda davomat</span>
+        <span class="bridge-pill"><i data-lucide="check-circle-2"></i> Avto-eslatmalar</span>
+        <span class="bridge-pill"><i data-lucide="check-circle-2"></i> Ota-onalar portali</span>
+      </div>
     </div>
   </div>
 
@@ -71,34 +90,64 @@
         <div class="feat-num">01</div>
         <div class="feat-label">GURUHLAR</div>
         <h2>O'quvchini 1 klikda<br>guruhga qo'shing</h2>
-        <p>Havola yuboring — o'quvchi Telegram orqali bazaga avto tushadi. Qo'lda kiritishga chek.</p>
+        <p>Havola yuboring — o'quvchi Telegram orqali bazaga avto tushadi. Qo'lda kiritishga chek qo'ying.</p>
       </div>
       <div class="feat-ui">
         <div class="app-screen">
-          <!-- Group Card -->
-          <div class="ui-group-card">
-            <div class="ui-group-tags">
-              <span class="ui-chip purple">Ingliz tili</span>
-              <span class="ui-chip muted"><i data-lucide="users"></i>14 ta</span>
+          <!-- Authentic M3 Group Card (TeacherGroups.jsx) -->
+          <div class="m3-card ui-group-card">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="ui-chip purple chip-active">Ingliz tili</span>
+              <span class="ui-chip muted chip">
+                <i data-lucide="users"></i>
+                <span>14 ta</span>
+              </span>
             </div>
-            <h3>IELTS Morning A1</h3>
-            <div class="ui-group-foot">
-              <span><i data-lucide="calendar"></i>Du, 09:00</span>
-              <span class="ui-pct">85%</span>
+            <h3 class="m3-title-lg mb-3">IELTS Morning A1</h3>
+            <div class="flex gap-3">
+              <div class="flex-1 flex items-center gap-3 bg-surface-high rounded-2xl p-3">
+                <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <i data-lucide="calendar-days" class="text-primary"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-on-surface-variant text-[10px] font-medium">Keyingi dars</p>
+                  <p class="font-semibold text-xs text-on-surface truncate">Du, 09:00</p>
+                </div>
+              </div>
+              <div class="flex flex-col items-center justify-center gap-1 bg-surface-high rounded-2xl px-4 py-3 shrink-0">
+                <span class="ui-pct font-serif font-bold text-lg text-paid-green leading-none">85%</span>
+                <span class="text-[9px] text-on-surface-variant font-medium">To'lov</span>
+              </div>
             </div>
           </div>
-          <!-- Invite Link -->
-          <div class="ui-invite">
-            <div class="ui-invite-url"><i data-lucide="link"></i><span>t.me/tut0rspacebot?start=inv_a1</span></div>
-            <button class="ui-btn-sm">Nusxalash</button>
+
+          <!-- Compact Invitation Link Card (GroupDetail.jsx:981) -->
+          <div class="m3-card ui-invite ui-invite-card bg-gradient-to-br from-[#8b5cf6]/15 via-surface-container to-surface-container border border-[#8b5cf6]/30 p-3.5 flex items-center justify-between gap-3 shadow-sm">
+            <div class="flex items-center gap-3 overflow-hidden min-w-0">
+              <div class="w-10 h-10 rounded-2xl bg-[#8b5cf6]/20 text-primary flex items-center justify-center shrink-0">
+                <i data-lucide="link-2" class="text-primary"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-on-surface truncate">Taklif havolasi</p>
+                <p class="ui-invite-url text-[11px] text-on-surface-variant font-mono truncate select-all mt-0.5">
+                  t.me/TutorSpace_bot?start=inv_a1
+                </p>
+              </div>
+            </div>
+            <button class="ui-btn-copy px-3.5 py-2 bg-[#8b5cf6] text-white text-xs font-bold rounded-xl shrink-0 flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="copy"></i>
+              <span>Ulashish</span>
+            </button>
           </div>
-          <!-- Joined Toast -->
+
+          <!-- Student Joined Toast Notification -->
           <div class="ui-toast green">
             <div class="ui-toast-dot"></div>
-            <div>
+            <div class="min-w-0 flex-1">
               <b>Jasur Aliyev qo'shildi!</b>
-              <span>@jasur_a · IELTS A1</span>
+              <span>@jasur_a · IELTS Morning A1</span>
             </div>
+            <span class="ui-toast-badge">Hozir</span>
           </div>
         </div>
       </div>
@@ -116,30 +165,99 @@
       </div>
       <div class="feat-ui">
         <div class="app-screen">
-          <button class="ui-mark-all"><i data-lucide="check-circle-2"></i>Hammani bor deb belgilash</button>
-          <!-- Attendance Rows -->
-          <div class="ui-att-row">
-            <div class="ui-ava">SK</div>
-            <span class="ui-att-name">Sardor Karimov</span>
-            <div class="ui-toggle on"><i data-lucide="check-circle"></i></div>
+          <!-- 7-Day Strip (GroupDetail.jsx:1031) -->
+          <div class="ui-week-strip flex items-center justify-between gap-1 bg-surface-high/30 rounded-[20px] p-2">
+            <div class="day-pill flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 flex-1">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Du</span>
+              <span class="text-sm font-bold text-on-surface">8</span>
+              <span class="w-1.5 h-1.5 rounded-full mt-0.5 bg-primary"></span>
+            </div>
+            <div class="day-pill active flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 flex-1 bg-primary text-on-primary shadow-sm font-bold">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-primary/80">Se</span>
+              <span class="text-sm font-bold text-on-primary">9</span>
+              <span class="w-1.5 h-1.5 rounded-full mt-0.5 bg-on-primary"></span>
+            </div>
+            <div class="day-pill flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 flex-1">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Ch</span>
+              <span class="text-sm font-bold text-on-surface">10</span>
+              <span class="w-1.5 h-1.5 mt-0.5"></span>
+            </div>
+            <div class="day-pill flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 flex-1">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Pa</span>
+              <span class="text-sm font-bold text-on-surface">11</span>
+              <span class="w-1.5 h-1.5 rounded-full mt-0.5 bg-primary"></span>
+            </div>
+            <div class="day-pill flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 flex-1">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Ju</span>
+              <span class="text-sm font-bold text-on-surface">12</span>
+              <span class="w-1.5 h-1.5 mt-0.5"></span>
+            </div>
+            <div class="day-pill flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 flex-1">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Sh</span>
+              <span class="text-sm font-bold text-on-surface">13</span>
+              <span class="w-1.5 h-1.5 rounded-full mt-0.5 bg-primary"></span>
+            </div>
+            <div class="day-pill flex flex-col items-center justify-center gap-0.5 rounded-[16px] py-1.5 flex-1">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Ya</span>
+              <span class="text-sm font-bold text-on-surface">14</span>
+              <span class="w-1.5 h-1.5 mt-0.5"></span>
+            </div>
           </div>
-          <div class="ui-att-row absent">
-            <div class="ui-ava red">MT</div>
-            <span class="ui-att-name">Malika Toshmatova</span>
-            <div class="ui-toggle off"><i data-lucide="circle"></i></div>
+
+          <!-- Tonal Purple Mark All Button (GroupDetail.jsx:1124) -->
+          <button class="ui-mark-all w-full py-2.5 px-4 bg-[#8b5cf6]/10 text-primary rounded-2xl text-xs font-bold border border-[#8b5cf6]/30 flex items-center justify-center gap-2 shadow-sm">
+            <i data-lucide="check-circle-2"></i>
+            <span>Hammani bor deb belgilash</span>
+          </button>
+
+          <!-- Attendance Rows with CheckCircle / Circle Toggles -->
+          <div class="ui-att-list space-y-0">
+            <div class="ui-att-row flex items-center gap-3 py-2">
+              <div class="ui-ava">SK</div>
+              <div class="flex-1 min-w-0 pr-1">
+                <p class="font-semibold text-on-surface text-sm truncate">Sardor Karimov</p>
+                <p class="text-on-surface-variant text-[10px] truncate mt-0.5">@sardor_k</p>
+              </div>
+              <div class="ui-toggle on">
+                <i data-lucide="check-circle"></i>
+              </div>
+            </div>
+            <hr class="w-full h-px bg-outline-variant/20 border-0" />
+
+            <div class="ui-att-row absent flex items-center gap-3 py-2">
+              <div class="ui-ava red">MT</div>
+              <div class="flex-1 min-w-0 pr-1">
+                <p class="font-semibold text-on-surface text-sm truncate">Malika Toshmatova</p>
+                <p class="text-debt-red text-[10px] font-semibold truncate mt-0.5">Kelmadi • Ota-onaga yuborildi</p>
+              </div>
+              <div class="ui-toggle off">
+                <i data-lucide="circle"></i>
+              </div>
+            </div>
+            <hr class="w-full h-px bg-outline-variant/20 border-0" />
+
+            <div class="ui-att-row flex items-center gap-3 py-2">
+              <div class="ui-ava teal">JA</div>
+              <div class="flex-1 min-w-0 pr-1">
+                <p class="font-semibold text-on-surface text-sm truncate">Jasur Aliyev</p>
+                <p class="text-on-surface-variant text-[10px] truncate mt-0.5">@jasur_a</p>
+              </div>
+              <div class="ui-toggle on">
+                <i data-lucide="check-circle"></i>
+              </div>
+            </div>
           </div>
-          <div class="ui-att-row">
-            <div class="ui-ava">JA</div>
-            <span class="ui-att-name">Jasur Aliyev</span>
-            <div class="ui-toggle on"><i data-lucide="check-circle"></i></div>
-          </div>
-          <!-- Parent Alert -->
+
+          <!-- Parent Alert Toast -->
           <div class="ui-toast red">
-            <i data-lucide="bell-ring"></i>
-            <div>
-              <b>Ota-onaga SMS ketdi</b>
+            <div class="w-9 h-9 rounded-xl bg-debt-red/10 flex items-center justify-center shrink-0">
+              <i data-lucide="bell-ring" class="text-debt-red"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <b>Ota-onaga Telegram SMS ketdi</b>
               <span>"Malika bugun darsga kelmadi"</span>
             </div>
+            <i data-lucide="send" class="text-debt-red w-4 h-4 shrink-0"></i>
           </div>
         </div>
       </div>
@@ -157,33 +275,63 @@
       </div>
       <div class="feat-ui">
         <div class="app-screen">
-          <!-- Finance Stats -->
-          <div class="ui-fin-grid">
-            <div class="ui-fin-card green">
-              <span class="ui-fin-label">TUSHUM</span>
-              <span class="ui-fin-val">5 850 000</span>
-              <span class="ui-fin-cur">UZS</span>
+          <!-- 2-Column Summary Cards (TeacherFinance.jsx:291) -->
+          <div class="ui-fin-grid grid grid-cols-2 gap-3">
+            <div class="m3-card ui-fin-card green p-3.5 flex flex-col justify-between h-24 bg-surface-container">
+              <p class="ui-fin-label text-[10px] uppercase font-semibold text-on-surface-variant tracking-wider">TUSHUM</p>
+              <p class="text-xl font-extrabold text-paid-green"><span class="ui-fin-val">5 850 000</span> <span class="ui-fin-cur text-xs font-semibold text-on-surface-variant">UZS</span></p>
             </div>
-            <div class="ui-fin-card red">
-              <span class="ui-fin-label">QARZDORLIK</span>
-              <span class="ui-fin-val">450 000</span>
-              <span class="ui-fin-cur">UZS · 2 ta</span>
+            <div class="m3-card ui-fin-card red p-3.5 flex flex-col justify-between h-24 bg-surface-container">
+              <p class="ui-fin-label text-[10px] uppercase font-semibold text-on-surface-variant tracking-wider">QARZDORLIK</p>
+              <p class="text-xl font-extrabold text-debt-red"><span class="ui-fin-val">450 000</span> <span class="ui-fin-cur text-xs font-semibold text-debt-red">UZS · 2 ta</span></p>
             </div>
           </div>
-          <!-- Remind CTA -->
-          <button class="ui-btn-remind"><i data-lucide="bell"></i>Qarzdorlarga eslatish (2)</button>
-          <!-- Payment Row -->
-          <div class="ui-pay-row paid">
-            <div class="ui-pay-bar green"></div>
-            <div class="ui-ava">SK</div>
-            <div class="ui-pay-info"><b>Sardor Karimov</b><span>IELTS A1 · 450 000 UZS</span></div>
-            <span class="ui-pay-badge green">To'langan</span>
-          </div>
-          <div class="ui-pay-row unpaid">
-            <div class="ui-pay-bar red"></div>
-            <div class="ui-ava red">FN</div>
-            <div class="ui-pay-info"><b>Farhod Normatov</b><span>IELTS A1 · 450 000 UZS</span></div>
-            <span class="ui-pay-badge red">To'lanmagan</span>
+
+          <!-- Remind CTA Button (TeacherFinance.jsx:306) -->
+          <button class="ui-btn-remind w-full h-11 rounded-2xl bg-primary text-on-primary font-bold text-sm flex items-center justify-center gap-2 shadow-xs">
+            <i data-lucide="bell"></i>
+            <span>Qarzdorlarga eslatish (2)</span>
+          </button>
+
+          <!-- Payment Rows with 4px colored border-l and status badges -->
+          <div class="space-y-2.5">
+            <div class="m3-card p-3.5 border-l-[4px] border-l-paid-green bg-surface-container ui-pay-row paid relative">
+              <div class="ui-pay-bar green"></div>
+              <div class="flex items-center gap-3 w-full">
+                <div class="ui-ava">SK</div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-on-surface text-sm truncate">Sardor Karimov</p>
+                  <p class="text-on-surface-variant text-xs truncate flex items-center gap-1 mt-0.5">
+                    <i data-lucide="users"></i>
+                    <span>IELTS Morning A1</span>
+                  </p>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="font-extrabold text-on-surface text-sm">450 000 UZS</p>
+                  <span class="ui-pay-badge green badge-paid text-[10px] font-bold">✓ To'langan</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="m3-card p-3.5 border-l-[4px] border-l-debt-red bg-surface-container ui-pay-row unpaid relative">
+              <div class="ui-pay-bar red"></div>
+              <div class="flex items-center gap-3 w-full">
+                <div class="ui-ava red">FN</div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-on-surface text-sm truncate">Farhod Normatov</p>
+                  <p class="text-on-surface-variant text-xs truncate flex items-center gap-1 mt-0.5">
+                    <i data-lucide="users"></i>
+                    <span>IELTS Morning A1</span>
+                  </p>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="font-extrabold text-debt-red text-sm">450 000 UZS</p>
+                  <span class="ui-pay-badge red badge-unpaid text-[10px] font-bold flex items-center gap-0.5">
+                    <i data-lucide="x-circle"></i> To'lanmagan
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -201,29 +349,78 @@
       </div>
       <div class="feat-ui">
         <div class="app-screen">
-          <!-- Child Profile -->
-          <div class="ui-child-row">
-            <div class="ui-ava lg">JA</div>
-            <div class="ui-child-info">
-              <span class="ui-child-sub">Farzand:</span>
-              <b>Jasur Aliyev</b>
+          <!-- Child Profile Banner (ParentDashboard.jsx:215) -->
+          <div class="flex items-center justify-between bg-surface-high/20 rounded-[24px] p-3.5 border border-[#8b5cf6]/25 ui-child-row">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="ui-ava lg teal">JA</div>
+              <div class="min-w-0">
+                <span class="text-[10px] text-on-surface-variant font-medium">Farzand:</span>
+                <p class="font-bold text-on-surface text-base truncate">Jasur Aliyev</p>
+              </div>
             </div>
-            <span class="ui-status-pill">Faol</span>
+            <span class="ui-status-pill font-bold">Faol</span>
           </div>
-          <!-- 3 Metrics -->
-          <div class="ui-metrics-3">
-            <div class="ui-m-box"><span class="ui-m-val green">96%</span><span>Davomat</span></div>
-            <div class="ui-m-box"><span class="ui-m-val purple">5/5</span><span>Vazifalar</span></div>
-            <div class="ui-m-box"><span class="ui-m-val green">To'langan</span><span>Sentyabr</span></div>
-          </div>
-          <!-- Lesson Note -->
-          <div class="ui-note-card">
-            <div class="ui-note-top">
-              <span>Oxirgi dars · Bugun</span>
-              <span class="ui-note-grade">⭐ 5/5</span>
+
+          <!-- Next Lesson Hero Card (ParentDashboard.jsx:254) -->
+          <div class="m3-card !p-4 bg-gradient-to-br from-[#8b5cf6]/20 via-surface-container to-surface-container border border-[#8b5cf6]/35 shadow-sm">
+            <div class="mb-2.5 flex items-center justify-between">
+              <span class="rounded-full bg-primary/20 text-primary px-3 py-1 text-[11px] font-bold tracking-wider uppercase border border-[#8b5cf6]/35 flex items-center gap-1.5">
+                <i data-lucide="sparkles"></i>
+                <span>KEYINGI DARS</span>
+              </span>
+              <span class="rounded-full bg-surface-high px-2.5 py-0.5 text-xs font-semibold text-on-surface flex items-center gap-1">
+                <i data-lucide="clock"></i>
+                <span>14:00</span>
+              </span>
             </div>
-            <h4>Writing Task 2: Essay</h4>
-            <p class="ui-note-comment"><i data-lucide="message-square"></i>"Juda faol qatnashdi, vazifani a'lo bajardi 👏"</p>
+            <h2 class="mb-2 truncate text-lg font-extrabold leading-tight text-on-surface">
+              IELTS Intensive (A1)
+            </h2>
+            <div class="flex items-center justify-between pt-2 border-t border-[#8b5cf6]/20">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-7 h-7 rounded-full bg-brand/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                  SD
+                </div>
+                <div class="min-w-0">
+                  <p class="truncate text-xs font-semibold text-on-surface">Sunnatjon Dev</p>
+                  <p class="text-[9px] text-on-surface-variant">O'qituvchi</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 text-primary text-xs font-bold shrink-0">
+                <span>Darslar</span>
+                <i data-lucide="chevron-right"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3-Column Metrics Grid (ParentDashboard.jsx:305) -->
+          <div class="ui-metrics-3 grid grid-cols-3 gap-2.5">
+            <div class="m3-card !border-[#8b5cf6]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center ui-m-box">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">Davomat</span>
+              <span class="text-xl font-extrabold mt-1 text-paid-green ui-m-val green">96%</span>
+              <span class="text-[9px] text-on-surface-variant/70 mt-0.5">davomat</span>
+            </div>
+            <div class="m3-card !border-[#8b5cf6]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center ui-m-box">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">Vazifalar</span>
+              <span class="text-xl font-extrabold text-on-surface mt-1 ui-m-val purple">5/5</span>
+              <span class="text-[9px] mt-0.5 font-semibold text-on-surface-variant/70">bajarildi</span>
+            </div>
+            <div class="m3-card !border-[#8b5cf6]/25 flex flex-col items-center justify-center px-1.5 py-3 text-center ui-m-box">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">Balans</span>
+              <span class="text-sm font-extrabold mt-1 text-paid-green ui-m-val green">0 UZS</span>
+              <span class="text-[9px] text-primary font-semibold mt-0.5 flex items-center gap-0.5">
+                <span>To'langan</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Lesson Review Card with Star Rating & Feedback (ui-note-card) -->
+          <div class="m3-card ui-note-card !p-3.5 border border-[#8b5cf6]/25 bg-surface-container">
+            <div class="flex items-center justify-between mb-1">
+              <h4 class="text-xs font-bold text-on-surface">Writing Task 2: Essay</h4>
+              <span class="ui-note-grade text-[11px] font-bold text-amber-500">⭐ 5/5</span>
+            </div>
+            <p class="ui-note-comment text-[11px] text-on-surface-variant italic">"Mavzu a'lo darajada yoritilgan, so'z boyligi boy."</p>
           </div>
         </div>
       </div>
@@ -241,40 +438,111 @@
       </div>
       <div class="feat-ui">
         <div class="app-screen">
-          <!-- Day Strip -->
-          <div class="ui-days">
-            <span>Du<b>8</b></span>
-            <span class="active">Se<b>9</b></span>
-            <span>Ch<b>10</b></span>
-            <span>Pa<b>11</b></span>
-            <span>Ju<b>12</b></span>
+          <!-- 7-Day Strip Pills (TeacherSchedule.jsx:460) -->
+          <div class="ui-days flex gap-1.5 justify-center">
+            <span class="day-pill flex flex-col items-center gap-1 py-2 px-3 rounded-2xl border border-[#8b5cf6]/20 bg-surface-high/30">
+              <small class="text-[10px] font-semibold text-on-surface-variant uppercase">Du</small>
+              <b class="text-sm font-bold text-on-surface">8</b>
+              <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+            </span>
+            <span class="day-pill active flex flex-col items-center gap-1 py-2 px-3 rounded-2xl bg-primary text-on-primary shadow-sm font-bold">
+              <small class="text-[10px] font-bold text-on-primary/80 uppercase">Se</small>
+              <b class="text-sm font-black text-on-primary">9</b>
+              <div class="w-1.5 h-1.5 rounded-full bg-on-primary"></div>
+            </span>
+            <span class="day-pill flex flex-col items-center gap-1 py-2 px-3 rounded-2xl border border-[#8b5cf6]/20 bg-surface-high/30">
+              <small class="text-[10px] font-semibold text-on-surface-variant uppercase">Ch</small>
+              <b class="text-sm font-bold text-on-surface">10</b>
+              <div class="w-1.5 h-1.5"></div>
+            </span>
+            <span class="day-pill flex flex-col items-center gap-1 py-2 px-3 rounded-2xl border border-[#8b5cf6]/20 bg-surface-high/30">
+              <small class="text-[10px] font-semibold text-on-surface-variant uppercase">Pa</small>
+              <b class="text-sm font-bold text-on-surface">11</b>
+              <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+            </span>
+            <span class="day-pill flex flex-col items-center gap-1 py-2 px-3 rounded-2xl border border-[#8b5cf6]/20 bg-surface-high/30">
+              <small class="text-[10px] font-semibold text-on-surface-variant uppercase">Ju</small>
+              <b class="text-sm font-bold text-on-surface">12</b>
+              <div class="w-1.5 h-1.5"></div>
+            </span>
+            <span class="day-pill flex flex-col items-center gap-1 py-2 px-3 rounded-2xl border border-[#8b5cf6]/20 bg-surface-high/30">
+              <small class="text-[10px] font-semibold text-on-surface-variant uppercase">Sh</small>
+              <b class="text-sm font-bold text-on-surface">13</b>
+              <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+            </span>
+            <span class="day-pill flex flex-col items-center gap-1 py-2 px-3 rounded-2xl border border-[#8b5cf6]/20 bg-surface-high/30">
+              <small class="text-[10px] font-semibold text-on-surface-variant uppercase">Ya</small>
+              <b class="text-sm font-bold text-on-surface">14</b>
+              <div class="w-1.5 h-1.5"></div>
+            </span>
           </div>
-          <!-- Lesson Cards -->
-          <div class="ui-lesson now">
-            <div class="ui-lesson-bar purple"></div>
-            <div class="ui-lesson-body">
-              <div class="ui-lesson-time"><div class="ui-ping"></div>14:00 – 15:30</div>
-              <h4>IELTS Intensive (A1)</h4>
-              <span>4-xona · 14 ta o'quvchi</span>
+
+          <!-- Live In-Progress Schedule Card with 5px colored border (TeacherSchedule.jsx:525) -->
+          <div class="ui-lesson now m3-card !p-3.5 border border-paid-green/30 bg-surface-container relative" style="border-left: 5px solid #a855f7; box-shadow: 0 0 0 1px rgba(74,222,128,0.18);">
+            <div class="mb-1.5 flex items-start justify-between">
+              <span class="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-paid-green/15 text-paid-green">
+                Ingliz tili
+              </span>
+              <span class="flex items-center gap-1.5 text-[10px] font-bold text-paid-green">
+                <span class="flex h-2 w-2 relative">
+                  <span class="ui-ping animate-ping absolute inline-flex h-full w-full rounded-full bg-paid-green opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-paid-green"></span>
+                </span>
+                <span>Dars o'tilmoqda...</span>
+              </span>
+            </div>
+            <h4 class="text-base font-bold text-on-surface mb-1">IELTS Intensive (A1)</h4>
+            <div class="flex items-center justify-between text-xs text-on-surface-variant">
+              <span class="ui-lesson-time flex items-center gap-1.5">
+                <i data-lucide="clock"></i>
+                14:00 – 15:30
+              </span>
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="users"></i>
+                14 ta o'quvchi
+              </span>
             </div>
           </div>
-          <div class="ui-lesson">
-            <div class="ui-lesson-bar blue"></div>
-            <div class="ui-lesson-body">
-              <div class="ui-lesson-time dim">16:00 – 17:30</div>
-              <h4>General English (B2)</h4>
-              <span>2-xona · 10 ta o'quvchi</span>
+
+          <!-- Second Schedule Card (Upcoming) -->
+          <div class="ui-lesson m3-card !p-3.5 border border-brand/30 bg-surface-container relative" style="border-left: 5px solid #3b82f6;">
+            <div class="mb-1.5 flex items-start justify-between">
+              <span class="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-brand/20 text-primary">
+                General English
+              </span>
+              <span class="text-[10px] font-semibold text-on-surface-variant">
+                Kutilmoqda
+              </span>
+            </div>
+            <h4 class="text-base font-bold text-on-surface mb-1">General English (B2)</h4>
+            <div class="flex items-center justify-between text-xs text-on-surface-variant">
+              <span class="ui-lesson-time flex items-center gap-1.5">
+                <i data-lucide="clock"></i>
+                16:00 – 17:30
+              </span>
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="users"></i>
+                10 ta o'quvchi
+              </span>
             </div>
           </div>
-          <!-- Homework -->
-          <div class="ui-hw">
-            <div class="ui-hw-head">
-              <span class="ui-hw-tag">VAZIFA</span>
-              <span class="ui-hw-due">18:00 gacha</span>
+
+          <!-- Homework Card with Progress Bar (StudentDashboard.jsx & index.css:365) -->
+          <div class="ui-hw m3-card !p-3.5 border border-[#8b5cf6]/25 bg-surface-container">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[11px] font-extrabold text-primary tracking-wider uppercase">VAZIFA</span>
+              <span class="text-[11px] font-bold text-debt-red flex items-center gap-1">
+                <i data-lucide="clock"></i> 18:00 gacha
+              </span>
             </div>
-            <h4>Writing Task 2</h4>
-            <div class="ui-hw-bar"><div class="ui-hw-fill"></div></div>
-            <span class="ui-hw-stat">Topshirdi: 12 / 14</span>
+            <h4 class="text-sm font-bold text-on-surface mb-2">Writing Task 2: Essay</h4>
+            <div class="progress-bar w-full h-2 rounded-full bg-surface-highest overflow-hidden mb-1.5">
+              <div class="ui-hw-fill progress-fill h-full bg-primary transition-all duration-500 ease-out" style="width: 85%;"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] font-medium text-on-surface-variant">
+              <span class="ui-hw-stat">Topshirdi: 12 / 14</span>
+              <span class="text-paid-green font-bold">85%</span>
+            </div>
           </div>
         </div>
       </div>
@@ -284,28 +552,35 @@
   <!-- ===== S10 : OUTRO  28.2 — 32.0s ===== -->
   <div class="sc" id="s10">
     <div class="intro outro" id="outro">
-      <img src="assets/logo.jpg" alt="" class="intro-logo">
-      <div class="intro-glow"></div>
+      <div class="intro-logo-wrap">
+        <div class="intro-glow"></div>
+        <img src="assets/logo.jpg" alt="TutorSpace Logo" class="intro-logo">
+      </div>
       <h1 class="intro-name" style="font-size:58px">Bugunoq boshlang!</h1>
       <p class="intro-tag">O'quv jarayoningizni avtomatlashtiring —<br>birinchi 30 kun bepul.</p>
       <div class="cta-box">
         <i data-lucide="message-square-plus"></i>
         <span>Izohlarda <b>«+»</b> qoldiring</span>
       </div>
-      <div class="cta-handle"><i data-lucide="bot"></i>@TutorSpace_bot</div>
+      <div class="cta-handle">
+        <i data-lucide="bot"></i>
+        <span>@TutorSpace_bot</span>
+      </div>
     </div>
   </div>
 
 </div>
 </div>
 
-<!-- OBS Controls -->
+<!-- OBS Controls Overlay -->
 <div class="obs" id="obs">
   <button id="btnR"><i data-lucide="rotate-ccw" style="width:16px;height:16px"></i> Restart</button>
   <span id="tc">0.0 / 32.0</span>
   <span class="obs-hint">[H] yashirish · [Space] restart</span>
 </div>
 
+<!-- Scripts -->
+<script src="js/audio.js"></script>
 <script src="js/motion.js"></script>
 </body>
 </html>
