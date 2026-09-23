@@ -14,10 +14,12 @@
   // --- Internal Audio State ---
   let audioCtx = null;
   let bgmAudio = null;
+  let voiceAudio = null;
   let isMuted = false;
   let masterVolume = 0.85;
-  let bgmVolume = 0.70;
-  let sfxVolume = 0.80;
+  let bgmVolume = 0.28; // Lowered background music so voiceover is crisp
+  let voiceVolume = 1.0; // Voiceover prominent
+  let sfxVolume = 0.70;
   let shouldBePlaying = false;
   let isAutoplayBlocked = false;
   let unlockListenersAttached = false;
@@ -52,6 +54,9 @@
       }
       if (shouldBePlaying && bgmAudio) {
         bgmAudio.play().catch(() => {});
+      }
+      if (shouldBePlaying && voiceAudio) {
+        voiceAudio.play().catch(() => {});
       }
       isAutoplayBlocked = false;
       unlockEvents.forEach((evt) => {
@@ -293,6 +298,23 @@
     if (!bgmAudio.src || bgmAudio.src.endsWith('/index.html') || bgmAudio.src === location.href) {
       bgmAudio.src = 'assets/bg-music.mp3';
     }
+
+    initVoicePlayer();
+  }
+
+  // --- Initialize Voiceover Player ---
+  function initVoicePlayer() {
+    if (voiceAudio) return;
+    voiceAudio = document.getElementById('voiceOver');
+    if (!voiceAudio) {
+      voiceAudio = new Audio();
+      voiceAudio.id = 'voiceOver';
+    }
+    voiceAudio.preload = 'auto';
+    voiceAudio.volume = isMuted ? 0 : masterVolume * voiceVolume;
+    if (!voiceAudio.src || voiceAudio.src.endsWith('/index.html') || voiceAudio.src === location.href) {
+      voiceAudio.src = 'assets/voiceover.wav';
+    }
   }
 
   // --- Procedural SFX Generators ---
@@ -446,6 +468,7 @@
         ctx.resume().catch(() => {});
       }
       if (!bgmAudio) initBgmPlayer();
+      if (!voiceAudio) initVoicePlayer();
 
       const playPromise = bgmAudio.play();
       if (playPromise !== undefined) {
@@ -455,23 +478,33 @@
           setupAutoplayUnlock();
         });
       }
+
+      if (voiceAudio) {
+        voiceAudio.play().catch(() => {});
+      }
     },
 
     /**
-     * Pause background music
+     * Pause background music and voiceover
      */
     pauseBGM() {
       shouldBePlaying = false;
       if (bgmAudio) bgmAudio.pause();
+      if (voiceAudio) voiceAudio.pause();
     },
 
     /**
-     * Rewind background music to start and play
+     * Rewind background music and voiceover to start and play
      */
     restartBGM() {
       if (bgmAudio) {
         try {
           bgmAudio.currentTime = 0;
+        } catch (_) {}
+      }
+      if (voiceAudio) {
+        try {
+          voiceAudio.currentTime = 0;
         } catch (_) {}
       }
       this.playBGM();
@@ -541,10 +574,15 @@
     setMasterVolume(val) {
       masterVolume = Math.max(0, Math.min(1, val));
       if (bgmAudio) bgmAudio.volume = isMuted ? 0 : masterVolume * bgmVolume;
+      if (voiceAudio) voiceAudio.volume = isMuted ? 0 : masterVolume * voiceVolume;
     },
     setBgmVolume(val) {
       bgmVolume = Math.max(0, Math.min(1, val));
       if (bgmAudio) bgmAudio.volume = isMuted ? 0 : masterVolume * bgmVolume;
+    },
+    setVoiceVolume(val) {
+      voiceVolume = Math.max(0, Math.min(1, val));
+      if (voiceAudio) voiceAudio.volume = isMuted ? 0 : masterVolume * voiceVolume;
     },
     setSfxVolume(val) {
       sfxVolume = Math.max(0, Math.min(1, val));
@@ -556,10 +594,12 @@
     mute() {
       isMuted = true;
       if (bgmAudio) bgmAudio.volume = 0;
+      if (voiceAudio) voiceAudio.volume = 0;
     },
     unmute() {
       isMuted = false;
       if (bgmAudio) bgmAudio.volume = masterVolume * bgmVolume;
+      if (voiceAudio) voiceAudio.volume = masterVolume * voiceVolume;
     },
     toggleMute() {
       if (isMuted) this.unmute();
