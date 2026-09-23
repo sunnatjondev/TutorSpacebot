@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const API_KEY = process.env.GEMINI_API_KEY || '';
-const MODEL = 'gemini-2.5-flash-preview-tts';
+const MODEL = 'gemini-3.8-flash-tts';
 const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
 const SCENES = [
