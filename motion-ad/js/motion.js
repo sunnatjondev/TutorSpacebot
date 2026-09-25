@@ -322,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const c = Math.max(0, Math.min(tl.time(), 32)).toFixed(1);
       tc.textContent = `${c} / 32.0`;
     }
+    window.TutorSpaceAudio?.syncToTime?.(tl.time());
     requestAnimationFrame(tick);
   })();
 
@@ -347,5 +348,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.code === 'KeyH' && obs) {
       obs.classList.toggle('hidden');
     }
+    if (e.code === 'KeyM') {
+      window.TutorSpaceAudio?.toggleMute?.();
+    }
   });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && tl) {
+      window.TutorSpaceAudio?.syncToTime?.(tl.time(), true);
+    }
+  });
+
+  window._tutorSpaceMotionLoaded = true;
 });

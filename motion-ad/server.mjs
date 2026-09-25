@@ -166,6 +166,333 @@ function ensureBgmFile() {
 // Check and generate BGM asset on launch
 ensureBgmFile();
 
+// Automatic verification and synthesis of 32-second synchronized studio voiceover
+// Automatic verification and synthesis of 32-second synchronized studio voiceover
+function ensureVoiceoverFile() {
+  const assetsDir = path.join(__dirname, 'assets');
+  if (!fs.existsSync(assetsDir)) {
+    fs.mkdirSync(assetsDir, { recursive: true });
+  }
+
+  const voiceFile = path.join(assetsDir, 'voiceover.wav');
+  try {
+    if (!fs.existsSync(voiceFile) || fs.statSync(voiceFile).size < 1000) {
+      return;
+    }
+
+    const existing = fs.readFileSync(voiceFile);
+    if (existing.length < 44 || existing.subarray(0, 4).toString('ascii') !== 'RIFF') return;
+
+    // Robust chunk-based WAV parser (handles arbitrary headers and metadata chunks)
+    let fmtChunk = null;
+    let dataOffset = 44;
+    let dataLength = existing.length - 44;
+    let parseOffset = 12;
+
+    while (parseOffset + 8 <= existing.length) {
+      const chunkId = existing.toString('ascii', parseOffset, parseOffset + 4);
+      const chunkSize = existing.readUInt32LE(parseOffset + 4);
+      if (chunkId === 'fmt ') {
+        fmtChunk = {
+          audioFormat: existing.readUInt16LE(parseOffset + 8),
+          numChannels: existing.readUInt16LE(parseOffset + 10),
+          sampleRate: existing.readUInt32LE(parseOffset + 12),
+          byteRate: existing.readUInt32LE(parseOffset + 16),
+          blockAlign: existing.readUInt16LE(parseOffset + 20),
+          bitsPerSample: existing.readUInt16LE(parseOffset + 22),
+        };
+      } else if (chunkId === 'data') {
+        dataOffset = parseOffset + 8;
+        dataLength = Math.min(chunkSize, existing.length - dataOffset);
+        break;
+      }
+      parseOffset += 8 + chunkSize + (chunkSize % 2);
+    }
+
+    const sampleRate = fmtChunk ? fmtChunk.sampleRate : 24000;
+    const numChannels = fmtChunk ? fmtChunk.numChannels : 1;
+    const bitsPerSample = fmtChunk ? fmtChunk.bitsPerSample : 16;
+    const bytesPerSample = (bitsPerSample / 8) * numChannels;
+    const duration = dataLength / (sampleRate * bytesPerSample);
+
+    // If already master-aligned to ~32.0s (+/- 0.5s), keep intact
+    if (Math.abs(duration - 32.0) < 0.5) {
+      console.log(`[Audio] Validated 32.0s voiceover track: ${voiceFile} (${(existing.length / 1024 / 1024).toFixed(2)} MB)`);
+      return;
+    }
+
+    console.log(`[Audio] Aligning raw voiceover recording (${duration.toFixed(1)}s) to 32.0s GSAP timeline slots...`);
+    const targetDuration = 32.0;
+    const totalSamples = Math.floor(targetDuration * sampleRate);
+    const masterPcm = Buffer.alloc(totalSamples * 2); // 16-bit mono target
+
+    // 10 Scene visual timeline slots matching GSAP 3 timeline:
+    const sceneSlots = [
+      { id: 's1', start: 0.0, maxDur: 2.8 },   // S1: Intro (0.0 — 3.2s)
+      { id: 's2', start: 3.2, maxDur: 2.2 },   // S2: Muammo 1 (3.2 — 5.6s)
+      { id: 's3', start: 5.6, maxDur: 2.2 },   // S3: Muammo 2 (5.6 — 8.0s)
+      { id: 's4', start: 8.0, maxDur: 2.0 },   // S4: Bridge (8.0 — 10.2s)
+      { id: 's5', start: 10.2, maxDur: 3.2 },  // S5: Guruhlar (10.2 — 13.8s)
+      { id: 's6', start: 13.8, maxDur: 3.2 },  // S6: Davomat (13.8 — 17.4s)
+      { id: 's7', start: 17.4, maxDur: 3.2 },  // S7: Moliya (17.4 — 21.0s)
+      { id: 's8', start: 21.0, maxDur: 3.2 },  // S8: Ota-ona (21.0 — 24.6s)
+      { id: 's9', start: 24.6, maxDur: 3.2 },  // S9: Jadval (24.6 — 28.2s)
+      { id: 's10', start: 28.2, maxDur: 3.4 }, // S10: Outro (28.2 — 32.0s)
+    ];
+
+    // Extract mono 16-bit source samples
+    const rawData = existing.subarray(dataOffset, dataOffset + dataLength);
+    const totalRawSamples = Math.floor(dataLength / bytesPerSample);
+    const srcSamples = new Int16Array(totalRawSamples);
+
+    for (let i = 0; i < totalRawSamples; i++) {
+      if (numChannels === 1) {
+        srcSamples[i] = rawData.readInt16LE(i * 2);
+      } else {
+        // Average stereo to mono
+        const l = rawData.readInt16LE(i * 4);
+        const r = rawData.readInt16LE(i * 4 + 2);
+        srcSamples[i] = Math.round((l + r) / 2);
+      }
+    }
+
+    // Short-time energy calculation in 10ms windows for speech activity detection
+    const frameSize = Math.floor(sampleRate * 0.010); // 10ms frame
+    const numFrames = Math.floor(totalRawSamples / frameSize);
+    const energies = new Float32Array(numFrames);
+
+    for (let f = 0; f < numFrames; f++) {
+      let sum = 0;
+      const base = f * frameSize;
+      for (let i = 0; i < frameSize; i++) {
+        const val = Math.abs(srcSamples[base + i]);
+        sum += val;
+      }
+      energies[f] = sum / frameSize;
+    }
+
+    // Adaptive speech threshold
+    const sorted = energies.slice().sort();
+    const noiseFloor = sorted[Math.floor(sorted.length * 0.15)] || 50;
+    const speechThreshold = Math.max(300, noiseFloor * 2.8);
+
+    // Group frames into speech blocks separated by >= 350ms of silence
+    const rawSegments = [];
+    let inSpeech = false;
+    let segStartFrame = 0;
+    const minSilenceFrames = Math.floor(0.35 / 0.010); // 350ms
+
+    for (let f = 0; f < numFrames; f++) {
+      const active = energies[f] > speechThreshold;
+      if (!inSpeech && active) {
+        inSpeech = true;
+        segStartFrame = Math.max(0, f - 2); // 20ms lead-in
+      } else if (inSpeech && !active) {
+        let silentUntil = f;
+        while (silentUntil < numFrames && energies[silentUntil] <= speechThreshold) {
+          silentUntil++;
+        }
+        if (silentUntil - f >= minSilenceFrames || silentUntil >= numFrames) {
+          inSpeech = false;
+          const startSample = segStartFrame * frameSize;
+          const endSample = Math.min(totalRawSamples, (f + 2) * frameSize);
+          if (endSample - startSample > sampleRate * 0.3) {
+            rawSegments.push({ startSample, endSample });
+          }
+          f = silentUntil - 1;
+        }
+      }
+    }
+    if (inSpeech) {
+      rawSegments.push({
+        startSample: segStartFrame * frameSize,
+        endSample: totalRawSamples,
+      });
+    }
+
+    // Merge or split to achieve exactly 10 distinct scene segments
+    let segments = rawSegments.slice();
+
+    // If too many segments detected (e.g. from micro-pauses within a sentence), merge the closest pairs
+    while (segments.length > 10) {
+      let minGap = Infinity;
+      let minIdx = 0;
+      for (let i = 0; i < segments.length - 1; i++) {
+        const gap = segments[i + 1].startSample - segments[i].endSample;
+        if (gap < minGap) {
+          minGap = gap;
+          minIdx = i;
+        }
+      }
+      segments[minIdx].endSample = segments[minIdx + 1].endSample;
+      segments.splice(minIdx + 1, 1);
+    }
+
+    // If fewer than 10 segments (e.g. sentences merged), split longest segment at lowest energy valley
+    while (segments.length < 10) {
+      let maxLen = 0;
+      let maxIdx = 0;
+      for (let i = 0; i < segments.length; i++) {
+        const len = segments[i].endSample - segments[i].startSample;
+        if (len > maxLen) {
+          maxLen = len;
+          maxIdx = i;
+        }
+      }
+      const seg = segments[maxIdx];
+      const startF = Math.floor(seg.startSample / frameSize);
+      const endF = Math.floor(seg.endSample / frameSize);
+      const midStartF = startF + Math.floor((endF - startF) * 0.35);
+      const midEndF = startF + Math.floor((endF - startF) * 0.65);
+
+      let lowestE = Infinity;
+      let splitF = Math.floor((startF + endF) / 2);
+      for (let f = midStartF; f <= midEndF; f++) {
+        if (energies[f] < lowestE) {
+          lowestE = energies[f];
+          splitF = f;
+        }
+      }
+      const splitSample = Math.max(seg.startSample + frameSize * 4, Math.min(seg.endSample - frameSize * 4, splitF * frameSize));
+      const segA = { startSample: seg.startSample, endSample: splitSample };
+      const segB = { startSample: splitSample, endSample: seg.endSample };
+      segments.splice(maxIdx, 1, segA, segB);
+    }
+
+    // True SOLA (Synchronized Overlap-Add) time-scaling helper
+    // Uses normalized cross-correlation peak search to align pitch periods, preventing comb filtering or phase artifacts
+    function solaTimeScale(src, startS, endS, maxAllowedSamples, sRate) {
+      const inputLen = endS - startS;
+      if (inputLen <= maxAllowedSamples || maxAllowedSamples <= 0) {
+        return src.subarray(startS, Math.min(endS, startS + maxAllowedSamples));
+      }
+
+      const speedRatio = inputLen / maxAllowedSamples;
+      const winSize = Math.floor(sRate * 0.024); // 24ms window
+      const synthHop = Math.floor(winSize / 2);  // 12ms hop
+      const maxSearch = Math.floor(sRate * 0.014); // +/- 14ms pitch search window
+
+      if (winSize >= maxAllowedSamples || winSize >= inputLen) {
+        return src.subarray(startS, startS + maxAllowedSamples);
+      }
+
+      const out = new Int16Array(maxAllowedSamples);
+      let outPos = 0;
+
+      // Copy initial window
+      const initialCopy = Math.min(winSize, maxAllowedSamples, inputLen);
+      for (let i = 0; i < initialCopy; i++) {
+        out[i] = src[startS + i];
+      }
+      outPos += synthHop;
+
+      while (outPos + winSize <= maxAllowedSamples) {
+        const nominalIn = Math.floor(outPos * speedRatio);
+        let bestOffset = Math.max(0, Math.min(inputLen - winSize, nominalIn));
+        let bestCorr = -Infinity;
+
+        // Find pitch period alignment via cross-correlation
+        const searchMin = Math.max(0, nominalIn - maxSearch);
+        const searchMax = Math.max(0, Math.min(inputLen - winSize, nominalIn + maxSearch));
+
+        for (let candidate = searchMin; candidate <= searchMax; candidate += 2) {
+          let corr = 0;
+          for (let j = 0; j < synthHop; j += 4) {
+            corr += out[outPos - synthHop + j] * src[startS + candidate + j];
+          }
+          if (corr > bestCorr) {
+            bestCorr = corr;
+            bestOffset = candidate;
+          }
+        }
+
+        bestOffset = Math.max(0, Math.min(inputLen - winSize, bestOffset));
+
+        // Overlap-add with exact linear crossfade in hop region, direct copy in extension
+        for (let i = 0; i < synthHop && outPos + i < maxAllowedSamples; i++) {
+          const w = i / synthHop;
+          const prev = out[outPos + i];
+          const curr = src[startS + bestOffset + i];
+          out[outPos + i] = Math.round(prev * (1 - w) + curr * w);
+        }
+        for (let i = synthHop; i < winSize && outPos + i < maxAllowedSamples; i++) {
+          out[outPos + i] = src[startS + bestOffset + i];
+        }
+
+        outPos += synthHop;
+        if (bestOffset + winSize >= inputLen) break;
+      }
+
+      return out;
+    }
+
+    // Place each of the 10 phrases into its precise visual timeline slot
+    for (let s = 0; s < 10; s++) {
+      const slot = sceneSlots[s];
+      const seg = segments[s];
+      const maxSamples = Math.floor(slot.maxDur * sampleRate);
+      const destByteOffset = Math.floor(slot.start * sampleRate) * 2;
+
+      // Trim internal silence at head and tail of segment
+      let actStart = seg.startSample;
+      let actEnd = seg.endSample;
+      while (actStart < actEnd && Math.abs(srcSamples[actStart]) < speechThreshold * 0.4) actStart++;
+      while (actEnd > actStart && Math.abs(srcSamples[actEnd - 1]) < speechThreshold * 0.4) actEnd--;
+
+      const phraseSamples = solaTimeScale(srcSamples, actStart, actEnd, maxSamples, sampleRate);
+      const pLen = phraseSamples.length;
+
+      // Anti-click raised-cosine fade-in (15ms) and fade-out (25ms)
+      const fadeInSamples = Math.floor(0.015 * sampleRate);
+      const fadeOutSamples = Math.floor(0.025 * sampleRate);
+
+      for (let i = 0; i < pLen; i++) {
+        let sample = phraseSamples[i];
+        if (i < fadeInSamples) {
+          const w = 0.5 * (1 - Math.cos((Math.PI * i) / fadeInSamples));
+          sample = Math.round(sample * w);
+        }
+        if (i > pLen - fadeOutSamples) {
+          const rem = pLen - i;
+          const w = 0.5 * (1 - Math.cos((Math.PI * rem) / fadeOutSamples));
+          sample = Math.round(sample * w);
+        }
+
+        const outOffset = destByteOffset + i * 2;
+        if (outOffset + 1 < masterPcm.length) {
+          masterPcm.writeInt16LE(sample, outOffset);
+        }
+      }
+    }
+
+    // Standard 44-byte RIFF/WAVE header
+    const header = Buffer.alloc(44);
+    const byteRate = sampleRate * 2; // 16-bit mono
+    header.write('RIFF', 0);
+    header.writeUInt32LE(36 + masterPcm.length, 4);
+    header.write('WAVE', 8);
+    header.write('fmt ', 12);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20); // PCM
+    header.writeUInt16LE(1, 22); // Mono
+    header.writeUInt32LE(sampleRate, 24);
+    header.writeUInt32LE(byteRate, 28);
+    header.writeUInt16LE(2, 32);  // Block align
+    header.writeUInt16LE(16, 34); // Bits per sample
+    header.write('data', 36);
+    header.writeUInt32LE(masterPcm.length, 40);
+
+    const alignedWav = Buffer.concat([header, masterPcm]);
+    fs.writeFileSync(voiceFile, alignedWav);
+    console.log(`[Audio] Mastered 32.0s synchronized voiceover: ${voiceFile} (${(alignedWav.length / 1024 / 1024).toFixed(2)} MB)`);
+  } catch (err) {
+    console.warn('[Audio] Could not master voiceover file:', err.message);
+  }
+}
+
+// Check and align voiceover asset on launch
+ensureVoiceoverFile();
+
 const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0];
   let filePath = path.join(__dirname, reqPath === '/' ? 'index.html' : reqPath);

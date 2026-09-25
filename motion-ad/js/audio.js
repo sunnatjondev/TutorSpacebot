@@ -25,6 +25,86 @@
   let unlockListenersAttached = false;
   let isProceduralBgmActive = false;
 
+  // --- Audio Ducking & Speech Synchronization State (Requirement R3) ---
+  const DUCK_FACTOR_SPEECH = 0.22; // Background music drops to ~20-25% during speech
+  const DUCK_FACTOR_PAUSE = 1.00;  // Recovers to 100% during pauses
+  let currentDuck = 1.00;
+  let targetDuck = 1.00;
+  let duckAnimationId = null;
+  let lastRestartTime = 0;
+  let lastSyncTime = 0;
+  let lastMuteToggleTime = 0;
+
+  // Scene visual timing slots (GSAP 3 timeline aligned)
+  const SPEECH_WINDOWS = [
+    { id: 's1', start: 0.0, end: 2.8 },   // S1: Intro (0.0 — 3.2s)
+    { id: 's2', start: 3.2, end: 5.3 },   // S2: Muammo 1 (3.2 — 5.6s)
+    { id: 's3', start: 5.6, end: 7.7 },   // S3: Muammo 2 (5.6 — 8.0s)
+    { id: 's4', start: 8.0, end: 9.9 },   // S4: Bridge (8.0 — 10.2s)
+    { id: 's5', start: 10.2, end: 13.4 }, // S5: Guruhlar (10.2 — 13.8s)
+    { id: 's6', start: 13.8, end: 17.0 }, // S6: Davomat (13.8 — 17.4s)
+    { id: 's7', start: 17.4, end: 20.6 }, // S7: Moliya (17.4 — 21.0s)
+    { id: 's8', start: 21.0, end: 24.2 }, // S8: Ota-ona (21.0 — 24.6s)
+    { id: 's9', start: 24.6, end: 27.8 }, // S9: Jadval (24.6 — 28.2s)
+    { id: 's10', start: 28.2, end: 31.6 }, // S10: Outro (28.2 — 32.0s)
+  ];
+
+  function isVoiceSpeaking(time) {
+    let t = 0;
+    if (typeof time === 'number' && !isNaN(time)) {
+      t = time % 32.0;
+    } else if (bgmAudio && !bgmAudio.paused && !isNaN(bgmAudio.currentTime) && bgmAudio.currentTime > 0) {
+      t = bgmAudio.currentTime % 32.0;
+    } else if (voiceAudio && !voiceAudio.paused && !isNaN(voiceAudio.currentTime)) {
+      t = voiceAudio.currentTime % 32.0;
+    }
+    for (let i = 0; i < SPEECH_WINDOWS.length; i++) {
+      const w = SPEECH_WINDOWS[i];
+      if (t >= w.start && t <= w.end) return true;
+    }
+    return false;
+  }
+
+  function stopDuckingLoop() {
+    if (duckAnimationId) {
+      cancelAnimationFrame(duckAnimationId);
+      duckAnimationId = null;
+    }
+  }
+
+  function startDuckingLoop() {
+    if (duckAnimationId) return;
+
+    function tick() {
+      if (!shouldBePlaying) {
+        stopDuckingLoop();
+        return;
+      }
+      if (bgmAudio) {
+        const speaking = isVoiceSpeaking();
+        targetDuck = speaking ? DUCK_FACTOR_SPEECH : DUCK_FACTOR_PAUSE;
+
+        // Smooth attack / release ramp (~80ms) prevents any pops, clicks or clipping
+        currentDuck += (targetDuck - currentDuck) * 0.14;
+        currentDuck = Math.max(DUCK_FACTOR_SPEECH, Math.min(DUCK_FACTOR_PAUSE, currentDuck));
+
+        if (isMuted) {
+          bgmAudio.volume = 0;
+          if (voiceAudio) voiceAudio.volume = 0;
+        } else {
+          const effectiveBgm = masterVolume * bgmVolume * currentDuck;
+          bgmAudio.volume = Math.max(0, Math.min(1, effectiveBgm));
+          if (voiceAudio) {
+            voiceAudio.volume = Math.max(0, Math.min(1, masterVolume * voiceVolume));
+          }
+        }
+      }
+      duckAnimationId = requestAnimationFrame(tick);
+    }
+
+    duckAnimationId = requestAnimationFrame(tick);
+  }
+
   // --- Safe AudioContext Initializer ---
   function getAudioContext() {
     if (!audioCtx) {
@@ -311,10 +391,249 @@
       voiceAudio.id = 'voiceOver';
     }
     voiceAudio.preload = 'auto';
+    voiceAudio.loop = false; // Managed in lockstep with GSAP timeline and BGM
     voiceAudio.volume = isMuted ? 0 : masterVolume * voiceVolume;
     if (!voiceAudio.src || voiceAudio.src.endsWith('/index.html') || voiceAudio.src === location.href) {
       voiceAudio.src = 'assets/voiceover.wav';
     }
+
+    // Dynamic browser-side audio alignment fallback:
+    // If the voiceover asset is a raw unaligned multi-phrase recording (duration > 33s),
+    // align it into an exact 32.0s master buffer via OfflineAudioContext and WAV Blob.
+    let alignmentAttempted = false;
+    function checkAndAlignVoiceover() {
+      if (alignmentAttempted) return;
+      if (voiceAudio.duration && !isNaN(voiceAudio.duration) && voiceAudio.duration > 33.5) {
+        alignmentAttempted = true;
+        alignRawVoiceoverToTimeline();
+      }
+    }
+
+    voiceAudio.addEventListener('loadedmetadata', checkAndAlignVoiceover);
+    voiceAudio.addEventListener('canplay', checkAndAlignVoiceover);
+
+    voiceAudio.addEventListener('error', () => {
+      console.warn('[Audio] Voiceover audio file not found or failed to load. Running in BGM-only fallback mode.');
+    });
+  }
+
+  // Aligns raw voiceover recording to GSAP 3 timeline slots directly in browser Web Audio
+  function alignRawVoiceoverToTimeline() {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!AudioCtx || !OfflineCtx) return;
+
+    fetch(voiceAudio.src)
+      .then(res => res.arrayBuffer())
+      .then(buf => {
+        const tempCtx = new AudioCtx();
+        return tempCtx.decodeAudioData(buf);
+      })
+      .then(decoded => {
+        const sRate = decoded.sampleRate;
+        const totalDuration = 32.0;
+        const totalOutSamples = Math.floor(sRate * totalDuration);
+        const offline = new OfflineCtx(1, totalOutSamples, sRate);
+
+        const channelData = decoded.getChannelData(0);
+        const numSamples = decoded.length;
+
+        // Energy-based silence segmentation in 15ms windows
+        const wSize = Math.floor(sRate * 0.015);
+        const nWindows = Math.floor(numSamples / wSize);
+        const energies = new Float32Array(nWindows);
+        for (let w = 0; w < nWindows; w++) {
+          let sum = 0;
+          const off = w * wSize;
+          for (let i = 0; i < wSize; i++) sum += Math.abs(channelData[off + i]);
+          energies[w] = sum / wSize;
+        }
+
+        const sorted = energies.slice().sort();
+        const noiseFloor = sorted[Math.floor(sorted.length * 0.15)] || 0.001;
+        const thresh = Math.max(0.012, noiseFloor * 2.8);
+        const minSilenceWins = Math.floor(0.35 / 0.015);
+
+        const rawSegs = [];
+        let inSpeech = false;
+        let sWin = 0;
+
+        for (let w = 0; w < nWindows; w++) {
+          const active = energies[w] > thresh;
+          if (!inSpeech && active) {
+            inSpeech = true;
+            sWin = Math.max(0, w - 2);
+          } else if (inSpeech && !active) {
+            let sUntil = w;
+            while (sUntil < nWindows && energies[sUntil] <= thresh) sUntil++;
+            if (sUntil - w >= minSilenceWins || sUntil >= nWindows) {
+              inSpeech = false;
+              const startS = sWin * wSize;
+              const endS = Math.min(numSamples, (w + 2) * wSize);
+              if (endS - startS > sRate * 0.3) {
+                rawSegs.push({ startS, endS });
+              }
+              w = sUntil - 1;
+            }
+          }
+        }
+        if (inSpeech) rawSegs.push({ startS: sWin * wSize, endS: numSamples });
+
+        const segs = rawSegs.slice();
+        while (segs.length > 10) {
+          let minG = Infinity;
+          let minI = 0;
+          for (let i = 0; i < segs.length - 1; i++) {
+            const g = segs[i + 1].startS - segs[i].endS;
+            if (g < minG) { minG = g; minI = i; }
+          }
+          segs[minI].endS = segs[minI + 1].endS;
+          segs.splice(minI + 1, 1);
+        }
+
+        while (segs.length < 10) {
+          let maxL = 0;
+          let maxI = 0;
+          for (let i = 0; i < segs.length; i++) {
+            const l = segs[i].endS - segs[i].startS;
+            if (l > maxL) { maxL = l; maxI = i; }
+          }
+          const targetSeg = segs[maxI];
+          const sWin = Math.floor(targetSeg.startS / wSize);
+          const eWin = Math.floor(targetSeg.endS / wSize);
+          const midStartW = sWin + Math.floor((eWin - sWin) * 0.35);
+          const midEndW = sWin + Math.floor((eWin - sWin) * 0.65);
+
+          let lowestE = Infinity;
+          let splitW = Math.floor((sWin + eWin) / 2);
+          for (let w = midStartW; w <= midEndW; w++) {
+            if (energies[w] < lowestE) {
+              lowestE = energies[w];
+              splitW = w;
+            }
+          }
+          const splitSample = Math.max(targetSeg.startS + wSize * 4, Math.min(targetSeg.endS - wSize * 4, splitW * wSize));
+          segs.splice(maxI, 1,
+            { startS: targetSeg.startS, endS: splitSample },
+            { startS: splitSample, endS: targetSeg.endS }
+          );
+        }
+
+        // Schedule the 10 phrases into their respective scene slots
+        for (let i = 0; i < 10; i++) {
+          const win = SPEECH_WINDOWS[i];
+          const seg = segs[i];
+          const maxSamples = Math.floor((win.end - win.start) * sRate);
+
+          // Trim silence at head and tail of segment
+          let actStart = seg.startS;
+          let actEnd = seg.endS;
+          while (actStart < actEnd && Math.abs(channelData[actStart]) < thresh * 0.4) actStart++;
+          while (actEnd > actStart && Math.abs(channelData[actEnd - 1]) < thresh * 0.4) actEnd--;
+
+          const segLen = actEnd - actStart;
+          if (segLen <= 0) continue;
+
+          // If phrase exceeds slot, use SOLA time-stretching with pitch preservation
+          let phraseData;
+          if (segLen <= maxSamples) {
+            phraseData = channelData.subarray(actStart, actEnd);
+          } else {
+            // SOLA pitch-preserving time compression
+            const speedRatio = segLen / maxSamples;
+            const winSize = Math.floor(sRate * 0.024);
+            const synthHop = Math.floor(winSize / 2);
+            const maxSearch = Math.floor(sRate * 0.014);
+            const outArr = new Float32Array(maxSamples);
+            const initLen = Math.min(winSize, maxSamples, segLen);
+            for (let k = 0; k < initLen; k++) outArr[k] = channelData[actStart + k];
+            let outPos = synthHop;
+
+            while (outPos + winSize <= maxSamples) {
+              const nominalIn = Math.floor(outPos * speedRatio);
+              let bestOffset = Math.max(0, Math.min(segLen - winSize, nominalIn));
+              let bestCorr = -Infinity;
+              const searchMin = Math.max(0, nominalIn - maxSearch);
+              const searchMax = Math.max(0, Math.min(segLen - winSize, nominalIn + maxSearch));
+
+              for (let cand = searchMin; cand <= searchMax; cand += 2) {
+                let corr = 0;
+                for (let j = 0; j < synthHop; j += 4) {
+                  corr += outArr[outPos - synthHop + j] * channelData[actStart + cand + j];
+                }
+                if (corr > bestCorr) {
+                  bestCorr = corr;
+                  bestOffset = cand;
+                }
+              }
+
+              bestOffset = Math.max(0, Math.min(segLen - winSize, bestOffset));
+
+              for (let j = 0; j < synthHop && outPos + j < maxSamples; j++) {
+                const w = j / synthHop;
+                outArr[outPos + j] = outArr[outPos + j] * (1 - w) + channelData[actStart + bestOffset + j] * w;
+              }
+              for (let j = synthHop; j < winSize && outPos + j < maxSamples; j++) {
+                outArr[outPos + j] = channelData[actStart + bestOffset + j];
+              }
+
+              outPos += synthHop;
+              if (bestOffset + winSize >= segLen) break;
+            }
+            phraseData = outArr;
+          }
+
+          const phraseBuffer = offline.createBuffer(1, phraseData.length, sRate);
+          phraseBuffer.copyToChannel(phraseData, 0);
+
+          const srcNode = offline.createBufferSource();
+          srcNode.buffer = phraseBuffer;
+
+          const gainNode = offline.createGain();
+          const effectiveDur = phraseData.length / sRate;
+
+          // Anti-click raised-cosine fades (15ms in, 25ms out)
+          const fadeInSec = Math.min(0.015, effectiveDur * 0.1);
+          const fadeOutSec = Math.min(0.025, effectiveDur * 0.15);
+          gainNode.gain.setValueAtTime(0.001, win.start);
+          gainNode.gain.linearRampToValueAtTime(1.0, win.start + fadeInSec);
+          gainNode.gain.setValueAtTime(1.0, win.start + Math.max(fadeInSec + 0.01, effectiveDur - fadeOutSec));
+          gainNode.gain.linearRampToValueAtTime(0.001, win.start + effectiveDur);
+
+          srcNode.connect(gainNode);
+          gainNode.connect(offline.destination);
+
+          srcNode.start(win.start);
+          srcNode.stop(win.start + effectiveDur + 0.01);
+        }
+
+        return offline.startRendering();
+      })
+      .then(rendered => {
+        if (!rendered) return;
+        const blob = audioBufferToWavBlob(rendered);
+        const blobUrl = URL.createObjectURL(blob);
+        const curTime = voiceAudio.currentTime;
+        const wasPlaying = shouldBePlaying && !voiceAudio.paused;
+
+        const onMeta = () => {
+          voiceAudio.removeEventListener('loadedmetadata', onMeta);
+          try {
+            voiceAudio.currentTime = Math.min(32.0, curTime % 32.0);
+          } catch (_) {}
+          if (wasPlaying && shouldBePlaying) {
+            voiceAudio.play().catch(() => {});
+          }
+        };
+
+        voiceAudio.addEventListener('loadedmetadata', onMeta, { once: true });
+        voiceAudio.src = blobUrl;
+        voiceAudio.load();
+        console.log('[Audio] Studio voiceover dynamically aligned to 32.0s GSAP timeline via Web Audio.');
+      })
+      .catch(err => {
+        console.warn('[Audio] Automatic browser voiceover alignment skipped:', err.message);
+      });
   }
 
   // --- Procedural SFX Generators ---
@@ -456,6 +775,22 @@
     });
   }
 
+
+  // Pre-calculated phrase cues for fallback playback of raw 57.7s unaligned recording
+  // (e.g. file:/// protocol in START_CANVAS.bat where browser CORS policy blocks fetch)
+  const RAW_PHRASE_CUES = [
+    { id: 's1', cueStart: 0.0,  cueEnd: 3.2,  cueDur: 3.2,  slotStart: 0.0,  slotEnd: 3.2 },
+    { id: 's2', cueStart: 4.2,  cueEnd: 9.2,  cueDur: 5.0,  slotStart: 3.2,  slotEnd: 5.6 },
+    { id: 's3', cueStart: 10.2, cueEnd: 15.6, cueDur: 5.4,  slotStart: 5.6,  slotEnd: 8.0 },
+    { id: 's4', cueStart: 16.5, cueEnd: 21.2, cueDur: 4.7,  slotStart: 8.0,  slotEnd: 10.2 },
+    { id: 's5', cueStart: 22.0, cueEnd: 27.0, cueDur: 5.0,  slotStart: 10.2, slotEnd: 13.8 },
+    { id: 's6', cueStart: 27.8, cueEnd: 32.8, cueDur: 5.0,  slotStart: 13.8, slotEnd: 17.4 },
+    { id: 's7', cueStart: 33.6, cueEnd: 38.6, cueDur: 5.0,  slotStart: 17.4, slotEnd: 21.0 },
+    { id: 's8', cueStart: 39.5, cueEnd: 44.5, cueDur: 5.0,  slotStart: 21.0, slotEnd: 24.6 },
+    { id: 's9', cueStart: 45.4, cueEnd: 49.8, cueDur: 4.4,  slotStart: 24.6, slotEnd: 28.2 },
+    { id: 's10',cueStart: 50.8, cueEnd: 57.2, cueDur: 6.4,  slotStart: 28.2, slotEnd: 32.0 },
+  ];
+
   // --- Public API Contract ---
   const TutorSpaceAudio = {
     /**
@@ -472,16 +807,28 @@
 
       const playPromise = bgmAudio.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Autoplay was blocked by browser policy. Do not log error.
-          isAutoplayBlocked = true;
-          setupAutoplayUnlock();
+        playPromise.catch((err) => {
+          if (err && (err.name === 'NotAllowedError' || (err.message && err.message.toLowerCase().includes('autoplay')))) {
+            // Autoplay was blocked by browser policy. Do not log error.
+            isAutoplayBlocked = true;
+            setupAutoplayUnlock();
+          }
         });
       }
 
       if (voiceAudio) {
-        voiceAudio.play().catch(() => {});
+        const voicePromise = voiceAudio.play();
+        if (voicePromise !== undefined) {
+          voicePromise.catch((err) => {
+            if (err && (err.name === 'NotAllowedError' || (err.message && err.message.toLowerCase().includes('autoplay')))) {
+              isAutoplayBlocked = true;
+              setupAutoplayUnlock();
+            }
+          });
+        }
       }
+
+      startDuckingLoop();
     },
 
     /**
@@ -491,12 +838,18 @@
       shouldBePlaying = false;
       if (bgmAudio) bgmAudio.pause();
       if (voiceAudio) voiceAudio.pause();
+      stopDuckingLoop();
     },
 
     /**
      * Rewind background music and voiceover to start and play
      */
     restartBGM() {
+      const now = Date.now();
+      // Guard against rapid duplicate triggers from multiple listeners (Space/KeyR + #btnR)
+      if (now - lastRestartTime < 120) return;
+      lastRestartTime = now;
+
       if (bgmAudio) {
         try {
           bgmAudio.currentTime = 0;
@@ -507,20 +860,104 @@
           voiceAudio.currentTime = 0;
         } catch (_) {}
       }
+      currentDuck = DUCK_FACTOR_SPEECH; // S1 starts immediately with speech
       this.playBGM();
     },
 
     /**
-     * Synchronize BGM playback position to timeline second
+     * Synchronize BGM and voiceover playback position to timeline second
      * @param {number} sec - Current GSAP timeline position in seconds
+     * @param {boolean} [force=false] - Force immediate seek without drift threshold/cooldown
      */
-    syncToTime(sec) {
-      if (!bgmAudio || isNaN(sec)) return;
-      const targetTime = sec % (bgmAudio.duration || 32.0);
-      if (Math.abs(bgmAudio.currentTime - targetTime) > 0.35) {
-        try {
-          bgmAudio.currentTime = targetTime;
-        } catch (_) {}
+    syncToTime(sec, force = false) {
+      if (typeof sec !== 'number' || isNaN(sec)) return;
+      const now = Date.now();
+      const targetTime = Math.max(0, Math.min(32.0, sec % 32.0));
+
+      // Throttle seeking during continuous playback to eliminate audio stutter/jitter
+      if (!force && now - lastSyncTime < 200) return;
+
+      const HARD_SEEK_THRESHOLD = force ? 0.05 : 0.45;
+      const RATE_NUDGE_MIN = 0.12;
+
+      // 1. Sync BGM
+      if (bgmAudio && !bgmAudio.seeking) {
+        const bgmDur = (bgmAudio.duration && !isNaN(bgmAudio.duration) && bgmAudio.duration > 0) ? bgmAudio.duration : 32.0;
+        const bgmTarget = targetTime % bgmDur;
+        const isReady = typeof bgmAudio.readyState === 'undefined' || bgmAudio.readyState >= 2;
+        if (isReady) {
+          const diff = bgmAudio.currentTime - bgmTarget;
+          const absDiff = Math.abs(diff);
+
+          if (absDiff > HARD_SEEK_THRESHOLD) {
+            try {
+              bgmAudio.currentTime = bgmTarget;
+              bgmAudio.playbackRate = 1.0;
+              lastSyncTime = now;
+            } catch (_) {}
+          } else if (!force && absDiff > RATE_NUDGE_MIN) {
+            try {
+              const targetRate = diff < 0 ? 1.025 : 0.975;
+              if (Math.abs(bgmAudio.playbackRate - targetRate) > 0.01) {
+                bgmAudio.playbackRate = targetRate;
+              }
+            } catch (_) {}
+          } else if (bgmAudio.playbackRate !== 1.0) {
+            try {
+              bgmAudio.playbackRate = 1.0;
+            } catch (_) {}
+          }
+        }
+      }
+
+      // 2. Sync Voiceover
+      if (voiceAudio && !voiceAudio.seeking) {
+        const isReady = typeof voiceAudio.readyState === 'undefined' || voiceAudio.readyState >= 2;
+        if (isReady) {
+          const isMasterAligned = !voiceAudio.duration || isNaN(voiceAudio.duration) || Math.abs(voiceAudio.duration - 32.0) <= 1.5;
+
+          let voiceTarget = targetTime;
+          let naturalSpeed = 1.0;
+
+          if (!isMasterAligned && voiceAudio.duration > 33.0) {
+            // Unaligned raw recording fallback (e.g. file:/// in START_CANVAS.bat)
+            const cue = RAW_PHRASE_CUES.find(c => targetTime >= c.slotStart && targetTime < c.slotEnd) || RAW_PHRASE_CUES[0];
+            const dt = targetTime - cue.slotStart;
+            const slotDur = cue.slotEnd - cue.slotStart;
+            const speechDur = Math.max(0.1, slotDur - 0.35); // 350ms breathing window
+
+            if (dt < speechDur) {
+              voiceTarget = cue.cueStart + (dt / speechDur) * cue.cueDur;
+              naturalSpeed = Math.min(1.25, cue.cueDur / speechDur);
+            } else {
+              voiceTarget = cue.cueEnd;
+              naturalSpeed = 1.0;
+            }
+          }
+
+          const diff = voiceAudio.currentTime - voiceTarget;
+          const absDiff = Math.abs(diff);
+
+          if (absDiff > HARD_SEEK_THRESHOLD) {
+            try {
+              voiceAudio.currentTime = voiceTarget;
+              voiceAudio.playbackRate = naturalSpeed;
+              lastSyncTime = now;
+            } catch (_) {}
+          } else if (!force && absDiff > RATE_NUDGE_MIN) {
+            try {
+              const nudge = diff < 0 ? 1.025 : 0.975;
+              const targetRate = naturalSpeed * nudge;
+              if (Math.abs(voiceAudio.playbackRate - targetRate) > 0.01) {
+                voiceAudio.playbackRate = targetRate;
+              }
+            } catch (_) {}
+          } else if (Math.abs(voiceAudio.playbackRate - naturalSpeed) > 0.01) {
+            try {
+              voiceAudio.playbackRate = naturalSpeed;
+            } catch (_) {}
+          }
+        }
       }
     },
 
@@ -572,19 +1009,23 @@
      * Master volume controls
      */
     setMasterVolume(val) {
+      if (typeof val !== 'number' || isNaN(val)) return;
       masterVolume = Math.max(0, Math.min(1, val));
-      if (bgmAudio) bgmAudio.volume = isMuted ? 0 : masterVolume * bgmVolume;
+      if (bgmAudio) bgmAudio.volume = isMuted ? 0 : masterVolume * bgmVolume * currentDuck;
       if (voiceAudio) voiceAudio.volume = isMuted ? 0 : masterVolume * voiceVolume;
     },
     setBgmVolume(val) {
+      if (typeof val !== 'number' || isNaN(val)) return;
       bgmVolume = Math.max(0, Math.min(1, val));
-      if (bgmAudio) bgmAudio.volume = isMuted ? 0 : masterVolume * bgmVolume;
+      if (bgmAudio) bgmAudio.volume = isMuted ? 0 : masterVolume * bgmVolume * currentDuck;
     },
     setVoiceVolume(val) {
+      if (typeof val !== 'number' || isNaN(val)) return;
       voiceVolume = Math.max(0, Math.min(1, val));
       if (voiceAudio) voiceAudio.volume = isMuted ? 0 : masterVolume * voiceVolume;
     },
     setSfxVolume(val) {
+      if (typeof val !== 'number' || isNaN(val)) return;
       sfxVolume = Math.max(0, Math.min(1, val));
     },
 
@@ -593,15 +1034,32 @@
      */
     mute() {
       isMuted = true;
-      if (bgmAudio) bgmAudio.volume = 0;
-      if (voiceAudio) voiceAudio.volume = 0;
+      if (bgmAudio) {
+        bgmAudio.muted = true;
+        bgmAudio.volume = 0;
+      }
+      if (voiceAudio) {
+        voiceAudio.muted = true;
+        voiceAudio.volume = 0;
+      }
     },
     unmute() {
       isMuted = false;
-      if (bgmAudio) bgmAudio.volume = masterVolume * bgmVolume;
-      if (voiceAudio) voiceAudio.volume = masterVolume * voiceVolume;
+      if (bgmAudio) {
+        bgmAudio.muted = false;
+        bgmAudio.volume = Math.max(0, Math.min(1, masterVolume * bgmVolume * currentDuck));
+      }
+      if (voiceAudio) {
+        voiceAudio.muted = false;
+        voiceAudio.volume = Math.max(0, Math.min(1, masterVolume * voiceVolume));
+      }
     },
     toggleMute() {
+      const now = Date.now();
+      // Guard against rapid duplicate keystrokes or dual listeners (motion.js + audio.js)
+      if (now - lastMuteToggleTime < 150) return isMuted;
+      lastMuteToggleTime = now;
+
       if (isMuted) this.unmute();
       else this.mute();
       return isMuted;
@@ -615,11 +1073,15 @@
         isMuted,
         masterVolume,
         bgmVolume,
+        voiceVolume,
         sfxVolume,
+        duckFactor: currentDuck,
+        isSpeaking: isVoiceSpeaking(),
         shouldBePlaying,
         isAutoplayBlocked,
         isProceduralBgmActive,
         currentTime: bgmAudio ? bgmAudio.currentTime : 0,
+        voiceTime: voiceAudio ? voiceAudio.currentTime : 0,
         duration: bgmAudio ? bgmAudio.duration : 32.0,
       };
     },
@@ -636,16 +1098,34 @@
     const btnR = document.getElementById('btnR');
     if (btnR) {
       btnR.addEventListener('click', () => {
-        TutorSpaceAudio.restartBGM();
+        if (!window._tutorSpaceMotionLoaded) {
+          TutorSpaceAudio.restartBGM();
+        }
       });
     }
 
     window.addEventListener('keydown', (e) => {
+      if (window._tutorSpaceMotionLoaded) return;
       if (e.code === 'Space' || e.code === 'KeyR') {
         TutorSpaceAudio.restartBGM();
       }
       if (e.code === 'KeyM') {
         TutorSpaceAudio.toggleMute();
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && shouldBePlaying) {
+        const ctx = getAudioContext();
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+        if (bgmAudio && bgmAudio.paused) {
+          bgmAudio.play().catch(() => {});
+        }
+        if (voiceAudio && voiceAudio.paused) {
+          voiceAudio.play().catch(() => {});
+        }
       }
     });
   }
